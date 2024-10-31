@@ -11,8 +11,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
 
+    <!-- Initialize Firebase -->
     <script>
-        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCEIIp_7mw1lEJi2ySy8rbYI9zIGz1d2d8",
             authDomain: "nflpool-71337.firebaseapp.com",
@@ -23,10 +23,7 @@
             appId: "1:2003523098:web:713a9905761dabae7863a3",
             measurementId: "G-1EBF3DPND1"
         };
-
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
-        console.log("Firebase initialized"); // Check if Firebase initializes correctly
     </script>
 </head>
 <body>
@@ -35,7 +32,7 @@
     <!-- Login Section -->
     <section id="loginSection">
         <div class="login-container">
-            <h2>Login V6</h2>
+            <h2>Login V5.8</h2>
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <label for="loginEmail">Email:</label>
                 <input type="email" id="loginEmail" required>
