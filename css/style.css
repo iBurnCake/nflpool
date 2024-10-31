@@ -98,7 +98,7 @@ button:hover {
 #resetButton {
     position: fixed;
     top: 20px;
-    right: 100px; /* Adjusted to make space for submit button */
+    right: 120px; /* Adjusted to add more space */
     padding: 6px 12px;
     font-size: 12px;
     background-color: #FF0000;
@@ -136,6 +136,7 @@ button:hover {
     font-weight: bold;
     transition: background-color 0.3s, transform 0.2s;
     z-index: 1000;
+    margin-left: 10px; /* Added margin to separate from reset button */
 }
 
 #submitButton:hover {
@@ -147,6 +148,7 @@ button:hover {
     background-color: #1e7e34;
     transform: translateY(0);
 }
+
 
 /* Games and Leaderboard Sections */
 section {
