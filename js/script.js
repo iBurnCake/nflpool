@@ -210,3 +210,12 @@ function displayUserPicks(picks) {
 
     games.forEach((_, i) => updateConfidenceDropdown(i));
 }
+
+window.submitPicks = function () {
+    // Temporarily comment out these lines
+    // isLocked = true;
+    // disableAllSelections();
+    
+    saveUserPicks(auth.currentUser.uid); // Save picks without locking
+    alert("Picks saved! Locking is temporarily disabled.");
+};
