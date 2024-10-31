@@ -131,12 +131,14 @@ th {
     color: #FFFFFF;
 }
 
-/* Reset Button Styling */
+/* Reset Button Styling - Top Right Position */
 #resetButton {
-    margin-top: 20px;
-    padding: 12px;
-    font-size: 16px;
-    background-color: #FF6347; /* Tomato color */
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 10px 16px;
+    font-size: 14px;
+    background-color: #FF0000; /* Bright red */
     color: #FFFFFF;
     border: none;
     border-radius: 4px;
@@ -146,12 +148,11 @@ th {
 }
 
 #resetButton:hover {
-    background-color: #FF4500; /* Darker tomato color on hover */
+    background-color: #CC0000; /* Darker red on hover */
     transform: translateY(-2px);
 }
 
 #resetButton:active {
-    background-color: #D13C1D; /* Even darker color when active */
+    background-color: #A00000; /* Even darker red when active */
     transform: translateY(0);
 }
-
