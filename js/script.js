@@ -1,7 +1,6 @@
-// Set admin email
-const adminEmail = "luke.romano2004@gmail.com";
+import { auth, db, signInWithEmailAndPassword, ref, set, get, child } from './firebaseConfig.js';
 
-// Game data for Week 9
+// Fixed game data for Week 9
 const games = [
     { homeTeam: 'Texans', awayTeam: 'Jets', homeRecord: '6-2', awayRecord: '2-6' },
     { homeTeam: 'Saints', awayTeam: 'Panthers', homeRecord: '2-6', awayRecord: '1-7' },
@@ -17,33 +16,14 @@ const games = [
     { homeTeam: 'Rams', awayTeam: 'Seahawks', homeRecord: '3-4', awayRecord: '4-4' },
     { homeTeam: 'Lions', awayTeam: 'Packers', homeRecord: '6-1', awayRecord: '6-2' },
     { homeTeam: 'Colts', awayTeam: 'Vikings', homeRecord: '4-4', awayRecord: '5-2' },
-    { homeTeam: 'Buccaneers', awayTeam: 'Chiefs', homeRecord: '4-4', awayRecord: '7-0' }
+    { homeTeam: 'Buccaneers', awayTeam: 'Chiefs', homeRecord: '4-4', awayRecord: '7-0' },
 ];
 
-// User-related variables
+// Track user picks and assigned points
 let userPicks = {};
 let usedPoints = new Set();
-let loggedInUser = null;
 
-// Save picks to Firebase
-function savePicksToDatabase() {
-    if (loggedInUser) {
-        firebase.database().ref(`picks/${loggedInUser.uid}`).set(userPicks);
-    }
-}
-
-// Load picks from Firebase
-function loadPicksFromDatabase() {
-    if (loggedInUser) {
-        firebase.database().ref(`picks/${loggedInUser.uid}`).once('value').then(snapshot => {
-            userPicks = snapshot.val() || {};
-            usedPoints = new Set(Object.values(userPicks).map(pick => pick.points).filter(Boolean));
-            displayGames();
-        });
-    }
-}
-
-// Display games and saved picks
+// Function to display games in the table
 function displayGames() {
     const tableBody = document.getElementById('gamesTable').getElementsByTagName('tbody')[0];
     tableBody.innerHTML = ''; // Clear existing rows
@@ -53,111 +33,91 @@ function displayGames() {
         row.innerHTML = `
             <td>${game.homeTeam} (${game.homeRecord}) vs ${game.awayTeam} (${game.awayRecord})</td>
             <td>
-                <button id="homeTeam${index}" onclick="selectPick(${index}, 'home')">${game.homeTeam}</button>
-                <button id="awayTeam${index}" onclick="selectPick(${index}, 'away')">${game.awayTeam}</button>
+                <button onclick="selectPick(${index}, 'home')">${game.homeTeam}</button>
+                <button onclick="selectPick(${index}, 'away')">${game.awayTeam}</button>
             </td>
             <td>
-                <select id="confidence${index}" onchange="assignConfidence(${index})">
-                    <option value="" disabled selected>Select Points</option>
-                    ${getAvailableOptions(index)}
-                </select>
+                <input type="number" id="confidence${index}" min="1" max="16" onchange="assignConfidence(${index})" required>
             </td>
         `;
-
-        if (userPicks[index]) {
-            const selectedButtonId = userPicks[index].team === 'home' ? `homeTeam${index}` : `awayTeam${index}`;
-            document.getElementById(selectedButtonId).classList.add('selected');
-            document.getElementById(`confidence${index}`).value = userPicks[index].points;
-        }
     });
 }
 
-// Generate options for the confidence dropdown
-function getAvailableOptions(gameIndex) {
-    const options = [];
-    for (let i = 1; i <= 15; i++) {
-        if (!usedPoints.has(i) || (userPicks[gameIndex] && userPicks[gameIndex].points === i)) {
-            options.push(`<option value="${i}">${i}</option>`);
-        }
-    }
-    return options.join('');
-}
-
-// Select team for a game
-function selectPick(gameIndex, team) {
-    const buttons = document.querySelectorAll(`#gamesTable tr:nth-child(${gameIndex + 1}) button`);
-    buttons.forEach(button => button.classList.remove("selected"));
-
-    const selectedButton = team === 'home' ? buttons[0] : buttons[1];
-    selectedButton.classList.add("selected");
-
-    userPicks[gameIndex] = { team, points: userPicks[gameIndex] ? userPicks[gameIndex].points : null };
-    savePicksToDatabase();
-}
+// Handle selection of a team
+window.selectPick = function (gameIndex, team) {
+    userPicks[gameIndex] = { team, points: null };
+    alert(`You selected ${team} for game ${gameIndex + 1}`);
+};
 
 // Assign confidence points
-function assignConfidence(gameIndex) {
+window.assignConfidence = function (gameIndex) {
     const confidenceInput = document.getElementById(`confidence${gameIndex}`);
-    const newPoints = parseInt(confidenceInput.value);
+    const points = parseInt(confidenceInput.value);
 
-    if (userPicks[gameIndex] && userPicks[gameIndex].points !== null) {
-        usedPoints.delete(userPicks[gameIndex].points);
-    }
-
-    if (newPoints >= 1 && newPoints <= 15) {
-        usedPoints.add(newPoints);
-        userPicks[gameIndex].points = newPoints;
-        savePicksToDatabase();
+    if (usedPoints.has(points)) {
+        alert("This confidence point is already used. Choose a different one.");
+        confidenceInput.value = ''; // Clear duplicate entry
+    } else if (points >= 1 && points <= 16) {
+        usedPoints.add(points);
+        userPicks[gameIndex].points = points;
+        alert(`Assigned ${points} points to game ${gameIndex + 1}`);
     } else {
-        confidenceInput.value = '';
+        alert("Please enter a value between 1 and 16.");
     }
-    displayGames();
-}
+};
 
-// Handle login form submission
-document.getElementById("loginForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const email = document.getElementById("loginEmail").value;
-    const password = document.getElementById("loginPassword").value;
+// Handle login with Firebase
+window.handleLogin = function (event) {
+    event.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
 
-    firebase.auth().signInWithEmailAndPassword(email, password)
+    signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
-            loggedInUser = userCredential.user;
-            loadPicksFromDatabase();
-            document.getElementById("usernameDisplay").textContent = email;
-            document.getElementById("loginSection").style.display = "none";
-            document.getElementById("userHomeSection").style.display = "block";
-
-            if (email === adminEmail) {
-                document.getElementById("adminSection").style.display = "block";
-            }
+            const user = userCredential.user;
+            document.getElementById('usernameDisplay').textContent = user.email;
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('userHomeSection').style.display = 'block';
             displayGames();
+            loadUserPicks(user.uid);
         })
         .catch((error) => {
-            console.error("Error during login:", error);
+            console.error("Login error:", error);
             alert("Invalid email or password.");
         });
-});
+};
 
-// Function to reset picks for all users (admin only)
-function resetPicks() {
-    if (loggedInUser && loggedInUser.email === adminEmail) {
-        firebase.database().ref('picks').remove()
-            .then(() => {
-                alert("All users' picks have been reset!");
-                userPicks = {};
-                usedPoints.clear();
-                displayGames();
-            })
-            .catch((error) => {
-                console.error("Error resetting picks:", error);
-            });
-    } else {
-        alert("Only the admin can reset all users' picks.");
+// Save picks to Firebase
+function saveUserPicks(userId) {
+    set(ref(db, `scoreboards/week9/${userId}`), userPicks)
+        .then(() => {
+            alert("Picks saved successfully!");
+        })
+        .catch((error) => {
+            console.error("Error saving picks:", error);
+        });
 }
 
-// Clear session storage on page load to force re-login on refresh
-window.onload = function () {
-    firebase.auth().signOut();
-};
+// Load user picks from Firebase
+function loadUserPicks(userId) {
+    get(child(ref(db), `scoreboards/week9/${userId}`))
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                userPicks = snapshot.val();
+                displayUserPicks(userPicks);
+            } else {
+                console.log("No picks available for this user.");
+            }
+        })
+        .catch((error) => {
+            console.error("Error loading picks:", error);
+        });
+}
+
+// Display user picks
+function displayUserPicks(picks) {
+    for (const gameIndex in picks) {
+        const pick = picks[gameIndex];
+        document.getElementById(`confidence${gameIndex}`).value = pick.points;
+    }
 }
