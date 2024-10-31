@@ -98,7 +98,7 @@ button:hover {
 #resetButton {
     position: fixed;
     top: 20px;
-    right: 120px; /* Adjusted to add more space */
+    right: 160px; /* Adjusted to add more space */
     padding: 6px 12px;
     font-size: 12px;
     background-color: #FF0000;
