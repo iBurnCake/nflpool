@@ -205,3 +205,30 @@ th {
     font-size: 14px;
     display: inline-block;
 }
+
+#lockedPicksContainer {
+    max-width: 1000px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #282828;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+#lockedPicksTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#lockedPicksTable th,
+#lockedPicksTable td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    color: #FFD700;
+    text-align: center;
+}
+
+#lockedPicksTable th {
+    background-color: #444;
+    font-weight: bold;
+}
