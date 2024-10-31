@@ -69,6 +69,7 @@ function displayGames() {
             </td>
             <td>
                 <select id="confidence${index}" onchange="assignConfidence(${index})" required></select>
+                <span id="confidenceDisplay${index}" class="confidence-display"></span>
             </td>
         `;
         updateConfidenceDropdown(index); // Populate dropdown with available points
@@ -114,6 +115,7 @@ window.selectPick = function (gameIndex, team) {
 window.assignConfidence = function (gameIndex) {
     const confidenceSelect = document.getElementById(`confidence${gameIndex}`);
     const points = parseInt(confidenceSelect.value);
+    const confidenceDisplay = document.getElementById(`confidenceDisplay${gameIndex}`);
 
     // Check if a previous confidence point was assigned for this game and remove it
     if (userPicks[gameIndex]?.points) {
@@ -127,6 +129,9 @@ window.assignConfidence = function (gameIndex) {
         userPicks[gameIndex].points = points;
         usedPoints.add(points);
 
+        // Display the selected confidence point next to the dropdown
+        confidenceDisplay.textContent = points;
+
         // Save picks to Firebase
         saveUserPicks(auth.currentUser.uid);
 
@@ -134,6 +139,7 @@ window.assignConfidence = function (gameIndex) {
         games.forEach((_, i) => updateConfidenceDropdown(i));
     } else {
         confidenceSelect.value = ""; // Clear the selection if point is already used
+        confidenceDisplay.textContent = ""; // Clear display if invalid
     }
 };
 
@@ -189,6 +195,7 @@ function displayUserPicks(picks) {
         if (pick.points) {
             usedPoints.add(pick.points);
             document.getElementById(`confidence${gameIndex}`).value = pick.points;
+            document.getElementById(`confidenceDisplay${gameIndex}`).textContent = pick.points; // Display confidence
         }
     }
 
