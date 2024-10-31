@@ -64,7 +64,7 @@ function displayGames() {
             <td>
                 <select id="confidence${index}" onchange="assignConfidence(${index})">
                     <option value="" disabled selected>Select Points</option>
-                    ${Array.from({ length: 15 }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('')}
+                    ${getAvailableOptions(index)}
                 </select>
             </td>
         `;
@@ -78,8 +78,20 @@ function displayGames() {
             document.getElementById(`confidence${index}`).value = userPicks[index].points;
         }
     });
-    updateDropdownOptions();
 }
+
+// Function to generate options for the confidence dropdown, excluding already used points
+function getAvailableOptions(gameIndex) {
+    const options = [];
+    for (let i = 1; i <= 15; i++) {
+        // Add option only if the point is not in usedPoints or is the currently assigned point for this game
+        if (!usedPoints.has(i) || (userPicks[gameIndex] && userPicks[gameIndex].points === i)) {
+            options.push(`<option value="${i}">${i}</option>`);
+        }
+    }
+    return options.join('');
+}
+
 
 // Update all dropdowns to reflect used points
 function updateDropdownOptions() {
@@ -112,23 +124,26 @@ function selectPick(gameIndex, team) {
     savePicks();
 }
 
-// Assign confidence points
+// Assign confidence points and update the dropdown options
 function assignConfidence(gameIndex) {
     const confidenceInput = document.getElementById(`confidence${gameIndex}`);
     const points = parseInt(confidenceInput.value);
 
-    if (userPicks[gameIndex] && userPicks[gameIndex].points) {
+    // Remove previously assigned points if any
+    if (userPicks[gameIndex] && userPicks[gameIndex].points !== null) {
         usedPoints.delete(userPicks[gameIndex].points);
     }
 
-    if (points >= 1 && points <= 15 && !usedPoints.has(points)) {
-        userPicks[gameIndex].points = points;
+    if (points >= 1 && points <= 15) {
         usedPoints.add(points);
-        savePicks();
-        updateDropdownOptions();
+        userPicks[gameIndex].points = points;
+        savePicks(); // Save picks to persist points
     } else {
-        confidenceInput.value = '';
+        confidenceInput.value = ''; // Clear invalid entry
     }
+
+    // Update all dropdowns to remove the used points dynamically
+    displayGames();
 }
 
 // Login function
