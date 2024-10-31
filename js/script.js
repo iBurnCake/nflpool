@@ -20,11 +20,9 @@ const games = [
     { homeTeam: 'Buccaneers', awayTeam: 'Chiefs', homeRecord: '4-4', awayRecord: '7-0' }
 ];
 
-// Track user picks and assigned points
 let userPicks = {};
 let usedPoints = new Set();
 
-// Ensure the DOM is loaded before adding event listeners
 document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("loginForm");
     if (loginForm) {
@@ -70,7 +68,10 @@ function displayGames() {
                 <button id="away-${index}" onclick="selectPick(${index}, 'away')">${game.awayTeam}</button>
             </td>
             <td>
-                <input type="number" id="confidence${index}" min="1" max="16" onchange="assignConfidence(${index})" required>
+                <select id="confidence${index}" onchange="assignConfidence(${index})" required>
+                    <option value="">Select</option>
+                    ${Array.from({ length: 15 }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('')}
+                </select>
             </td>
         `;
     });
@@ -98,20 +99,17 @@ window.selectPick = function (gameIndex, team) {
 
 // Assign confidence points
 window.assignConfidence = function (gameIndex) {
-    const confidenceInput = document.getElementById(`confidence${gameIndex}`);
-    const points = parseInt(confidenceInput.value);
+    const confidenceSelect = document.getElementById(`confidence${gameIndex}`);
+    const points = parseInt(confidenceSelect.value);
 
     if (usedPoints.has(points)) {
         alert("This confidence point is already used. Choose a different one.");
-        confidenceInput.value = ''; // Clear duplicate entry
-    } else if (points >= 1 && points <= 16) {
+        confidenceSelect.value = ''; // Clear duplicate entry
+    } else if (points >= 1 && points <= 15) {
         usedPoints.add(points);
         userPicks[gameIndex] = userPicks[gameIndex] || {};
         userPicks[gameIndex].points = points;
         saveUserPicks(auth.currentUser.uid);
-        alert(`Assigned ${points} points to game ${gameIndex + 1}`);
-    } else {
-        alert("Please enter a value between 1 and 16.");
     }
 };
 
@@ -154,7 +152,7 @@ function displayUserPicks(picks) {
             document.getElementById(`away-${gameIndex}`).classList.add("selected");
         }
 
-        // Set confidence points in input field
+        // Set confidence points in dropdown
         if (pick.points) {
             document.getElementById(`confidence${gameIndex}`).value = pick.points;
             usedPoints.add(pick.points); // Track used points
