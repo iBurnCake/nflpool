@@ -201,3 +201,19 @@ function displayUserPicks(picks) {
     // Refresh dropdowns to reflect used points
     games.forEach((_, i) => updateConfidenceDropdown(i));
 }
+
+// Function to lock the user's picks
+window.submitPicks = function () {
+    // Disable all dropdowns and team buttons
+    games.forEach((_, index) => {
+        document.getElementById(`confidence${index}`).disabled = true;
+        document.getElementById(`home-${index}`).disabled = true;
+        document.getElementById(`away-${index}`).disabled = true;
+    });
+
+    // Disable the submit button after picks are locked
+    document.getElementById('submitButton').disabled = true;
+
+    // Optionally, save the locked state to Firebase or display a confirmation message
+    alert("Your picks have been submitted and are now locked!");
+};
