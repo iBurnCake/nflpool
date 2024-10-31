@@ -124,3 +124,10 @@ th {
     background-color: #444;
     font-weight: bold;
 }
+
+/* Highlight selected team */
+.selected {
+    background-color: #28a745; /* Green */
+    color: #FFFFFF;
+}
+

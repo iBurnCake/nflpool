@@ -26,7 +26,6 @@ let usedPoints = new Set();
 
 // Ensure the DOM is loaded before adding event listeners
 document.addEventListener("DOMContentLoaded", () => {
-    // Attach event listener to the login form
     const loginForm = document.getElementById("loginForm");
     if (loginForm) {
         loginForm.addEventListener("submit", handleLogin);
@@ -42,12 +41,9 @@ function handleLogin(event) {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
-    console.log("Attempting to log in with email:", email);
-
     signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
             const user = userCredential.user;
-            console.log("Login successful:", user);
             document.getElementById('usernameDisplay').textContent = user.email;
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('userHomeSection').style.display = 'block';
@@ -70,8 +66,8 @@ function displayGames() {
         row.innerHTML = `
             <td>${game.homeTeam} (${game.homeRecord}) vs ${game.awayTeam} (${game.awayRecord})</td>
             <td>
-                <button onclick="selectPick(${index}, 'home')">${game.homeTeam}</button>
-                <button onclick="selectPick(${index}, 'away')">${game.awayTeam}</button>
+                <button id="home-${index}" onclick="selectPick(${index}, 'home')">${game.homeTeam}</button>
+                <button id="away-${index}" onclick="selectPick(${index}, 'away')">${game.awayTeam}</button>
             </td>
             <td>
                 <input type="number" id="confidence${index}" min="1" max="16" onchange="assignConfidence(${index})" required>
@@ -80,7 +76,57 @@ function displayGames() {
     });
 }
 
-// Load user picks from Firebase
+// Handle selection of a team
+window.selectPick = function (gameIndex, team) {
+    userPicks[gameIndex] = userPicks[gameIndex] || {};
+    userPicks[gameIndex].team = team;
+
+    // Highlight selected team and remove highlight from the other
+    const homeButton = document.getElementById(`home-${gameIndex}`);
+    const awayButton = document.getElementById(`away-${gameIndex}`);
+    if (team === 'home') {
+        homeButton.classList.add("selected");
+        awayButton.classList.remove("selected");
+    } else {
+        awayButton.classList.add("selected");
+        homeButton.classList.remove("selected");
+    }
+
+    // Save picks to Firebase
+    saveUserPicks(auth.currentUser.uid);
+};
+
+// Assign confidence points
+window.assignConfidence = function (gameIndex) {
+    const confidenceInput = document.getElementById(`confidence${gameIndex}`);
+    const points = parseInt(confidenceInput.value);
+
+    if (usedPoints.has(points)) {
+        alert("This confidence point is already used. Choose a different one.");
+        confidenceInput.value = ''; // Clear duplicate entry
+    } else if (points >= 1 && points <= 16) {
+        usedPoints.add(points);
+        userPicks[gameIndex] = userPicks[gameIndex] || {};
+        userPicks[gameIndex].points = points;
+        saveUserPicks(auth.currentUser.uid);
+        alert(`Assigned ${points} points to game ${gameIndex + 1}`);
+    } else {
+        alert("Please enter a value between 1 and 16.");
+    }
+};
+
+// Save user picks to Firebase
+function saveUserPicks(userId) {
+    set(ref(db, `scoreboards/week9/${userId}`), userPicks)
+        .then(() => {
+            console.log("Picks saved successfully!");
+        })
+        .catch((error) => {
+            console.error("Error saving picks:", error);
+        });
+}
+
+// Load user picks from Firebase and apply highlights
 function loadUserPicks(userId) {
     get(child(ref(db), `scoreboards/week9/${userId}`))
         .then((snapshot) => {
@@ -96,32 +142,22 @@ function loadUserPicks(userId) {
         });
 }
 
-// Display user picks
+// Display saved picks and highlight selections
 function displayUserPicks(picks) {
     for (const gameIndex in picks) {
         const pick = picks[gameIndex];
-        document.getElementById(`confidence${gameIndex}`).value = pick.points;
+
+        // Highlight selected team button
+        if (pick.team === 'home') {
+            document.getElementById(`home-${gameIndex}`).classList.add("selected");
+        } else if (pick.team === 'away') {
+            document.getElementById(`away-${gameIndex}`).classList.add("selected");
+        }
+
+        // Set confidence points in input field
+        if (pick.points) {
+            document.getElementById(`confidence${gameIndex}`).value = pick.points;
+            usedPoints.add(pick.points); // Track used points
+        }
     }
 }
-
-// Export global functions for button interactions
-window.selectPick = function (gameIndex, team) {
-    userPicks[gameIndex] = { team, points: null };
-    alert(`You selected ${team} for game ${gameIndex + 1}`);
-};
-
-window.assignConfidence = function (gameIndex) {
-    const confidenceInput = document.getElementById(`confidence${gameIndex}`);
-    const points = parseInt(confidenceInput.value);
-
-    if (usedPoints.has(points)) {
-        alert("This confidence point is already used. Choose a different one.");
-        confidenceInput.value = ''; // Clear duplicate entry
-    } else if (points >= 1 && points <= 16) {
-        usedPoints.add(points);
-        userPicks[gameIndex].points = points;
-        alert(`Assigned ${points} points to game ${gameIndex + 1}`);
-    } else {
-        alert("Please enter a value between 1 and 16.");
-    }
-};
