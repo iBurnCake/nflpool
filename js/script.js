@@ -34,13 +34,15 @@ const adminUsername = "LukeRomano";
 
 // Function to save picks and points to localStorage
 function savePicks() {
-    localStorage.setItem(loggedInUser + "_picks", JSON.stringify(userPicks));
+    if (loggedInUser) {
+        localStorage.setItem(loggedInUser + "_picks", JSON.stringify(userPicks));
+    }
 }
 
-//Function to load saved picks from localStorage
+// Function to load saved picks from localStorage
 function loadPicks() {
-    const savedPicks = JSON.parse(localStorage.getItem(loggedInUser + "_picks"));
-    if (savedPicks) {
+    if (loggedInUser) {
+        const savedPicks = JSON.parse(localStorage.getItem(loggedInUser + "_picks") || "{}");
         userPicks = savedPicks;
         usedPoints = new Set(Object.values(userPicks).map(pick => pick.points));
     }
@@ -76,55 +78,18 @@ function displayGames() {
     });
 }
 
-// Function to reset all picks
-function resetPicks() {
-    userPicks = {};
-    usedPoints.clear();
-    alert("All Picks have been reset!");
-    displayGames();
-}
-
 // Handle selection of a team
 function selectPick(gameIndex, team) {
-    // Remove the selected class from both buttons in case the user changes the pick
     const buttons = document.querySelectorAll(`#gamesTable tr:nth-child(${gameIndex + 1}) button`);
     buttons.forEach(button => button.classList.remove("selected"));
     
-    // Add the selected class to the chosen button
     const selectedButton = team === 'home' ? buttons[0] : buttons[1];
     selectedButton.classList.add("selected");
 
-    // Save the selected pick
-    userPicks[gameIndex] = { team, points: null };
+    userPicks[gameIndex] = { team, points: userPicks[gameIndex]?.points || null };
+    savePicks();
     alert(`You selected ${team} for game ${gameIndex + 1}`);
-    
-    // Store the picks in localStorage to persist them across sessions
-    sessionStorage.setItem("userPicks", JSON.stringify(userPicks));
 }
-
-// Call this function on page load to reapply selected classes for saved picks
-function applySavedPicks() {
-    const savedPicks = JSON.parse(sessionStorage.getItem("userPicks") || "{}");
-    userPicks = savedPicks;
-
-    Object.keys(savedPicks).forEach(gameIndex => {
-        const pick = savedPicks[gameIndex];
-        const buttons = document.querySelectorAll(`#gamesTable tr:nth-child(${+gameIndex + 1}) button`);
-        
-        // Add selected class to saved pick button
-        const selectedButton = pick.team === 'home' ? buttons[0] : buttons[1];
-        selectedButton.classList.add("selected");
-
-        // If points were assigned, display them
-        if (pick.points !== null) {
-            const confidenceInput = document.getElementById(`confidence${gameIndex}`);
-            confidenceInput.value = pick.points;
-        }
-    });
-}
-
-// Call applySavedPicks on page load or after login to restore saved picks
-applySavedPicks();
 
 // Assign confidence points
 function assignConfidence(gameIndex) {
@@ -136,11 +101,11 @@ function assignConfidence(gameIndex) {
         confidenceInput.value = ''; // Clear duplicate entry
     } else if (points >= 1 && points <= 15) {
         usedPoints.add(points);
-        userPicks[gameIndex].points = points;
+        userPicks[gameIndex] = { ...userPicks[gameIndex], points };
         savePicks();
         alert(`Assigned ${points} points to game ${gameIndex + 1}`);
     } else {
-        alert("Please enter a value between 1 and 16.");
+        alert("Please enter a value between 1 and 15.");
     }
 }
 
@@ -148,13 +113,12 @@ function assignConfidence(gameIndex) {
 function login(username, password) {
     if (userProfiles[username] === password) {
         loggedInUser = username;
-        loadPicks(); 
         sessionStorage.setItem("loggedInUser", username);
+        loadPicks(); 
         document.getElementById('usernameDisplay').textContent = username;
         document.getElementById('loginSection').style.display = 'none';
         document.getElementById('userHomeSection').style.display = 'block';
 
-        // Check if loggin-in user is the admin
         if (username === adminUsername) {
             document.getElementById('adminSection').style.display = 'block';
         }
@@ -175,3 +139,8 @@ function handleLogin(event) {
 
 // Set up form to trigger handleLogin on submission
 document.querySelector("form").onsubmit = handleLogin;
+
+// Clear sessionStorage on page load to force re-login on refresh
+window.onload = function () {
+    sessionStorage.removeItem("loggedInUser");
+};
