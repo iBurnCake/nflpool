@@ -80,15 +80,17 @@ function displayGames() {
 
 // Handle selection of a team
 function selectPick(gameIndex, team) {
+    // Remove the selected class from both buttons in case the user changes the pick
     const buttons = document.querySelectorAll(`#gamesTable tr:nth-child(${gameIndex + 1}) button`);
     buttons.forEach(button => button.classList.remove("selected"));
     
+    // Add the selected class to the chosen button
     const selectedButton = team === 'home' ? buttons[0] : buttons[1];
     selectedButton.classList.add("selected");
 
-    userPicks[gameIndex] = { team, points: userPicks[gameIndex]?.points || null };
-    savePicks();
-    alert(`You selected ${team} for game ${gameIndex + 1}`);
+    // Save the selected pick
+    userPicks[gameIndex] = { team, points: null };
+    savePicks(); // Save picks to persist selections
 }
 
 // Assign confidence points
@@ -101,13 +103,13 @@ function assignConfidence(gameIndex) {
         confidenceInput.value = ''; // Clear duplicate entry
     } else if (points >= 1 && points <= 15) {
         usedPoints.add(points);
-        userPicks[gameIndex] = { ...userPicks[gameIndex], points };
-        savePicks();
-        alert(`Assigned ${points} points to game ${gameIndex + 1}`);
+        userPicks[gameIndex].points = points;
+        savePicks(); // Save picks to persist points
     } else {
-        alert("Please enter a value between 1 and 15.");
+        alert("Please enter a value between 1 and 16.");
     }
 }
+
 
 // Login function
 function login(username, password) {
