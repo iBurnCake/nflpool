@@ -201,4 +201,10 @@ function resetPicks() {
   }
 }
 
-//
+// Set up form to trigger handleLogin on submission
+document.querySelector("form").onsubmit = handleLogin;
+
+// Clear session storage on page load to force re-login on refresh
+window.onload = function () {
+  signOut(auth);
+};
