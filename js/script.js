@@ -84,32 +84,11 @@ function displayGames() {
 function getAvailableOptions(gameIndex) {
     const options = [];
     for (let i = 1; i <= 15; i++) {
-        // Add option only if the point is not in usedPoints or is the currently assigned point for this game
         if (!usedPoints.has(i) || (userPicks[gameIndex] && userPicks[gameIndex].points === i)) {
             options.push(`<option value="${i}">${i}</option>`);
         }
     }
     return options.join('');
-}
-
-
-// Update all dropdowns to reflect used points
-function updateDropdownOptions() {
-    games.forEach((_, index) => {
-        const dropdown = document.getElementById(`confidence${index}`);
-        const currentSelection = userPicks[index] ? userPicks[index].points : null;
-
-        dropdown.innerHTML = `<option value="" disabled>Select Points</option>`;
-        for (let i = 1; i <= 15; i++) {
-            if (!usedPoints.has(i) || i === currentSelection) {
-                dropdown.innerHTML += `<option value="${i}">${i}</option>`;
-            }
-        }
-
-        if (currentSelection) {
-            dropdown.value = currentSelection;
-        }
-    });
 }
 
 // Handle selection of a team
@@ -124,12 +103,11 @@ function selectPick(gameIndex, team) {
     savePicks();
 }
 
-// Assign confidence points and update the dropdown options
+// Assign confidence points
 function assignConfidence(gameIndex) {
     const confidenceInput = document.getElementById(`confidence${gameIndex}`);
     const points = parseInt(confidenceInput.value);
 
-    // Remove previously assigned points if any
     if (userPicks[gameIndex] && userPicks[gameIndex].points !== null) {
         usedPoints.delete(userPicks[gameIndex].points);
     }
@@ -137,12 +115,11 @@ function assignConfidence(gameIndex) {
     if (points >= 1 && points <= 15) {
         usedPoints.add(points);
         userPicks[gameIndex].points = points;
-        savePicks(); // Save picks to persist points
+        savePicks();
     } else {
-        confidenceInput.value = ''; // Clear invalid entry
+        confidenceInput.value = '';
     }
 
-    // Update all dropdowns to remove the used points dynamically
     displayGames();
 }
 
@@ -192,6 +169,7 @@ function resetPicks() {
         userPicks = {};
         usedPoints.clear();
         savePicks();
+
         displayGames();
     } else {
         alert("Only the admin can reset all users' picks.");
