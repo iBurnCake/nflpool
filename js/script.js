@@ -27,31 +27,29 @@ let loggedInUser = null;
 let userPicks = {};
 let usedPoints = new Set();
 
-// Handle login form submission
-document.getElementById("loginForm").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const email = document.getElementById("loginEmail").value;
-  const password = document.getElementById("loginPassword").value;
+// Login function
+export function handleLogin(event) {
+    event.preventDefault();
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
 
-  signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      loggedInUser = userCredential.user;
-      loadPicksFromDatabase(); // Load picks from Firebase Database
-      document.getElementById("usernameDisplay").textContent = email;
-      document.getElementById("loginSection").style.display = "none";
-      document.getElementById("userHomeSection").style.display = "block";
+    signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            document.getElementById("usernameDisplay").textContent = user.email;
+            document.getElementById("loginSection").style.display = "none";
+            document.getElementById("userHomeSection").style.display = "block";
 
-      // Check if the logged-in user is the admin
-      if (email === adminEmail) {
-        document.getElementById("adminSection").style.display = "block";
-      }
-      displayGames(); // Display the games after successful login
-    })
-    .catch((error) => {
-      console.error("Error during login:", error);
-      alert("Invalid email or password.");
-    });
-});
+            if (user.email === "luke.romano2004@gmail.com") {
+                document.getElementById("adminSection").style.display = "block";
+            }
+            // Load user-specific data here if necessary
+        })
+        .catch((error) => {
+            console.error("Error logging in:", error);
+            alert("Invalid email or password.");
+        });
+}
 
 // Save picks to Firebase Database
 function savePicksToDatabase() {
@@ -172,19 +170,19 @@ function assignConfidence(gameIndex) {
   displayGames();
 }
 
-// Reset picks (admin-only)
-function resetPicks() {
-  if (loggedInUser && loggedInUser.email === adminEmail) {
-    const dbRef = ref(database, "picks");
-    set(dbRef, null)
-      .then(() => {
-        alert("All users' picks have been reset!");
-        userPicks = {};
-        usedPoints.clear();
-        displayGames();
-      })
-      .catch((error) => console.error("Error resetting picks:", error));
-  } else {
-    alert("Only the admin can reset all users' picks.");
-  }
+// Example reset function for admin
+export function resetPicks() {
+    const currentUser = auth.currentUser;
+    if (currentUser && currentUser.email === "luke.romano2004@gmail.com") {
+        remove(ref(db, "picks"))
+            .then(() => {
+                alert("All user picks have been reset!");
+                // Reset the local UI here if necessary
+            })
+            .catch((error) => {
+                console.error("Error resetting picks:", error);
+            });
+    } else {
+        alert("Only the admin can reset all user picks.");
+    }
 }
