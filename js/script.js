@@ -145,13 +145,23 @@ window.onload = function () {
     sessionStorage.removeItem("loggedInUser");
 };
 
-// Function to reset all user picks for the current user
+// Function to reset picks for all users (admin only)
 function resetPicks() {
-    userPicks = {};          // Clear local picks
-    usedPoints.clear();       // Clear used points
-    savePicks();              // Save cleared picks to localStorage
-    sessionStorage.removeItem("userPicks"); // Clear session storage picks
-    alert("All picks have been reset!");
+    if (loggedInUser === adminUsername) {
+        // Loop through all usernames in userProfiles and clear each user's picks in localStorage
+        Object.keys(userProfiles).forEach(user => {
+            localStorage.removeItem(user + "_picks");
+        });
+        alert("All users' picks have been reset!");
 
-    displayGames();           // Refresh games table
+        // Clear admin’s session storage and refresh their picks view
+        userPicks = {};
+        usedPoints.clear();
+        savePicks(); // Save cleared picks for admin
+        sessionStorage.removeItem("userPicks");
+
+        displayGames(); // Refresh games table
+    } else {
+        alert("Only the admin can reset all users' picks.");
+    }
 }
