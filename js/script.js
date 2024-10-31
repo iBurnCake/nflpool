@@ -1,3 +1,4 @@
+// Import Firebase configuration
 import { auth, db, signInWithEmailAndPassword, ref, set, get, child } from './firebaseConfig.js';
 
 // Fixed game data for Week 9
@@ -16,12 +17,48 @@ const games = [
     { homeTeam: 'Rams', awayTeam: 'Seahawks', homeRecord: '3-4', awayRecord: '4-4' },
     { homeTeam: 'Lions', awayTeam: 'Packers', homeRecord: '6-1', awayRecord: '6-2' },
     { homeTeam: 'Colts', awayTeam: 'Vikings', homeRecord: '4-4', awayRecord: '5-2' },
-    { homeTeam: 'Buccaneers', awayTeam: 'Chiefs', homeRecord: '4-4', awayRecord: '7-0' },
+    { homeTeam: 'Buccaneers', awayTeam: 'Chiefs', homeRecord: '4-4', awayRecord: '7-0' }
 ];
 
 // Track user picks and assigned points
 let userPicks = {};
 let usedPoints = new Set();
+
+// Ensure the DOM is loaded before adding event listeners
+document.addEventListener("DOMContentLoaded", () => {
+    // Attach event listener to the login form
+    const loginForm = document.getElementById("loginForm");
+    if (loginForm) {
+        loginForm.addEventListener("submit", handleLogin);
+        console.log("Login form found and event listener added.");
+    } else {
+        console.error("Login form not found.");
+    }
+});
+
+// Handle login with Firebase
+function handleLogin(event) {
+    event.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    console.log("Attempting to log in with email:", email);
+
+    signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            console.log("Login successful:", user);
+            document.getElementById('usernameDisplay').textContent = user.email;
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('userHomeSection').style.display = 'block';
+            displayGames();
+            loadUserPicks(user.uid);
+        })
+        .catch((error) => {
+            console.error("Login error:", error);
+            alert("Invalid email or password.");
+        });
+}
 
 // Function to display games in the table
 function displayGames() {
@@ -41,61 +78,6 @@ function displayGames() {
             </td>
         `;
     });
-}
-
-// Handle selection of a team
-window.selectPick = function (gameIndex, team) {
-    userPicks[gameIndex] = { team, points: null };
-    alert(`You selected ${team} for game ${gameIndex + 1}`);
-};
-
-// Assign confidence points
-window.assignConfidence = function (gameIndex) {
-    const confidenceInput = document.getElementById(`confidence${gameIndex}`);
-    const points = parseInt(confidenceInput.value);
-
-    if (usedPoints.has(points)) {
-        alert("This confidence point is already used. Choose a different one.");
-        confidenceInput.value = ''; // Clear duplicate entry
-    } else if (points >= 1 && points <= 16) {
-        usedPoints.add(points);
-        userPicks[gameIndex].points = points;
-        alert(`Assigned ${points} points to game ${gameIndex + 1}`);
-    } else {
-        alert("Please enter a value between 1 and 16.");
-    }
-};
-
-// Handle login with Firebase
-window.handleLogin = function (event) {
-    event.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-
-    signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            document.getElementById('usernameDisplay').textContent = user.email;
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('userHomeSection').style.display = 'block';
-            displayGames();
-            loadUserPicks(user.uid);
-        })
-        .catch((error) => {
-            console.error("Login error:", error);
-            alert("Invalid email or password.");
-        });
-};
-
-// Save picks to Firebase
-function saveUserPicks(userId) {
-    set(ref(db, `scoreboards/week9/${userId}`), userPicks)
-        .then(() => {
-            alert("Picks saved successfully!");
-        })
-        .catch((error) => {
-            console.error("Error saving picks:", error);
-        });
 }
 
 // Load user picks from Firebase
@@ -122,36 +104,24 @@ function displayUserPicks(picks) {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    // Attach event listener to the login form
-    const loginForm = document.getElementById("loginForm");
-    if (loginForm) {
-        loginForm.addEventListener("submit", handleLogin);
+// Export global functions for button interactions
+window.selectPick = function (gameIndex, team) {
+    userPicks[gameIndex] = { team, points: null };
+    alert(`You selected ${team} for game ${gameIndex + 1}`);
+};
+
+window.assignConfidence = function (gameIndex) {
+    const confidenceInput = document.getElementById(`confidence${gameIndex}`);
+    const points = parseInt(confidenceInput.value);
+
+    if (usedPoints.has(points)) {
+        alert("This confidence point is already used. Choose a different one.");
+        confidenceInput.value = ''; // Clear duplicate entry
+    } else if (points >= 1 && points <= 16) {
+        usedPoints.add(points);
+        userPicks[gameIndex].points = points;
+        alert(`Assigned ${points} points to game ${gameIndex + 1}`);
     } else {
-        console.error("Login form not found.");
+        alert("Please enter a value between 1 and 16.");
     }
-});
-
-function handleLogin(event) {
-    event.preventDefault();
-    console.log("Login form submitted"); // Debug log
-
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    console.log("Attempting to log in with:", email); // Debug log
-
-    signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            console.log("Login successful:", user); // Debug log
-            document.getElementById('usernameDisplay').textContent = user.email;
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('userHomeSection').style.display = 'block';
-            displayGames();
-            loadUserPicks(user.uid);
-        })
-        .catch((error) => {
-            console.error("Login error:", error);
-            alert("Invalid email or password.");
-        });
-}
+};

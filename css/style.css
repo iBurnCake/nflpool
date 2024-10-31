@@ -15,7 +15,6 @@ body {
     min-height: 100vh;
     padding: 20px;
     flex-direction: column;
-    margin: 0;
 }
 
 /* Welcome Message Styling */
@@ -57,7 +56,7 @@ label {
     margin-bottom: 5px;
 }
 
-input[type="email"],
+input[type="text"],
 input[type="password"] {
     width: 100%;
     padding: 12px;
@@ -71,7 +70,7 @@ input[type="password"] {
     transition: border-color 0.3s;
 }
 
-input[type="email"]:focus,
+input[type="text"]:focus,
 input[type="password"]:focus {
     border-color: #3B7EED;
 }
@@ -93,18 +92,6 @@ button:hover {
     background-color: #1F5B99;
 }
 
-/* Styling for the Register Button */
-#registerButton {
-    margin-top: 10px;
-    background-color: #FFD700;
-    color: #282828;
-    font-weight: bold;
-}
-
-#registerButton:hover {
-    background-color: #E6B800;
-}
-
 /* Games and Leaderboard Sections */
 section {
     width: 90%;
@@ -115,7 +102,6 @@ section {
 
 h2 {
     color: #FFD700;
-    text-align: center;
     font-size: 24px;
     font-weight: bold;
 }
@@ -137,92 +123,4 @@ th, td {
 th {
     background-color: #444;
     font-weight: bold;
-}
-
-/* Admin Section Styling */
-#adminSection {
-    background-color: #333;
-    border: 1px solid #444;
-    border-radius: 8px;
-    padding: 20px;
-    margin: 20px 0;
-    text-align: center;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-}
-
-#adminSection button {
-    padding: 8px 16px;
-    font-size: 14px;
-    background-color: #FF6347;
-    color: #FFFFFF;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-    font-weight: bold;
-}
-
-#adminSection button:hover {
-    background-color: #FF4500;
-    transform: translateY(-2px);
-}
-
-#adminSection button:active {
-    background-color: #D13C1D;
-    transform: translateY(0);
-}
-
-/* Registration Section */
-.register-container {
-    background-color: #282828;
-    padding: 40px;
-    border-radius: 8px;
-    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.7);
-    width: 100%;
-    max-width: 400px;
-    text-align: center;
-    margin-top: 20px;
-}
-
-.register-container h2 {
-    color: #FFD700;
-    margin-bottom: 20px;
-}
-
-.register-container label {
-    font-weight: bold;
-    color: #FFD700;
-    display: block;
-    text-align: left;
-    margin-bottom: 5px;
-}
-
-.register-container input[type="email"],
-.register-container input[type="password"] {
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-    margin-bottom: 15px;
-    background-color: #1E1E1E;
-    color: #FFFFFF;
-    outline: none;
-    transition: border-color 0.3s;
-}
-
-.register-container button {
-    padding: 12px;
-    width: 100%;
-    font-size: 16px;
-    background-color: #FFD700;
-    color: #282828;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-.register-container button:hover {
-    background-color: #E6B800;
 }
