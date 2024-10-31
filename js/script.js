@@ -1,13 +1,31 @@
-// User profiles
-const userProfiles = {
-    "AngelaKant": "5353",
-    "LukeRomano": "4242", // Admin Account
-    "RyanSanders": "8989",
-    "CharlesKeegan": "0000",
-    "WilliamMathis": "2222" 
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCEIIp_7mw1lEJi2ySy8rbYI9zIGz1d2d8",
+  authDomain: "nflpool-71337.firebaseapp.com",
+  projectId: "nflpool-71337",
+  storageBucket: "nflpool-71337.firebasestorage.app",
+  messagingSenderId: "2003523098",
+  appId: "1:2003523098:web:713a9905761dabae7863a3",
+  measurementId: "G-1EBF3DPND1"
 };
 
-// Fixed game data for Week 9
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+const adminEmail = "luke.romano2004@gmail.com"; // Set this as the admin email
+let userPicks = {};
+let usedPoints = new Set();
+let loggedInUser = null;
+
+// Game data for Week 9
 const games = [
     { homeTeam: 'Texans', awayTeam: 'Jets', homeRecord: '6-2', awayRecord: '2-6' },
     { homeTeam: 'Saints', awayTeam: 'Panthers', homeRecord: '2-6', awayRecord: '1-7' },
@@ -26,29 +44,25 @@ const games = [
     { homeTeam: 'Buccaneers', awayTeam: 'Chiefs', homeRecord: '4-4', awayRecord: '7-0' }
 ];
 
-// Track user picks and assigned points
-let userPicks = {};
-let usedPoints = new Set();
-let loggedInUser = null;
-const adminUsername = "LukeRomano"; 
-
-// Function to save picks and points to localStorage
-function savePicks() {
+// Save picks to Firebase
+function savePicksToDatabase() {
     if (loggedInUser) {
-        localStorage.setItem(loggedInUser + "_picks", JSON.stringify(userPicks));
+        db.ref(`picks/${loggedInUser.uid}`).set(userPicks);
     }
 }
 
-// Function to load saved picks from localStorage
-function loadPicks() {
+// Load picks from Firebase
+function loadPicksFromDatabase() {
     if (loggedInUser) {
-        const savedPicks = JSON.parse(localStorage.getItem(loggedInUser + "_picks") || "{}");
-        userPicks = savedPicks;
-        usedPoints = new Set(Object.values(userPicks).map(pick => pick.points).filter(Boolean));
+        db.ref(`picks/${loggedInUser.uid}`).once('value').then(snapshot => {
+            userPicks = snapshot.val() || {};
+            usedPoints = new Set(Object.values(userPicks).map(pick => pick.points).filter(Boolean));
+            displayGames();
+        });
     }
 }
 
-// Function to display games in the table
+// Display games and load saved selections
 function displayGames() {
     const tableBody = document.getElementById('gamesTable').getElementsByTagName('tbody')[0];
     tableBody.innerHTML = ''; // Clear existing rows
@@ -69,18 +83,15 @@ function displayGames() {
             </td>
         `;
 
-        // Load saved pick and confidence points if they exist
         if (userPicks[index]) {
             const selectedButtonId = userPicks[index].team === 'home' ? `homeTeam${index}` : `awayTeam${index}`;
             document.getElementById(selectedButtonId).classList.add('selected');
-
-            // Set the saved confidence points
             document.getElementById(`confidence${index}`).value = userPicks[index].points;
         }
     });
 }
 
-// Function to generate options for the confidence dropdown, excluding already used points
+// Generate available options for the confidence dropdown
 function getAvailableOptions(gameIndex) {
     const options = [];
     for (let i = 1; i <= 15; i++) {
@@ -91,7 +102,7 @@ function getAvailableOptions(gameIndex) {
     return options.join('');
 }
 
-// Handle selection of a team
+// Handle team selection
 function selectPick(gameIndex, team) {
     const buttons = document.querySelectorAll(`#gamesTable tr:nth-child(${gameIndex + 1}) button`);
     buttons.forEach(button => button.classList.remove("selected"));
@@ -100,81 +111,92 @@ function selectPick(gameIndex, team) {
     selectedButton.classList.add("selected");
 
     userPicks[gameIndex] = { team, points: userPicks[gameIndex] ? userPicks[gameIndex].points : null };
-    savePicks();
+    savePicksToDatabase();
 }
 
-// Assign confidence points
+// Assign confidence points and save
 function assignConfidence(gameIndex) {
     const confidenceInput = document.getElementById(`confidence${gameIndex}`);
     const newPoints = parseInt(confidenceInput.value);
 
-    // If this game already has assigned points, release them from usedPoints
     if (userPicks[gameIndex] && userPicks[gameIndex].points !== null) {
         usedPoints.delete(userPicks[gameIndex].points);
     }
 
-    // Assign new points
     if (newPoints >= 1 && newPoints <= 15) {
         usedPoints.add(newPoints);
         userPicks[gameIndex].points = newPoints;
-        savePicks();
+        savePicksToDatabase();
     } else {
         confidenceInput.value = '';
     }
-
-    // Refresh games to update dropdowns
     displayGames();
 }
 
-// Login function
-function login(username, password) {
-    if (userProfiles[username] === password) {
-        loggedInUser = username;
-        sessionStorage.setItem("loggedInUser", username);
-        loadPicks();
-        document.getElementById('usernameDisplay').textContent = username;
-        document.getElementById('loginSection').style.display = 'none';
-        document.getElementById('userHomeSection').style.display = 'block';
+// Firebase login
+function login(email, password) {
+    auth.signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+            loggedInUser = userCredential.user;
+            loadPicksFromDatabase();
+            document.getElementById('usernameDisplay').textContent = loggedInUser.email;
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('userHomeSection').style.display = 'block';
 
-        if (username === adminUsername) {
-            document.getElementById('adminSection').style.display = 'block';
-        }
+            if (loggedInUser.email === adminEmail) {
+                document.getElementById('adminSection').style.display = 'block';
+            }
 
-        displayGames();
-    } else {
-        alert("Invalid username or password.");
-    }
+            displayGames();
+        })
+        .catch(error => {
+            console.error("Login error:", error);
+            alert("Invalid email or password.");
+        });
 }
 
 // Handle login form submission
 function handleLogin(event) {
     event.preventDefault();
-    const username = document.getElementById('username').value;
+    const email = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-    login(username, password);
+    login(email, password);
+}
+
+// Register function (if you want to allow users to register)
+function register(email, password) {
+    auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+            alert("User registered successfully.");
+        })
+        .catch(error => {
+            console.error("Registration error:", error);
+            alert("Registration failed.");
+        });
+}
+
+// Function to reset picks for all users (admin only)
+function resetPicks() {
+    if (loggedInUser && loggedInUser.email === adminEmail) {
+        db.ref('picks').remove()
+            .then(() => {
+                alert("All users' picks have been reset!");
+                userPicks = {};
+                usedPoints.clear();
+                displayGames();
+            })
+            .catch(error => {
+                console.error("Error resetting picks:", error);
+            });
+    } else {
+        alert("Only the admin can reset all users' picks.");
 }
 
 // Set up form to trigger handleLogin on submission
 document.querySelector("form").onsubmit = handleLogin;
 
-// Clear sessionStorage on page load to force re-login on refresh
+// Clear session storage on page load to force re-login on refresh
 window.onload = function () {
-    sessionStorage.removeItem("loggedInUser");
+    auth.signOut();
 };
-
-// Function to reset picks for all users (admin only)
-function resetPicks() {
-    if (loggedInUser === adminUsername) {
-        Object.keys(userProfiles).forEach(user => {
-            localStorage.removeItem(user + "_picks");
-        });
-
-        userPicks = {};
-        usedPoints.clear();
-        savePicks();
-
-        displayGames();
-    } else {
-        alert("Only the admin can reset all users' picks.");
-    }
 }

@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NFL Football Pool</title>
     <link rel="stylesheet" href="css/style.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
 </head>
 <body>
     <!-- Welcome Message -->
@@ -13,10 +17,10 @@
     <!-- Login Section -->
     <section id="loginSection">
         <div class="login-container">
-            <h2>Login V2</h2>
+            <h2>Login V2.1</h2>
             <form onsubmit="handleLogin(event)">
-                <label for="username">Username:</label>
-                <input type="text" id="username" required>
+                <label for="email">Email:</label>
+                <input type="email" id="email" required>
                 <label for="password">Password:</label>
                 <input type="password" id="password" required>
                 <button type="submit">Login</button>
@@ -31,13 +35,12 @@
             <p>Your Personal Pool - Week 9</p>
         </div>
     
-    <!-- Admin Section (Only for Admin User)--> 
-    <section id="adminSection" style="display: none;">
-        <button onclick="resetPicks()">Reset All User Picks</button>
-    </section>    
+        <!-- Admin Section (Only for Admin User) --> 
+        <section id="adminSection" style="display: none;">
+            <button onclick="resetPicks()">Reset All User Picks</button>
+        </section>
 
-
-    <!-- Games Table -->    
+        <!-- Games Table -->    
         <table id="gamesTable">
             <thead>
                 <tr>
@@ -52,6 +55,21 @@
         </table>
     </section>
 
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
     <script src="js/script.js"></script>
 </body>
 </html>
