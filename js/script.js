@@ -1,16 +1,18 @@
-// Firebase imports and initialization
+// Import the functions you need from the SDKs
 import { initializeApp } from "firebase/app";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { getDatabase, ref, set, get, child } from "firebase/database";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
+import { getDatabase, ref, set, get, remove } from "firebase/database";
 
+// Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyCEIIp_7mw1lEJi2ySy8rbYI9zIGz1d2d8",
-    authDomain: "nflpool-71337.firebaseapp.com",
-    projectId: "nflpool-71337",
-    storageBucket: "nflpool-71337.firebasestorage.app",
-    messagingSenderId: "2003523098",
-    appId: "1:2003523098:web:713a9905761dabae7863a3",
-    measurementId: "G-1EBF3DPND1"
+  apiKey: "AIzaSyCEIIp_7mw1lEJi2ySy8rbYI9zIGz1d2d8",
+  authDomain: "nflpool-71337.firebaseapp.com",
+  projectId: "nflpool-71337",
+  storageBucket: "nflpool-71337.firebasestorage.app",
+  messagingSenderId: "2003523098",
+  appId: "1:2003523098:web:713a9905761dabae7863a3",
+  measurementId: "G-1EBF3DPND1",
+  databaseURL: "https://nflpool-71337-default-rtdb.firebaseio.com/"
 };
 
 // Initialize Firebase
@@ -18,7 +20,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-const adminEmail = "luke.romano2004@gmail.com"; // Set this as the admin email
+const adminEmail = "luke.romano2004@gmail.com"; // Admin email
 let userPicks = {};
 let usedPoints = new Set();
 let loggedInUser = null;
@@ -26,20 +28,7 @@ let loggedInUser = null;
 // Game data for Week 9
 const games = [
   { homeTeam: 'Texans', awayTeam: 'Jets', homeRecord: '6-2', awayRecord: '2-6' },
-  { homeTeam: 'Saints', awayTeam: 'Panthers', homeRecord: '2-6', awayRecord: '1-7' },
-  { homeTeam: 'Commanders', awayTeam: 'Giants', homeRecord: '6-2', awayRecord: '2-6' },
-  { homeTeam: 'Dolphins', awayTeam: 'Bills', homeRecord: '2-5', awayRecord: '6-2' },
-  { homeTeam: 'Chargers', awayTeam: 'Browns', homeRecord: '4-3', awayRecord: '2-6' },
-  { homeTeam: 'Patriots', awayTeam: 'Titans', homeRecord: '2-6', awayRecord: '1-6' },
-  { homeTeam: 'Cowboys', awayTeam: 'Falcons', homeRecord: '3-4', awayRecord: '5-3' },
-  { homeTeam: 'Raiders', awayTeam: 'Bengals', homeRecord: '2-6', awayRecord: '3-5' },
-  { homeTeam: 'Broncos', awayTeam: 'Ravens', homeRecord: '5-3', awayRecord: '5-3' },
-  { homeTeam: 'Bears', awayTeam: 'Cardinals', homeRecord: '4-3', awayRecord: '4-4' },
-  { homeTeam: 'Jaguars', awayTeam: 'Eagles', homeRecord: '2-6', awayRecord: '5-2' },
-  { homeTeam: 'Rams', awayTeam: 'Seahawks', homeRecord: '3-4', awayRecord: '4-4' },
-  { homeTeam: 'Lions', awayTeam: 'Packers', homeRecord: '6-1', awayRecord: '6-2' },
-  { homeTeam: 'Colts', awayTeam: 'Vikings', homeRecord: '4-4', awayRecord: '5-2' },
-  { homeTeam: 'Buccaneers', awayTeam: 'Chiefs', homeRecord: '4-4', awayRecord: '7-0' }
+  // Add more games here as required
 ];
 
 // Save picks to Firebase
@@ -153,50 +142,29 @@ function login(email, password) {
     });
 }
 
-// Register function
+// Firebase registration
 function register(email, password) {
   createUserWithEmailAndPassword(auth, email, password)
     .then(userCredential => {
       alert("User registered successfully.");
-      login(email, password); // Automatically log in the user after registration
+      showLoginForm();
     })
     .catch(error => {
       console.error("Registration error:", error);
-      alert("Registration failed: " + error.message);
+      alert("Registration failed.");
     });
 }
 
-// Show Login Form
-function showLogin() {
-    document.getElementById("registerSection").style.display = "none";
-    document.getElementById("loginSection").style.display = "block";
+// Function to show registration form
+function showRegisterForm() {
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('registerForm').style.display = 'block';
 }
 
-// Show Registration Form
-function showRegister() {
-    document.getElementById("loginSection").style.display = "none";
-    document.getElementById("registerSection").style.display = "block";
-}
-
-// Handle Registration
-function handleRegister(event) {
-    event.preventDefault();
-    const email = document.getElementById("regEmail").value;
-    const password = document.getElementById("regPassword").value;
-
-    createUserWithEmailAndPassword(auth, email, password)
-        .then(userCredential => {
-            alert("Registration successful! You can now log in.");
-            // Optionally, store user data in the database
-            set(ref(db, 'users/' + userCredential.user.uid), {
-                email: email
-            });
-            showLogin();
-        })
-        .catch(error => {
-            console.error("Registration error:", error);
-            alert("Registration failed: " + error.message);
-        });
+// Function to show login form
+function showLoginForm() {
+  document.getElementById('loginForm').style.display = 'block';
+  document.getElementById('registerForm').style.display = 'none';
 }
 
 // Function to reset picks for all users (admin only)
@@ -217,8 +185,21 @@ function resetPicks() {
   }
 }
 
-// Set up form to trigger handleLogin on submission
-document.querySelector("form").onsubmit = handleLogin;
+// Handle login form submission
+document.getElementById("loginForm").onsubmit = event => {
+  event.preventDefault();
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  login(email, password);
+};
+
+// Handle register form submission
+document.getElementById("registerForm").onsubmit = event => {
+  event.preventDefault();
+  const email = document.getElementById('registerEmail').value;
+  const password = document.getElementById('registerPassword').value;
+  register(email, password);
+};
 
 // Clear session storage on page load to force re-login on refresh
 window.onload = function () {
