@@ -1,8 +1,3 @@
-// Import Firebase SDKs (assuming you've already linked Firebase SDKs in HTML)
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { getDatabase, ref, set, get, remove } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
-
 // Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyCEIIp_7mw1lEJi2ySy8rbYI9zIGz1d2d8",
@@ -16,14 +11,12 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const database = getDatabase(app);
-const adminEmail = "luke.romano2004@gmail.com";
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
 
-let userPicks = {};
-let usedPoints = new Set();
-let loggedInUser = null;
+// Set admin email
+const adminEmail = "luke.romano2004@gmail.com";
 
 // Game data for Week 9
 const games = [
@@ -44,17 +37,22 @@ const games = [
     { homeTeam: 'Buccaneers', awayTeam: 'Chiefs', homeRecord: '4-4', awayRecord: '7-0' }
 ];
 
-// Save user picks to Firebase Database
+// User-related variables
+let userPicks = {};
+let usedPoints = new Set();
+let loggedInUser = null;
+
+// Save picks to Firebase
 function savePicksToDatabase() {
     if (loggedInUser) {
-        set(ref(database, `picks/${loggedInUser.uid}`), userPicks);
+        db.ref(`picks/${loggedInUser.uid}`).set(userPicks);
     }
 }
 
-// Load user picks from Firebase Database
+// Load picks from Firebase
 function loadPicksFromDatabase() {
     if (loggedInUser) {
-        get(ref(database, `picks/${loggedInUser.uid}`)).then((snapshot) => {
+        db.ref(`picks/${loggedInUser.uid}`).once('value').then(snapshot => {
             userPicks = snapshot.val() || {};
             usedPoints = new Set(Object.values(userPicks).map(pick => pick.points).filter(Boolean));
             displayGames();
@@ -62,7 +60,7 @@ function loadPicksFromDatabase() {
     }
 }
 
-// Display games and apply saved picks
+// Display games and saved picks
 function displayGames() {
     const tableBody = document.getElementById('gamesTable').getElementsByTagName('tbody')[0];
     tableBody.innerHTML = ''; // Clear existing rows
@@ -139,10 +137,10 @@ document.getElementById("loginForm").addEventListener("submit", (e) => {
     const email = document.getElementById("loginEmail").value;
     const password = document.getElementById("loginPassword").value;
 
-    signInWithEmailAndPassword(auth, email, password)
+    auth.signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
             loggedInUser = userCredential.user;
-            loadPicksFromDatabase(); // Load picks from Firebase Database
+            loadPicksFromDatabase();
             document.getElementById("usernameDisplay").textContent = email;
             document.getElementById("loginSection").style.display = "none";
             document.getElementById("userHomeSection").style.display = "block";
@@ -150,7 +148,7 @@ document.getElementById("loginForm").addEventListener("submit", (e) => {
             if (email === adminEmail) {
                 document.getElementById("adminSection").style.display = "block";
             }
-            displayGames(); // Display the games after successful login
+            displayGames();
         })
         .catch((error) => {
             console.error("Error during login:", error);
@@ -158,10 +156,10 @@ document.getElementById("loginForm").addEventListener("submit", (e) => {
         });
 });
 
-// Function to reset picks for all users (admin only)
+// Admin reset function
 function resetPicks() {
     if (loggedInUser && loggedInUser.email === adminEmail) {
-        remove(ref(database, 'picks'))
+        db.ref('picks').remove()
             .then(() => {
                 alert("All users' picks have been reset!");
                 userPicks = {};
@@ -175,8 +173,8 @@ function resetPicks() {
         alert("Only the admin can reset all users' picks.");
 }
 
-// Clear session storage on page load to force re-login on refresh
+// Log out on page load to force re-login
 window.onload = function () {
-    signOut(auth);
+    auth.signOut();
 };
 }
