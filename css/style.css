@@ -93,6 +93,13 @@ button:hover {
     background-color: #1F5B99;
 }
 
+/* Highlight selected team button */
+.selected {
+    background-color: #32CD32; /* Lime green for selected state */
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
 /* Games and Leaderboard Sections */
 section {
     width: 90%;

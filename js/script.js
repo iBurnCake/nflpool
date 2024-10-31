@@ -29,7 +29,22 @@ const games = [
 // Track user picks and assigned points
 let userPicks = {};
 let usedPoints = new Set();
+let loggedInUser = null;
 const adminUsername = "LukeRomano"; 
+
+// Function to save picks and points to localStorage
+function savePicks() {
+    localStorage.setItem(loggedInUser + "_picks", JSON.stringify(userPicks));
+}
+
+//Function to load saved picks from localStorage
+function loadPicks() {
+    const savedPicks = JSON.parse(localStorage.getItem(loggedInUser + "_picks"));
+    if (savedPicks) {
+        userPicks = savedPicks;
+        usedPoints = new Set(Object.values(userPicks).map(pick => pick.points));
+    }
+}
 
 // Function to display games in the table
 function displayGames() {
@@ -48,6 +63,12 @@ function displayGames() {
                 <input type="number" id="confidence${index}" min="1" max="15" onchange="assignConfidence(${index})" required>
             </td>
         `;
+
+        // Load saved pick and confidence points if they exist
+        if (userPicks[index]) {
+            document.getElementById(userPicks[index].team + "Team" + index).classList.add('selected');
+            document.getElementById(`confidence${index}`).value = userPicks[index].points;
+        }
     });
 }
 
@@ -61,8 +82,10 @@ function resetPicks() {
 
 // Handle selection of a team
 function selectPick(gameIndex, team) {
-    userPicks[gameIndex] = { team, points: null };
+    userPicks[gameIndex] = { team, points: userPicks[gameIndex]?.points || null };
+    savePicks();
     alert(`You selected ${team} for game ${gameIndex + 1}`);
+    displayGames(); // Refresh the display to show highlighted selection
 }
 
 // Assign confidence points
@@ -76,15 +99,18 @@ function assignConfidence(gameIndex) {
     } else if (points >= 1 && points <= 15) {
         usedPoints.add(points);
         userPicks[gameIndex].points = points;
+        savePicks();
         alert(`Assigned ${points} points to game ${gameIndex + 1}`);
     } else {
-        alert("Please enter a value between 1 and 15.");
+        alert("Please enter a value between 1 and 16.");
     }
 }
 
 // Login function
 function login(username, password) {
     if (userProfiles[username] === password) {
+        loggedInUser = username;
+        loadPicks(); 
         sessionStorage.setItem("loggedInUser", username);
         document.getElementById('usernameDisplay').textContent = username;
         document.getElementById('loginSection').style.display = 'none';
@@ -94,7 +120,7 @@ function login(username, password) {
         if (username === adminUsername) {
             document.getElementById('adminSection').style.display = 'block';
         }
-        
+
         displayGames();
     } else {
         alert("Invalid username or password.");
