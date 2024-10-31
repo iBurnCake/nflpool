@@ -192,3 +192,19 @@ th {
     background-color: #D13C1D;
     transform: translateY(0);
 }
+
+/* Style for the confidence points dropdown */
+#gamesTable select {
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    background-color: #1E1E1E;
+    color: #FFD700;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+#gamesTable select:focus {
+    border-color: #3B7EED;
+}

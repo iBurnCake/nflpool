@@ -48,7 +48,6 @@ function loadPicks() {
     }
 }
 
-// Function to display games in the table
 function displayGames() {
     const tableBody = document.getElementById('gamesTable').getElementsByTagName('tbody')[0];
     tableBody.innerHTML = ''; // Clear existing rows
@@ -62,13 +61,15 @@ function displayGames() {
                 <button id="awayTeam${index}" onclick="selectPick(${index}, 'away')">${game.awayTeam}</button>
             </td>
             <td>
-                <input type="number" id="confidence${index}" min="1" max="15" onchange="assignConfidence(${index})" required>
+                <select id="confidence${index}" onchange="assignConfidence(${index})">
+                    <option value="" disabled selected>Select Points</option>
+                    ${Array.from({ length: 15 }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('')}
+                </select>
             </td>
         `;
 
         // Load saved pick and confidence points if they exist
         if (userPicks[index]) {
-            // Highlight the selected team button
             const selectedButtonId = userPicks[index].team === 'home' ? `homeTeam${index}` : `awayTeam${index}`;
             document.getElementById(selectedButtonId).classList.add('selected');
 
