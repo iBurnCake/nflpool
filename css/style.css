@@ -203,8 +203,15 @@ th {
     color: #FFD700;
     outline: none;
     transition: border-color 0.3s;
+    width: 100%; /* Ensure it fits within the table cell */
+    text-align: center;
 }
 
 #gamesTable select:focus {
     border-color: #3B7EED;
+}
+
+#gamesTable option {
+    background-color: #333;
+    color: #FFD700;
 }

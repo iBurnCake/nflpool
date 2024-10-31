@@ -79,6 +79,7 @@ function displayGames() {
     });
 }
 
+
 // Handle selection of a team
 function selectPick(gameIndex, team) {
     // Remove the selected class from both buttons in case the user changes the pick
