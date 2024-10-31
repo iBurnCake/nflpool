@@ -131,3 +131,27 @@ th {
     color: #FFFFFF;
 }
 
+/* Reset Button Styling */
+#resetButton {
+    margin-top: 20px;
+    padding: 12px;
+    font-size: 16px;
+    background-color: #FF6347; /* Tomato color */
+    color: #FFFFFF;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+#resetButton:hover {
+    background-color: #FF4500; /* Darker tomato color on hover */
+    transform: translateY(-2px);
+}
+
+#resetButton:active {
+    background-color: #D13C1D; /* Even darker color when active */
+    transform: translateY(0);
+}
+
