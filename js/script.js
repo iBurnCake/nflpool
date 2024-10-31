@@ -155,16 +155,16 @@ function register(email, password) {
     });
 }
 
-// Function to show registration form
+// Function to show the registration form
 function showRegisterForm() {
-  document.getElementById('loginForm').style.display = 'none';
-  document.getElementById('registerForm').style.display = 'block';
+    document.getElementById("loginSection").style.display = "none";
+    document.getElementById("registerSection").style.display = "block";
 }
 
-// Function to show login form
+// Function to show the login form
 function showLoginForm() {
-  document.getElementById('loginForm').style.display = 'block';
-  document.getElementById('registerForm').style.display = 'none';
+    document.getElementById("registerSection").style.display = "none";
+    document.getElementById("loginSection").style.display = "block";
 }
 
 // Function to reset picks for all users (admin only)
