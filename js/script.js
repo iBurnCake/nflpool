@@ -115,22 +115,25 @@ window.assignConfidence = function (gameIndex) {
     const confidenceSelect = document.getElementById(`confidence${gameIndex}`);
     const points = parseInt(confidenceSelect.value);
 
+    // Check if a previous confidence point was assigned for this game and remove it
     if (userPicks[gameIndex]?.points) {
-        usedPoints.delete(userPicks[gameIndex].points); // Remove previous points from set
+        usedPoints.delete(userPicks[gameIndex].points);
     }
 
+    // Validate and save the selected confidence points
     if (points >= 1 && points <= 15 && !usedPoints.has(points)) {
-        // Update user picks and add the point to the used set
-        usedPoints.add(points);
+        // Update user picks with the new confidence points
         userPicks[gameIndex] = userPicks[gameIndex] || {};
         userPicks[gameIndex].points = points;
+        usedPoints.add(points);
 
+        // Save picks to Firebase
         saveUserPicks(auth.currentUser.uid);
 
-        // Refresh all dropdowns to reflect available points
+        // Refresh dropdown options to reflect the updated available points
         games.forEach((_, i) => updateConfidenceDropdown(i));
     } else {
-        confidenceSelect.value = ""; // Reset if point is not available
+        confidenceSelect.value = ""; // Clear the selection if point is already used
     }
 };
 
