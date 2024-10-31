@@ -44,7 +44,7 @@ function loadPicks() {
     if (loggedInUser) {
         const savedPicks = JSON.parse(localStorage.getItem(loggedInUser + "_picks") || "{}");
         userPicks = savedPicks;
-        usedPoints = new Set(Object.values(userPicks).map(pick => pick.points));
+        usedPoints = new Set(Object.values(userPicks).map(pick => pick.points).filter(Boolean));
     }
 }
 
@@ -84,7 +84,6 @@ function displayGames() {
 function getAvailableOptions(gameIndex) {
     const options = [];
     for (let i = 1; i <= 15; i++) {
-        // Only include points if not used or if it is already the assigned point for this game
         if (!usedPoints.has(i) || (userPicks[gameIndex] && userPicks[gameIndex].points === i)) {
             options.push(`<option value="${i}">${i}</option>`);
         }
