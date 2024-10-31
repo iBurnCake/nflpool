@@ -1,10 +1,10 @@
 // User profiles
 const userProfiles = {
     "AngelaKant": "5353",
-    "LukeRomano": "4242",
+    "LukeRomano": "4242", // Admin Account
     "RyanSanders": "8989",
     "CharlesKeegan": "0000",
-    "WilliamMathis": "2222" // New user added
+    "WilliamMathis": "2222" 
 };
 
 // Fixed game data for Week 9
@@ -29,6 +29,7 @@ const games = [
 // Track user picks and assigned points
 let userPicks = {};
 let usedPoints = new Set();
+const adminUsername = "LukeRomano"; 
 
 // Function to display games in the table
 function displayGames() {
@@ -44,10 +45,18 @@ function displayGames() {
                 <button onclick="selectPick(${index}, 'away')">${game.awayTeam}</button>
             </td>
             <td>
-                <input type="number" id="confidence${index}" min="1" max="16" onchange="assignConfidence(${index})" required>
+                <input type="number" id="confidence${index}" min="1" max="15" onchange="assignConfidence(${index})" required>
             </td>
         `;
     });
+}
+
+// Function to reset all picks
+function resetPicks() {
+    userPicks = {};
+    usedPoints.clear();
+    alert("All Picks have been reset!");
+    displayGames();
 }
 
 // Handle selection of a team
@@ -64,12 +73,12 @@ function assignConfidence(gameIndex) {
     if (usedPoints.has(points)) {
         alert("This confidence point is already used. Choose a different one.");
         confidenceInput.value = ''; // Clear duplicate entry
-    } else if (points >= 1 && points <= 16) {
+    } else if (points >= 1 && points <= 15) {
         usedPoints.add(points);
         userPicks[gameIndex].points = points;
         alert(`Assigned ${points} points to game ${gameIndex + 1}`);
     } else {
-        alert("Please enter a value between 1 and 16.");
+        alert("Please enter a value between 1 and 15.");
     }
 }
 
@@ -80,6 +89,12 @@ function login(username, password) {
         document.getElementById('usernameDisplay').textContent = username;
         document.getElementById('loginSection').style.display = 'none';
         document.getElementById('userHomeSection').style.display = 'block';
+
+        // Check if loggin-in user is the admin
+        if (username === adminUsername) {
+            document.getElementById('adminSection').style.display = 'block';
+        }
+        
         displayGames();
     } else {
         alert("Invalid username or password.");
