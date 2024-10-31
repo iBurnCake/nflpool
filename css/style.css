@@ -15,7 +15,6 @@ body {
     min-height: 100vh;
     padding: 20px;
     flex-direction: column;
-    margin: 0; /* Remove default body margin to avoid off-centering */
 }
 
 /* Welcome Message Styling */
@@ -57,7 +56,7 @@ label {
     margin-bottom: 5px;
 }
 
-input[type="text"],
+input[type="email"],
 input[type="password"] {
     width: 100%;
     padding: 12px;
@@ -71,7 +70,7 @@ input[type="password"] {
     transition: border-color 0.3s;
 }
 
-input[type="text"]:focus,
+input[type="email"]:focus,
 input[type="password"]:focus {
     border-color: #3B7EED;
 }
@@ -93,14 +92,7 @@ button:hover {
     background-color: #1F5B99;
 }
 
-/* Highlight selected team button */
-.selected {
-    background-color: #00ff2a;
-    color: #1E1E1E;
-    font-weight: bold;
-}
-
-/* Games and Leaderboard Sections */
+/* Games Table Styling */
 section {
     width: 90%;
     max-width: 1000px;
@@ -134,25 +126,22 @@ th {
     font-weight: bold;
 }
 
-/* Admin Section Styling */
-#adminSection {
-    background-color: #333; /* Matches the games table background */
-    border: 1px solid #444;
-    border-radius: 8px;
-    padding: 20px;
-    margin: 20px 0;
-    text-align: center;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+button.selected {
+    background-color: #4CAF50;
+    color: #FFFFFF;
 }
 
-#adminSection h3 {
+select {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    background-color: #1E1E1E;
     color: #FFD700;
-    font-size: 24px;
-    margin-bottom: 15px;
-    font-weight: bold;
 }
 
-/* Adjusted Admin Section Styling */
+/* Admin Section Styling */
 #adminSection {
     background-color: #333;
     border: 1px solid #444;
@@ -160,58 +149,22 @@ th {
     padding: 15px;
     margin: 20px 0;
     text-align: center;
-    width: 80%; /* Smaller width */
+    width: 80%;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
 }
 
-#adminSection h3 {
-    color: #FFD700;
-    font-size: 20px;
-    margin-bottom: 10px;
-    font-weight: bold;
-}
-
-/* Adjusted Admin Button Styling */
 #adminSection button {
-    padding: 8px 16px;
+    padding: 10px 20px;
     font-size: 14px;
     background-color: #FF6347;
     color: #FFFFFF;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
+    transition: background-color 0.3s;
+    font-weight: bold;
 }
 
 #adminSection button:hover {
     background-color: #FF4500;
-    transform: translateY(-2px);
-}
-
-#adminSection button:active {
-    background-color: #D13C1D;
-    transform: translateY(0);
-}
-
-/* Style for the confidence points dropdown */
-#gamesTable select {
-    padding: 8px;
-    font-size: 16px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-    background-color: #1E1E1E;
-    color: #FFD700;
-    outline: none;
-    transition: border-color 0.3s;
-    width: 100%; /* Ensure it fits within the table cell */
-    text-align: center;
-}
-
-#gamesTable select:focus {
-    border-color: #3B7EED;
-}
-
-#gamesTable option {
-    background-color: #333;
-    color: #FFD700;
 }

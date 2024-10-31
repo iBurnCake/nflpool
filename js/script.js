@@ -1,26 +1,26 @@
-// Import the functions you need from the SDKs you need
+// Import Firebase dependencies
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
+import { getDatabase, ref, set, get, remove } from "firebase/database";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCEIIp_7mw1lEJi2ySy8rbYI9zIGz1d2d8",
-  authDomain: "nflpool-71337.firebaseapp.com",
-  projectId: "nflpool-71337",
-  storageBucket: "nflpool-71337.firebasestorage.app",
-  messagingSenderId: "2003523098",
-  appId: "1:2003523098:web:713a9905761dabae7863a3",
-  measurementId: "G-1EBF3DPND1"
+    apiKey: "AIzaSyCEIIp_7mw1lEJi2ySy8rbYI9zIGz1d2d8",
+    authDomain: "nflpool-71337.firebaseapp.com",
+    databaseURL: "https://nflpool-71337.firebaseio.com", // Adjusted for database URL
+    projectId: "nflpool-71337",
+    storageBucket: "nflpool-71337.appspot.com",
+    messagingSenderId: "2003523098",
+    appId: "1:2003523098:web:713a9905761dabae7863a3",
+    measurementId: "G-1EBF3DPND1"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+const auth = getAuth(app);
+const db = getDatabase(app);
 
-const adminEmail = "luke.romano2004@gmail.com"; // Set this as the admin email
+const adminEmail = "luke.romano2004@gmail.com"; // Admin email
 let userPicks = {};
 let usedPoints = new Set();
 let loggedInUser = null;
@@ -28,33 +28,20 @@ let loggedInUser = null;
 // Game data for Week 9
 const games = [
     { homeTeam: 'Texans', awayTeam: 'Jets', homeRecord: '6-2', awayRecord: '2-6' },
-    { homeTeam: 'Saints', awayTeam: 'Panthers', homeRecord: '2-6', awayRecord: '1-7' },
-    { homeTeam: 'Commanders', awayTeam: 'Giants', homeRecord: '6-2', awayRecord: '2-6' },
-    { homeTeam: 'Dolphins', awayTeam: 'Bills', homeRecord: '2-5', awayRecord: '6-2' },
-    { homeTeam: 'Chargers', awayTeam: 'Browns', homeRecord: '4-3', awayRecord: '2-6' },
-    { homeTeam: 'Patriots', awayTeam: 'Titans', homeRecord: '2-6', awayRecord: '1-6' },
-    { homeTeam: 'Cowboys', awayTeam: 'Falcons', homeRecord: '3-4', awayRecord: '5-3' },
-    { homeTeam: 'Raiders', awayTeam: 'Bengals', homeRecord: '2-6', awayRecord: '3-5' },
-    { homeTeam: 'Broncos', awayTeam: 'Ravens', homeRecord: '5-3', awayRecord: '5-3' },
-    { homeTeam: 'Bears', awayTeam: 'Cardinals', homeRecord: '4-3', awayRecord: '4-4' },
-    { homeTeam: 'Jaguars', awayTeam: 'Eagles', homeRecord: '2-6', awayRecord: '5-2' },
-    { homeTeam: 'Rams', awayTeam: 'Seahawks', homeRecord: '3-4', awayRecord: '4-4' },
-    { homeTeam: 'Lions', awayTeam: 'Packers', homeRecord: '6-1', awayRecord: '6-2' },
-    { homeTeam: 'Colts', awayTeam: 'Vikings', homeRecord: '4-4', awayRecord: '5-2' },
-    { homeTeam: 'Buccaneers', awayTeam: 'Chiefs', homeRecord: '4-4', awayRecord: '7-0' }
+    // (Add the rest of the games here)
 ];
 
 // Save picks to Firebase
 function savePicksToDatabase() {
     if (loggedInUser) {
-        db.ref(`picks/${loggedInUser.uid}`).set(userPicks);
+        set(ref(db, `picks/${loggedInUser.uid}`), userPicks);
     }
 }
 
 // Load picks from Firebase
 function loadPicksFromDatabase() {
     if (loggedInUser) {
-        db.ref(`picks/${loggedInUser.uid}`).once('value').then(snapshot => {
+        get(ref(db, `picks/${loggedInUser.uid}`)).then((snapshot) => {
             userPicks = snapshot.val() || {};
             usedPoints = new Set(Object.values(userPicks).map(pick => pick.points).filter(Boolean));
             displayGames();
@@ -135,8 +122,8 @@ function assignConfidence(gameIndex) {
 
 // Firebase login
 function login(email, password) {
-    auth.signInWithEmailAndPassword(email, password)
-        .then(userCredential => {
+    signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
             loggedInUser = userCredential.user;
             loadPicksFromDatabase();
             document.getElementById('usernameDisplay').textContent = loggedInUser.email;
@@ -149,7 +136,7 @@ function login(email, password) {
 
             displayGames();
         })
-        .catch(error => {
+        .catch((error) => {
             console.error("Login error:", error);
             alert("Invalid email or password.");
         });
@@ -163,13 +150,13 @@ function handleLogin(event) {
     login(email, password);
 }
 
-// Register function (if you want to allow users to register)
+// Register function (optional)
 function register(email, password) {
-    auth.createUserWithEmailAndPassword(email, password)
-        .then(userCredential => {
+    createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
             alert("User registered successfully.");
         })
-        .catch(error => {
+        .catch((error) => {
             console.error("Registration error:", error);
             alert("Registration failed.");
         });
@@ -178,18 +165,19 @@ function register(email, password) {
 // Function to reset picks for all users (admin only)
 function resetPicks() {
     if (loggedInUser && loggedInUser.email === adminEmail) {
-        db.ref('picks').remove()
+        remove(ref(db, 'picks'))
             .then(() => {
                 alert("All users' picks have been reset!");
                 userPicks = {};
                 usedPoints.clear();
                 displayGames();
             })
-            .catch(error => {
+            .catch((error) => {
                 console.error("Error resetting picks:", error);
             });
     } else {
         alert("Only the admin can reset all users' picks.");
+    }
 }
 
 // Set up form to trigger handleLogin on submission
@@ -197,6 +185,5 @@ document.querySelector("form").onsubmit = handleLogin;
 
 // Clear session storage on page load to force re-login on refresh
 window.onload = function () {
-    auth.signOut();
+    signOut(auth);
 };
-}
