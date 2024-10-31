@@ -84,6 +84,7 @@ function displayGames() {
 function getAvailableOptions(gameIndex) {
     const options = [];
     for (let i = 1; i <= 15; i++) {
+        // Only include points if not used or if it is already the assigned point for this game
         if (!usedPoints.has(i) || (userPicks[gameIndex] && userPicks[gameIndex].points === i)) {
             options.push(`<option value="${i}">${i}</option>`);
         }
@@ -106,20 +107,23 @@ function selectPick(gameIndex, team) {
 // Assign confidence points
 function assignConfidence(gameIndex) {
     const confidenceInput = document.getElementById(`confidence${gameIndex}`);
-    const points = parseInt(confidenceInput.value);
+    const newPoints = parseInt(confidenceInput.value);
 
+    // If this game already has assigned points, release them from usedPoints
     if (userPicks[gameIndex] && userPicks[gameIndex].points !== null) {
         usedPoints.delete(userPicks[gameIndex].points);
     }
 
-    if (points >= 1 && points <= 15) {
-        usedPoints.add(points);
-        userPicks[gameIndex].points = points;
+    // Assign new points
+    if (newPoints >= 1 && newPoints <= 15) {
+        usedPoints.add(newPoints);
+        userPicks[gameIndex].points = newPoints;
         savePicks();
     } else {
         confidenceInput.value = '';
     }
 
+    // Refresh games to update dropdowns
     displayGames();
 }
 
