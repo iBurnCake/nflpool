@@ -17,6 +17,15 @@ body {
     padding: 20px;
 }
 
+/* Welcome Message Styling */
+#welcomeMessage {
+    font-size: 28px;
+    font-weight: bold;
+    color: #FFD700;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
 /* Centered Login Container Styling */
 #loginSection {
     display: flex;
@@ -89,7 +98,7 @@ button:hover {
 #resetButton {
     position: fixed;
     top: 20px;
-    right: 20px;
+    right: 100px; /* Adjusted to make space for submit button */
     padding: 6px 12px;
     font-size: 12px;
     background-color: #FF0000;
@@ -99,34 +108,7 @@ button:hover {
     cursor: pointer;
     font-weight: bold;
     transition: background-color 0.3s, transform 0.2s;
-    z-index: 1000; /* Ensure it's above other elements */
-}
-
-#resetButton:hover {
-    background-color: #CC0000;
-    transform: translateY(-2px);
-}
-
-#resetButton:active {
-    background-color: #A00000;
-    transform: translateY(0);
-}
-
-/* Reset Button Styling - Top Right Position */
-#resetButton {
-    position: fixed;
-    top: 20px;
-    right: 100px; /* Adjusted to leave space for the submit button */
-    padding: 6px 12px;
-    font-size: 12px;
-    background-color: #FF0000;
-    color: #FFFFFF;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s, transform 0.2s;
-    z-index: 1000; /* Ensure it's above other elements */
+    z-index: 1000;
 }
 
 #resetButton:hover {
@@ -202,7 +184,7 @@ th {
 
 /* Highlight selected team */
 .selected {
-    background-color: #28a745;
+    background-color: #28a745; /* Green */
     color: #FFFFFF;
 }
 
