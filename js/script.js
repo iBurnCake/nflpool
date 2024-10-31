@@ -54,7 +54,7 @@ function handleLogin(event) {
         });
 }
 
-// Function to display games in the table
+// Function to display games and set up confidence dropdowns
 function displayGames() {
     const tableBody = document.getElementById('gamesTable').getElementsByTagName('tbody')[0];
     tableBody.innerHTML = ''; // Clear existing rows
@@ -68,13 +68,26 @@ function displayGames() {
                 <button id="away-${index}" onclick="selectPick(${index}, 'away')">${game.awayTeam}</button>
             </td>
             <td>
-                <select id="confidence${index}" onchange="assignConfidence(${index})" required>
-                    <option value="">Select</option>
-                    ${Array.from({ length: 15 }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('')}
-                </select>
+                <select id="confidence${index}" onchange="assignConfidence(${index})" required></select>
             </td>
         `;
+        updateConfidenceDropdown(index); // Populate dropdown with available points
     });
+}
+
+// Populate dropdown with available points
+function updateConfidenceDropdown(gameIndex) {
+    const dropdown = document.getElementById(`confidence${gameIndex}`);
+    dropdown.innerHTML = '<option value="">Select</option>';
+
+    for (let i = 1; i <= 15; i++) {
+        if (!usedPoints.has(i)) {
+            const option = document.createElement("option");
+            option.value = i;
+            option.text = i;
+            dropdown.appendChild(option);
+        }
+    }
 }
 
 // Handle selection of a team
@@ -97,19 +110,27 @@ window.selectPick = function (gameIndex, team) {
     saveUserPicks(auth.currentUser.uid);
 };
 
-// Assign confidence points
+// Assign confidence points and update dropdowns
 window.assignConfidence = function (gameIndex) {
     const confidenceSelect = document.getElementById(`confidence${gameIndex}`);
     const points = parseInt(confidenceSelect.value);
 
-    if (usedPoints.has(points)) {
-        alert("This confidence point is already used. Choose a different one.");
-        confidenceSelect.value = ''; // Clear duplicate entry
-    } else if (points >= 1 && points <= 15) {
+    if (userPicks[gameIndex]?.points) {
+        usedPoints.delete(userPicks[gameIndex].points); // Remove previous points from set
+    }
+
+    if (points >= 1 && points <= 15 && !usedPoints.has(points)) {
+        // Update user picks and add the point to the used set
         usedPoints.add(points);
         userPicks[gameIndex] = userPicks[gameIndex] || {};
         userPicks[gameIndex].points = points;
+
         saveUserPicks(auth.currentUser.uid);
+
+        // Refresh all dropdowns to reflect available points
+        games.forEach((_, i) => updateConfidenceDropdown(i));
+    } else {
+        confidenceSelect.value = ""; // Reset if point is not available
     }
 };
 
@@ -152,10 +173,13 @@ function displayUserPicks(picks) {
             document.getElementById(`away-${gameIndex}`).classList.add("selected");
         }
 
-        // Set confidence points in dropdown
+        // Set confidence points and update used points
         if (pick.points) {
+            usedPoints.add(pick.points);
             document.getElementById(`confidence${gameIndex}`).value = pick.points;
-            usedPoints.add(pick.points); // Track used points
         }
     }
+
+    // Refresh dropdowns to reflect used points
+    games.forEach((_, i) => updateConfidenceDropdown(i));
 }
