@@ -148,19 +148,21 @@ window.onload = function () {
 // Function to reset picks for all users (admin only)
 function resetPicks() {
     if (loggedInUser === adminUsername) {
-        // Loop through all usernames in userProfiles and clear each user's picks in localStorage
+        // Clear picks for each user in localStorage
         Object.keys(userProfiles).forEach(user => {
-            localStorage.removeItem(user + "_picks");
+            localStorage.removeItem(user + "_picks"); // Remove each user's picks
         });
+
+        // Notify admin that all picks are cleared
         alert("All users' picks have been reset!");
 
-        // Clear admin’s session storage and refresh their picks view
+        // Clear the admin’s picks display as well
         userPicks = {};
         usedPoints.clear();
-        savePicks(); // Save cleared picks for admin
-        sessionStorage.removeItem("userPicks");
+        savePicks(); // Save cleared state for admin
 
-        displayGames(); // Refresh games table
+        // Reset the display for the current admin session
+        displayGames();
     } else {
         alert("Only the admin can reset all users' picks.");
     }
