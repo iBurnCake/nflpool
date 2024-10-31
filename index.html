@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFL Football Pool</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Welcome Message -->
+    <h1 id="welcomeMessage">Welcome to NFL Football Pool</h1>
+
+    <!-- Login Section -->
+    <section id="loginSection">
+        <div class="login-container">
+            <h2>Login</h2>
+            <form onsubmit="handleLogin(event)">
+                <label for="username">Username:</label>
+                <input type="text" id="username" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" required>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- User Home Section (Hidden by Default) -->
+    <section id="userHomeSection" style="display: none;">
+        <div id="topSection">
+            <h1>Welcome to NFL Football Pool</h1>
+            <h2>Welcome, <span id="usernameDisplay"></span>!</h2>
+            <p>Your Personal Pool - Week 9</p>
+        </div>
+        <table id="gamesTable">
+            <thead>
+                <tr>
+                    <th>Matchup</th>
+                    <th>Pick</th>
+                    <th>Confidence Points</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Games will be populated here by JavaScript -->
+            </tbody>
+        </table>
+    </section>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
