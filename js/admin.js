@@ -1,4 +1,20 @@
-import { db, ref, get, child } from './firebaseConfig.js';
+import { auth } from './firebaseConfig.js';
+
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        // Check if the email matches the admin email
+        if (user.email !== "luke.romano2004@gmail.com") {
+            alert("Access denied. Admins only.");
+            window.location.href = "index.html"; // Redirect to main page if not admin
+        }
+    } else {
+        // If no user is logged in, redirect to login page
+        alert("Please log in to access the admin page.");
+        window.location.href = "index.html";
+    }
+});
+
+import { db, ref, get } from './firebaseConfig.js';
 
 const games = [
     { homeTeam: 'Texans', awayTeam: 'Jets', homeRecord: '6-2', awayRecord: '2-6' },
@@ -18,7 +34,13 @@ const games = [
     { homeTeam: 'Buccaneers', awayTeam: 'Chiefs', homeRecord: '4-4', awayRecord: '7-0' }
 ];
 
-document.addEventListener("DOMContentLoaded", loadAllLockedPicks);
+let allUsersData = [];
+let currentIndex = -1;
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("nextUserButton").addEventListener("click", showNextUserPicks);
+    loadAllLockedPicks();
+});
 
 function loadAllLockedPicks() {
     const picksRef = ref(db, 'scoreboards/week9');
@@ -26,8 +48,8 @@ function loadAllLockedPicks() {
     get(picksRef)
         .then((snapshot) => {
             if (snapshot.exists()) {
-                const data = snapshot.val();
-                displayLockedPicks(data);
+                allUsersData = Object.entries(snapshot.val()).filter(([_, data]) => data.locked);
+                showNextUserPicks(); // Start by showing the first user
             } else {
                 console.log("No picks data available.");
             }
@@ -37,27 +59,27 @@ function loadAllLockedPicks() {
         });
 }
 
-function displayLockedPicks(data) {
-    const tableBody = document.getElementById("lockedPicksTable").getElementsByTagName("tbody")[0];
-    tableBody.innerHTML = ""; // Clear existing data
+// Function to display the next user's locked picks
+function showNextUserPicks() {
+    currentIndex = (currentIndex + 1) % allUsersData.length; // Cycle through users
+    const [userId, userData] = allUsersData[currentIndex];
+    const picks = userData.picks;
 
-    for (const userId in data) {
-        const userData = data[userId];
-        const picks = userData.picks;
-        const locked = userData.locked;
+    // Update the current user display
+    document.getElementById("currentUserName").textContent = userId;
 
-        if (!locked) continue;
+    // Populate the user's picks table
+    const tableBody = document.getElementById("currentUserPicksTable").getElementsByTagName("tbody")[0];
+    tableBody.innerHTML = ""; // Clear any existing rows
 
-        for (const gameIndex in picks) {
-            const pick = picks[gameIndex];
-            const row = tableBody.insertRow();
-
-            row.innerHTML = `
-                <td>${userId}</td>
-                <td>${games[gameIndex].homeTeam} vs ${games[gameIndex].awayTeam}</td>
-                <td>${pick.team}</td>
-                <td>${pick.points || 'N/A'}</td>
-            `;
-        }
+    for (const gameIndex in picks) {
+        const pick = picks[gameIndex];
+        const row = tableBody.insertRow();
+        
+        row.innerHTML = `
+            <td>${games[gameIndex].homeTeam} vs ${games[gameIndex].awayTeam}</td>
+            <td>${pick.team}</td>
+            <td>${pick.points || 'N/A'}</td>
+        `;
     }
 }

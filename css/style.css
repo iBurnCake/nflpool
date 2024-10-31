@@ -232,3 +232,22 @@ th {
     background-color: #444;
     font-weight: bold;
 }
+
+
+#nextUserButton {
+    padding: 10px 20px;
+    font-size: 14px;
+    margin-top: 20px;
+    background-color: #3B7EED;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+#nextUserButton:hover {
+    background-color: #1F5B99;
+}
+

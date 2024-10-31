@@ -7,11 +7,13 @@
 </head>
 <body>
     <h1>Locked Picks Overview</h1>
-    <div id="lockedPicksContainer">
-        <table id="lockedPicksTable">
+
+    <!-- Display for the current user's picks -->
+    <div id="userPicksContainer">
+        <h2 id="currentUserDisplay">User: <span id="currentUserName"></span></h2>
+        <table id="currentUserPicksTable">
             <thead>
                 <tr>
-                    <th>User</th>
                     <th>Game</th>
                     <th>Selected Team</th>
                     <th>Confidence Points</th>
@@ -22,6 +24,10 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Button to cycle through users -->
+    <button id="nextUserButton">Next User</button>
+
     <script src="js/admin.js"></script>
 </body>
 </html>
