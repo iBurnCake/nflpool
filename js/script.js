@@ -1,4 +1,26 @@
+// Import Firebase SDKs (assuming you've already linked Firebase SDKs in HTML)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { getDatabase, ref, set, get, remove } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyCEIIp_7mw1lEJi2ySy8rbYI9zIGz1d2d8",
+    authDomain: "nflpool-71337.firebaseapp.com",
+    databaseURL: "https://nflpool-71337-default-rtdb.firebaseio.com",
+    projectId: "nflpool-71337",
+    storageBucket: "nflpool-71337.appspot.com",
+    messagingSenderId: "2003523098",
+    appId: "1:2003523098:web:713a9905761dabae7863a3",
+    measurementId: "G-1EBF3DPND1"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const database = getDatabase(app);
 const adminEmail = "luke.romano2004@gmail.com";
+
 let userPicks = {};
 let usedPoints = new Set();
 let loggedInUser = null;
@@ -22,19 +44,17 @@ const games = [
     { homeTeam: 'Buccaneers', awayTeam: 'Chiefs', homeRecord: '4-4', awayRecord: '7-0' }
 ];
 
-// Save user picks to Firebase
+// Save user picks to Firebase Database
 function savePicksToDatabase() {
     if (loggedInUser) {
-        console.log("Saving picks for user:", loggedInUser.uid);
-        firebase.database().ref(`picks/${loggedInUser.uid}`).set(userPicks);
+        set(ref(database, `picks/${loggedInUser.uid}`), userPicks);
     }
 }
 
-// Load user picks from Firebase
+// Load user picks from Firebase Database
 function loadPicksFromDatabase() {
     if (loggedInUser) {
-        console.log("Loading picks for user:", loggedInUser.uid);
-        firebase.database().ref(`picks/${loggedInUser.uid}`).once('value').then(snapshot => {
+        get(ref(database, `picks/${loggedInUser.uid}`)).then((snapshot) => {
             userPicks = snapshot.val() || {};
             usedPoints = new Set(Object.values(userPicks).map(pick => pick.points).filter(Boolean));
             displayGames();
@@ -119,12 +139,9 @@ document.getElementById("loginForm").addEventListener("submit", (e) => {
     const email = document.getElementById("loginEmail").value;
     const password = document.getElementById("loginPassword").value;
 
-    console.log("Attempting login for email:", email);
-
-    firebase.auth().signInWithEmailAndPassword(email, password)
+    signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
             loggedInUser = userCredential.user;
-            console.log("Login successful:", loggedInUser.uid);
             loadPicksFromDatabase(); // Load picks from Firebase Database
             document.getElementById("usernameDisplay").textContent = email;
             document.getElementById("loginSection").style.display = "none";
@@ -144,8 +161,7 @@ document.getElementById("loginForm").addEventListener("submit", (e) => {
 // Function to reset picks for all users (admin only)
 function resetPicks() {
     if (loggedInUser && loggedInUser.email === adminEmail) {
-        console.log("Resetting all user picks as admin");
-        firebase.database().ref('picks').remove()
+        remove(ref(database, 'picks'))
             .then(() => {
                 alert("All users' picks have been reset!");
                 userPicks = {};
@@ -157,10 +173,10 @@ function resetPicks() {
             });
     } else {
         alert("Only the admin can reset all users' picks.");
-    }
 }
 
 // Clear session storage on page load to force re-login on refresh
 window.onload = function () {
-    firebase.auth().signOut();
+    signOut(auth);
 };
+}
