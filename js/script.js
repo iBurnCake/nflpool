@@ -1,4 +1,3 @@
-// Firebase configuration and initialization (already included in your HTML)
 const adminEmail = "luke.romano2004@gmail.com";
 let userPicks = {};
 let usedPoints = new Set();
@@ -26,6 +25,7 @@ const games = [
 // Save user picks to Firebase
 function savePicksToDatabase() {
     if (loggedInUser) {
+        console.log("Saving picks for user:", loggedInUser.uid);
         firebase.database().ref(`picks/${loggedInUser.uid}`).set(userPicks);
     }
 }
@@ -33,6 +33,7 @@ function savePicksToDatabase() {
 // Load user picks from Firebase
 function loadPicksFromDatabase() {
     if (loggedInUser) {
+        console.log("Loading picks for user:", loggedInUser.uid);
         firebase.database().ref(`picks/${loggedInUser.uid}`).once('value').then(snapshot => {
             userPicks = snapshot.val() || {};
             usedPoints = new Set(Object.values(userPicks).map(pick => pick.points).filter(Boolean));
@@ -118,9 +119,12 @@ document.getElementById("loginForm").addEventListener("submit", (e) => {
     const email = document.getElementById("loginEmail").value;
     const password = document.getElementById("loginPassword").value;
 
+    console.log("Attempting login for email:", email);
+
     firebase.auth().signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
             loggedInUser = userCredential.user;
+            console.log("Login successful:", loggedInUser.uid);
             loadPicksFromDatabase(); // Load picks from Firebase Database
             document.getElementById("usernameDisplay").textContent = email;
             document.getElementById("loginSection").style.display = "none";
@@ -136,9 +140,11 @@ document.getElementById("loginForm").addEventListener("submit", (e) => {
             alert("Invalid email or password.");
         });
 });
+
 // Function to reset picks for all users (admin only)
 function resetPicks() {
     if (loggedInUser && loggedInUser.email === adminEmail) {
+        console.log("Resetting all user picks as admin");
         firebase.database().ref('picks').remove()
             .then(() => {
                 alert("All users' picks have been reset!");
@@ -151,10 +157,10 @@ function resetPicks() {
             });
     } else {
         alert("Only the admin can reset all users' picks.");
+    }
 }
 
 // Clear session storage on page load to force re-login on refresh
 window.onload = function () {
     firebase.auth().signOut();
 };
-}
