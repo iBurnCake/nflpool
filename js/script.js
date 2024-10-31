@@ -144,3 +144,14 @@ document.querySelector("form").onsubmit = handleLogin;
 window.onload = function () {
     sessionStorage.removeItem("loggedInUser");
 };
+
+// Function to reset all user picks for the current user
+function resetPicks() {
+    userPicks = {};          // Clear local picks
+    usedPoints.clear();       // Clear used points
+    savePicks();              // Save cleared picks to localStorage
+    sessionStorage.removeItem("userPicks"); // Clear session storage picks
+    alert("All picks have been reset!");
+
+    displayGames();           // Refresh games table
+}
