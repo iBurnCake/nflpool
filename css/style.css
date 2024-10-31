@@ -171,3 +171,58 @@ th {
     background-color: #D13C1D;
     transform: translateY(0);
 }
+
+/* Registration Section */
+.register-container {
+    background-color: #282828;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.7);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.register-container h2 {
+    color: #FFD700;
+    margin-bottom: 20px;
+}
+
+.register-container label {
+    font-weight: bold;
+    color: #FFD700;
+    display: block;
+    text-align: left;
+    margin-bottom: 5px;
+}
+
+.register-container input[type="email"],
+.register-container input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+    background-color: #1E1E1E;
+    color: #FFFFFF;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.register-container button {
+    padding: 12px;
+    width: 100%;
+    font-size: 16px;
+    background-color: #FFD700;
+    color: #282828;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.register-container button:hover {
+    background-color: #E6B800;
+}
