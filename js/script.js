@@ -82,11 +82,45 @@ function resetPicks() {
 
 // Handle selection of a team
 function selectPick(gameIndex, team) {
-    userPicks[gameIndex] = { team, points: userPicks[gameIndex]?.points || null };
-    savePicks();
+    // Remove the selected class from both buttons in case the user changes the pick
+    const buttons = document.querySelectorAll(`#gamesTable tr:nth-child(${gameIndex + 1}) button`);
+    buttons.forEach(button => button.classList.remove("selected"));
+    
+    // Add the selected class to the chosen button
+    const selectedButton = team === 'home' ? buttons[0] : buttons[1];
+    selectedButton.classList.add("selected");
+
+    // Save the selected pick
+    userPicks[gameIndex] = { team, points: null };
     alert(`You selected ${team} for game ${gameIndex + 1}`);
-    displayGames(); // Refresh the display to show highlighted selection
+    
+    // Store the picks in localStorage to persist them across sessions
+    sessionStorage.setItem("userPicks", JSON.stringify(userPicks));
 }
+
+// Call this function on page load to reapply selected classes for saved picks
+function applySavedPicks() {
+    const savedPicks = JSON.parse(sessionStorage.getItem("userPicks") || "{}");
+    userPicks = savedPicks;
+
+    Object.keys(savedPicks).forEach(gameIndex => {
+        const pick = savedPicks[gameIndex];
+        const buttons = document.querySelectorAll(`#gamesTable tr:nth-child(${+gameIndex + 1}) button`);
+        
+        // Add selected class to saved pick button
+        const selectedButton = pick.team === 'home' ? buttons[0] : buttons[1];
+        selectedButton.classList.add("selected");
+
+        // If points were assigned, display them
+        if (pick.points !== null) {
+            const confidenceInput = document.getElementById(`confidence${gameIndex}`);
+            confidenceInput.value = pick.points;
+        }
+    });
+}
+
+// Call applySavedPicks on page load or after login to restore saved picks
+applySavedPicks();
 
 // Assign confidence points
 function assignConfidence(gameIndex) {
