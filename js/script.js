@@ -1,18 +1,16 @@
-// Import Firebase functions and initialize Firebase
+// Firebase imports and initialization
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
-import { getDatabase, ref, set, remove, get } from "firebase/database";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { getDatabase, ref, set, get, child } from "firebase/database";
 
-// Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCEIIp_7mw1lEJi2ySy8rbYI9zIGz1d2d8",
-  authDomain: "nflpool-71337.firebaseapp.com",
-  projectId: "nflpool-71337",
-  storageBucket: "nflpool-71337.appspot.com",
-  messagingSenderId: "2003523098",
-  appId: "1:2003523098:web:713a9905761dabae7863a3",
-  measurementId: "G-1EBF3DPND1",
-  databaseURL: "https://nflpool-71337-default-rtdb.firebaseio.com"
+    apiKey: "AIzaSyCEIIp_7mw1lEJi2ySy8rbYI9zIGz1d2d8",
+    authDomain: "nflpool-71337.firebaseapp.com",
+    projectId: "nflpool-71337",
+    storageBucket: "nflpool-71337.firebasestorage.app",
+    messagingSenderId: "2003523098",
+    appId: "1:2003523098:web:713a9905761dabae7863a3",
+    measurementId: "G-1EBF3DPND1"
 };
 
 // Initialize Firebase
@@ -168,19 +166,37 @@ function register(email, password) {
     });
 }
 
-// Handle login form submission
-function handleLogin(event) {
-  event.preventDefault();
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  login(email, password);
+// Show Login Form
+function showLogin() {
+    document.getElementById("registerSection").style.display = "none";
+    document.getElementById("loginSection").style.display = "block";
 }
 
-// Handle registration form submission
-function handleRegister() {
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  register(email, password);
+// Show Registration Form
+function showRegister() {
+    document.getElementById("loginSection").style.display = "none";
+    document.getElementById("registerSection").style.display = "block";
+}
+
+// Handle Registration
+function handleRegister(event) {
+    event.preventDefault();
+    const email = document.getElementById("regEmail").value;
+    const password = document.getElementById("regPassword").value;
+
+    createUserWithEmailAndPassword(auth, email, password)
+        .then(userCredential => {
+            alert("Registration successful! You can now log in.");
+            // Optionally, store user data in the database
+            set(ref(db, 'users/' + userCredential.user.uid), {
+                email: email
+            });
+            showLogin();
+        })
+        .catch(error => {
+            console.error("Registration error:", error);
+            alert("Registration failed: " + error.message);
+        });
 }
 
 // Function to reset picks for all users (admin only)
