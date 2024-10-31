@@ -145,6 +145,15 @@ function saveUserPicks(userId) {
         });
 }
 
+// Reset user picks
+window.resetPicks = function () {
+    userPicks = {}; // Clear picks data
+    usedPoints.clear(); // Clear used points
+    saveUserPicks(auth.currentUser.uid); // Save empty picks to Firebase
+
+    displayGames(); // Refresh the UI to reflect cleared selections
+};
+
 // Load user picks from Firebase and apply highlights
 function loadUserPicks(userId) {
     get(child(ref(db), `scoreboards/week9/${userId}`))
