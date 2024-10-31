@@ -131,6 +131,10 @@ th {
     color: #FFFFFF;
 }
 
+body {
+    position: relative;
+}
+
 /* Reset Button Styling - Top Right Position */
 #resetButton {
     position: absolute;
