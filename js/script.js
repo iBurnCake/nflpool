@@ -121,3 +121,37 @@ function displayUserPicks(picks) {
         document.getElementById(`confidence${gameIndex}`).value = pick.points;
     }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    // Attach event listener to the login form
+    const loginForm = document.getElementById("loginForm");
+    if (loginForm) {
+        loginForm.addEventListener("submit", handleLogin);
+    } else {
+        console.error("Login form not found.");
+    }
+});
+
+function handleLogin(event) {
+    event.preventDefault();
+    console.log("Login form submitted"); // Debug log
+
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    console.log("Attempting to log in with:", email); // Debug log
+
+    signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            console.log("Login successful:", user); // Debug log
+            document.getElementById('usernameDisplay').textContent = user.email;
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('userHomeSection').style.display = 'block';
+            displayGames();
+            loadUserPicks(user.uid);
+        })
+        .catch((error) => {
+            console.error("Login error:", error);
+            alert("Invalid email or password.");
+        });
+}
