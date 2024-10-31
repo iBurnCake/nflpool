@@ -99,16 +99,18 @@ function assignConfidence(gameIndex) {
     const points = parseInt(confidenceInput.value);
 
     if (usedPoints.has(points)) {
-        alert("This confidence point is already used. Choose a different one.");
+        // Remove this alert and instead clear the input without a pop-up
         confidenceInput.value = ''; // Clear duplicate entry
     } else if (points >= 1 && points <= 15) {
         usedPoints.add(points);
         userPicks[gameIndex].points = points;
         savePicks(); // Save picks to persist points
     } else {
-        alert("Please enter a value between 1 and 16.");
+        // Remove this alert and simply clear invalid inputs without a pop-up
+        confidenceInput.value = ''; // Clear invalid entry
     }
 }
+
 
 
 // Login function
