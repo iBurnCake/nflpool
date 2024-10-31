@@ -22,13 +22,12 @@ const games = [
 
 let userPicks = {};
 let usedPoints = new Set();
+let isLocked = false;
 
 document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("loginForm");
     if (loginForm) {
         loginForm.addEventListener("submit", handleLogin);
-    } else {
-        console.error("Login form not found.");
     }
 });
 
@@ -53,7 +52,7 @@ function handleLogin(event) {
         });
 }
 
-// Function to display games and set up confidence dropdowns
+// Display games and setup confidence dropdowns
 function displayGames() {
     const tableBody = document.getElementById('gamesTable').getElementsByTagName('tbody')[0];
     tableBody.innerHTML = ''; // Clear existing rows
@@ -63,8 +62,8 @@ function displayGames() {
         row.innerHTML = `
             <td>${game.homeTeam} (${game.homeRecord}) vs ${game.awayTeam} (${game.awayRecord})</td>
             <td>
-                <button id="home-${index}" onclick="selectPick(${index}, 'home')">${game.homeTeam}</button>
-                <button id="away-${index}" onclick="selectPick(${index}, 'away')">${game.awayTeam}</button>
+                <button id="home-${index}" onclick="selectPick(${index}, 'home')" class="table-button">${game.homeTeam}</button>
+                <button id="away-${index}" onclick="selectPick(${index}, 'away')" class="table-button">${game.awayTeam}</button>
             </td>
             <td>
                 <select id="confidence${index}" onchange="assignConfidence(${index})" required></select>
@@ -92,10 +91,11 @@ function updateConfidenceDropdown(gameIndex) {
 
 // Handle selection of a team
 window.selectPick = function (gameIndex, team) {
+    if (isLocked) return;
+
     userPicks[gameIndex] = userPicks[gameIndex] || {};
     userPicks[gameIndex].team = team;
 
-    // Highlight selected team and remove highlight from the other
     const homeButton = document.getElementById(`home-${gameIndex}`);
     const awayButton = document.getElementById(`away-${gameIndex}`);
     if (team === 'home') {
@@ -106,76 +106,88 @@ window.selectPick = function (gameIndex, team) {
         homeButton.classList.remove("selected");
     }
 
-    // Save picks to Firebase
     saveUserPicks(auth.currentUser.uid);
 };
 
 // Assign confidence points and update dropdowns
 window.assignConfidence = function (gameIndex) {
+    if (isLocked) return;
+
     const confidenceSelect = document.getElementById(`confidence${gameIndex}`);
     const points = parseInt(confidenceSelect.value);
     const confidenceDisplay = document.getElementById(`confidenceDisplay${gameIndex}`);
 
-    // Check if a previous confidence point was assigned for this game and remove it
     if (userPicks[gameIndex]?.points) {
         usedPoints.delete(userPicks[gameIndex].points);
     }
 
-    // Validate and save the selected confidence points
     if (points >= 1 && points <= 15 && !usedPoints.has(points)) {
-        // Update user picks with the new confidence points
         userPicks[gameIndex] = userPicks[gameIndex] || {};
         userPicks[gameIndex].points = points;
         usedPoints.add(points);
 
-        // Display the selected confidence point next to the dropdown
         confidenceDisplay.textContent = points;
 
-        // Save picks to Firebase
         saveUserPicks(auth.currentUser.uid);
-
-        // Refresh dropdown options to reflect the updated available points
         games.forEach((_, i) => updateConfidenceDropdown(i));
     } else {
-        confidenceSelect.value = ""; // Clear the selection if point is already used
-        confidenceDisplay.textContent = ""; // Clear display if invalid
+        confidenceSelect.value = "";
+        confidenceDisplay.textContent = "";
     }
 };
 
 // Save user picks to Firebase
 function saveUserPicks(userId) {
-    set(ref(db, `scoreboards/week9/${userId}`), userPicks)
-        .then(() => {
-            console.log("Picks saved successfully!");
-        })
-        .catch((error) => {
-            console.error("Error saving picks:", error);
-        });
+    set(ref(db, `scoreboards/week9/${userId}`), { picks: userPicks, locked: isLocked })
+        .then(() => console.log("Picks saved successfully!"))
+        .catch((error) => console.error("Error saving picks:", error));
 }
 
-// Reset user picks
-window.resetPicks = function () {
-    userPicks = {}; // Clear picks data
-    usedPoints.clear(); // Clear used points
-    saveUserPicks(auth.currentUser.uid); // Save empty picks to Firebase
-
-    displayGames(); // Refresh the UI to reflect cleared selections
+// Lock picks permanently
+window.submitPicks = function () {
+    isLocked = true;
+    disableAllSelections();
+    saveUserPicks(auth.currentUser.uid);
+    alert("Your picks have been submitted and are now locked!");
 };
 
-// Load user picks from Firebase and apply highlights
+// Disable all selection options
+function disableAllSelections() {
+    games.forEach((_, index) => {
+        document.getElementById(`confidence${index}`).disabled = true;
+        document.getElementById(`home-${index}`).disabled = true;
+        document.getElementById(`away-${index}`).disabled = true;
+    });
+    document.getElementById('submitButton').disabled = true;
+}
+
+// Reset user picks (unlocked state)
+window.resetPicks = function () {
+    if (isLocked) return; // Prevent reset if locked
+    userPicks = {};
+    usedPoints.clear();
+    saveUserPicks(auth.currentUser.uid);
+    displayGames();
+};
+
+// Load user picks and locked state from Firebase
 function loadUserPicks(userId) {
     get(child(ref(db), `scoreboards/week9/${userId}`))
         .then((snapshot) => {
             if (snapshot.exists()) {
-                userPicks = snapshot.val();
+                const data = snapshot.val();
+                userPicks = data.picks || {};
+                isLocked = data.locked || false;
+
                 displayUserPicks(userPicks);
+                if (isLocked) {
+                    disableAllSelections();
+                }
             } else {
                 console.log("No picks available for this user.");
             }
         })
-        .catch((error) => {
-            console.error("Error loading picks:", error);
-        });
+        .catch((error) => console.error("Error loading picks:", error));
 }
 
 // Display saved picks and highlight selections
@@ -183,37 +195,18 @@ function displayUserPicks(picks) {
     for (const gameIndex in picks) {
         const pick = picks[gameIndex];
 
-        // Highlight selected team button
         if (pick.team === 'home') {
             document.getElementById(`home-${gameIndex}`).classList.add("selected");
         } else if (pick.team === 'away') {
             document.getElementById(`away-${gameIndex}`).classList.add("selected");
         }
 
-        // Set confidence points and update used points
         if (pick.points) {
             usedPoints.add(pick.points);
             document.getElementById(`confidence${gameIndex}`).value = pick.points;
-            document.getElementById(`confidenceDisplay${gameIndex}`).textContent = pick.points; // Display confidence
+            document.getElementById(`confidenceDisplay${gameIndex}`).textContent = pick.points;
         }
     }
 
-    // Refresh dropdowns to reflect used points
     games.forEach((_, i) => updateConfidenceDropdown(i));
 }
-
-// Function to lock the user's picks
-window.submitPicks = function () {
-    // Disable all dropdowns and team buttons
-    games.forEach((_, index) => {
-        document.getElementById(`confidence${index}`).disabled = true;
-        document.getElementById(`home-${index}`).disabled = true;
-        document.getElementById(`away-${index}`).disabled = true;
-    });
-
-    // Disable the submit button after picks are locked
-    document.getElementById('submitButton').disabled = true;
-
-    // Optionally, save the locked state to Firebase or display a confirmation message
-    alert("Your picks have been submitted and are now locked!");
-};
