@@ -95,8 +95,8 @@ button:hover {
 
 /* Highlight selected team button */
 .selected {
-    background-color: #32CD32; /* Lime green for selected state */
-    color: #FFFFFF;
+    background-color: #00ff2a;
+    color: #1E1E1E;
     font-weight: bold;
 }
 

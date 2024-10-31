@@ -56,8 +56,8 @@ function displayGames() {
         row.innerHTML = `
             <td>${game.homeTeam} (${game.homeRecord}) vs ${game.awayTeam} (${game.awayRecord})</td>
             <td>
-                <button onclick="selectPick(${index}, 'home')">${game.homeTeam}</button>
-                <button onclick="selectPick(${index}, 'away')">${game.awayTeam}</button>
+                <button id="homeTeam${index}" onclick="selectPick(${index}, 'home')">${game.homeTeam}</button>
+                <button id="awayTeam${index}" onclick="selectPick(${index}, 'away')">${game.awayTeam}</button>
             </td>
             <td>
                 <input type="number" id="confidence${index}" min="1" max="15" onchange="assignConfidence(${index})" required>
@@ -66,7 +66,11 @@ function displayGames() {
 
         // Load saved pick and confidence points if they exist
         if (userPicks[index]) {
-            document.getElementById(userPicks[index].team + "Team" + index).classList.add('selected');
+            // Highlight the selected team button
+            const selectedButtonId = userPicks[index].team === 'home' ? `homeTeam${index}` : `awayTeam${index}`;
+            document.getElementById(selectedButtonId).classList.add('selected');
+
+            // Set the saved confidence points
             document.getElementById(`confidence${index}`).value = userPicks[index].points;
         }
     });
