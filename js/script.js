@@ -48,6 +48,7 @@ function loadPicks() {
     }
 }
 
+// Function to display games in the table
 function displayGames() {
     const tableBody = document.getElementById('gamesTable').getElementsByTagName('tbody')[0];
     tableBody.innerHTML = ''; // Clear existing rows
@@ -77,22 +78,38 @@ function displayGames() {
             document.getElementById(`confidence${index}`).value = userPicks[index].points;
         }
     });
+    updateDropdownOptions();
 }
 
+// Update all dropdowns to reflect used points
+function updateDropdownOptions() {
+    games.forEach((_, index) => {
+        const dropdown = document.getElementById(`confidence${index}`);
+        const currentSelection = userPicks[index] ? userPicks[index].points : null;
+
+        dropdown.innerHTML = `<option value="" disabled>Select Points</option>`;
+        for (let i = 1; i <= 15; i++) {
+            if (!usedPoints.has(i) || i === currentSelection) {
+                dropdown.innerHTML += `<option value="${i}">${i}</option>`;
+            }
+        }
+
+        if (currentSelection) {
+            dropdown.value = currentSelection;
+        }
+    });
+}
 
 // Handle selection of a team
 function selectPick(gameIndex, team) {
-    // Remove the selected class from both buttons in case the user changes the pick
     const buttons = document.querySelectorAll(`#gamesTable tr:nth-child(${gameIndex + 1}) button`);
     buttons.forEach(button => button.classList.remove("selected"));
-    
-    // Add the selected class to the chosen button
+
     const selectedButton = team === 'home' ? buttons[0] : buttons[1];
     selectedButton.classList.add("selected");
 
-    // Save the selected pick
-    userPicks[gameIndex] = { team, points: null };
-    savePicks(); // Save picks to persist selections
+    userPicks[gameIndex] = { team, points: userPicks[gameIndex] ? userPicks[gameIndex].points : null };
+    savePicks();
 }
 
 // Assign confidence points
@@ -100,27 +117,26 @@ function assignConfidence(gameIndex) {
     const confidenceInput = document.getElementById(`confidence${gameIndex}`);
     const points = parseInt(confidenceInput.value);
 
-    if (usedPoints.has(points)) {
-        // Remove this alert and instead clear the input without a pop-up
-        confidenceInput.value = ''; // Clear duplicate entry
-    } else if (points >= 1 && points <= 15) {
-        usedPoints.add(points);
+    if (userPicks[gameIndex] && userPicks[gameIndex].points) {
+        usedPoints.delete(userPicks[gameIndex].points);
+    }
+
+    if (points >= 1 && points <= 15 && !usedPoints.has(points)) {
         userPicks[gameIndex].points = points;
-        savePicks(); // Save picks to persist points
+        usedPoints.add(points);
+        savePicks();
+        updateDropdownOptions();
     } else {
-        // Remove this alert and simply clear invalid inputs without a pop-up
-        confidenceInput.value = ''; // Clear invalid entry
+        confidenceInput.value = '';
     }
 }
-
-
 
 // Login function
 function login(username, password) {
     if (userProfiles[username] === password) {
         loggedInUser = username;
         sessionStorage.setItem("loggedInUser", username);
-        loadPicks(); 
+        loadPicks();
         document.getElementById('usernameDisplay').textContent = username;
         document.getElementById('loginSection').style.display = 'none';
         document.getElementById('userHomeSection').style.display = 'block';
@@ -154,20 +170,13 @@ window.onload = function () {
 // Function to reset picks for all users (admin only)
 function resetPicks() {
     if (loggedInUser === adminUsername) {
-        // Clear picks for each user in localStorage
         Object.keys(userProfiles).forEach(user => {
-            localStorage.removeItem(user + "_picks"); // Remove each user's picks
+            localStorage.removeItem(user + "_picks");
         });
 
-        // Notify admin that all picks are cleared
-        alert("All users' picks have been reset!");
-
-        // Clear the admin’s picks display as well
         userPicks = {};
         usedPoints.clear();
-        savePicks(); // Save cleared state for admin
-
-        // Reset the display for the current admin session
+        savePicks();
         displayGames();
     } else {
         alert("Only the admin can reset all users' picks.");
