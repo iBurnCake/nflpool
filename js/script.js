@@ -136,7 +136,6 @@ document.getElementById("loginForm").addEventListener("submit", (e) => {
             alert("Invalid email or password.");
         });
 });
-
 // Function to reset picks for all users (admin only)
 function resetPicks() {
     if (loggedInUser && loggedInUser.email === adminEmail) {
