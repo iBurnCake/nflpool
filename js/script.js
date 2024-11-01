@@ -22,7 +22,6 @@ const games = [
 
 let userPicks = {};
 let usedPoints = new Set();
-let isLocked = false;
 
 document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("loginForm");
@@ -89,9 +88,8 @@ function updateConfidenceDropdown(gameIndex) {
     }
 }
 
+// Handle selection of a team
 window.selectPick = function (gameIndex, team) {
-    // if (isLocked) return;
-
     userPicks[gameIndex] = userPicks[gameIndex] || {};
     userPicks[gameIndex].team = team;
 
@@ -108,9 +106,8 @@ window.selectPick = function (gameIndex, team) {
     saveUserPicks(auth.currentUser.uid);
 };
 
+// Assign confidence points and update dropdowns
 window.assignConfidence = function (gameIndex) {
-    // if (isLocked) return;
-
     const confidenceSelect = document.getElementById(`confidence${gameIndex}`);
     const points = parseInt(confidenceSelect.value);
     const confidenceDisplay = document.getElementById(`confidenceDisplay${gameIndex}`);
@@ -136,37 +133,10 @@ window.assignConfidence = function (gameIndex) {
 
 // Save user picks to Firebase
 function saveUserPicks(userId) {
-    set(ref(db, `scoreboards/week9/${userId}`), { picks: userPicks, locked: isLocked })
+    set(ref(db, `scoreboards/week9/${userId}`), { picks: userPicks })
         .then(() => console.log("Picks saved successfully!"))
         .catch((error) => console.error("Error saving picks:", error));
 }
-
-// Lock picks permanently
-window.submitPicks = function () {
-    isLocked = true;
-    disableAllSelections();
-    saveUserPicks(auth.currentUser.uid);
-    alert("Your picks have been submitted and are now locked!");
-};
-
-// Disable all selection options
-function disableAllSelections() {
-    games.forEach((_, index) => {
-        document.getElementById(`confidence${index}`).disabled = true;
-        document.getElementById(`home-${index}`).disabled = true;
-        document.getElementById(`away-${index}`).disabled = true;
-    });
-    document.getElementById('submitButton').disabled = true;
-}
-
-// Reset user picks (unlocked state)
-window.resetPicks = function () {
-    if (isLocked) return; // Prevent reset if locked
-    userPicks = {};
-    usedPoints.clear();
-    saveUserPicks(auth.currentUser.uid);
-    displayGames();
-};
 
 // Load user picks and locked state from Firebase
 function loadUserPicks(userId) {
@@ -175,12 +145,8 @@ function loadUserPicks(userId) {
             if (snapshot.exists()) {
                 const data = snapshot.val();
                 userPicks = data.picks || {};
-                isLocked = data.locked || false;
 
                 displayUserPicks(userPicks);
-                if (isLocked) {
-                    disableAllSelections();
-                }
             } else {
                 console.log("No picks available for this user.");
             }
@@ -207,20 +173,4 @@ function displayUserPicks(picks) {
     }
 
     games.forEach((_, i) => updateConfidenceDropdown(i));
-}
-
-window.unlockPicks = function () {
-    isLocked = false;
-    enableAllSelections();
-    alert("Picks are temporarily unlocked. You can modify them now.");
-};
-
-// Function to enable all selection options
-function enableAllSelections() {
-    games.forEach((_, index) => {
-        document.getElementById(`confidence${index}`).disabled = false;
-        document.getElementById(`home-${index}`).disabled = false;
-        document.getElementById(`away-${index}`).disabled = false;
-    });
-    document.getElementById('submitButton').disabled = false;
 }
