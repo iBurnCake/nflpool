@@ -89,9 +89,8 @@ function updateConfidenceDropdown(gameIndex) {
     }
 }
 
-// Handle selection of a team
 window.selectPick = function (gameIndex, team) {
-    if (isLocked) return;
+    // if (isLocked) return;
 
     userPicks[gameIndex] = userPicks[gameIndex] || {};
     userPicks[gameIndex].team = team;
@@ -109,9 +108,8 @@ window.selectPick = function (gameIndex, team) {
     saveUserPicks(auth.currentUser.uid);
 };
 
-// Assign confidence points and update dropdowns
 window.assignConfidence = function (gameIndex) {
-    if (isLocked) return;
+    // if (isLocked) return;
 
     const confidenceSelect = document.getElementById(`confidence${gameIndex}`);
     const points = parseInt(confidenceSelect.value);
@@ -211,19 +209,3 @@ function displayUserPicks(picks) {
     games.forEach((_, i) => updateConfidenceDropdown(i));
 }
 
-window.submitPicks = function () {
-    // Temporarily comment out these lines
-    // isLocked = true;
-    // disableAllSelections();
-    
-    saveUserPicks(auth.currentUser.uid); // Save picks without locking
-    alert("Picks saved! Locking is temporarily disabled.");''
-};
-
-window.submitPicks = function () {
-    isLocked = false;
-    disableAllSelections(); // Re-enable locking after saving
-    
-    saveUserPicks(auth.currentUser.uid);
-    alert("Your picks have been submitted and are now locked!");
-};
