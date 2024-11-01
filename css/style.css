@@ -232,3 +232,18 @@ th {
     background-color: #444;
     font-weight: bold;
 }
+
+#unlockButton {
+    padding: 10px 16px;
+    background-color: #FFCC00;
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+#unlockButton:hover {
+    background-color: #E6B800;
+}

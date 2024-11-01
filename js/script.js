@@ -209,3 +209,18 @@ function displayUserPicks(picks) {
     games.forEach((_, i) => updateConfidenceDropdown(i));
 }
 
+window.unlockPicks = function () {
+    isLocked = false;
+    enableAllSelections();
+    alert("Picks are temporarily unlocked. You can modify them now.");
+};
+
+// Function to enable all selection options
+function enableAllSelections() {
+    games.forEach((_, index) => {
+        document.getElementById(`confidence${index}`).disabled = false;
+        document.getElementById(`home-${index}`).disabled = false;
+        document.getElementById(`away-${index}`).disabled = false;
+    });
+    document.getElementById('submitButton').disabled = false;
+}
