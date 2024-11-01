@@ -217,5 +217,13 @@ window.submitPicks = function () {
     // disableAllSelections();
     
     saveUserPicks(auth.currentUser.uid); // Save picks without locking
-    alert("Picks saved! Locking is temporarily disabled.");
+    alert("Picks saved! Locking is temporarily disabled.");''
+};
+
+window.submitPicks = function () {
+    isLocked = false;
+    disableAllSelections(); // Re-enable locking after saving
+    
+    saveUserPicks(auth.currentUser.uid);
+    alert("Your picks have been submitted and are now locked!");
 };
