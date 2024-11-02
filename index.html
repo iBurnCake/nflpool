@@ -13,7 +13,7 @@
     <!-- Login Section -->
     <section id="loginSection">
         <div class="login-container">
-            <h2>Login V13.4</h2>
+            <h2>Login V13.5</h2>
             <form id="loginForm">
                 <label for="email">Email:</label>
                 <input type="text" id="email" required>
@@ -24,33 +24,33 @@
         </div>
     </section>
 
-    <!-- User Home Section (Hidden by Default) -->
-    <section id="userHomeSection" style="display: none;">
-        <div id="topSection">
-            <h1>NFL Football Pool</h1>
-            <h2>Welcome, <span id="usernameDisplay"></span>!</h2>
-            <p>Your Personal Pool - Week 9</p>
-        </div>
+   <!-- User Home Section (Hidden by Default) -->
+<section id="userHomeSection" style="display: none;">
+    <div id="topSection">
+        <h1>NFL Football Pool</h1>
+        <h2>Welcome, <span id="usernameDisplay"></span>!</h2>
+        <p>Your Personal Pool - Week 9</p>
+    </div>
 
-        <table id="gamesTable">
-            <thead>
-                <tr>
-                    <th>Matchup</th>
-                    <th>Pick</th>
-                    <th>Confidence Points</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Games will be populated here by JavaScript -->
-            </tbody>
-        </table>
+    <!-- Buttons at the top -->
+    <div id="topButtonContainer">
+        <button id="resetButton" onclick="resetPicks()">Reset Picks</button>
+        <button id="submitButton" onclick="submitPicks()">Submit Picks</button>
+    </div>
 
-        <!-- Buttons -->
-        <div id="buttonContainer">
-            <button id="resetButton" onclick="resetPicks()">Reset Picks</button>
-            <button id="submitButton" onclick="submitPicks()">Submit Picks</button>
-        </div>
-    </section>
+    <table id="gamesTable">
+        <thead>
+            <tr>
+                <th>Matchup</th>
+                <th>Pick</th>
+                <th>Confidence Points</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Games will be populated here by JavaScript -->
+        </tbody>
+    </table>
+</section>
 
     <!-- Load Firebase Configuration and Main Script -->
     <script type="module" src="js/firebaseConfig.js"></script>
