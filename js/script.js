@@ -44,10 +44,17 @@ function handleLogin(event) {
             document.getElementById('userHomeSection').style.display = 'block';
             displayGames();
             loadUserPicks(user.uid);
+
+            // Hide any previous incorrect login message if login is successful
+            console.log("Login successful");
         })
         .catch((error) => {
             console.error("Login error:", error);
-            alert("Invalid email or password.");
+
+            // Display the alert only if the error specifically indicates login failure
+            if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                alert("Invalid email or password.");
+            }
         });
 }
 
