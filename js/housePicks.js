@@ -22,6 +22,11 @@ const games = [
 document.addEventListener("DOMContentLoaded", () => {
     const housePicksTableBody = document.getElementById("housePicksTable").getElementsByTagName("tbody")[0];
 
+    if (!housePicksTableBody) {
+        console.error("housePicksTable not found in the DOM.");
+        return;
+    }
+
     // Reference to house picks data in Firebase
     const housePicksRef = ref(db, "housePicks");
 
