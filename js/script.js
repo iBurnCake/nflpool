@@ -227,8 +227,10 @@ window.universalResetPicks = function () {
 auth.onAuthStateChanged(user => {
     const universalResetButton = document.getElementById("universalResetButton");
     if (user && user.email === "luke.romano2004@gmail.com") {
-        universalResetButton.style.display = "inline-block";  // Ensure it's set to display
+        console.log("Admin detected, showing universal reset button.");
+        universalResetButton.style.display = "inline-block";
     } else {
+        console.log("User is not admin, hiding universal reset button.");
         universalResetButton.style.display = "none";
     }
 });
