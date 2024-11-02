@@ -53,7 +53,7 @@ function handleLogin(event) {
         });
 }
 
-// Function to display games and set up confidence dropdowns
+// Display games and setup confidence dropdowns
 function displayGames() {
     const tableBody = document.getElementById('gamesTable').getElementsByTagName('tbody')[0];
     tableBody.innerHTML = ''; // Clear existing rows

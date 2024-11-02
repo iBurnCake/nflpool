@@ -17,6 +17,15 @@ body {
     padding: 20px;
 }
 
+/* Welcome Message Styling */
+#welcomeMessage {
+    font-size: 28px;
+    font-weight: bold;
+    color: #FFD700;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
 /* Centered Login Container Styling */
 #loginSection {
     display: flex;
@@ -85,33 +94,30 @@ button:hover {
     background-color: #1F5B99;
 }
 
-/* Reset Button Styling - Top Right Position and Smaller Size */
+/* Reset and Submit Buttons */
+#buttonContainer {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
 #resetButton {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 8px 12px;
-    font-size: 12px;
     background-color: #FF0000;
-    color: #FFFFFF;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s, transform 0.2s;
 }
 
 #resetButton:hover {
     background-color: #CC0000;
-    transform: translateY(-2px);
 }
 
-#resetButton:active {
-    background-color: #A00000;
-    transform: translateY(0);
+#submitButton {
+    background-color: #28a745;
 }
 
-/* Games and Leaderboard Sections */
+#submitButton:hover {
+    background-color: #218838;
+}
+
+/* Games Table Styling */
 section {
     width: 90%;
     max-width: 1000px;
@@ -125,7 +131,6 @@ h2 {
     font-weight: bold;
 }
 
-/* Table Styling */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -147,7 +152,7 @@ th {
 
 /* Highlight selected team */
 .selected {
-    background-color: #28a745;
+    background-color: #28a745; /* Green */
     color: #FFFFFF;
 }
 
