@@ -194,7 +194,7 @@ function displayUserPicks(picks) {
 window.submitPicks = function () {
     saveUserPicks(auth.currentUser.uid);
 
-    // Store picks in House Picks
+    // After saving individual picks, store in House Picks for leaderboard
     const userId = auth.currentUser.uid;
     const housePicksRef = ref(db, `housePicks/${userId}`);
     set(housePicksRef, userPicks)
