@@ -3,21 +3,7 @@ import { auth, db, signInWithEmailAndPassword, ref, set, get, child } from './fi
 
 // Fixed game data for Week 9
 const games = [
-    { homeTeam: 'Texans', awayTeam: 'Jets', homeRecord: '6-2', awayRecord: '2-6' },
-    { homeTeam: 'Saints', awayTeam: 'Panthers', homeRecord: '2-6', awayRecord: '1-7' },
-    { homeTeam: 'Commanders', awayTeam: 'Giants', homeRecord: '6-2', awayRecord: '2-6' },
-    { homeTeam: 'Dolphins', awayTeam: 'Bills', homeRecord: '2-5', awayRecord: '6-2' },
-    { homeTeam: 'Chargers', awayTeam: 'Browns', homeRecord: '4-3', awayRecord: '2-6' },
-    { homeTeam: 'Patriots', awayTeam: 'Titans', homeRecord: '2-6', awayRecord: '1-6' },
-    { homeTeam: 'Cowboys', awayTeam: 'Falcons', homeRecord: '3-4', awayRecord: '5-3' },
-    { homeTeam: 'Raiders', awayTeam: 'Bengals', homeRecord: '2-6', awayRecord: '3-5' },
-    { homeTeam: 'Broncos', awayTeam: 'Ravens', homeRecord: '5-3', awayRecord: '5-3' },
-    { homeTeam: 'Bears', awayTeam: 'Cardinals', homeRecord: '4-3', awayRecord: '4-4' },
-    { homeTeam: 'Jaguars', awayTeam: 'Eagles', homeRecord: '2-6', awayRecord: '5-2' },
-    { homeTeam: 'Rams', awayTeam: 'Seahawks', homeRecord: '3-4', awayRecord: '4-4' },
-    { homeTeam: 'Lions', awayTeam: 'Packers', homeRecord: '6-1', awayRecord: '6-2' },
-    { homeTeam: 'Colts', awayTeam: 'Vikings', homeRecord: '4-4', awayRecord: '5-2' },
-    { homeTeam: 'Buccaneers', awayTeam: 'Chiefs', homeRecord: '4-4', awayRecord: '7-0' }
+    // Add your games data here as it was previously
 ];
 
 let userPicks = {};
@@ -96,7 +82,6 @@ window.selectPick = function (gameIndex, team) {
     const homeButton = document.getElementById(`home-${gameIndex}`);
     const awayButton = document.getElementById(`away-${gameIndex}`);
 
-    // Apply green highlight to the selected button and remove it from the other
     if (team === 'home') {
         homeButton.classList.add("selected");
         awayButton.classList.remove("selected");
@@ -105,9 +90,9 @@ window.selectPick = function (gameIndex, team) {
         homeButton.classList.remove("selected");
     }
 
-    // Save the selected pick to Firebase
     saveUserPicks(auth.currentUser.uid);
 };
+
 // Assign confidence points and update dropdowns
 window.assignConfidence = function (gameIndex) {
     const confidenceSelect = document.getElementById(`confidence${gameIndex}`);
@@ -133,46 +118,24 @@ window.assignConfidence = function (gameIndex) {
     }
 };
 
+// Reset user picks
+window.resetPicks = function () {
+    userPicks = {};
+    usedPoints.clear();
+
+    games.forEach((_, index) => {
+        document.getElementById(`home-${index}`).classList.remove("selected");
+        document.getElementById(`away-${index}`).classList.remove("selected");
+        document.getElementById(`confidence${index}`).value = "";
+        document.getElementById(`confidenceDisplay${index}`).textContent = "";
+    });
+
+    saveUserPicks(auth.currentUser.uid);
+};
+
 // Save user picks to Firebase
 function saveUserPicks(userId) {
     set(ref(db, `scoreboards/week9/${userId}`), { picks: userPicks })
         .then(() => console.log("Picks saved successfully!"))
         .catch((error) => console.error("Error saving picks:", error));
-}
-
-// Load user picks from Firebase
-function loadUserPicks(userId) {
-    get(child(ref(db), `scoreboards/week9/${userId}`))
-        .then((snapshot) => {
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                userPicks = data.picks || {};
-
-                displayUserPicks(userPicks);
-            } else {
-                console.log("No picks available for this user.");
-            }
-        })
-        .catch((error) => console.error("Error loading picks:", error));
-}
-
-// Display saved picks and highlight selections
-function displayUserPicks(picks) {
-    for (const gameIndex in picks) {
-        const pick = picks[gameIndex];
-
-        if (pick.team === 'home') {
-            document.getElementById(`home-${gameIndex}`).classList.add("selected");
-        } else if (pick.team === 'away') {
-            document.getElementById(`away-${gameIndex}`).classList.add("selected");
-        }
-
-        if (pick.points) {
-            usedPoints.add(pick.points);
-            document.getElementById(`confidence${gameIndex}`).value = pick.points;
-            document.getElementById(`confidenceDisplay${gameIndex}`).textContent = pick.points;
-        }
-    }
-
-    games.forEach((_, i) => updateConfidenceDropdown(i));
 }

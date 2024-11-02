@@ -13,7 +13,7 @@
     <!-- Login Section -->
     <section id="loginSection">
         <div class="login-container">
-            <h2>Login V12.1</h2>
+            <h2>Login V12.2</h2>
             <form id="loginForm">
                 <label for="email">Email:</label>
                 <input type="text" id="email" required>
@@ -46,8 +46,10 @@
         </table>
 
         <!-- Reset and Submit Buttons -->
-        <button id="resetButton" onclick="resetPicks()">Reset Picks</button>
-        <button id="submitButton" onclick="submitPicks()">Submit Picks</button>
+        <div id="buttonContainer">
+            <button id="resetButton" onclick="resetPicks()">Reset Picks</button>
+            <button id="submitButton" onclick="submitPicks()">Submit Picks</button>
+        </div>
     </section>
 
     <!-- Load Firebase Configuration and Main Script -->
