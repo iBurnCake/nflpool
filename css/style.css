@@ -200,7 +200,7 @@ th {
 .user-picks-container {
     flex: 1 1 calc(30% - 40px); /* Space between columns */
     min-width: 250px; /* Minimum width to ensure readability */
-    max-width: 300px; /* Maximum width to keep consistency */
+    max-width: 500px; /* Maximum width to keep consistency */
     background-color: #282828;
     border-radius: 8px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
