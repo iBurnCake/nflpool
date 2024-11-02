@@ -94,30 +94,33 @@ button:hover {
     background-color: #1F5B99;
 }
 
-/* Reset and Submit Buttons */
-#buttonContainer {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
-}
-
+/* Reset Button Styling - Top Right Position and Smaller Size */
 #resetButton {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 8px 12px;
+    font-size: 12px;
     background-color: #FF0000;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
 #resetButton:hover {
     background-color: #CC0000;
+    transform: translateY(-2px);
 }
 
-#submitButton {
-    background-color: #28a745;
+#resetButton:active {
+    background-color: #A00000;
+    transform: translateY(0);
 }
 
-#submitButton:hover {
-    background-color: #218838;
-}
-
-/* Games Table Styling */
+/* Games and Leaderboard Sections */
 section {
     width: 90%;
     max-width: 1000px;
@@ -131,6 +134,7 @@ h2 {
     font-weight: bold;
 }
 
+/* Table Styling */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -152,7 +156,7 @@ th {
 
 /* Highlight selected team */
 .selected {
-    background-color: #28a745; /* Green */
+    background-color: #28a745;
     color: #FFFFFF;
 }
 
@@ -163,41 +167,4 @@ th {
     margin-left: 10px;
     font-size: 14px;
     display: inline-block;
-}
-
-/* General Button Styling */
-button {
-    padding: 10px 16px;
-    font-size: 16px;
-    background-color: #3B7EED;
-    color: #FFFFFF;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s;
-}
-
-button:hover {
-    background-color: #1F5B99;
-}
-
-/* Universal Reset Button Styling */
-#universalResetButton {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 10px 16px;
-    font-size: 14px;
-    background-color: #FF0000;
-    color: #FFFFFF;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s;
-}
-
-#universalResetButton:hover {
-    background-color: #CC0000;
 }

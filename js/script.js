@@ -25,11 +25,9 @@ let usedPoints = new Set();
 
 document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("loginForm");
-    const universalResetButton = document.getElementById("universalResetButton");
     if (loginForm) {
         loginForm.addEventListener("submit", handleLogin);
     }
-    universalResetButton.style.display = "none"; // Ensure the button is hidden on load
 });
 
 // Handle login with Firebase
@@ -46,13 +44,6 @@ function handleLogin(event) {
             document.getElementById('userHomeSection').style.display = 'block';
             displayGames();
             loadUserPicks(user.uid);
-
-            // Show universal reset button only if the user is the admin
-            if (user.email === "luke.romano2004@gmail.com") {
-                universalResetButton.style.display = "inline-block";
-            } else {
-                universalResetButton.style.display = "none";
-            }
         })
         .catch((error) => {
             console.error("Login error:", error);
@@ -162,7 +153,7 @@ window.resetPicks = function () {
 
 // Load user picks from Firebase and apply highlights
 function loadUserPicks(userId) {
-    get(child(ref(db, `scoreboards/week9/${userId}`)))
+    get(child(ref(db), `scoreboards/week9/${userId}`))
         .then((snapshot) => {
             if (snapshot.exists()) {
                 userPicks = snapshot.val();
@@ -196,43 +187,3 @@ function displayUserPicks(picks) {
 
     games.forEach((_, i) => updateConfidenceDropdown(i));
 }
-
-// Universal Reset Picks function (admin only)
-window.universalResetPicks = function () {
-    const user = auth.currentUser;
-
-    if (user && user.email === "luke.romano2004@gmail.com") {
-        if (confirm("Are you sure you want to reset all users' picks? This action cannot be undone.")) {
-            const week9Ref = ref(db, "scoreboards/week9");
-
-            get(week9Ref).then(snapshot => {
-                if (snapshot.exists()) {
-                    const updates = {};
-                    snapshot.forEach(userSnapshot => {
-                        const userId = userSnapshot.key;
-                        updates[`${userId}/picks`] = {};  // Clear picks
-                        updates[`${userId}/locked`] = false;  // Unlock picks
-                    });
-
-                    set(week9Ref, updates)
-                        .then(() => alert("All users' picks have been reset."))
-                        .catch(error => console.error("Error resetting picks:", error));
-                } else {
-                    console.log("No user data found for week9.");
-                }
-            }).catch(error => console.error("Error accessing data:", error));
-        }
-    } else {
-        alert("Unauthorized access. Only the admin can reset all picks.");
-    }
-};
-
-// Hide the universal reset button on logout
-auth.onAuthStateChanged(user => {
-    const universalResetButton = document.getElementById("universalResetButton");
-    if (user && user.email === "luke.romano2004@gmail.com") {
-        universalResetButton.style.display = "inline-block";
-    } else {
-        universalResetButton.style.display = "none";
-    }
-});
