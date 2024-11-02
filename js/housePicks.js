@@ -2,9 +2,9 @@ import { db, ref, get, child } from './firebaseConfig.js';
 
 document.addEventListener('DOMContentLoaded', loadHousePicks);
 
-// Fixed game data for Week 9
+// Fixed game data for Week 9 and known game results
 const games = [
-    { homeTeam: 'Texans', awayTeam: 'Jets', homeRecord: '6-2', awayRecord: '2-6' },
+    { homeTeam: 'Texans', awayTeam: 'Jets', homeRecord: '6-2', awayRecord: '2-6', result: 'away' },
     { homeTeam: 'Saints', awayTeam: 'Panthers', homeRecord: '2-6', awayRecord: '1-7' },
     { homeTeam: 'Commanders', awayTeam: 'Giants', homeRecord: '6-2', awayRecord: '2-6' },
     { homeTeam: 'Dolphins', awayTeam: 'Bills', homeRecord: '2-5', awayRecord: '6-2' },
@@ -21,13 +21,6 @@ const games = [
     { homeTeam: 'Buccaneers', awayTeam: 'Chiefs', homeRecord: '4-4', awayRecord: '7-0' }
 ];
 
-// Game results for Week 9 (use "home" or "away" to denote the winner)
-const results = [
-    "home", "away", "home", "away", "away", 
-    "home", "home", "away", "home", "home", 
-    "away", "away", "home", "away", "away"
-];
-
 function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const housePicksRef = ref(db, 'housePicks');
@@ -39,8 +32,10 @@ function loadHousePicks() {
                 housePicksContainer.innerHTML = '';
 
                 for (const userId in picksData) {
-                    const userPicks = picksData[userId];
+                    const userPicksData = picksData[userId];
                     const userName = getUserName(userId);
+                    const userPicks = userPicksData.picks || userPicksData; // Handles nested 'picks' field
+
                     createUserPicksTable(userName, userPicks);
                 }
             } else {
@@ -85,33 +80,34 @@ function createUserPicksTable(userName, userPicks) {
                 <th>Result</th>
             </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+        </tbody>
     `;
 
-    const tbody = table.querySelector('tbody');
     let totalScore = 0;
+    const tbody = table.querySelector('tbody');
 
     for (const gameIndex in userPicks) {
         const pickData = userPicks[gameIndex];
         const game = games[gameIndex];
-        const result = results[gameIndex];
+        const result = game.result || 'N/A';
 
         let chosenTeam = 'N/A';
         let opposingTeam = 'N/A';
-        let isCorrect = false;
+        let resultText = '';
 
         if (pickData.team === 'home') {
             chosenTeam = game.homeTeam;
             opposingTeam = game.awayTeam;
-            isCorrect = result === 'home';
+            resultText = result === 'home' ? 'Correct' : result === 'away' ? 'Incorrect' : 'N/A';
         } else if (pickData.team === 'away') {
             chosenTeam = game.awayTeam;
             opposingTeam = game.homeTeam;
-            isCorrect = result === 'away';
+            resultText = result === 'away' ? 'Correct' : result === 'home' ? 'Incorrect' : 'N/A';
         }
 
-        if (isCorrect) {
-            totalScore += pickData.points || 0;
+        if (resultText === 'Correct') {
+            totalScore += parseInt(pickData.points) || 0;
         }
 
         const row = document.createElement('tr');
@@ -119,18 +115,17 @@ function createUserPicksTable(userName, userPicks) {
             <td>${opposingTeam} vs ${chosenTeam}</td>
             <td>${chosenTeam}</td>
             <td>${pickData.points || 'N/A'}</td>
-            <td>${isCorrect ? 'Correct' : 'Incorrect'}</td>
+            <td>${resultText}</td>
         `;
-        row.classList.add(isCorrect ? 'correct' : 'incorrect');
         tbody.appendChild(row);
     }
 
-    const scoreRow = document.createElement('tr');
-    scoreRow.innerHTML = `
-        <td colspan="3" style="text-align: right; font-weight: bold;">Total Score:</td>
+    const totalRow = document.createElement('tr');
+    totalRow.innerHTML = `
+        <td colspan="3" style="font-weight: bold; text-align: right;">Total Score:</td>
         <td>${totalScore}</td>
     `;
-    tbody.appendChild(scoreRow);
+    tbody.appendChild(totalRow);
 
     userContainer.appendChild(table);
     housePicksContainer.appendChild(userContainer);
