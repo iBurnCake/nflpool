@@ -38,7 +38,13 @@ function loadHousePicks() {
 
                 // Loop through each user’s data
                 for (const userId in picksData) {
-                    const userPicks = picksData[userId];
+                    let userPicks = picksData[userId];
+
+                    // Check if there's a nested 'picks' object
+                    if (userPicks.hasOwnProperty('picks')) {
+                        userPicks = userPicks.picks; // Use nested 'picks' data if present
+                    }
+
                     const userName = getUserName(userId); // Get user-friendly name if available
                     createUserPicksTable(userName, userPicks);
                 }
