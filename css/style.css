@@ -192,8 +192,9 @@ th {
 
 /* Highlight selected team */
 .selected {
-    background-color: #28a745;
+    background-color: #28a745; /* Green */
     color: #FFFFFF;
+    font-weight: bold;
 }
 
 /* Confidence Point Display Styling */

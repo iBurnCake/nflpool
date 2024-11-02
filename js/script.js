@@ -95,6 +95,8 @@ window.selectPick = function (gameIndex, team) {
 
     const homeButton = document.getElementById(`home-${gameIndex}`);
     const awayButton = document.getElementById(`away-${gameIndex}`);
+
+    // Apply green highlight to the selected button and remove it from the other
     if (team === 'home') {
         homeButton.classList.add("selected");
         awayButton.classList.remove("selected");
@@ -103,9 +105,9 @@ window.selectPick = function (gameIndex, team) {
         homeButton.classList.remove("selected");
     }
 
+    // Save the selected pick to Firebase
     saveUserPicks(auth.currentUser.uid);
 };
-
 // Assign confidence points and update dropdowns
 window.assignConfidence = function (gameIndex) {
     const confidenceSelect = document.getElementById(`confidence${gameIndex}`);
