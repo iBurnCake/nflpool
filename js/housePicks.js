@@ -20,7 +20,7 @@ function loadHousePicks() {
                 // Loop through each user’s data
                 for (const userId in picksData) {
                     const userPicks = picksData[userId];
-                    createUserPicksTable(userId, userPicks);
+                    fetchAndDisplayUserEmail(userId, userPicks);
                 }
             } else {
                 housePicksContainer.innerHTML = '<p>No picks available.</p>';
@@ -32,18 +32,32 @@ function loadHousePicks() {
         });
 }
 
+// Fetch user's email and display it with the picks
+function fetchAndDisplayUserEmail(userId, userPicks) {
+    const userRef = ref(db, `users/${userId}/email`);
+    get(userRef)
+        .then(snapshot => {
+            const userEmail = snapshot.exists() ? snapshot.val() : userId;
+            createUserPicksTable(userEmail, userPicks);
+        })
+        .catch(error => {
+            console.error(`Error fetching email for user ${userId}:`, error);
+            createUserPicksTable(userId, userPicks); // Fallback to userId if error
+        });
+}
+
 // Function to create a mini-table for each user
-function createUserPicksTable(userId, userPicks) {
+function createUserPicksTable(userName, userPicks) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     
     // Create a container div for each user
     const userContainer = document.createElement('div');
     userContainer.classList.add('user-picks-container');
 
-    // Add a header with the user ID (or replace with a user-friendly name if available)
+    // Add a header with the user's email or ID
     const userHeader = document.createElement('h3');
     userHeader.classList.add('user-header');
-    userHeader.textContent = `User: ${userId}`;
+    userHeader.textContent = `User: ${userName}`;
     userContainer.appendChild(userHeader);
 
     // Create the user's mini-table
