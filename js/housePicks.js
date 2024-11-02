@@ -1,69 +1,74 @@
-import { db } from './firebaseConfig.js';
-import { get, ref } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-database.js";
-
-// Manually map each user ID to an email
-const userEmailMap = {
-    "7INNhg6p0gVa3KK5nEmJ811Z4sf1": "ckegan437@gmail.com",
-    "I3RfB1et3bhADFKRQbx3EU6yIll3": "ryansanders603@hotmail.com",
-    "fqG1Oo9ZozX2Sa6mipdnYZl4ntb2": "luke.romano2004@gmail.com"
-    // Add more mappings as needed
-};
+import { db, get, ref, child } from "./firebaseConfig.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-    displayHousePicks();
+    loadHousePicks();
 });
 
-async function displayHousePicks() {
-    const housePicksRef = ref(db, 'housePicks');
-    const snapshot = await get(housePicksRef);
+function loadHousePicks() {
+    const housePicksContainer = document.getElementById("housePicksContainer");
+    housePicksContainer.innerHTML = ""; // Clear previous content
 
-    if (snapshot.exists()) {
-        const container = document.createElement("div");
-        container.classList.add("house-picks-container");
-        
-        for (const userId in snapshot.val()) {
-            const userPicks = snapshot.val()[userId].picks;
-            const email = userEmailMap[userId] || "Unknown User"; // Get email from map or default
+    // Fetch house picks data from Firebase
+    get(child(ref(db), "housePicks")).then((snapshot) => {
+        if (snapshot.exists()) {
+            const picksData = snapshot.val();
+            for (const userId in picksData) {
+                const userPicks = picksData[userId];
+                displayUserPicks(userId, userPicks);
+            }
+        } else {
+            console.log("No house picks data available.");
+        }
+    }).catch((error) => {
+        console.error("Error fetching house picks:", error);
+    });
+}
 
-            const userPicksContainer = document.createElement("div");
-            userPicksContainer.classList.add("user-picks-container");
+function displayUserPicks(userId, picks) {
+    const housePicksContainer = document.getElementById("housePicksContainer");
 
-            const userHeader = document.createElement("div");
-            userHeader.classList.add("user-header");
-            userHeader.textContent = `User: ${email}`;
+    // Create container for each user's picks
+    const userContainer = document.createElement("div");
+    userContainer.classList.add("user-picks-container");
 
-            const table = document.createElement("table");
-            table.classList.add("user-picks-table");
+    // Retrieve user's email based on userId
+    get(child(ref(db), `users/${userId}/email`)).then((snapshot) => {
+        const userEmail = snapshot.exists() ? snapshot.val() : "Unknown User";
+        const userHeader = document.createElement("h3");
+        userHeader.classList.add("user-header");
+        userHeader.textContent = `User: ${userEmail}`;
+        userContainer.appendChild(userHeader);
 
-            const thead = document.createElement("thead");
-            thead.innerHTML = `
+        // Create table for the user's picks
+        const userTable = document.createElement("table");
+        userTable.classList.add("user-picks-table");
+
+        // Table headers
+        userTable.innerHTML = `
+            <thead>
                 <tr>
                     <th>Matchup</th>
                     <th>Pick</th>
                     <th>Confidence Points</th>
                 </tr>
-            `;
-            table.appendChild(thead);
+            </thead>
+            <tbody>
+                ${Object.keys(picks).map((gameIndex) => {
+                    const { team, points } = picks[gameIndex];
+                    return `
+                        <tr>
+                            <td>N/A</td>
+                            <td>${team || "N/A"}</td>
+                            <td>${points || "N/A"}</td>
+                        </tr>
+                    `;
+                }).join("")}
+            </tbody>
+        `;
 
-            const tbody = document.createElement("tbody");
-            for (const gameIndex in userPicks) {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>N/A</td>
-                    <td>${userPicks[gameIndex].team || "N/A"}</td>
-                    <td>${userPicks[gameIndex].points || "N/A"}</td>
-                `;
-                tbody.appendChild(row);
-            }
-            table.appendChild(tbody);
-
-            userPicksContainer.appendChild(userHeader);
-            userPicksContainer.appendChild(table);
-            container.appendChild(userPicksContainer);
-        }
-
-        document.body.appendChild(container);
-    } else {
-        console.log("No house picks available.");
-    }
+        userContainer.appendChild(userTable);
+        housePicksContainer.appendChild(userContainer);
+    }).catch((error) => {
+        console.error(`Error fetching email for user ${userId}:`, error);
+    });
 }
