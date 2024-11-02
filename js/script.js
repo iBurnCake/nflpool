@@ -48,7 +48,6 @@ function handleLogin(event) {
             loadUserPicks(user.uid);
 
             // Show universal reset button only if the user is the admin
-            const universalResetButton = document.getElementById("universalResetButton");
             if (user.email === "luke.romano2004@gmail.com") {
                 universalResetButton.style.display = "inline-block";
             } else {
@@ -163,7 +162,7 @@ window.resetPicks = function () {
 
 // Load user picks from Firebase and apply highlights
 function loadUserPicks(userId) {
-    get(child(ref(db), `scoreboards/week9/${userId}`))
+    get(child(ref(db, `scoreboards/week9/${userId}`)))
         .then((snapshot) => {
             if (snapshot.exists()) {
                 userPicks = snapshot.val();
@@ -227,3 +226,13 @@ window.universalResetPicks = function () {
         alert("Unauthorized access. Only the admin can reset all picks.");
     }
 };
+
+// Hide the universal reset button on logout
+auth.onAuthStateChanged(user => {
+    const universalResetButton = document.getElementById("universalResetButton");
+    if (user && user.email === "luke.romano2004@gmail.com") {
+        universalResetButton.style.display = "inline-block";
+    } else {
+        universalResetButton.style.display = "none";
+    }
+});

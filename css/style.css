@@ -165,16 +165,37 @@ th {
     display: inline-block;
 }
 
-#universalResetButton {
-    display: none;
-    background-color: #FF0000;
-    color: white;
-    font-weight: bold;
-    padding: 10px 20px;
+/* General Button Styling */
+button {
+    padding: 10px 16px;
+    font-size: 16px;
+    background-color: #3B7EED;
+    color: #FFFFFF;
     border: none;
-    border-radius: 5px;
+    border-radius: 4px;
     cursor: pointer;
-    margin-top: 20px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #1F5B99;
+}
+
+/* Universal Reset Button Styling */
+#universalResetButton {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 16px;
+    font-size: 14px;
+    background-color: #FF0000;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
 }
 
 #universalResetButton:hover {
