@@ -1,74 +1,82 @@
-import { db, get, ref, child } from "./firebaseConfig.js";
+import { db, ref, get, child } from './firebaseConfig.js';
 
-document.addEventListener("DOMContentLoaded", () => {
-    loadHousePicks();
-});
+document.addEventListener('DOMContentLoaded', loadHousePicks);
 
 function loadHousePicks() {
-    const housePicksContainer = document.getElementById("housePicksContainer");
-    housePicksContainer.innerHTML = ""; // Clear previous content
+    const housePicksContainer = document.getElementById('housePicksContainer');
+    
+    // Reference to the housePicks data in Firebase
+    const housePicksRef = ref(db, 'housePicks');
 
-    // Fetch house picks data from Firebase
-    get(child(ref(db), "housePicks")).then((snapshot) => {
-        if (snapshot.exists()) {
-            const picksData = snapshot.val();
-            for (const userId in picksData) {
-                const userPicks = picksData[userId];
-                displayUserPicks(userId, userPicks);
+    // Fetch the data
+    get(housePicksRef)
+        .then(snapshot => {
+            if (snapshot.exists()) {
+                const picksData = snapshot.val();
+                
+                // Clear existing content
+                housePicksContainer.innerHTML = '';
+
+                // Loop through each user’s data
+                for (const userId in picksData) {
+                    const userPicks = picksData[userId];
+                    createUserPicksTable(userId, userPicks);
+                }
+            } else {
+                housePicksContainer.innerHTML = '<p>No picks available.</p>';
             }
-        } else {
-            console.log("No house picks data available.");
-        }
-    }).catch((error) => {
-        console.error("Error fetching house picks:", error);
-    });
+        })
+        .catch(error => {
+            console.error('Error loading house picks:', error);
+            housePicksContainer.innerHTML = '<p>Error loading picks. Please try again later.</p>';
+        });
 }
 
-function displayUserPicks(userId, picks) {
-    const housePicksContainer = document.getElementById("housePicksContainer");
+// Function to create a mini-table for each user
+function createUserPicksTable(userId, userPicks) {
+    const housePicksContainer = document.getElementById('housePicksContainer');
+    
+    // Create a container div for each user
+    const userContainer = document.createElement('div');
+    userContainer.classList.add('user-picks-container');
 
-    // Create container for each user's picks
-    const userContainer = document.createElement("div");
-    userContainer.classList.add("user-picks-container");
+    // Add a header with the user ID (or replace with a user-friendly name if available)
+    const userHeader = document.createElement('h3');
+    userHeader.classList.add('user-header');
+    userHeader.textContent = `User: ${userId}`;
+    userContainer.appendChild(userHeader);
 
-    // Retrieve user's email based on userId
-    get(child(ref(db), `users/${userId}/email`)).then((snapshot) => {
-        const userEmail = snapshot.exists() ? snapshot.val() : "Unknown User";
-        const userHeader = document.createElement("h3");
-        userHeader.classList.add("user-header");
-        userHeader.textContent = `User: ${userEmail}`;
-        userContainer.appendChild(userHeader);
+    // Create the user's mini-table
+    const table = document.createElement('table');
+    table.classList.add('user-picks-table');
 
-        // Create table for the user's picks
-        const userTable = document.createElement("table");
-        userTable.classList.add("user-picks-table");
+    // Table headers
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Matchup</th>
+                <th>Pick</th>
+                <th>Confidence Points</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    `;
 
-        // Table headers
-        userTable.innerHTML = `
-            <thead>
-                <tr>
-                    <th>Matchup</th>
-                    <th>Pick</th>
-                    <th>Confidence Points</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${Object.keys(picks).map((gameIndex) => {
-                    const { team, points } = picks[gameIndex];
-                    return `
-                        <tr>
-                            <td>N/A</td>
-                            <td>${team || "N/A"}</td>
-                            <td>${points || "N/A"}</td>
-                        </tr>
-                    `;
-                }).join("")}
-            </tbody>
+    // Populate the table with user's picks
+    const tbody = table.querySelector('tbody');
+    for (const gameIndex in userPicks) {
+        const pickData = userPicks[gameIndex];
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${pickData.matchup || 'N/A'}</td>
+            <td>${pickData.team || 'N/A'}</td>
+            <td>${pickData.points || 'N/A'}</td>
         `;
+        tbody.appendChild(row);
+    }
 
-        userContainer.appendChild(userTable);
-        housePicksContainer.appendChild(userContainer);
-    }).catch((error) => {
-        console.error(`Error fetching email for user ${userId}:`, error);
-    });
+    userContainer.appendChild(table);
+    housePicksContainer.appendChild(userContainer);
 }
