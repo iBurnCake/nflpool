@@ -44,14 +44,9 @@ function handleLogin(event) {
             document.getElementById('userHomeSection').style.display = 'block';
             displayGames();
             loadUserPicks(user.uid);
-
-            // Hide any previous incorrect login message if login is successful
-            console.log("Login successful");
         })
         .catch((error) => {
             console.error("Login error:", error);
-
-            // Display the alert only if the error specifically indicates login failure
             if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
                 alert("Invalid email or password.");
             }
@@ -195,11 +190,11 @@ function displayUserPicks(picks) {
     games.forEach((_, i) => updateConfidenceDropdown(i));
 }
 
-// Modified submitPicks function to save picks to both user data and central house data
+// Submit picks and add to House Picks for leaderboard
 window.submitPicks = function () {
     saveUserPicks(auth.currentUser.uid);
 
-    // After saving individual picks, store in House Picks for leaderboard
+    // Store picks in House Picks
     const userId = auth.currentUser.uid;
     const housePicksRef = ref(db, `housePicks/${userId}`);
     set(housePicksRef, userPicks)
