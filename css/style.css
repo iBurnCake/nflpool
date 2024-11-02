@@ -196,17 +196,24 @@ th {
     padding: 20px;
 }
 
+/* Flex container for aligning user-pick tables uniformly */
+#housePicksContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 30px; /* Adjust the gap between tables */
+    margin-top: 20px;
+}
+
 /* Individual User Mini-Table Styling for House Picks Page */
 .user-picks-container {
     background-color: #282828;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-    width: 280px; /* Adjust width as needed */
-    height: 550px; /* Set a fixed height to align all tables */
+    width: 280px; /* Control width to fit more tables in a row */
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
 }
 
@@ -216,13 +223,13 @@ th {
     color: #FFD700;
     margin-bottom: 10px;
     text-align: center;
+    word-wrap: break-word; /* Ensures long text wraps inside the container */
 }
 
 .user-picks-table {
     width: 100%;
     border-collapse: collapse;
 }
-
 
 .user-picks-table th, .user-picks-table td {
     padding: 10px;
