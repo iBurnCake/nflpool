@@ -263,3 +263,13 @@ th {
 #housePicksLink:hover {
     background-color: #1F5B99;
 }
+
+.correct {
+    background-color: #28a745; /* Green for correct */
+    color: #ffffff;
+}
+
+.incorrect {
+    background-color: #dc3545; /* Red for incorrect */
+    color: #ffffff;
+}

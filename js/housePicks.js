@@ -21,31 +21,26 @@ const games = [
     { homeTeam: 'Buccaneers', awayTeam: 'Chiefs', homeRecord: '4-4', awayRecord: '7-0' }
 ];
 
+// Game results for Week 9 (use "home" or "away" to denote the winner)
+const results = [
+    "home", "away", "home", "away", "away", 
+    "home", "home", "away", "home", "home", 
+    "away", "away", "home", "away", "away"
+];
+
 function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
-    
-    // Reference to the housePicks data in Firebase
     const housePicksRef = ref(db, 'housePicks');
 
-    // Fetch the data
     get(housePicksRef)
         .then(snapshot => {
             if (snapshot.exists()) {
                 const picksData = snapshot.val();
-                
-                // Clear existing content
                 housePicksContainer.innerHTML = '';
 
-                // Loop through each user’s data
                 for (const userId in picksData) {
-                    let userPicks = picksData[userId];
-
-                    // Check if there's a nested 'picks' object
-                    if (userPicks.hasOwnProperty('picks')) {
-                        userPicks = userPicks.picks; // Use nested 'picks' data if present
-                    }
-
-                    const userName = getUserName(userId); // Get user-friendly name if available
+                    const userPicks = picksData[userId];
+                    const userName = getUserName(userId);
                     createUserPicksTable(userName, userPicks);
                 }
             } else {
@@ -58,7 +53,6 @@ function loadHousePicks() {
         });
 }
 
-// Function to map user IDs to display names
 function getUserName(userId) {
     const userMap = {
         '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan',
@@ -67,66 +61,76 @@ function getUserName(userId) {
         '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant',
         'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano'
     };
-    return userMap[userId] || userId; // Return name if found, else return userId
+    return userMap[userId] || userId;
 }
 
-// Function to create a mini-table for each user
 function createUserPicksTable(userName, userPicks) {
     const housePicksContainer = document.getElementById('housePicksContainer');
-    
-    // Create a container div for each user
     const userContainer = document.createElement('div');
     userContainer.classList.add('user-picks-container');
 
-    // Add a header with the user's name or ID
     const userHeader = document.createElement('h3');
     userHeader.classList.add('user-header');
     userHeader.textContent = `User: ${userName}`;
     userContainer.appendChild(userHeader);
 
-    // Create the user's mini-table
     const table = document.createElement('table');
     table.classList.add('user-picks-table');
-
-    // Table headers
     table.innerHTML = `
         <thead>
             <tr>
                 <th>Matchup</th>
                 <th>Pick</th>
                 <th>Confidence Points</th>
+                <th>Result</th>
             </tr>
         </thead>
-        <tbody>
-        </tbody>
+        <tbody></tbody>
     `;
 
-    // Populate the table with user's picks
     const tbody = table.querySelector('tbody');
+    let totalScore = 0;
+
     for (const gameIndex in userPicks) {
         const pickData = userPicks[gameIndex];
         const game = games[gameIndex];
-        
-        // Determine team names for pick and matchup
+        const result = results[gameIndex];
+
         let chosenTeam = 'N/A';
         let opposingTeam = 'N/A';
+        let isCorrect = false;
 
         if (pickData.team === 'home') {
             chosenTeam = game.homeTeam;
             opposingTeam = game.awayTeam;
+            isCorrect = result === 'home';
         } else if (pickData.team === 'away') {
             chosenTeam = game.awayTeam;
             opposingTeam = game.homeTeam;
+            isCorrect = result === 'away';
+        }
+
+        if (isCorrect) {
+            totalScore += pickData.points || 0;
         }
 
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${opposingTeam}</td>
+            <td>${opposingTeam} vs ${chosenTeam}</td>
             <td>${chosenTeam}</td>
             <td>${pickData.points || 'N/A'}</td>
+            <td>${isCorrect ? 'Correct' : 'Incorrect'}</td>
         `;
+        row.classList.add(isCorrect ? 'correct' : 'incorrect');
         tbody.appendChild(row);
     }
+
+    const scoreRow = document.createElement('tr');
+    scoreRow.innerHTML = `
+        <td colspan="3" style="text-align: right; font-weight: bold;">Total Score:</td>
+        <td>${totalScore}</td>
+    `;
+    tbody.appendChild(scoreRow);
 
     userContainer.appendChild(table);
     housePicksContainer.appendChild(userContainer);
