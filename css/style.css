@@ -187,34 +187,43 @@ th {
     margin-bottom: 20px;
 }
 
-/* Leaderboard Table Styling */
-#leaderboardTable {
-    width: 100%;
-    max-width: 1000px;
-    margin: auto;
-    border-collapse: collapse;
+/* Individual User Mini-Table Styling for House Picks Page */
+.user-picks-container {
     background-color: #282828;
-    color: #FFD700;
-    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+    max-width: 700px;
+    width: 100%;
 }
 
-#leaderboardTable th, #leaderboardTable td {
-    padding: 12px;
-    border: 1px solid #ddd;
+.user-header {
+    font-size: 20px;
+    font-weight: bold;
+    color: #FFD700;
+    margin-bottom: 10px;
     text-align: center;
 }
 
-#leaderboardTable th {
+.user-picks-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.user-picks-table th, .user-picks-table td {
+    padding: 10px;
+    border: 1px solid #444;
+    background-color: #333;
+    color: #FFD700;
+}
+
+.user-picks-table th {
     background-color: #444;
     font-weight: bold;
 }
 
-#leaderboardTable td {
-    background-color: #333;
-}
-
-/* Highlight row on hover */
-#leaderboardTable tr:hover {
+.user-picks-table tr:hover {
     background-color: #555;
 }
 
@@ -234,4 +243,3 @@ th {
 #housePicksLink:hover {
     background-color: #1F5B99;
 }
-

@@ -1,65 +1,77 @@
-import { db, ref, get } from './firebaseConfig.js';
+import { db, ref, get, child, auth } from './firebaseConfig.js';
 
-// Array of games for reference
-const games = [
-    { homeTeam: 'Texans', awayTeam: 'Jets' },
-    { homeTeam: 'Saints', awayTeam: 'Panthers' },
-    { homeTeam: 'Commanders', awayTeam: 'Giants' },
-    { homeTeam: 'Dolphins', awayTeam: 'Bills' },
-    { homeTeam: 'Chargers', awayTeam: 'Browns' },
-    { homeTeam: 'Patriots', awayTeam: 'Titans' },
-    { homeTeam: 'Cowboys', awayTeam: 'Falcons' },
-    { homeTeam: 'Raiders', awayTeam: 'Bengals' },
-    { homeTeam: 'Broncos', awayTeam: 'Ravens' },
-    { homeTeam: 'Bears', awayTeam: 'Cardinals' },
-    { homeTeam: 'Jaguars', awayTeam: 'Eagles' },
-    { homeTeam: 'Rams', awayTeam: 'Seahawks' },
-    { homeTeam: 'Lions', awayTeam: 'Packers' },
-    { homeTeam: 'Colts', awayTeam: 'Vikings' },
-    { homeTeam: 'Buccaneers', awayTeam: 'Chiefs' }
-];
+document.addEventListener("DOMContentLoaded", fetchHousePicks);
 
-document.addEventListener("DOMContentLoaded", () => {
-    const housePicksTableBody = document.getElementById("housePicksTable").getElementsByTagName("tbody")[0];
+function fetchHousePicks() {
+    const housePicksContainer = document.getElementById("housePicksContainer");
+    housePicksContainer.innerHTML = ''; // Clear previous data
 
-    if (!housePicksTableBody) {
-        console.error("housePicksTable not found in the DOM.");
-        return;
-    }
+    get(child(ref(db), 'housePicks')).then(snapshot => {
+        if (snapshot.exists()) {
+            snapshot.forEach(userSnapshot => {
+                const userId = userSnapshot.key;
+                const userPicks = userSnapshot.val();
 
-    // Reference to house picks data in Firebase
-    const housePicksRef = ref(db, "housePicks");
+                // Create a wrapper for each user's picks
+                const userDiv = document.createElement('div');
+                userDiv.classList.add('user-picks-wrapper');
 
-    // Fetch data from Firebase
-    get(housePicksRef)
-        .then((snapshot) => {
-            console.log("Snapshot exists:", snapshot.exists());  // Check if data exists in Firebase
-            if (snapshot.exists()) {
-                snapshot.forEach((userSnapshot) => {
-                    const userId = userSnapshot.key;  // The user ID
-                    const userPicks = userSnapshot.val();  // The picks data for this user
-                    console.log("User ID:", userId);  // Log user ID
-                    console.log("User Picks:", userPicks);  // Log the picks data for this user
+                // Fetch the user's email to display
+                fetchUserEmail(userId).then(email => {
+                    // Add the email as the title for the user’s table
+                    const userTitle = document.createElement('h2');
+                    userTitle.textContent = email;
+                    userDiv.appendChild(userTitle);
 
-                    // Loop through each game and display the user's pick
+                    // Create a mini table for each user
+                    const userTable = document.createElement('table');
+                    userTable.classList.add('user-picks-table');
+
+                    // Add table headers
+                    userTable.innerHTML = `
+                        <thead>
+                            <tr>
+                                <th>Matchup</th>
+                                <th>Pick</th>
+                                <th>Confidence Points</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    `;
+                    const tableBody = userTable.querySelector('tbody');
+
+                    // Populate table with the user's picks
                     for (const gameIndex in userPicks) {
-                        const pickData = userPicks[gameIndex];
-                        console.log(`Game Index: ${gameIndex}, Pick Data:`, pickData);  // Log each game's pick data
-
-                        const row = housePicksTableBody.insertRow();
+                        const pick = userPicks[gameIndex];
+                        const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td>${userId}</td>
-                            <td>${games[gameIndex].homeTeam} vs ${games[gameIndex].awayTeam}</td>
-                            <td>${pickData.team}</td>
-                            <td>${pickData.points || "N/A"}</td>
+                            <td>${pick.matchup || 'N/A'}</td>
+                            <td>${pick.team || 'N/A'}</td>
+                            <td>${pick.points || 'N/A'}</td>
                         `;
+                        tableBody.appendChild(row);
                     }
+
+                    userDiv.appendChild(userTable);
+                    housePicksContainer.appendChild(userDiv);
                 });
-            } else {
-                console.log("No house picks found.");  // Log if no data is found in Firebase
-            }
+            });
+        } else {
+            housePicksContainer.innerHTML = "<p>No picks available.</p>";
+        }
+    }).catch(error => {
+        console.error("Error fetching house picks:", error);
+    });
+}
+
+// Helper function to fetch user email by UID
+function fetchUserEmail(userId) {
+    return get(child(ref(db, `users/${userId}/email`)))
+        .then(snapshot => {
+            return snapshot.exists() ? snapshot.val() : 'Unknown User';
         })
-        .catch((error) => {
-            console.error("Error fetching house picks:", error);  // Log any error encountered during data retrieval
+        .catch(error => {
+            console.error("Error fetching user email:", error);
+            return 'Unknown User';
         });
-});
+}
