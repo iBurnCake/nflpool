@@ -227,7 +227,7 @@ window.universalResetPicks = function () {
 auth.onAuthStateChanged(user => {
     const universalResetButton = document.getElementById("universalResetButton");
     if (user && user.email === "luke.romano2004@gmail.com") {
-        universalResetButton.style.display = "block";
+        universalResetButton.style.display = "inline-block";  // Ensure it's set to display
     } else {
         universalResetButton.style.display = "none";
     }

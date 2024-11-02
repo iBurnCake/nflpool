@@ -165,21 +165,24 @@ th {
     display: inline-block;
 }
 
+#buttonContainer {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
 #universalResetButton {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    padding: 8px 12px;
-    font-size: 12px;
-    background-color: #FF5733; /* Bright color for visibility */
-    color: #FFFFFF;
+    padding: 8px 16px;
+    font-size: 14px;
+    background-color: #dc3545; /* Red */
+    color: #fff;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-weight: bold;
-    z-index: 1000;
 }
 
 #universalResetButton:hover {
-    background-color: #C13D24;
+    background-color: #c82333;
 }
