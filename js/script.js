@@ -196,8 +196,16 @@ window.submitPicks = function () {
 
     // After saving individual picks, store in House Picks for leaderboard
     const userId = auth.currentUser.uid;
+    const userEmail = auth.currentUser.email; // Get the user's email
     const housePicksRef = ref(db, `housePicks/${userId}`);
-    set(housePicksRef, userPicks)
+
+    // Include email with the user's picks
+    const userPicksWithEmail = {
+        email: userEmail,
+        picks: userPicks
+    };
+
+    set(housePicksRef, userPicksWithEmail)
         .then(() => {
             alert("Your picks have been submitted and are now visible on the House Picks page!");
         })
@@ -205,3 +213,4 @@ window.submitPicks = function () {
             console.error("Error submitting picks to House Picks:", error);
         });
 };
+
