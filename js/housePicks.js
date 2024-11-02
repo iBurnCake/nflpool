@@ -1,9 +1,13 @@
-import { db, auth } from './firebaseConfig.js';
+import { db } from './firebaseConfig.js';
 import { get, ref } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-database.js";
-import { getAuth, getUser } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-auth.js";
 
-// Initialize authentication if not done in firebaseConfig
-const auth = getAuth();
+// Manually map each user ID to an email
+const userEmailMap = {
+    "7INNhg6p0gVa3KK5nEmJ811Z4sf1": "ckegan437@gmail.com",
+    "I3RfB1et3bhADFKRQbx3EU6yIll3": "ryansanders603@hotmail.com",
+    "fqG1Oo9ZozX2Sa6mipdnYZl4ntb2": "luke.romano2004@gmail.com"
+    // Add more mappings as needed
+};
 
 document.addEventListener("DOMContentLoaded", () => {
     displayHousePicks();
@@ -19,7 +23,7 @@ async function displayHousePicks() {
         
         for (const userId in snapshot.val()) {
             const userPicks = snapshot.val()[userId].picks;
-            const email = await fetchUserEmail(userId); // Retrieve email by UID
+            const email = userEmailMap[userId] || "Unknown User"; // Get email from map or default
 
             const userPicksContainer = document.createElement("div");
             userPicksContainer.classList.add("user-picks-container");
@@ -61,16 +65,5 @@ async function displayHousePicks() {
         document.body.appendChild(container);
     } else {
         console.log("No house picks available.");
-    }
-}
-
-// Helper function to fetch email by UID
-async function fetchUserEmail(userId) {
-    try {
-        const user = await getUser(auth, userId); // Retrieve the user info by UID
-        return user.email; // Return the email
-    } catch (error) {
-        console.error(`Failed to fetch email for user ID ${userId}:`, error);
-        return "Unknown User"; // Fallback in case of error
     }
 }
