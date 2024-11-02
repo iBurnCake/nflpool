@@ -53,7 +53,7 @@ function handleLogin(event) {
         });
 }
 
-// Display games and setup confidence dropdowns
+// Function to display games and set up confidence dropdowns
 function displayGames() {
     const tableBody = document.getElementById('gamesTable').getElementsByTagName('tbody')[0];
     tableBody.innerHTML = ''; // Clear existing rows
@@ -95,9 +95,8 @@ window.selectPick = function (gameIndex, team) {
     userPicks[gameIndex] = userPicks[gameIndex] || {};
     userPicks[gameIndex].team = team;
 
-    // Highlight selected team and remove highlight from the other
-    const homeButton = document.getElementById(`home-${gameIndex}`);
-    const awayButton = document.getElementById(`away-${gameIndex}`);
+    const homeButton = document.getElementById(`home-${index}`);
+    const awayButton = document.getElementById(`away-${index}`);
     if (team === 'home') {
         homeButton.classList.add("selected");
         awayButton.classList.remove("selected");
@@ -106,7 +105,6 @@ window.selectPick = function (gameIndex, team) {
         homeButton.classList.remove("selected");
     }
 
-    // Save picks to Firebase
     saveUserPicks(auth.currentUser.uid);
 };
 
@@ -116,29 +114,22 @@ window.assignConfidence = function (gameIndex) {
     const points = parseInt(confidenceSelect.value);
     const confidenceDisplay = document.getElementById(`confidenceDisplay${gameIndex}`);
 
-    // Check if a previous confidence point was assigned for this game and remove it
     if (userPicks[gameIndex]?.points) {
         usedPoints.delete(userPicks[gameIndex].points);
     }
 
-    // Validate and save the selected confidence points
     if (points >= 1 && points <= 15 && !usedPoints.has(points)) {
-        // Update user picks with the new confidence points
         userPicks[gameIndex] = userPicks[gameIndex] || {};
         userPicks[gameIndex].points = points;
         usedPoints.add(points);
 
-        // Display the selected confidence point next to the dropdown
         confidenceDisplay.textContent = points;
 
-        // Save picks to Firebase
         saveUserPicks(auth.currentUser.uid);
-
-        // Refresh dropdown options to reflect the updated available points
         games.forEach((_, i) => updateConfidenceDropdown(i));
     } else {
-        confidenceSelect.value = ""; // Clear the selection if point is already used
-        confidenceDisplay.textContent = ""; // Clear display if invalid
+        confidenceSelect.value = "";
+        confidenceDisplay.textContent = "";
     }
 };
 
@@ -155,11 +146,11 @@ function saveUserPicks(userId) {
 
 // Reset user picks
 window.resetPicks = function () {
-    userPicks = {}; // Clear picks data
-    usedPoints.clear(); // Clear used points
-    saveUserPicks(auth.currentUser.uid); // Save empty picks to Firebase
+    userPicks = {};
+    usedPoints.clear();
 
-    displayGames(); // Refresh the UI to reflect cleared selections
+    displayGames();
+    saveUserPicks(auth.currentUser.uid);
 };
 
 // Load user picks from Firebase and apply highlights
@@ -183,21 +174,18 @@ function displayUserPicks(picks) {
     for (const gameIndex in picks) {
         const pick = picks[gameIndex];
 
-        // Highlight selected team button
         if (pick.team === 'home') {
             document.getElementById(`home-${gameIndex}`).classList.add("selected");
         } else if (pick.team === 'away') {
             document.getElementById(`away-${gameIndex}`).classList.add("selected");
         }
 
-        // Set confidence points and update used points
         if (pick.points) {
             usedPoints.add(pick.points);
             document.getElementById(`confidence${gameIndex}`).value = pick.points;
-            document.getElementById(`confidenceDisplay${gameIndex}`).textContent = pick.points; // Display confidence
+            document.getElementById(`confidenceDisplay${gameIndex}`).textContent = pick.points;
         }
     }
 
-    // Refresh dropdowns to reflect used points
     games.forEach((_, i) => updateConfidenceDropdown(i));
 }
