@@ -1,4 +1,4 @@
-import { db, ref, get, child } from './firebaseConfig.js';
+import { db, ref, get } from './firebaseConfig.js';
 
 // Array of games for reference
 const games = [
@@ -25,18 +25,23 @@ document.addEventListener("DOMContentLoaded", () => {
     // Reference to house picks data in Firebase
     const housePicksRef = ref(db, "housePicks");
 
+    // Fetch data from Firebase
     get(housePicksRef)
         .then((snapshot) => {
+            console.log("Snapshot exists:", snapshot.exists());  // Check if data exists in Firebase
             if (snapshot.exists()) {
                 snapshot.forEach((userSnapshot) => {
                     const userId = userSnapshot.key;  // The user ID
                     const userPicks = userSnapshot.val();  // The picks data for this user
+                    console.log("User ID:", userId);  // Log user ID
+                    console.log("User Picks:", userPicks);  // Log the picks data for this user
 
                     // Loop through each game and display the user's pick
                     for (const gameIndex in userPicks) {
                         const pickData = userPicks[gameIndex];
-                        const row = housePicksTableBody.insertRow();
+                        console.log(`Game Index: ${gameIndex}, Pick Data:`, pickData);  // Log each game's pick data
 
+                        const row = housePicksTableBody.insertRow();
                         row.innerHTML = `
                             <td>${userId}</td>
                             <td>${games[gameIndex].homeTeam} vs ${games[gameIndex].awayTeam}</td>
@@ -46,10 +51,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 });
             } else {
-                console.log("No house picks found.");
+                console.log("No house picks found.");  // Log if no data is found in Firebase
             }
         })
         .catch((error) => {
-            console.error("Error fetching house picks:", error);
+            console.error("Error fetching house picks:", error);  // Log any error encountered during data retrieval
         });
 });
