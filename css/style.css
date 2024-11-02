@@ -178,3 +178,60 @@ th {
     font-size: 14px;
     display: inline-block;
 }
+
+/* House Picks Title Styling */
+#housePicksTitle {
+    font-size: 32px;
+    color: #FFD700;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Leaderboard Table Styling */
+#leaderboardTable {
+    width: 100%;
+    max-width: 1000px;
+    margin: auto;
+    border-collapse: collapse;
+    background-color: #282828;
+    color: #FFD700;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.7);
+}
+
+#leaderboardTable th, #leaderboardTable td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+#leaderboardTable th {
+    background-color: #444;
+    font-weight: bold;
+}
+
+#leaderboardTable td {
+    background-color: #333;
+}
+
+/* Highlight row on hover */
+#leaderboardTable tr:hover {
+    background-color: #555;
+}
+
+/* House Picks Link Styling */
+#housePicksLink {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #3B7EED;
+    color: #FFFFFF;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+#housePicksLink:hover {
+    background-color: #1F5B99;
+}
+

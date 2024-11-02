@@ -194,3 +194,19 @@ function displayUserPicks(picks) {
 
     games.forEach((_, i) => updateConfidenceDropdown(i));
 }
+
+// Modified submitPicks function to save picks to both user data and central house data
+window.submitPicks = function () {
+    saveUserPicks(auth.currentUser.uid);
+
+    // After saving individual picks, store in House Picks for leaderboard
+    const userId = auth.currentUser.uid;
+    const housePicksRef = ref(db, `housePicks/${userId}`);
+    set(housePicksRef, userPicks)
+        .then(() => {
+            alert("Your picks have been submitted and are now visible on the House Picks page!");
+        })
+        .catch((error) => {
+            console.error("Error submitting picks to House Picks:", error);
+        });
+};
