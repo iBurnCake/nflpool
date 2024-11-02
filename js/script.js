@@ -189,3 +189,46 @@ function displayUserPicks(picks) {
 
     games.forEach((_, i) => updateConfidenceDropdown(i));
 }
+
+// Universal Reset Picks function (admin only)
+window.universalResetPicks = function () {
+    const user = auth.currentUser;
+
+    if (user && user.email === "luke.romano2004@gmail.com") {
+        // Confirm with the admin before resetting
+        if (confirm("Are you sure you want to reset all users' picks? This action cannot be undone.")) {
+            const week9Ref = ref(db, "scoreboards/week9");
+
+            // Set each user's picks to an empty object and locked to false
+            get(week9Ref).then(snapshot => {
+                if (snapshot.exists()) {
+                    const updates = {};
+                    snapshot.forEach(userSnapshot => {
+                        const userId = userSnapshot.key;
+                        updates[`${userId}/picks`] = {};  // Clear picks
+                        updates[`${userId}/locked`] = false;  // Unlock picks
+                    });
+
+                    // Update Firebase with the cleared picks
+                    set(week9Ref, updates)
+                        .then(() => alert("All users' picks have been reset."))
+                        .catch(error => console.error("Error resetting picks:", error));
+                } else {
+                    console.log("No user data found for week9.");
+                }
+            }).catch(error => console.error("Error accessing data:", error));
+        }
+    } else {
+        alert("Unauthorized access. Only the admin can reset all picks.");
+    }
+};
+
+// Show the universal reset button only if the admin is logged in
+auth.onAuthStateChanged(user => {
+    const universalResetButton = document.getElementById("universalResetButton");
+    if (user && user.email === "luke.romano2004@gmail.com") {
+        universalResetButton.style.display = "block";
+    } else {
+        universalResetButton.style.display = "none";
+    }
+});

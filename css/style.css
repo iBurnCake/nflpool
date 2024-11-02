@@ -164,3 +164,22 @@ th {
     font-size: 14px;
     display: inline-block;
 }
+
+#universalResetButton {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    padding: 8px 12px;
+    font-size: 12px;
+    background-color: #FF5733; /* Bright color for visibility */
+    color: #FFFFFF;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    z-index: 1000;
+}
+
+#universalResetButton:hover {
+    background-color: #C13D24;
+}
