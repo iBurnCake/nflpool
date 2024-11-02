@@ -25,9 +25,11 @@ let usedPoints = new Set();
 
 document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("loginForm");
+    const universalResetButton = document.getElementById("universalResetButton");
     if (loginForm) {
         loginForm.addEventListener("submit", handleLogin);
     }
+    universalResetButton.style.display = "none"; // Ensure the button is hidden on load
 });
 
 // Handle login with Firebase
@@ -45,10 +47,10 @@ function handleLogin(event) {
             displayGames();
             loadUserPicks(user.uid);
 
-            // Check if user is admin and show universal reset button if true
+            // Show universal reset button only if the user is the admin
             const universalResetButton = document.getElementById("universalResetButton");
             if (user.email === "luke.romano2004@gmail.com") {
-                universalResetButton.style.display = "block";
+                universalResetButton.style.display = "inline-block";
             } else {
                 universalResetButton.style.display = "none";
             }
@@ -101,8 +103,8 @@ window.selectPick = function (gameIndex, team) {
     userPicks[gameIndex] = userPicks[gameIndex] || {};
     userPicks[gameIndex].team = team;
 
-    const homeButton = document.getElementById(`home-${index}`);
-    const awayButton = document.getElementById(`away-${index}`);
+    const homeButton = document.getElementById(`home-${gameIndex}`);
+    const awayButton = document.getElementById(`away-${gameIndex}`);
     if (team === 'home') {
         homeButton.classList.add("selected");
         awayButton.classList.remove("selected");
@@ -201,11 +203,9 @@ window.universalResetPicks = function () {
     const user = auth.currentUser;
 
     if (user && user.email === "luke.romano2004@gmail.com") {
-        // Confirm with the admin before resetting
         if (confirm("Are you sure you want to reset all users' picks? This action cannot be undone.")) {
             const week9Ref = ref(db, "scoreboards/week9");
 
-            // Set each user's picks to an empty object and locked to false
             get(week9Ref).then(snapshot => {
                 if (snapshot.exists()) {
                     const updates = {};
@@ -215,7 +215,6 @@ window.universalResetPicks = function () {
                         updates[`${userId}/locked`] = false;  // Unlock picks
                     });
 
-                    // Update Firebase with the cleared picks
                     set(week9Ref, updates)
                         .then(() => alert("All users' picks have been reset."))
                         .catch(error => console.error("Error resetting picks:", error));
@@ -228,14 +227,3 @@ window.universalResetPicks = function () {
         alert("Unauthorized access. Only the admin can reset all picks.");
     }
 };
-// Show the universal reset button only if the admin is logged in
-auth.onAuthStateChanged(user => {
-    const universalResetButton = document.getElementById("universalResetButton");
-    if (user && user.email === "luke.romano2004@gmail.com") {
-        console.log("Admin detected, showing universal reset button.");
-        universalResetButton.style.display = "inline-block";
-    } else {
-        console.log("User is not admin, hiding universal reset button.");
-        universalResetButton.style.display = "none";
-    }
-});
