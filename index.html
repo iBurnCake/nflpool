@@ -13,7 +13,7 @@
     <!-- Login Section -->
     <section id="loginSection">
         <div class="login-container">
-            <h2>Login V13</h2>
+            <h2>Login V13.1</h2>
             <form id="loginForm">
                 <label for="email">Email:</label>
                 <input type="text" id="email" required>
@@ -49,15 +49,14 @@
         <div id="buttonContainer">
             <button id="resetButton" onclick="resetPicks()">Reset Picks</button>
             <button id="submitButton" onclick="submitPicks()">Submit Picks</button>
-            <!-- Universal Reset Picks Button (Visible to Admin Only) -->
-            <button id="universalResetButton" onclick="universalResetPicks()" style="display: none;">Universal Reset Picks</button>
         </div>
     </section>
+
+    <!-- Universal Reset Picks Button (Admin Only) -->
+    <button id="universalResetButton" onclick="universalResetPicks()" style="display: none;">Universal Reset Picks</button>
 
     <!-- Load Firebase Configuration and Main Script -->
     <script type="module" src="js/firebaseConfig.js"></script>
     <script type="module" src="js/script.js"></script>
 </body>
 </html>
-
-<button id="universalResetButton" onclick="universalResetPicks()" style="display: inline-block;">Universal Reset Picks</button>

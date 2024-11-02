@@ -165,24 +165,18 @@ th {
     display: inline-block;
 }
 
-#buttonContainer {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
+#universalResetButton {
+    display: none;
+    background-color: #FF0000;
+    color: white;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
     margin-top: 20px;
 }
 
-#universalResetButton {
-    padding: 8px 16px;
-    font-size: 14px;
-    background-color: #dc3545; /* Red */
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
 #universalResetButton:hover {
-    background-color: #c82333;
+    background-color: #CC0000;
 }

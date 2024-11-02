@@ -27,8 +27,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("loginForm");
     if (loginForm) {
         loginForm.addEventListener("submit", handleLogin);
-    } else {
-        console.error("Login form not found.");
     }
 });
 
@@ -46,6 +44,14 @@ function handleLogin(event) {
             document.getElementById('userHomeSection').style.display = 'block';
             displayGames();
             loadUserPicks(user.uid);
+
+            // Check if user is admin and show universal reset button if true
+            const universalResetButton = document.getElementById("universalResetButton");
+            if (user.email === "luke.romano2004@gmail.com") {
+                universalResetButton.style.display = "block";
+            } else {
+                universalResetButton.style.display = "none";
+            }
         })
         .catch((error) => {
             console.error("Login error:", error);
@@ -222,7 +228,6 @@ window.universalResetPicks = function () {
         alert("Unauthorized access. Only the admin can reset all picks.");
     }
 };
-
 // Show the universal reset button only if the admin is logged in
 auth.onAuthStateChanged(user => {
     const universalResetButton = document.getElementById("universalResetButton");
