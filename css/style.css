@@ -114,7 +114,7 @@ button.table-button:hover {
 #resetButton, #submitButton {
     position: fixed;
     top: 20px;
-    padding: 6px 12px; /* Same padding as table buttons */
+    padding: 6px 12px;
     font-size: 12px;
     color: #FFFFFF;
     border: none;
@@ -128,7 +128,7 @@ button.table-button:hover {
 /* Specific Styling for Reset and Submit Button */
 #resetButton {
     background-color: #FF0000;
-    right: 100px; /* Adjusted to space from submit button */
+    right: 100px;
 }
 
 #resetButton:hover {
@@ -144,7 +144,6 @@ button.table-button:hover {
 #submitButton {
     background-color: #28a745;
     right: 20px;
-    margin-left: 10px; /* Extra space between reset and submit */
 }
 
 #submitButton:hover {
@@ -193,57 +192,15 @@ th {
 
 /* Highlight selected team */
 .selected {
-    background-color: #28a745; /* Green */
+    background-color: #28a745;
     color: #FFFFFF;
 }
 
 /* Confidence Point Display Styling */
 .confidence-display {
-    color: #28a745; /* Green */
+    color: #28a745;
     font-weight: bold;
     margin-left: 10px;
     font-size: 14px;
     display: inline-block;
-}
-
-#lockedPicksContainer {
-    max-width: 1000px;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #282828;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-#lockedPicksTable {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-#lockedPicksTable th,
-#lockedPicksTable td {
-    padding: 10px;
-    border: 1px solid #ddd;
-    color: #FFD700;
-    text-align: center;
-}
-
-#lockedPicksTable th {
-    background-color: #444;
-    font-weight: bold;
-}
-
-#unlockButton {
-    padding: 10px 16px;
-    background-color: #FFCC00;
-    color: #000;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    margin-left: 10px;
-}
-
-#unlockButton:hover {
-    background-color: #E6B800;
 }

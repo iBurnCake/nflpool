@@ -138,7 +138,7 @@ function saveUserPicks(userId) {
         .catch((error) => console.error("Error saving picks:", error));
 }
 
-// Load user picks and locked state from Firebase
+// Load user picks from Firebase
 function loadUserPicks(userId) {
     get(child(ref(db), `scoreboards/week9/${userId}`))
         .then((snapshot) => {

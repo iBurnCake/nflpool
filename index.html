@@ -13,7 +13,7 @@
     <!-- Login Section -->
     <section id="loginSection">
         <div class="login-container">
-            <h2>Login V11.9</h2>
+            <h2>Login</h2>
             <form id="loginForm">
                 <label for="email">Email:</label>
                 <input type="text" id="email" required>
@@ -31,6 +31,7 @@
             <h2>Welcome, <span id="usernameDisplay"></span>!</h2>
             <p>Your Personal Pool - Week 9</p>
         </div>
+        
         <table id="gamesTable">
             <thead>
                 <tr>
@@ -43,10 +44,10 @@
                 <!-- Games will be populated here by JavaScript -->
             </tbody>
         </table>
+
+        <!-- Reset and Submit Buttons -->
         <button id="resetButton" onclick="resetPicks()">Reset Picks</button>
         <button id="submitButton" onclick="submitPicks()">Submit Picks</button>
-        <button id="unlockButton" onclick="unlockPicks()">Unlock Picks Temporarily</button>
-
     </section>
 
     <!-- Load Firebase Configuration and Main Script -->
