@@ -20,7 +20,8 @@ function loadHousePicks() {
                 // Loop through each user’s data
                 for (const userId in picksData) {
                     const userPicks = picksData[userId];
-                    fetchAndDisplayUserEmail(userId, userPicks);
+                    const userName = getUserName(userId); // Get user-friendly name if available
+                    createUserPicksTable(userName, userPicks);
                 }
             } else {
                 housePicksContainer.innerHTML = '<p>No picks available.</p>';
@@ -32,18 +33,16 @@ function loadHousePicks() {
         });
 }
 
-// Fetch user's email and display it with the picks
-function fetchAndDisplayUserEmail(userId, userPicks) {
-    const userRef = ref(db, `users/${userId}/email`);
-    get(userRef)
-        .then(snapshot => {
-            const userEmail = snapshot.exists() ? snapshot.val() : userId;
-            createUserPicksTable(userEmail, userPicks);
-        })
-        .catch(error => {
-            console.error(`Error fetching email for user ${userId}:`, error);
-            createUserPicksTable(userId, userPicks); // Fallback to userId if error
-        });
+// Function to map user IDs to display names
+function getUserName(userId) {
+    const userMap = {
+        '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan',
+        'I3RfB1et3bhADFKRQbx3EU6yllI3': 'Ryan Sanders',
+        'krvPcOneIcYrzc2GfIHXfsvbrD23': 'William Mathis',
+        '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant',
+        'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano'
+    };
+    return userMap[userId] || userId; // Return name if found, else return userId
 }
 
 // Function to create a mini-table for each user
@@ -54,7 +53,7 @@ function createUserPicksTable(userName, userPicks) {
     const userContainer = document.createElement('div');
     userContainer.classList.add('user-picks-container');
 
-    // Add a header with the user's email or ID
+    // Add a header with the user's name or ID
     const userHeader = document.createElement('h3');
     userHeader.classList.add('user-header');
     userHeader.textContent = `User: ${userName}`;
