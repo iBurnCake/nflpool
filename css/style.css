@@ -198,33 +198,34 @@ th {
 
 /* Individual User Mini-Table Styling for House Picks Page */
 .user-picks-container {
-    flex: 1 1 calc(30% - 40px); /* Space between columns */
-    min-width: 250px; /* Minimum width to ensure readability */
-    max-width: 500px; /* Maximum width to keep consistency */
     background-color: #282828;
+    padding: 20px;
     border-radius: 8px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-    padding: 15px;
-    margin-bottom: 20px;
+    width: 280px; /* Adjust width as needed */
+    height: 550px; /* Set a fixed height to align all tables */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
-/* Header for each user's table */
 .user-header {
     font-size: 20px;
     font-weight: bold;
     color: #FFD700;
-    text-align: center;
     margin-bottom: 10px;
+    text-align: center;
 }
 
-/* Styling for the mini tables inside each user container */
 .user-picks-table {
     width: 100%;
     border-collapse: collapse;
 }
 
+
 .user-picks-table th, .user-picks-table td {
-    padding: 8px;
+    padding: 10px;
     border: 1px solid #444;
     background-color: #333;
     color: #FFD700;
@@ -235,7 +236,6 @@ th {
     font-weight: bold;
 }
 
-/* Highlight row on hover */
 .user-picks-table tr:hover {
     background-color: #555;
 }
