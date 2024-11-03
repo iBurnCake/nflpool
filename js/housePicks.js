@@ -45,6 +45,29 @@ function getUserName(userId) {
     return userMap[userId] || userId; // Return name if found, else return userId
 }
 
+// Function to map matchup and position (home/away) to team names
+function getTeamName(matchup, position) {
+    const teamMap = {
+        "Jets vs Texans": { home: "Jets", away: "Texans" },
+        "Saints vs Panthers": { home: "Saints", away: "Panthers" },
+        "Giants vs Commanders": { home: "Giants", away: "Commanders" },
+        "Bills vs Dolphins": { home: "Bills", away: "Dolphins" },
+        "Browns vs Chargers": { home: "Browns", away: "Chargers" },
+        "Patriots vs Titans": { home: "Patriots", away: "Titans" },
+        "Cowboys vs Falcons": { home: "Cowboys", away: "Falcons" },
+        "Raiders vs Bengals": { home: "Raiders", away: "Bengals" },
+        "Ravens vs Broncos": { home: "Ravens", away: "Broncos" },
+        "Bears vs Cardinals": { home: "Bears", away: "Cardinals" },
+        "Jaguars vs Eagles": { home: "Jaguars", away: "Eagles" },
+        "Rams vs Seahawks": { home: "Rams", away: "Seahawks" },
+        "Packers vs Lions": { home: "Packers", away: "Lions" },
+        "Colts vs Vikings": { home: "Colts", away: "Vikings" },
+        "Chiefs vs Buccaneers": { home: "Chiefs", away: "Buccaneers" }
+    };
+
+    return teamMap[matchup] ? teamMap[matchup][position] : position;
+}
+
 // Function to create a mini-table for each user
 function createUserPicksTable(userName, userPicks) {
     const housePicksContainer = document.getElementById('housePicksContainer');
@@ -85,6 +108,7 @@ function createUserPicksTable(userName, userPicks) {
     if (userPicks && typeof userPicks === 'object') {
         for (const gameIndex in userPicks) {
             const pickData = userPicks[gameIndex];
+            const teamName = getTeamName(pickData.matchup, pickData.team); // Get the correct team name
             
             // Create a safe ID for each result cell
             const matchupId = pickData.matchup ? pickData.matchup.replace(/\s+/g, '-') : 'unknown-matchup';
@@ -92,7 +116,7 @@ function createUserPicksTable(userName, userPicks) {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${pickData.matchup || 'N/A'}</td>
-                <td>${pickData.team || 'N/A'}</td>
+                <td>${teamName || 'N/A'}</td>
                 <td>${pickData.points || 'N/A'}</td>
                 <td id="result-${matchupId}-${userName}">${pickData.result || 'N/A'}</td>
                 <td>
