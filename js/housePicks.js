@@ -1,10 +1,10 @@
-import { db, ref, get, child } from './firebaseConfig.js';
+import { db, ref, get } from './firebaseConfig.js';
 
 document.addEventListener('DOMContentLoaded', loadHousePicks);
 
-// Fixed game data for Week 9 and known game results
+// Predefined game outcomes for Week 9
 const games = [
-    { homeTeam: 'Texans', awayTeam: 'Jets', homeRecord: '6-2', awayRecord: '2-6', result: 'away' },
+    { homeTeam: 'Texans', awayTeam: 'Jets', homeRecord: '6-2', awayRecord: '2-6' },
     { homeTeam: 'Saints', awayTeam: 'Panthers', homeRecord: '2-6', awayRecord: '1-7' },
     { homeTeam: 'Commanders', awayTeam: 'Giants', homeRecord: '6-2', awayRecord: '2-6' },
     { homeTeam: 'Dolphins', awayTeam: 'Bills', homeRecord: '2-5', awayRecord: '6-2' },
@@ -34,7 +34,7 @@ function loadHousePicks() {
                 for (const userId in picksData) {
                     const userPicksData = picksData[userId];
                     const userName = getUserName(userId);
-                    const userPicks = userPicksData.picks || userPicksData; // Handles nested 'picks' field
+                    const userPicks = userPicksData.picks;
 
                     createUserPicksTable(userName, userPicks);
                 }
@@ -52,9 +52,7 @@ function getUserName(userId) {
     const userMap = {
         '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan',
         'I3RfB1et3bhADFKRQbx3EU6yllI3': 'Ryan Sanders',
-        'krvPcOneIcYrzc2GfIHXfsvbrD23': 'William Mathis',
-        '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant',
-        'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano'
+        // Add other user mappings
     };
     return userMap[userId] || userId;
 }
@@ -87,24 +85,12 @@ function createUserPicksTable(userName, userPicks) {
     let totalScore = 0;
     const tbody = table.querySelector('tbody');
 
-    for (const gameIndex in userPicks) {
-        const pickData = userPicks[gameIndex];
-        const game = games[gameIndex];
-        const result = game.result || 'N/A';
+    games.forEach((game, index) => {
+        const pickData = userPicks[index];
+        const result = game.result;
 
-        let chosenTeam = 'N/A';
-        let opposingTeam = 'N/A';
-        let resultText = '';
-
-        if (pickData.team === 'home') {
-            chosenTeam = game.homeTeam;
-            opposingTeam = game.awayTeam;
-            resultText = result === 'home' ? 'Correct' : result === 'away' ? 'Incorrect' : 'N/A';
-        } else if (pickData.team === 'away') {
-            chosenTeam = game.awayTeam;
-            opposingTeam = game.homeTeam;
-            resultText = result === 'away' ? 'Correct' : result === 'home' ? 'Incorrect' : 'N/A';
-        }
+        let chosenTeam = pickData.team === 'home' ? game.homeTeam : game.awayTeam;
+        let resultText = pickData.team === result ? 'Correct' : 'Incorrect';
 
         if (resultText === 'Correct') {
             totalScore += parseInt(pickData.points) || 0;
@@ -112,13 +98,13 @@ function createUserPicksTable(userName, userPicks) {
 
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${opposingTeam} vs ${chosenTeam}</td>
+            <td>${game.homeTeam} vs ${game.awayTeam}</td>
             <td>${chosenTeam}</td>
             <td>${pickData.points || 'N/A'}</td>
             <td>${resultText}</td>
         `;
         tbody.appendChild(row);
-    }
+    });
 
     const totalRow = document.createElement('tr');
     totalRow.innerHTML = `
