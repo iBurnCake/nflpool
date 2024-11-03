@@ -1,4 +1,3 @@
-
 import { db, ref, get, child } from './firebaseConfig.js';
 
 document.addEventListener('DOMContentLoaded', loadHousePicks);
