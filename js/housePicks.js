@@ -86,15 +86,18 @@ function createUserPicksTable(userName, userPicks) {
         for (const gameIndex in userPicks) {
             const pickData = userPicks[gameIndex];
             
+            // Create a safe ID for each result cell
+            const matchupId = pickData.matchup ? pickData.matchup.replace(/\s+/g, '-') : 'unknown-matchup';
+
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${pickData.matchup || 'N/A'}</td>
                 <td>${pickData.team || 'N/A'}</td>
                 <td>${pickData.points || 'N/A'}</td>
-                <td id="result-${pickData.matchup.replace(/\s+/g, '-')}-${userName}">${pickData.result || 'N/A'}</td>
+                <td id="result-${matchupId}-${userName}">${pickData.result || 'N/A'}</td>
                 <td>
                     <!-- Manual Update Button for each game -->
-                    <button onclick="manualUpdateResult('${pickData.matchup}', '${userName}')">Update Result</button>
+                    <button onclick="manualUpdateResult('${pickData.matchup || ''}', '${userName}')">Update Result</button>
                 </td>
             `;
             tbody.appendChild(row);
