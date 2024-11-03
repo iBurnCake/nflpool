@@ -102,7 +102,7 @@ function createUserPicksTable(userName, userPicks) {
 }
 
 // Function to manually update the result for each game
-function manualUpdateResult(matchup, userName) {
+window.manualUpdateResult = function (matchup, userName) {
     const result = prompt(`Enter the winner for ${matchup} (home/away):`).toLowerCase();
 
     if (result === 'home' || result === 'away') {
