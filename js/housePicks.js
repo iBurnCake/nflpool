@@ -116,22 +116,27 @@ function createUserPicksTable(userName, userPicks) {
 }
 
 window.manualUpdateResult = function (matchupIndex, userName) {
-    const result = prompt("Enter the winner (home/away):").toLowerCase();
+    const matchup = matchupMap[matchupIndex];
+    const result = prompt(`Enter the winning team (${matchup.home} or ${matchup.away}):`).toLowerCase();
 
-    if (result === 'home' || result === 'away') {
-        const userRef = ref(db, `housePicks/${userName}/picks/${matchupIndex}`);
-        set(userRef, { result: result === 'home' ? 'Correct' : 'Incorrect' })
+    if (result === matchup.home.toLowerCase() || result === matchup.away.toLowerCase()) {
+        const userRef = ref(db, `housePicks/${userName}/picks/${matchupIndex}/result`);
+        
+        const userPickCorrect = result === (userPicks[matchupIndex].team === 'home' ? matchup.home.toLowerCase() : matchup.away.toLowerCase());
+
+        set(userRef, userPickCorrect ? 'Correct' : 'Incorrect')
             .then(() => {
                 alert("Result updated successfully.");
+                
                 const resultElement = document.getElementById(`result-${matchupIndex}-${userName}`);
                 if (resultElement) {
-                    resultElement.innerText = result === 'home' ? 'Correct' : 'Incorrect';
+                    resultElement.innerText = userPickCorrect ? 'Correct' : 'Incorrect';
                 }
             })
             .catch(error => {
                 console.error('Error updating result:', error);
             });
     } else {
-        alert("Invalid input. Please enter 'home' or 'away'.");
+        alert(`Invalid input. Please enter the team name "${matchup.home}" or "${matchup.away}".`);
     }
 };
