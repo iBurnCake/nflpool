@@ -1,3 +1,4 @@
+
 // Import Firebase configuration
 import { auth, db, signInWithEmailAndPassword, ref, set, get, child } from './firebaseConfig.js';
 
@@ -213,4 +214,3 @@ window.submitPicks = function () {
             console.error("Error submitting picks to House Picks:", error);
         });
 };
-
