@@ -1,4 +1,4 @@
-import { db, ref, set, get, child } from './firebaseConfig.js';
+import { db, ref, set, get } from './firebaseConfig.js';
 
 document.addEventListener('DOMContentLoaded', loadHousePicks);
 
@@ -13,13 +13,13 @@ function loadHousePicks() {
         .then(snapshot => {
             if (snapshot.exists()) {
                 const picksData = snapshot.val();
-                
+
                 // Clear existing content
                 housePicksContainer.innerHTML = '';
 
                 // Loop through each user’s data
                 for (const userId in picksData) {
-                    const userPicks = picksData[userId];
+                    const userPicks = picksData[userId].picks; // Ensure we’re accessing the `picks` object correctly
                     const userName = getUserName(userId); // Get user-friendly name if available
                     createUserPicksTable(userName, userPicks);
                 }
@@ -80,21 +80,27 @@ function createUserPicksTable(userName, userPicks) {
 
     // Populate the table with user's picks
     const tbody = table.querySelector('tbody');
-    for (const gameIndex in userPicks) {
-        const pickData = userPicks[gameIndex];
-        
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${pickData.matchup || 'N/A'}</td>
-            <td>${pickData.team || 'N/A'}</td>
-            <td>${pickData.points || 'N/A'}</td>
-            <td id="result-${pickData.matchup.replace(/\s+/g, '-')}-${userName}">${pickData.result || 'N/A'}</td>
-            <td>
-                <!-- Manual Update Button for each game -->
-                <button onclick="manualUpdateResult('${pickData.matchup}', '${userName}')">Update Result</button>
-            </td>
-        `;
-        tbody.appendChild(row);
+
+    // Check if userPicks is defined and is an object
+    if (userPicks && typeof userPicks === 'object') {
+        for (const gameIndex in userPicks) {
+            const pickData = userPicks[gameIndex];
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${pickData.matchup || 'N/A'}</td>
+                <td>${pickData.team || 'N/A'}</td>
+                <td>${pickData.points || 'N/A'}</td>
+                <td id="result-${pickData.matchup.replace(/\s+/g, '-')}-${userName}">${pickData.result || 'N/A'}</td>
+                <td>
+                    <!-- Manual Update Button for each game -->
+                    <button onclick="manualUpdateResult('${pickData.matchup}', '${userName}')">Update Result</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        }
+    } else {
+        console.warn(`No picks found for user: ${userName}`);
     }
 
     userContainer.appendChild(table);
