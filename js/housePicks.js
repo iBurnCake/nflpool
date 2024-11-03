@@ -19,7 +19,7 @@ function loadHousePicks() {
 
                 // Loop through each user’s data
                 for (const userId in picksData) {
-                    const userPicks = picksData[userId];
+                    const userPicks = picksData[userId].picks;
                     const userName = getUserName(userId); // Get user-friendly name if available
                     createUserPicksTable(userName, userPicks);
                 }
@@ -53,7 +53,7 @@ function createUserPicksTable(userName, userPicks) {
     const userContainer = document.createElement('div');
     userContainer.classList.add('user-picks-container');
 
-    // Add a header with the user's name or ID
+    // Add a header with the user's name
     const userHeader = document.createElement('h3');
     userHeader.classList.add('user-header');
     userHeader.textContent = `User: ${userName}`;
@@ -76,16 +76,27 @@ function createUserPicksTable(userName, userPicks) {
         </tbody>
     `;
 
-    // Populate the table with user's picks
+    // Populate the table with user's picks if they exist
     const tbody = table.querySelector('tbody');
-    for (const gameIndex in userPicks) {
-        const pickData = userPicks[gameIndex];
-        
+    if (userPicks) {
+        for (const gameIndex in userPicks) {
+            const pickData = userPicks[gameIndex];
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${pickData.matchup || 'N/A'}</td>
+                <td>${pickData.team || 'N/A'}</td>
+                <td>${pickData.points || 'N/A'}</td>
+            `;
+            tbody.appendChild(row);
+        }
+    } else {
+        // If no picks available, show N/A
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${pickData.matchup || 'N/A'}</td>
-            <td>${pickData.team || 'N/A'}</td>
-            <td>${pickData.points || 'N/A'}</td>
+            <td>N/A</td>
+            <td>N/A</td>
+            <td>N/A</td>
         `;
         tbody.appendChild(row);
     }
