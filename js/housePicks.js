@@ -124,52 +124,47 @@ window.manualUpdateResult = function (matchupIndex, userName) {
         const userPickRef = ref(db, `housePicks/${userName}/picks/${matchupIndex}`);
         
         // Fetch the user's pick to determine correctness
-        get(userPickRef).then((snapshot) => {
-            if (snapshot.exists()) {
-                const userPickData = snapshot.val();
+        get(userPickRef)
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    const userPickData = snapshot.val();
 
-                // Log the fetched data to debug
-                console.log("Fetched user pick data:", userPickData);
+                    // Ensure the 'team' field exists in the retrieved data
+                    if (userPickData && userPickData.team) {
+                        const userPickedTeam = userPickData.team === 'home' ? matchup.home : matchup.away;
 
-                // Ensure the 'team' field exists in the retrieved data
-                if (userPickData && userPickData.team) {
-                    const userPickedTeam = userPickData.team === 'home' ? matchup.home : matchup.away;
+                        // Determine if the user's pick matches the entered result
+                        const isCorrect = userPickedTeam.toLowerCase() === result.toLowerCase();
+                        const resultStatus = isCorrect ? 'Correct' : 'Incorrect';
 
-                    // Log to check the comparison logic
-                    console.log("User picked team:", userPickedTeam);
-                    console.log("Entered result team:", result);
-
-                    // Determine if the user's pick matches the entered result
-                    const isCorrect = userPickedTeam.toLowerCase() === result.toLowerCase();
-                    const resultStatus = isCorrect ? 'Correct' : 'Incorrect';
-
-                    // Update Firebase with the result
-                    set(ref(db, `housePicks/${userName}/picks/${matchupIndex}/result`), resultStatus)
-                        .then(() => {
-                            alert("Result updated successfully.");
-                            const resultElement = document.getElementById(`result-${matchupIndex}-${userName}`);
-                            if (resultElement) {
-                                resultElement.innerText = resultStatus;
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error updating result:', error);
-                        });
+                        // Update Firebase with the result
+                        set(ref(db, `housePicks/${userName}/picks/${matchupIndex}/result`), resultStatus)
+                            .then(() => {
+                                alert("Result updated successfully.");
+                                const resultElement = document.getElementById(`result-${matchupIndex}-${userName}`);
+                                if (resultElement) {
+                                    resultElement.innerText = resultStatus;
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error updating result in Firebase:', error);
+                                alert("Error updating the result in Firebase.");
+                            });
+                    } else {
+                        console.warn("The 'team' field is missing in the user's pick data:", userPickData);
+                        alert("No valid pick data found for this user and matchup.");
+                    }
                 } else {
-                    console.warn("The 'team' field is missing in the user's pick data:", userPickData);
-                    alert("No valid pick data found for this user and matchup.");
+                    console.warn("No pick data found at the specified path:", `housePicks/${userName}/picks/${matchupIndex}`);
+                    alert("No pick data found for this user and matchup.");
                 }
-            } else {
-                console.warn("No pick data found at the specified path:", `housePicks/${userName}/picks/${matchupIndex}`);
-                alert("No pick data found for this user and matchup.");
-            }
-        }).catch(error => {
-            console.error('Error fetching user pick:', error);
-            alert("Error fetching pick data. Please try again later.");
-        });
+            })
+            .catch(error => {
+                console.error('Error fetching user pick:', error);
+                alert("Error retrieving data from Firebase.");
+            });
     } else {
         alert(`Invalid input. Please enter either "${matchup.home}" or "${matchup.away}".`);
     }
 };
-
 
