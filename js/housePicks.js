@@ -24,16 +24,16 @@ const matchupMap = {
     14: { home: 'Chiefs', away: 'Buccaneers' }
 };
 
-// Map usernames to Firebase IDs
-function getUserIdByName(userName) {
+// Function to map user IDs to names
+function getUserNameById(userId) {
     const userMap = {
-        'Angela Kant': '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2',
-        'Luke Romano': 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2',
-        'Charles Keegan': '7INNhg6p0gVa3KK5nEmJ811Z4sf1',
-        'Ryan Sanders': 'I3RfB1et3bhADFKRQbx3EU6yllI3',
-        'William Mathis': 'krvPcOneIcYrzc2GfIHXfsvbrD23'
+        '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant',
+        'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
+        '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan',
+        'I3RfB1et3bhADFKRQbx3EU6yllI3': 'Ryan Sanders',
+        'krvPcOneIcYrzc2GfIHXfsvbrD23': 'William Mathis'
     };
-    return userMap[userName];
+    return userMap[userId];
 }
 
 // Load central game table for selecting winners
