@@ -127,15 +127,22 @@ window.manualUpdateResult = function (matchupIndex, userName) {
         get(userPickRef).then((snapshot) => {
             if (snapshot.exists()) {
                 const userPickData = snapshot.val();
-                
+
+                // Log the fetched data to debug
+                console.log("Fetched user pick data:", userPickData);
+
                 // Ensure the 'team' field exists in the retrieved data
                 if (userPickData && userPickData.team) {
                     const userPickedTeam = userPickData.team === 'home' ? matchup.home : matchup.away;
-                    
+
+                    // Log to check the comparison logic
+                    console.log("User picked team:", userPickedTeam);
+                    console.log("Entered result team:", result);
+
                     // Determine if the user's pick matches the entered result
                     const isCorrect = userPickedTeam.toLowerCase() === result.toLowerCase();
                     const resultStatus = isCorrect ? 'Correct' : 'Incorrect';
-                    
+
                     // Update Firebase with the result
                     set(ref(db, `housePicks/${userName}/picks/${matchupIndex}/result`), resultStatus)
                         .then(() => {
@@ -158,6 +165,7 @@ window.manualUpdateResult = function (matchupIndex, userName) {
             }
         }).catch(error => {
             console.error('Error fetching user pick:', error);
+            alert("Error fetching pick data. Please try again later.");
         });
     } else {
         alert(`Invalid input. Please enter either "${matchup.home}" or "${matchup.away}".`);
