@@ -145,8 +145,6 @@ h2 {
     padding: 8px;
     text-align: center;
     border: 1px solid #444;
-    background-color: #333;
-    color: #FFD700;
 }
 
 .central-game-table th {
@@ -161,6 +159,7 @@ h2 {
     border: 1px solid #555;
     border-radius: 4px;
 }
+
 
 .central-game-table button {
     padding: 6px 12px;
@@ -234,4 +233,45 @@ h2 {
 .incorrect {
     background-color: #dc3545; /* Red for incorrect */
     color: #ffffff;
+}
+
+/* Central Game Table Styling */
+.central-game-table {
+    width: 100%;
+    max-width: 300px;
+    margin: 20px;
+    border-collapse: collapse;
+}
+
+.central-game-table th, .central-game-table td {
+    padding: 8px;
+    text-align: center;
+    border: 1px solid #444;
+}
+
+.central-game-table select {
+    padding: 5px;
+    background-color: #2a2a2a;
+    color: #e6e6e6;
+    border: 1px solid #555;
+    border-radius: 4px;
+}
+
+/* Flexbox layout for House Picks */
+#housePicksContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 20px;
+}
+
+/* Styling individual user tables */
+.user-picks-container {
+    width: 300px;
+    max-width: 300px;
+    margin: 10px;
+    padding: 15px;
+    background-color: #282828;
+    border-radius: 8px;
+    text-align: center;
 }

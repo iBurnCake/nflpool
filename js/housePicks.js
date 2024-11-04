@@ -98,6 +98,7 @@ window.updateGameResult = function (gameIndex) {
         });
 };
 
+
 // Calculate user scores based on selected winners
 function calculateUserScores() {
     const housePicksRef = ref(db, 'housePicks');
