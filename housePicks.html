@@ -7,18 +7,23 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <h1 class="page-title">House Picks</h1>
+    <!-- Main wrapper for the House Picks view -->
+    <div class="house-picks-view">
+        <!-- Title of the page -->
+        <h1 class="page-title">House Picks</h1>
 
-    <!-- Central game table for selecting winners -->
-    <div id="centralGameTableContainer" class="central-game-table-container">
-        <!-- Central game table will be dynamically loaded here -->
+        <!-- Central Game Table Section -->
+        <div id="centralGameTableContainer" class="central-game-table-container">
+            <!-- This table will be populated dynamically in JS (for selecting winners) -->
+        </div>
+
+        <!-- User-Specific Picks and Scores Section -->
+        <div id="housePicksContainer" class="house-picks-container">
+            <!-- Each user’s picks table will be dynamically added here -->
+        </div>
     </div>
 
-    <!-- User-specific picks and scores table -->
-    <div id="housePicksContainer" class="house-picks-container">
-        <!-- User picks will be dynamically loaded here -->
-    </div>
-
+    <!-- JavaScript file to handle dynamic data loading -->
     <script type="module" src="js/housePicks.js"></script>
 </body>
 </html>

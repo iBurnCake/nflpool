@@ -160,7 +160,6 @@ h2 {
     border-radius: 4px;
 }
 
-
 .central-game-table button {
     padding: 6px 12px;
     background-color: #4CAF50;
@@ -174,8 +173,8 @@ h2 {
     background-color: #45a049;
 }
 
-/* Container for House Picks */
-#housePicksContainer {
+/* House Picks View Specific Styles */
+.house-picks-view #housePicksContainer {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
@@ -183,7 +182,7 @@ h2 {
 }
 
 /* Individual User Mini-Table Styling for House Picks Page */
-.user-picks-container {
+.house-picks-view .user-picks-container {
     background-color: #282828;
     padding: 20px;
     border-radius: 8px;
@@ -195,7 +194,7 @@ h2 {
     align-items: center;
 }
 
-.user-header {
+.house-picks-view .user-header {
     font-size: 20px;
     font-weight: bold;
     color: #FFD700;
@@ -203,24 +202,24 @@ h2 {
     text-align: center;
 }
 
-.user-picks-table {
+.house-picks-view .user-picks-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.user-picks-table th, .user-picks-table td {
+.house-picks-view .user-picks-table th, .house-picks-view .user-picks-table td {
     padding: 10px;
     border: 1px solid #444;
     background-color: #333;
     color: #FFD700;
 }
 
-.user-picks-table th {
+.house-picks-view .user-picks-table th {
     background-color: #444;
     font-weight: bold;
 }
 
-.user-picks-table tr:hover {
+.house-picks-view .user-picks-table tr:hover {
     background-color: #555;
 }
 
@@ -235,38 +234,15 @@ h2 {
     color: #ffffff;
 }
 
-/* Central Game Table Styling */
-.central-game-table {
-    width: 100%;
-    max-width: 300px;
-    margin: 20px;
-    border-collapse: collapse;
-}
-
-.central-game-table th, .central-game-table td {
-    padding: 8px;
-    text-align: center;
-    border: 1px solid #444;
-}
-
-.central-game-table select {
-    padding: 5px;
-    background-color: #2a2a2a;
-    color: #e6e6e6;
-    border: 1px solid #555;
-    border-radius: 4px;
-}
-
 /* Flexbox layout for House Picks */
-#housePicksContainer {
+.house-picks-view #housePicksContainer {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
     gap: 20px;
 }
 
-/* Styling individual user tables */
-.user-picks-container {
+.house-picks-view .user-picks-container {
     width: 300px;
     max-width: 300px;
     margin: 10px;
