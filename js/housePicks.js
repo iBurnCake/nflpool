@@ -126,6 +126,9 @@ window.manualUpdateResult = function (matchupIndex, userName) {
         return;
     }
 
+    // Log the userId to ensure we're accessing the correct Firebase path
+    console.log(`Resolved userId for ${userName}: ${userId}`);
+
     // Get the matchup info
     const matchup = matchupMap[matchupIndex];
     const result = prompt(`Enter the winning team (${matchup.home} or ${matchup.away}):`);
@@ -135,10 +138,16 @@ window.manualUpdateResult = function (matchupIndex, userName) {
         // Construct the path to the user's pick in Firebase
         const userPickRef = ref(db, `housePicks/${userId}/picks/${matchupIndex}`);
 
+        // Log the constructed path to debug
+        console.log(`Attempting to access path: housePicks/${userId}/picks/${matchupIndex}`);
+
         // Fetch the user's pick data to determine if the result is correct
         get(userPickRef).then((snapshot) => {
             if (snapshot.exists()) {
                 const userPickData = snapshot.val();
+
+                // Log fetched data for debugging
+                console.log(`Fetched pick data for ${userName}:`, userPickData);
 
                 // Check if user's pick matches the winning team
                 const isCorrect = userPickData.team === result;
