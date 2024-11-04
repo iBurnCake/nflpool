@@ -48,15 +48,15 @@ function loadHousePicks() {
         });
 }
 
-function getUserName(userId) {
+function getUserIdByName(userName) {
     const userMap = {
-        '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan',
-        'I3RfB1et3bhADFKRQbx3EU6yllI3': 'Ryan Sanders',
-        'krvPcOneIcYrzc2GfIHXfsvbrD23': 'William Mathis',
-        '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant',
-        'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano'
+        'Angela Kant': '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2',
+        'Charles Keegan': '7INNhg6p0gVa3KK5nEmJ811Z4sf1',
+        'Ryan Sanders': 'I3RfB1et3bhADFKRQbx3EU6yllI3',
+        'William Mathis': 'krvPcOneIcYrzc2GfIHXfsvbrD23',
+        'Luke Romano': 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2'
     };
-    return userMap[userId] || userId;
+    return userMap[userName];
 }
 
 function createUserPicksTable(userName, userPicks) {
@@ -116,6 +116,16 @@ function createUserPicksTable(userName, userPicks) {
 }
 
 window.manualUpdateResult = function (matchupIndex, userName) {
+    // Get the Firebase user ID based on the name
+    const userId = getUserIdByName(userName);
+
+    // Verify if the user ID exists
+    if (!userId) {
+        console.warn(`No user ID found for user: ${userName}`);
+        alert("Invalid user specified.");
+        return;
+    }
+
     // Get the matchup info
     const matchup = matchupMap[matchupIndex];
     const result = prompt(`Enter the winning team (${matchup.home} or ${matchup.away}):`);
@@ -123,7 +133,7 @@ window.manualUpdateResult = function (matchupIndex, userName) {
     // Validate if the entered result matches the home or away team
     if (result && (result === matchup.home || result === matchup.away)) {
         // Construct the path to the user's pick in Firebase
-        const userPickRef = ref(db, `housePicks/${userName}/picks/${matchupIndex}`);
+        const userPickRef = ref(db, `housePicks/${userId}/picks/${matchupIndex}`);
 
         // Fetch the user's pick data to determine if the result is correct
         get(userPickRef).then((snapshot) => {
@@ -135,7 +145,7 @@ window.manualUpdateResult = function (matchupIndex, userName) {
                 const resultStatus = isCorrect ? 'Correct' : 'Incorrect';
 
                 // Update Firebase with the result
-                set(ref(db, `housePicks/${userName}/picks/${matchupIndex}/result`), resultStatus)
+                set(ref(db, `housePicks/${userId}/picks/${matchupIndex}/result`), resultStatus)
                     .then(() => {
                         alert("Result updated successfully.");
                         const resultElement = document.getElementById(`result-${matchupIndex}-${userName}`);
@@ -147,7 +157,7 @@ window.manualUpdateResult = function (matchupIndex, userName) {
                         console.error('Error updating result:', error);
                     });
             } else {
-                console.warn(`No pick data found at the specified path: housePicks/${userName}/picks/${matchupIndex}`);
+                console.warn(`No pick data found at the specified path: housePicks/${userId}/picks/${matchupIndex}`);
                 alert("No pick data found for this user and matchup.");
             }
         }).catch(error => {
@@ -157,4 +167,3 @@ window.manualUpdateResult = function (matchupIndex, userName) {
         alert(`Invalid input. Please enter either "${matchup.home}" or "${matchup.away}".`);
     }
 };
-
