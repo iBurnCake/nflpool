@@ -134,21 +134,23 @@ h2 {
 }
 
 /* Central Game Table Styling */
-.central-game-table {
-    width: 100%;
-    max-width: 300px;
-    margin: 20px;
+.central-game-table-container {
+    width: 90%;
+    max-width: 800px;
+    margin: 20px auto;
     border-collapse: collapse;
 }
 
-.central-game-table th, .central-game-table td {
-    padding: 8px;
+.central-game-table th,
+.central-game-table td {
+    padding: 10px;
     text-align: center;
     border: 1px solid #444;
 }
 
 .central-game-table th {
-    background-color: #444;
+    background-color: #333;
+    color: #FFD700;
     font-weight: bold;
 }
 
@@ -173,53 +175,55 @@ h2 {
     background-color: #45a049;
 }
 
-/* House Picks View Specific Styles */
-.house-picks-view #housePicksContainer {
+/* House Picks Container */
+.house-picks-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
-    gap: 20px;
+    gap: 30px;
+    padding: 20px;
+    width: 100%;
 }
 
-/* Individual User Mini-Table Styling for House Picks Page */
-.house-picks-view .user-picks-container {
+/* User Picks Table Styling */
+.user-picks-container {
     background-color: #282828;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
     width: 300px;
     max-width: 300px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    text-align: center;
+    margin: 10px;
 }
 
-.house-picks-view .user-header {
-    font-size: 20px;
+.user-header {
+    font-size: 18px;
     font-weight: bold;
     color: #FFD700;
     margin-bottom: 10px;
-    text-align: center;
 }
 
-.house-picks-view .user-picks-table {
+.user-picks-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.house-picks-view .user-picks-table th, .house-picks-view .user-picks-table td {
-    padding: 10px;
+.user-picks-table th,
+.user-picks-table td {
+    padding: 8px;
+    text-align: center;
     border: 1px solid #444;
     background-color: #333;
     color: #FFD700;
 }
 
-.house-picks-view .user-picks-table th {
+.user-picks-table th {
     background-color: #444;
     font-weight: bold;
 }
 
-.house-picks-view .user-picks-table tr:hover {
+.user-picks-table tr:hover {
     background-color: #555;
 }
 
@@ -234,20 +238,19 @@ h2 {
     color: #ffffff;
 }
 
-/* Flexbox layout for House Picks */
-.house-picks-view #housePicksContainer {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    gap: 20px;
+/* General Adjustments */
+#housePicksLink {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #3B7EED;
+    color: #FFFFFF;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: background-color 0.3s;
 }
 
-.house-picks-view .user-picks-container {
-    width: 300px;
-    max-width: 300px;
-    margin: 10px;
-    padding: 15px;
-    background-color: #282828;
-    border-radius: 8px;
-    text-align: center;
+#housePicksLink:hover {
+    background-color: #1F5B99;
 }

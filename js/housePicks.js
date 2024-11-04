@@ -24,7 +24,7 @@ const matchupMap = {
     14: { home: 'Chiefs', away: 'Buccaneers' }
 };
 
-// Function to map user IDs to names
+// Map user IDs to names
 function getUserNameById(userId) {
     const userMap = {
         '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant',
@@ -58,7 +58,7 @@ function loadCentralGameTable() {
 
     for (const gameIndex in matchupMap) {
         const matchup = matchupMap[gameIndex];
-        
+
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${matchup.home} vs ${matchup.away}</td>
@@ -97,7 +97,6 @@ window.updateGameResult = function (gameIndex) {
             console.error('Error setting game winner:', error);
         });
 };
-
 
 // Calculate user scores based on selected winners
 function calculateUserScores() {
@@ -190,7 +189,7 @@ function createUserPicksTable(userName, userPicks, totalScore, userId) {
     const userHeader = document.createElement('h3');
     userHeader.classList.add('user-header');
     userHeader.textContent = `User: ${userName} - Total Score: `;
-    
+
     const scoreSpan = document.createElement('span');
     scoreSpan.id = `totalScore-${userId}`;
     scoreSpan.textContent = totalScore;
