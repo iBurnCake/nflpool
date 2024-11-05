@@ -21,4 +21,4 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 
 // Export necessary items for other scripts to use
-export { auth, db, signInWithEmailAndPassword, ref, set, get, child };
+export { auth, db, onAuthStateChanged, signInWithEmailAndPassword, ref, set, get, child };
