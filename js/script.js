@@ -18,6 +18,22 @@ document.addEventListener("DOMContentLoaded", () => {
             auth.signOut(); // Ensures user is signed out if no session is found
         }
     });
+
+    // Add event listener for logout button
+    const logoutButton = document.getElementById('logoutButton');
+    if (logoutButton) {
+        logoutButton.addEventListener("click", () => {
+            auth.signOut().then(() => {
+                // Redirect to login page
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('userHomeSection').style.display = 'none';
+                alert("You have been logged out.");
+            }).catch((error) => {
+                console.error("Logout error:", error);
+                alert("Error logging out. Please try again.");
+            });
+        });
+    }
 });
 
 // Fixed game data for Week 9

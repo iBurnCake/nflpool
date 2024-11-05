@@ -291,3 +291,11 @@ button:hover {
     color: #dc3545; /* Red for incorrect picks */
     font-weight: bold;
 }
+
+#logoutButton {
+    background-color: #FF4500; /* Bright orange color */
+}
+
+#logoutButton:hover {
+    background-color: #CC3700; /* Darker orange on hover */
+}
