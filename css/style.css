@@ -285,3 +285,18 @@ button:hover {
     color: #dc3545; /* Red for incorrect picks */
     font-weight: bold;
 }
+#backToHomeButton {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #3B7EED;
+    color: #FFFFFF;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+#backToHomeButton:hover {
+    background-color: #1F5B99;
+}
