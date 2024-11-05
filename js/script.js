@@ -1,6 +1,23 @@
-
 // Import Firebase configuration
-import { auth, db, signInWithEmailAndPassword, ref, set, get, child } from './firebaseConfig.js';
+import { auth, db, signInWithEmailAndPassword, ref, set, get, child, onAuthStateChanged } from './firebaseConfig.js';
+
+// Check authentication status on page load
+document.addEventListener("DOMContentLoaded", () => {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // User is signed in, show picks page
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('userHomeSection').style.display = 'block';
+            document.getElementById('usernameDisplay').textContent = user.email; // Display user's email
+            displayGames();
+            loadUserPicks(user.uid);
+        } else {
+            // No user is signed in, show login page
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('userHomeSection').style.display = 'none';
+        }
+    });
+});
 
 // Fixed game data for Week 9
 const games = [
@@ -91,13 +108,14 @@ function updateConfidenceDropdown(gameIndex) {
     }
 }
 
-// Handle selection of a team
+// Function to handle team selection and highlight the selected button
 window.selectPick = function (gameIndex, team) {
     userPicks[gameIndex] = userPicks[gameIndex] || {};
     userPicks[gameIndex].team = team;
 
     const homeButton = document.getElementById(`home-${gameIndex}`);
     const awayButton = document.getElementById(`away-${gameIndex}`);
+    
     if (team === 'home') {
         homeButton.classList.add("selected");
         awayButton.classList.remove("selected");
@@ -106,8 +124,9 @@ window.selectPick = function (gameIndex, team) {
         homeButton.classList.remove("selected");
     }
 
-    saveUserPicks(auth.currentUser.uid);
+    saveUserPicks(auth.currentUser.uid); // This saves the user's selection in Firebase
 };
+
 
 // Assign confidence points and update dropdowns
 window.assignConfidence = function (gameIndex) {
