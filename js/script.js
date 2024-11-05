@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // No user is signed in, show login page
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('userHomeSection').style.display = 'none';
+            auth.signOut(); // Ensures user is signed out if no session is found
         }
     });
 });

@@ -136,11 +136,10 @@ h2 {
 /* Table Styling */
 table {
     width: 100%;
-/* Table Styling */
-table {
-    width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    border-radius: 8px; /* Added rounded corners */
+    overflow: hidden; /* Ensures rounded corners are applied */
 }
 
 th, td {
@@ -149,6 +148,7 @@ th, td {
     text-align: center;
     background-color: #333;
     color: #FFD700;
+    border-radius: 0; /* Remove inner rounded corners for cleaner look */
 }
 
 th {
@@ -245,7 +245,7 @@ button:hover {
 }
 
 /* House Picks Link Styling */
-#housePicksLink {
+#housePicksLink, #backToHomeButton, #backButton {
     display: inline-block;
     margin-top: 20px;
     padding: 10px 20px;
@@ -255,9 +255,10 @@ button:hover {
     font-weight: bold;
     border-radius: 4px;
     transition: background-color 0.3s;
+    cursor: pointer;
 }
 
-#housePicksLink:hover {
+#housePicksLink:hover, #backToHomeButton:hover, #backButton:hover {
     background-color: #1F5B99;
 }
 
@@ -265,11 +266,13 @@ button:hover {
 .correct {
     background-color: #28a745;
     color: #ffffff;
+    border-radius: 4px; /* Round edges */
 }
 
 .incorrect {
     background-color: #dc3545;
     color: #ffffff;
+    border-radius: 4px; /* Round edges */
 }
 
 .user-picks-table th,
@@ -287,63 +290,4 @@ button:hover {
 .user-picks-table .incorrect {
     color: #dc3545; /* Red for incorrect picks */
     font-weight: bold;
-}
-#backToHomeButton {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #3B7EED;
-    color: #FFFFFF;
-    text-decoration: none;
-    font-weight: bold;
-    border-radius: 4px;
-    transition: background-color 0.3s;
-}
-
-#backToHomeButton:hover {
-    background-color: #1F5B99;
-}
-
-/* Styling for Correct/Incorrect Results */
-.correct {
-    background-color: #28a745;
-    color: #ffffff;
-}
-
-.incorrect {
-    background-color: #dc3545;
-    color: #ffffff;
-}
-
-.user-picks-table th,
-.user-picks-table td {
-    padding: 10px;
-    text-align: center;
-    border: 1px solid #444;
-}
-
-.user-picks-table .correct {
-    color: #28a745; /* Green for correct picks */
-    font-weight: bold;
-}
-
-.user-picks-table .incorrect {
-    color: #dc3545; /* Red for incorrect picks */
-    font-weight: bold;
-}
-#backToHomeButton {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #3B7EED;
-    color: #FFFFFF;
-    text-decoration: none;
-    font-weight: bold;
-    border-radius: 4px;
-    transition: background-color 0.3s;
-}
-
-#backToHomeButton:hover {
-    background-color: #1F5B99;
-}
 }
