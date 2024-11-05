@@ -269,3 +269,19 @@ button:hover {
     color: #ffffff;
 }
 
+.user-picks-table th,
+.user-picks-table td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #444;
+}
+
+.user-picks-table .correct {
+    color: #28a745; /* Green for correct picks */
+    font-weight: bold;
+}
+
+.user-picks-table .incorrect {
+    color: #dc3545; /* Red for incorrect picks */
+    font-weight: bold;
+}
