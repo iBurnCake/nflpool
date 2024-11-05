@@ -1,6 +1,23 @@
-
 // Import Firebase configuration
-import { auth, db, signInWithEmailAndPassword, ref, set, get, child } from './firebaseConfig.js';
+import { auth, db, signInWithEmailAndPassword, ref, set, get, child, onAuthStateChanged } from './firebaseConfig.js';
+
+// Check authentication status on page load
+document.addEventListener("DOMContentLoaded", () => {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // User is signed in, show picks page
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('userHomeSection').style.display = 'block';
+            document.getElementById('usernameDisplay').textContent = user.email; // Display user's email
+            displayGames();
+            loadUserPicks(user.uid);
+        } else {
+            // No user is signed in, show login page
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('userHomeSection').style.display = 'none';
+        }
+    });
+});
 
 // Fixed game data for Week 9
 const games = [
