@@ -91,13 +91,14 @@ function updateConfidenceDropdown(gameIndex) {
     }
 }
 
-// Handle selection of a team
+// Function to handle team selection and highlight the selected button
 window.selectPick = function (gameIndex, team) {
     userPicks[gameIndex] = userPicks[gameIndex] || {};
     userPicks[gameIndex].team = team;
 
     const homeButton = document.getElementById(`home-${gameIndex}`);
     const awayButton = document.getElementById(`away-${gameIndex}`);
+    
     if (team === 'home') {
         homeButton.classList.add("selected");
         awayButton.classList.remove("selected");
@@ -106,8 +107,9 @@ window.selectPick = function (gameIndex, team) {
         homeButton.classList.remove("selected");
     }
 
-    saveUserPicks(auth.currentUser.uid);
+    saveUserPicks(auth.currentUser.uid); // This saves the user's selection in Firebase
 };
+
 
 // Assign confidence points and update dropdowns
 window.assignConfidence = function (gameIndex) {
