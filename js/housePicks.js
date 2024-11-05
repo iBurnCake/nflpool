@@ -1,7 +1,6 @@
 import { db, ref, set, get } from './firebaseConfig.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadCentralGameTable();
     loadHousePicks();
 });
 
