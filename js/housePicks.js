@@ -23,6 +23,25 @@ const matchupMap = {
     14: { home: 'Chiefs', away: 'Buccaneers' }
 };
 
+// Map of winning teams for each game
+const gameWinners = {
+    0: 'Jets',
+    1: 'Panthers',
+    2: 'Commanders',
+    3: 'Bills',
+    4: 'Chargers',
+    5: 'Titans',
+    6: 'Falcons',
+    7: 'Bengals',
+    8: 'Ravens',
+    9: 'Cardinals',
+    10: 'Eagles',
+    11: 'Rams',
+    12: 'Lions',
+    13: 'Vikings',
+    14: 'Chiefs'
+};
+
 // Map user IDs to names
 function getUserNameById(userId) {
     const userMap = {
@@ -33,123 +52,6 @@ function getUserNameById(userId) {
         'krvPcOneIcYrzc2GfIHXfsvbrD23': 'William Mathis'
     };
     return userMap[userId];
-}
-
-// Load central game table for selecting winners
-function loadCentralGameTable() {
-    const centralGameTableContainer = document.getElementById('centralGameTableContainer');
-    const table = document.createElement('table');
-    table.classList.add('central-game-table');
-
-    table.innerHTML = `
-        <thead>
-            <tr>
-                <th>Matchup</th>
-                <th>Winner</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    `;
-
-    const tbody = table.querySelector('tbody');
-
-    for (const gameIndex in matchupMap) {
-        const matchup = matchupMap[gameIndex];
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${matchup.home} vs ${matchup.away}</td>
-            <td>
-                <select id="winner-${gameIndex}">
-                    <option value="">Select Winner</option>
-                    <option value="${matchup.home}">${matchup.home}</option>
-                    <option value="${matchup.away}">${matchup.away}</option>
-                </select>
-            </td>
-            <td>
-                <button onclick="updateGameResult('${gameIndex}')">Set Winner</button>
-            </td>
-        `;
-        tbody.appendChild(row);
-    }
-
-    centralGameTableContainer.appendChild(table);
-}
-
-// Update game result and calculate user scores
-window.updateGameResult = function (gameIndex) {
-    const selectedWinner = document.getElementById(`winner-${gameIndex}`).value;
-    if (!selectedWinner) {
-        alert("Please select a winner before setting the result.");
-        return;
-    }
-
-    // Save the selected winner in Firebase
-    set(ref(db, `gameResults/${gameIndex}/winner`), selectedWinner)
-        .then(() => {
-            alert(`Winner for game ${gameIndex} set to ${selectedWinner}.`);
-            calculateUserScores();
-        })
-        .catch(error => {
-            console.error('Error setting game winner:', error);
-        });
-};
-
-// Calculate user scores based on selected winners
-function calculateUserScores() {
-    const housePicksRef = ref(db, 'housePicks');
-    const gameResultsRef = ref(db, 'gameResults');
-
-    get(gameResultsRef)
-        .then(gameResultsSnapshot => {
-            if (!gameResultsSnapshot.exists()) return;
-
-            const gameResults = gameResultsSnapshot.val();
-
-            get(housePicksRef).then(housePicksSnapshot => {
-                if (!housePicksSnapshot.exists()) return;
-
-                const usersData = housePicksSnapshot.val();
-
-                for (const userId in usersData) {
-                    const userPicks = usersData[userId].picks;
-                    let totalScore = 0;
-
-                    for (const gameIndex in userPicks) {
-                        const pickData = userPicks[gameIndex];
-                        const pickedTeam = pickData.team;
-                        const confidencePoints = pickData.points;
-                        const gameResult = gameResults[gameIndex]?.winner;
-
-                        if (gameResult && pickedTeam === gameResult) {
-                            totalScore += confidencePoints;
-                        }
-                    }
-
-                    // Update user's score in Firebase and the UI
-                    set(ref(db, `housePicks/${userId}/totalScore`), totalScore)
-                        .then(() => {
-                            updateUserTableScore(userId, totalScore);
-                        })
-                        .catch(error => {
-                            console.error(`Error updating score for user ${userId}:`, error);
-                        });
-                }
-            });
-        })
-        .catch(error => {
-            console.error('Error fetching game results:', error);
-        });
-}
-
-// Update user table with the calculated total score
-function updateUserTableScore(userId, score) {
-    const userScoreElement = document.getElementById(`totalScore-${userId}`);
-    if (userScoreElement) {
-        userScoreElement.textContent = score;
-    }
 }
 
 // Load each user's picks and total score
@@ -179,7 +81,7 @@ function loadHousePicks() {
         });
 }
 
-// Create user-specific table with picks and total score display
+// Create user-specific table with picks, total score, result, and points earned
 function createUserPicksTable(userName, userPicks, totalScore, userId) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
@@ -205,6 +107,8 @@ function createUserPicksTable(userName, userPicks, totalScore, userId) {
                 <th>Matchup</th>
                 <th>Pick</th>
                 <th>Confidence Points</th>
+                <th>Result</th>
+                <th>Points Earned</th>
             </tr>
         </thead>
         <tbody>
@@ -213,19 +117,35 @@ function createUserPicksTable(userName, userPicks, totalScore, userId) {
 
     const tbody = table.querySelector('tbody');
 
+    let userTotalScore = 0; // Calculate total score based on correct picks
+
     for (const gameIndex in userPicks) {
         const pickData = userPicks[gameIndex];
-        const matchup = matchupMap[gameIndex];
-        const teamName = pickData.team;
+        const matchup = `${matchupMap[gameIndex].home} vs ${matchupMap[gameIndex].away}`;
+        const pickedTeam = pickData.team;
+        const confidencePoints = pickData.points || 0;
+        const gameWinner = gameWinners[gameIndex];
+        const isCorrectPick = pickedTeam === gameWinner;
+        const pointsEarned = isCorrectPick ? confidencePoints : 0;
+
+        if (isCorrectPick) {
+            userTotalScore += pointsEarned;
+        }
 
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${matchup.home} vs ${matchup.away}</td>
-            <td>${teamName}</td>
-            <td>${pickData.points || 'N/A'}</td>
+            <td>${matchup}</td>
+            <td>${pickedTeam}</td>
+            <td>${confidencePoints}</td>
+            <td class="${isCorrectPick ? 'correct' : 'incorrect'}">${isCorrectPick ? 'Win' : 'Loss'}</td>
+            <td>${pointsEarned}</td>
         `;
+
         tbody.appendChild(row);
     }
+
+    // Update the displayed total score
+    scoreSpan.textContent = userTotalScore;
 
     userContainer.appendChild(table);
     housePicksContainer.appendChild(userContainer);
