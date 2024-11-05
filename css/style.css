@@ -136,6 +136,9 @@ h2 {
 /* Table Styling */
 table {
     width: 100%;
+/* Table Styling */
+table {
+    width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
 }
@@ -255,6 +258,49 @@ button:hover {
 }
 
 #housePicksLink:hover {
+    background-color: #1F5B99;
+}
+
+/* Styling for Correct/Incorrect Results */
+.correct {
+    background-color: #28a745;
+    color: #ffffff;
+}
+
+.incorrect {
+    background-color: #dc3545;
+    color: #ffffff;
+}
+
+.user-picks-table th,
+.user-picks-table td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #444;
+}
+
+.user-picks-table .correct {
+    color: #28a745; /* Green for correct picks */
+    font-weight: bold;
+}
+
+.user-picks-table .incorrect {
+    color: #dc3545; /* Red for incorrect picks */
+    font-weight: bold;
+}
+#backToHomeButton {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #3B7EED;
+    color: #FFFFFF;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+#backToHomeButton:hover {
     background-color: #1F5B99;
 }
 
