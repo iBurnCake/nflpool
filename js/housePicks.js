@@ -22,19 +22,20 @@ const games = [
 
 function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
-    const week10Ref = ref(db, 'scoreboards/week9');
+    const housePicksRef = ref(db, 'housePicks/week10'); // Adjust path to week 10
 
-    get(week10Ref)
+    get(housePicksRef)
         .then(snapshot => {
             if (snapshot.exists()) {
                 const picksData = snapshot.val();
-                housePicksContainer.innerHTML = ''; // Clear any existing content
+                housePicksContainer.innerHTML = '';
 
                 for (const userId in picksData) {
                     const userPicksData = picksData[userId];
                     const userName = getUserName(userId);
-                    
-                    createUserPicksTable(userName, userPicksData);
+                    const userPicks = userPicksData.picks || userPicksData; // Handles nested 'picks' field
+
+                    createUserPicksTable(userName, userPicks, userPicksData.locked); // Pass locked status
                 }
             } else {
                 housePicksContainer.innerHTML = '<p>No picks available for Week 10.</p>';
@@ -57,7 +58,7 @@ function getUserName(userId) {
     return userMap[userId] || userId; // Default to userId if name is not in userMap
 }
 
-function createUserPicksTable(userName, userPicks) {
+function createUserPicksTable(userName, userPicks, isLocked) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
     userContainer.classList.add('user-picks-container');
@@ -88,18 +89,31 @@ function createUserPicksTable(userName, userPicks) {
     for (const gameIndex in userPicks) {
         const pickData = userPicks[gameIndex];
         const game = games[gameIndex];
-        const resultText = 'N/A'; // Results are "N/A" since games haven't been played
+        const result = game.result || 'N/A';
 
-        const chosenTeam = pickData.team || 'N/A';
-        const confidencePoints = pickData.points || 'N/A';
+        let chosenTeam = 'N/A';
+        let opposingTeam = 'N/A';
+        let resultText = 'N/A';
 
-        const matchup = `${game.homeTeam} (${game.homeRecord}) vs ${game.awayTeam} (${game.awayRecord})`;
+        if (pickData.team === 'home') {
+            chosenTeam = game.homeTeam;
+            opposingTeam = game.awayTeam;
+            resultText = result === 'home' ? 'Correct' : result === 'away' ? 'Incorrect' : 'N/A';
+        } else if (pickData.team === 'away') {
+            chosenTeam = game.awayTeam;
+            opposingTeam = game.homeTeam;
+            resultText = result === 'away' ? 'Correct' : result === 'home' ? 'Incorrect' : 'N/A';
+        }
+
+        if (resultText === 'Correct') {
+            totalScore += parseInt(pickData.points) || 0;
+        }
 
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${matchup}</td>
+            <td>${opposingTeam} vs ${chosenTeam}</td>
             <td>${chosenTeam}</td>
-            <td>${confidencePoints}</td>
+            <td>${pickData.points || 'N/A'}</td>
             <td>${resultText}</td>
         `;
         tbody.appendChild(row);
