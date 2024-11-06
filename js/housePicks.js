@@ -55,7 +55,8 @@ function getUserName(userId) {
         'krvPcOneIcYrzc2GfIHXfsvbrD23': 'William Mathis',
         '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant',
         '67khUuKYmhXxRumUjMpyoDbnq0s2': 'Thomas Romano',
-        'JIdq2bYVCZgdAeC0y6P69puNQz43': 'Tony Romano'
+        'JIdq2bYVCZgdAeC0y6P69puNQz43': 'Tony Romano',
+        '9PyTK0SHv7YKv7AYw5OV29dwH5q2': 'Emily Rossini'
     };
     return userMap[userId] || userId; // Default to userId if name is not in userMap
 }
