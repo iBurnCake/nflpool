@@ -22,7 +22,7 @@ const games = [
 
 function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
-    const housePicksRef = ref(db, 'housePicks/week9'); // Adjust path to week 10
+    const housePicksRef = ref(db, 'housePicks/week10'); // Adjust path to week 10
 
     get(housePicksRef)
         .then(snapshot => {
@@ -33,7 +33,7 @@ function loadHousePicks() {
                 for (const userId in picksData) {
                     const userPicksData = picksData[userId];
                     const userName = getUserName(userId);
-                    const userPicks = userPicksData.picks || userPicksData; // Handles nested 'picks' field
+                    const userPicks = userPicksData.picks || {}; // Handles nested 'picks' field
 
                     createUserPicksTable(userName, userPicks, userPicksData.locked); // Pass locked status
                 }
