@@ -128,7 +128,7 @@ function updateConfidenceDropdown(gameIndex) {
 // Function to handle team selection and highlight the selected button
 window.selectPick = function (gameIndex, team) {
     userPicks[gameIndex] = userPicks[gameIndex] || {};
-    userPicks[gameIndex].team = team;
+    userPicks[gameIndex].team = team === 'home' ? games[gameIndex].homeTeam : games[gameIndex].awayTeam; // Save actual team name
 
     const homeButton = document.getElementById(`home-${gameIndex}`);
     const awayButton = document.getElementById(`away-${gameIndex}`);
@@ -143,7 +143,6 @@ window.selectPick = function (gameIndex, team) {
 
     saveUserPicks(auth.currentUser.uid); // This saves the user's selection in Firebase
 };
-
 
 // Assign confidence points and update dropdowns
 window.assignConfidence = function (gameIndex) {
@@ -211,12 +210,15 @@ function displayUserPicks(picks) {
     for (const gameIndex in picks) {
         const pick = picks[gameIndex];
 
-        if (pick.team === 'home') {
+        if (pick.team === games[gameIndex].homeTeam) {
             document.getElementById(`home-${gameIndex}`).classList.add("selected");
-        } else if (pick.team === 'away') {
+        } else if (pick.team === games[gameIndex].awayTeam) {
             document.getElementById(`away-${gameIndex}`).classList.add("selected");
         }
 
+        // Display the actual team name for each pick
+        document.getElementById(`pickDisplay${gameIndex}`).textContent = pick.team || "";
+        
         if (pick.points) {
             usedPoints.add(pick.points);
             document.getElementById(`confidence${gameIndex}`).value = pick.points;
@@ -226,6 +228,7 @@ function displayUserPicks(picks) {
 
     games.forEach((_, i) => updateConfidenceDropdown(i));
 }
+
 
 // Submit picks and add to House Picks for leaderboard
 window.submitPicks = function () {
