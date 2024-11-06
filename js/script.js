@@ -1,8 +1,6 @@
 // Import Firebase configuration
 import { auth, db, signInWithEmailAndPassword, ref, set, get, child, onAuthStateChanged } from './firebaseConfig.js';
 
-let isLocked = false;
-
 // Check authentication status on page load
 document.addEventListener("DOMContentLoaded", () => {
     onAuthStateChanged(auth, (user) => {
@@ -83,6 +81,7 @@ function handleLogin(event) {
         });
 }
 
+// Function to display games and set up confidence dropdowns
 function displayGames() {
     const tableBody = document.getElementById('gamesTable').getElementsByTagName('tbody')[0];
     tableBody.innerHTML = ''; // Clear existing rows
@@ -92,18 +91,17 @@ function displayGames() {
         row.innerHTML = `
             <td>${game.homeTeam} (${game.homeRecord}) vs ${game.awayTeam} (${game.awayRecord})</td>
             <td>
-                <button id="home-${index}" onclick="selectPick(${index}, 'home')" ${isLocked ? 'disabled' : ''}>${game.homeTeam}</button>
-                <button id="away-${index}" onclick="selectPick(${index}, 'away')" ${isLocked ? 'disabled' : ''}>${game.awayTeam}</button>
+                <button id="home-${index}" onclick="selectPick(${index}, 'home')">${game.homeTeam}</button>
+                <button id="away-${index}" onclick="selectPick(${index}, 'away')">${game.awayTeam}</button>
             </td>
             <td>
-                <select id="confidence${index}" onchange="assignConfidence(${index})" ${isLocked ? 'disabled' : ''} required></select>
+                <select id="confidence${index}" onchange="assignConfidence(${index})" required></select>
                 <span id="confidenceDisplay${index}" class="confidence-display"></span>
             </td>
         `;
         updateConfidenceDropdown(index); // Populate dropdown with available points
     });
 }
-
 
 // Populate dropdown with available points
 function updateConfidenceDropdown(gameIndex) {
@@ -223,57 +221,6 @@ function displayUserPicks(picks) {
 
 window.submitPicks = function () {
     saveUserPicks(auth.currentUser.uid);
-
-    const userId = auth.currentUser.uid;
-    const housePicksRef = ref(db, 'housePicks/week10');
-    set(housePicksRef, { email: auth.currentUser.email, picks: userPicks })
-        .then(() => {
-            alert("Picks submitted! You’ll be redirected to the House Picks page.");
-            document.getElementById("submitButton").disabled = true;
-            window.location.href = "housePicks.html";
-        })
-        .catch((error) => console.error("Error submitting picks:", error));
-};
-
-function initializeWeek10Picks(userId) {
-    const emptyPicks = {}; // No picks assigned for the new week
-    set(ref(db, `housePicks/week10/${userId}`), { picks: emptyPicks, totalScore: 0 })
-        .then(() => console.log("Week 10 initialized with empty picks for user:", userId))
-        .catch(error => console.error("Error initializing week 10 picks:", error));
-}
-
-function checkLockStatus(userId) {
-    get(child(ref(db), `scoreboards/week10/${userId}`)).then(snapshot => {
-        if (snapshot.exists() && snapshot.val().locked) {
-            isLocked = true;
-            displayGames(); // Display games in locked state
-            loadUserPicks(userId); // Load the picks to display
-            document.getElementById("submitButton").disabled = true;
-            document.getElementById("resetButton").disabled = true;
-        } else {
-            displayGames(); // Display games normally if not locked
-            loadUserPicks(userId);
-        }
-    }).catch(error => {
-        console.error("Error checking lock status:", error);
-    });
-}
-
-window.submitPicks = function () {
-    const userId = auth.currentUser.uid;
-    const userRef = ref(db, `scoreboards/week10/${userId}`);
-    const lockedData = {
-        picks: userPicks,
-        locked: true
-    };
-
-    set(userRef, lockedData)
-        .then(() => {
-            alert("Picks submitted and locked!");
-            document.getElementById("submitButton").disabled = true;
-            document.getElementById("resetButton").disabled = true;
-            isLocked = true;
-            displayGames(); // Reload games to show locked state
-        })
-        .catch((error) => console.error("Error submitting picks:", error));
+    alert("Picks submitted successfully!");
+    window.location.href = "housePicks.html";
 };

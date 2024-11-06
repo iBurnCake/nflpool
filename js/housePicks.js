@@ -22,20 +22,20 @@ const games = [
 
 function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
-    const housePicksRef = ref(db, 'housePicks/week10'); // Adjust path to week 10
+    const week10Ref = ref(db, 'scoreboards/week10');
 
-    get(housePicksRef)
+    get(week10Ref)
         .then(snapshot => {
+            console.log(snapshot.val()); // Log the data to inspect it
             if (snapshot.exists()) {
                 const picksData = snapshot.val();
-                housePicksContainer.innerHTML = '';
+                housePicksContainer.innerHTML = ''; // Clear any existing content
 
                 for (const userId in picksData) {
                     const userPicksData = picksData[userId];
                     const userName = getUserName(userId);
-                    const userPicks = userPicksData.picks || {}; // Handles nested 'picks' field
-
-                    createUserPicksTable(userName, userPicks, userPicksData.locked); // Pass locked status
+                    
+                    createUserPicksTable(userName, userPicksData);
                 }
             } else {
                 housePicksContainer.innerHTML = '<p>No picks available for Week 10.</p>';
@@ -58,7 +58,7 @@ function getUserName(userId) {
     return userMap[userId] || userId; // Default to userId if name is not in userMap
 }
 
-function createUserPicksTable(userName, userPicks, isLocked) {
+function createUserPicksTable(userName, userPicks) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
     userContainer.classList.add('user-picks-container');
@@ -89,31 +89,18 @@ function createUserPicksTable(userName, userPicks, isLocked) {
     for (const gameIndex in userPicks) {
         const pickData = userPicks[gameIndex];
         const game = games[gameIndex];
-        const result = game.result || 'N/A';
+        const resultText = 'N/A'; // Results are "N/A" since games haven't been played
 
-        let chosenTeam = 'N/A';
-        let opposingTeam = 'N/A';
-        let resultText = 'N/A';
+        const chosenTeam = pickData.team || 'N/A';
+        const confidencePoints = pickData.points || 'N/A';
 
-        if (pickData.team === 'home') {
-            chosenTeam = game.homeTeam;
-            opposingTeam = game.awayTeam;
-            resultText = result === 'home' ? 'Correct' : result === 'away' ? 'Incorrect' : 'N/A';
-        } else if (pickData.team === 'away') {
-            chosenTeam = game.awayTeam;
-            opposingTeam = game.homeTeam;
-            resultText = result === 'away' ? 'Correct' : result === 'home' ? 'Incorrect' : 'N/A';
-        }
-
-        if (resultText === 'Correct') {
-            totalScore += parseInt(pickData.points) || 0;
-        }
+        const matchup = `${game.homeTeam} (${game.homeRecord}) vs ${game.awayTeam} (${game.awayRecord})`;
 
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${opposingTeam} vs ${chosenTeam}</td>
+            <td>${matchup}</td>
             <td>${chosenTeam}</td>
-            <td>${pickData.points || 'N/A'}</td>
+            <td>${confidencePoints}</td>
             <td>${resultText}</td>
         `;
         tbody.appendChild(row);
