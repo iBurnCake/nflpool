@@ -301,3 +301,62 @@ th {
 #viewHousePicksButton:hover {
     background-color: #1F5B99;
 }
+
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+        font-size: 16px;
+    }
+
+    #topButtonContainer {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #topButtonContainer button {
+        width: 100%;
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    table, .user-picks-table {
+        width: 100%;
+        font-size: 14px;
+    }
+
+    th, td {
+        padding: 8px;
+    }
+
+    .user-picks-container {
+        width: 100%;
+        max-width: 100%;
+        padding: 15px;
+        box-shadow: none;
+    }
+
+    .login-container {
+        width: 90%;
+        max-width: 300px;
+    }
+
+    #welcomeMessage {
+        font-size: 22px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        font-size: 14px;
+    }
+
+    #topButtonContainer button {
+        padding: 10px;
+        font-size: 12px;
+    }
+
+    th, td {
+        padding: 6px;
+    }
+}

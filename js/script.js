@@ -1,7 +1,5 @@
-// Import Firebase configuration
 import { auth, db, signInWithEmailAndPassword, ref, set, get, child, onAuthStateChanged } from './firebaseConfig.js';
 
-// Check authentication status on page load
 document.addEventListener("DOMContentLoaded", () => {
     onAuthStateChanged(auth, (user) => {
         if (user) {
@@ -58,7 +56,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// Handle login with Firebase
 function handleLogin(event) {
     event.preventDefault();
     const email = document.getElementById('email').value;
@@ -81,10 +78,9 @@ function handleLogin(event) {
         });
 }
 
-// Function to display games and set up confidence dropdowns
 function displayGames() {
     const tableBody = document.getElementById('gamesTable').getElementsByTagName('tbody')[0];
-    tableBody.innerHTML = ''; // Clear existing rows
+    tableBody.innerHTML = '';
 
     games.forEach((game, index) => {
         const row = tableBody.insertRow();
@@ -99,11 +95,10 @@ function displayGames() {
                 <span id="confidenceDisplay${index}" class="confidence-display"></span>
             </td>
         `;
-        updateConfidenceDropdown(index); // Populate dropdown with available points
+        updateConfidenceDropdown(index);
     });
 }
 
-// Populate dropdown with available points
 function updateConfidenceDropdown(gameIndex) {
     const dropdown = document.getElementById(`confidence${gameIndex}`);
     dropdown.innerHTML = '<option value="">Select</option>';
@@ -118,7 +113,6 @@ function updateConfidenceDropdown(gameIndex) {
     }
 }
 
-// Function to handle team selection and highlight the selected button
 window.selectPick = function (gameIndex, team) {
     userPicks[gameIndex] = userPicks[gameIndex] || {};
     userPicks[gameIndex].team = team === 'home' ? games[gameIndex].homeTeam : games[gameIndex].awayTeam;
@@ -137,7 +131,6 @@ window.selectPick = function (gameIndex, team) {
     saveUserPicks(auth.currentUser.uid);
 };
 
-// Assign confidence points and update dropdowns
 window.assignConfidence = function (gameIndex) {
     const confidenceSelect = document.getElementById(`confidence${gameIndex}`);
     const points = parseInt(confidenceSelect.value);
@@ -162,7 +155,6 @@ window.assignConfidence = function (gameIndex) {
     }
 };
 
-// Save user picks to Firebase
 function saveUserPicks(userId) {
     set(ref(db, `scoreboards/week9/${userId}`), userPicks)
         .then(() => {
@@ -173,7 +165,6 @@ function saveUserPicks(userId) {
         });
 }
 
-// Reset user picks
 window.resetPicks = function () {
     userPicks = {};
     usedPoints.clear();
@@ -182,7 +173,6 @@ window.resetPicks = function () {
     saveUserPicks(auth.currentUser.uid);
 };
 
-// Load user picks from Firebase and apply highlights
 function loadUserPicks(userId) {
     get(child(ref(db), `scoreboards/week9/${userId}`))
         .then((snapshot) => {
@@ -198,7 +188,6 @@ function loadUserPicks(userId) {
         });
 }
 
-// Display saved picks and highlight selections
 function displayUserPicks(picks) {
     for (const gameIndex in picks) {
         const pick = picks[gameIndex];

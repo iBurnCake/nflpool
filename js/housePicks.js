@@ -26,10 +26,10 @@ function loadHousePicks() {
 
     get(week10Ref)
         .then(snapshot => {
-            console.log(snapshot.val()); // Log the data to inspect it
+            console.log(snapshot.val());
             if (snapshot.exists()) {
                 const picksData = snapshot.val();
-                housePicksContainer.innerHTML = ''; // Clear any existing content
+                housePicksContainer.innerHTML = '';
 
                 for (const userId in picksData) {
                     const userPicksData = picksData[userId];
@@ -60,7 +60,7 @@ function getUserName(userId) {
         'ORxFtuY13VfaUqc2ckcfw084Lxq1': 'Aunt Vicki',
         'FIKVjOy8P7UTUGqq2WvjkARZPIE2': 'Tommy Kant'
     };
-    return userMap[userId] || userId; // Default to userId if name is not in userMap
+    return userMap[userId] || userId;
 }
 
 function createUserPicksTable(userName, userPicks) {
@@ -94,7 +94,7 @@ function createUserPicksTable(userName, userPicks) {
     for (const gameIndex in userPicks) {
         const pickData = userPicks[gameIndex];
         const game = games[gameIndex];
-        const resultText = 'N/A'; // Results are "N/A" since games haven't been played
+        const resultText = 'N/A';
 
         const chosenTeam = pickData.team || 'N/A';
         const confidencePoints = pickData.points || 'N/A';

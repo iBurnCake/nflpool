@@ -1,10 +1,7 @@
-// Import Firebase SDK modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-
-// Your Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyCEIIp_7mw1lEJi2ySy8rbYI9zIGz1d2d8",
     authDomain: "nflpool-71337.firebaseapp.com",
@@ -16,10 +13,8 @@ const firebaseConfig = {
     databaseURL: "https://nflpool-71337-default-rtdb.firebaseio.com/"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-// Export necessary items for other scripts to use
 export { auth, db, onAuthStateChanged, signInWithEmailAndPassword, ref, set, get, child };
