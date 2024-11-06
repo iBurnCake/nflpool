@@ -1,4 +1,5 @@
-import { db, ref, set, get } from './firebaseConfig.js';
+// Import Firebase configuration and necessary functions
+import { db, ref, get } from './firebaseConfig.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     loadHousePicks();

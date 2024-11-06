@@ -19,6 +19,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // Add event listener for reset button
+    const resetButton = document.getElementById('resetButton');
+    if (resetButton) resetButton.addEventListener("click", resetPicks);
+
+    // Add event listener for submit button
+    const submitButton = document.getElementById('submitButton');
+    if (submitButton) submitButton.addEventListener("click", submitPicks);
+
     // Add event listener for logout button
     const logoutButton = document.getElementById('logoutButton');
     if (logoutButton) {
@@ -216,9 +224,6 @@ function displayUserPicks(picks) {
             document.getElementById(`away-${gameIndex}`).classList.add("selected");
         }
 
-        // Display the actual team name for each pick
-        document.getElementById(`pickDisplay${gameIndex}`).textContent = pick.team || "";
-        
         if (pick.points) {
             usedPoints.add(pick.points);
             document.getElementById(`confidence${gameIndex}`).value = pick.points;
@@ -228,7 +233,6 @@ function displayUserPicks(picks) {
 
     games.forEach((_, i) => updateConfidenceDropdown(i));
 }
-
 
 // Submit picks and add to House Picks for leaderboard
 window.submitPicks = function () {

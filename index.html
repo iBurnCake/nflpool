@@ -11,54 +11,45 @@
     <h1 id="welcomeMessage">Welcome to NFL Football Pool</h1>
 
     <!-- Login Section -->
-    <section id="loginSection">
+    <div id="loginSection">
         <div class="login-container">
             <h2>Login V182</h2>
             <form id="loginForm">
                 <label for="email">Email:</label>
-                <input type="text" id="email" required>
+                <input type="text" id="email" name="email" required>
                 <label for="password">Password:</label>
-                <input type="password" id="password" required>
+                <input type="password" id="password" name="password" required>
                 <button type="submit">Login</button>
             </form>
         </div>
-    </section>
+    </div>
 
-    <!-- User Home Section (Hidden by Default) -->
-    <section id="userHomeSection" style="display: none;">
-        <div id="topSection">
-            <h1>NFL Football Pool</h1>
-            <h2>Welcome, <span id="usernameDisplay"></span>!</h2>
-            <p>Your Personal Pool - Week 9</p>
-        </div>
-
-        <!-- Buttons at the top -->
+    <!-- User Home Section -->
+    <div id="userHomeSection" style="display: none;">
+        <!-- Top Button Container -->
         <div id="topButtonContainer">
-            <button id="resetButton" onclick="resetPicks()">Reset Picks</button>
-            <button id="submitButton" onclick="submitPicks()">Submit Picks</button>
+            <button id="resetButton">Reset Picks</button>
+            <button id="submitButton">Submit Picks</button>
             <button id="logoutButton">Logout</button>
         </div>
 
-        <!-- Table for Games and Picks -->
-        <table id="gamesTable" class="central-game-table">
+        <h2>Welcome, <span id="usernameDisplay"></span></h2>
+        <table id="gamesTable">
             <thead>
                 <tr>
-                    <th>Matchup</th>
+                    <th>Game</th>
                     <th>Pick</th>
-                    <th>Confidence Points</th>
+                    <th>Confidence</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- Games will be populated here by JavaScript -->
+                <!-- Dynamic rows are inserted here by JS -->
             </tbody>
         </table>
-
-        <!-- Link to House Picks Page -->
         <a href="housePicks.html" id="housePicksLink">View House Picks</a>
-    </section>
+    </div>
 
-    <!-- Load Firebase Configuration and Main Script -->
-    <script type="module" src="js/firebaseConfig.js"></script>
+    <!-- Script for handling login and user functionality -->
     <script type="module" src="js/script.js"></script>
 </body>
 </html>
