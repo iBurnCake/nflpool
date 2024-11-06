@@ -96,17 +96,14 @@ function createUserPicksTable(userEmail, userPicks, totalScore) {
         const matchup = `${matchupMap[gameIndex].home} vs ${matchupMap[gameIndex].away}`;
         const pickedTeam = pickData.team;
         const confidencePoints = pickData.points || 0;
-        const gameWinner = gameWinners[gameIndex];
-        const isCorrectPick = pickedTeam === gameWinner;
-        const pointsEarned = isCorrectPick ? confidencePoints : 0;
 
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${matchup}</td>
             <td>${pickedTeam}</td>
             <td>${confidencePoints}</td>
-            <td class="${isCorrectPick ? 'correct' : 'incorrect'}">${isCorrectPick ? 'Win' : 'Loss'}</td>
-            <td>${pointsEarned}</td>
+            <td>Pending</td> <!-- Display "Pending" until results are available -->
+            <td>Pending</td> <!-- Display "Pending" until points are calculated -->
         `;
 
         tbody.appendChild(row);
