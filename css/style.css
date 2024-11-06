@@ -32,7 +32,9 @@ body {
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 100vh; /* Full viewport height to ensure vertical centering */
+    height: 100vh; /* Full viewport height */
+    flex-direction: column;
+    text-align: center;
 }
 
 .login-container {
@@ -42,8 +44,6 @@ body {
     box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.7);
     max-width: 400px;
     width: 100%;
-    text-align: center;
-    margin: 0 auto; /* Center horizontally */
 }
 
 .login-container h2 {
