@@ -23,25 +23,12 @@ const matchupMap = {
     13: { home: 'Dolphins', away: 'Rams' }
 };
 
-// If applicable, update the winning teams map for Week 
-
-
-// Map user IDs to names
-function getUserNameById(userId) {
-    const userMap = {
-        '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant',
-        'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
-        '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan',
-        'I3RfB1et3bhADFKRQbx3EU6yllI3': 'Ryan Sanders',
-        'krvPcOneIcYrzc2GfIHXfsvbrD23': 'William Mathis'
-    };
-    return userMap[userId];
-}
-
-// Load each user's picks and total score
+// Load House Picks for Week 10 based on users' email addresses
 function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
-    const housePicksRef = ref(db, 'housePicks/week10');
+    const housePicksRef = ref(db, 'housePicks/week10'); // Ensure this path is correct
+
+    console.log("Fetching House Picks data for Week 10...");
 
     get(housePicksRef)
         .then(snapshot => {
@@ -49,14 +36,18 @@ function loadHousePicks() {
                 const picksData = snapshot.val();
                 housePicksContainer.innerHTML = '';
 
-                for (const userId in picksData) {
-                    const userPicks = picksData[userId].picks;
-                    const userName = getUserNameById(userId);
-                    const totalScore = picksData[userId].totalScore || 0;
-                    createUserPicksTable(userName, userPicks, totalScore, userId);
+                for (const userEmail in picksData) {
+                    const userPicks = picksData[userEmail].picks;
+                    const totalScore = picksData[userEmail].totalScore || 0;
+
+                    console.log(`User Email: ${userEmail}, Total Score: ${totalScore}`);
+                    
+                    // Use email as the identifier in the display
+                    createUserPicksTable(userEmail, userPicks, totalScore);
                 }
             } else {
                 housePicksContainer.innerHTML = '<p>No picks available.</p>';
+                console.log("No picks available in database.");
             }
         })
         .catch(error => {
@@ -66,17 +57,16 @@ function loadHousePicks() {
 }
 
 // Create user-specific table with picks, total score, result, and points earned
-function createUserPicksTable(userName, userPicks, totalScore, userId) {
+function createUserPicksTable(userEmail, userPicks, totalScore) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
     userContainer.classList.add('user-picks-container');
 
     const userHeader = document.createElement('h3');
     userHeader.classList.add('user-header');
-    userHeader.textContent = `User: ${userName} - Total Score: `;
+    userHeader.textContent = `User: ${userEmail} - Total Score: `;
 
     const scoreSpan = document.createElement('span');
-    scoreSpan.id = `totalScore-${userId}`;
     scoreSpan.textContent = totalScore;
 
     userHeader.appendChild(scoreSpan);
@@ -101,8 +91,6 @@ function createUserPicksTable(userName, userPicks, totalScore, userId) {
 
     const tbody = table.querySelector('tbody');
 
-    let userTotalScore = 0; // Calculate total score based on correct picks
-
     for (const gameIndex in userPicks) {
         const pickData = userPicks[gameIndex];
         const matchup = `${matchupMap[gameIndex].home} vs ${matchupMap[gameIndex].away}`;
@@ -111,10 +99,6 @@ function createUserPicksTable(userName, userPicks, totalScore, userId) {
         const gameWinner = gameWinners[gameIndex];
         const isCorrectPick = pickedTeam === gameWinner;
         const pointsEarned = isCorrectPick ? confidencePoints : 0;
-
-        if (isCorrectPick) {
-            userTotalScore += pointsEarned;
-        }
 
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -127,9 +111,6 @@ function createUserPicksTable(userName, userPicks, totalScore, userId) {
 
         tbody.appendChild(row);
     }
-
-    // Update the displayed total score
-    scoreSpan.textContent = userTotalScore;
 
     userContainer.appendChild(table);
     housePicksContainer.appendChild(userContainer);
