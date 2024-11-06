@@ -31,8 +31,11 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100%;
-    height: 100vh; /* Full viewport height to ensure vertical centering */
+    width: 100vw; /* Full viewport width */
+    height: 100vh; /* Full viewport height */
+    position: fixed; /* Keep the container fixed to prevent it from shifting */
+    top: 0;
+    left: 0;
 }
 
 .login-container {
@@ -47,6 +50,7 @@ body {
     flex-direction: column;
     align-items: center;
 }
+
 
 .login-container h2 {
     color: #FFD700;
