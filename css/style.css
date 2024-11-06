@@ -141,82 +141,6 @@ h2 {
     font-weight: bold;
 }
 
-/* Updated Table Styling for Making User Picks */
-#gamesTable {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    border-radius: 8px; /* Adds rounded corners */
-    overflow: hidden;
-    background-color: #333;
-    color: #FFD700;
-}
-
-#gamesTable th, #gamesTable td {
-    padding: 15px;
-    text-align: center;
-    border-bottom: 1px solid #444;
-}
-
-#gamesTable th {
-    background-color: #444;
-    font-weight: bold;
-    color: #FFD700;
-}
-
-#gamesTable td {
-    background-color: #282828;
-    color: #FFD700;
-}
-
-/* Styling for Team Selection Buttons */
-#gamesTable button {
-    padding: 10px 20px;
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 4px;
-    border: none;
-    cursor: pointer;
-    margin: 0 5px;
-    transition: background-color 0.3s, transform 0.1s;
-}
-
-#gamesTable button.selected {
-    background-color: #28a745; /* Green for selected team */
-    color: #FFFFFF;
-    transform: scale(1.1); /* Slightly enlarges the selected button */
-}
-
-#gamesTable button:hover {
-    background-color: #1F5B99; /* Dark blue for hover */
-    color: #FFFFFF;
-}
-
-#gamesTable select {
-    padding: 8px;
-    font-size: 16px;
-    color: #333;
-    background-color: #FFD700;
-    border: none;
-    border-radius: 4px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-#gamesTable select:hover {
-    background-color: #ffeb3b; /* Lighter yellow on hover */
-}
-
-/* Confidence Point Display Styling */
-.confidence-display {
-    color: #28a745;
-    font-weight: bold;
-    margin-left: 10px;
-    font-size: 14px;
-    display: inline-block;
-}
-
 /* House Picks Title Styling */
 #housePicksTitle {
     font-size: 32px;
@@ -229,8 +153,8 @@ h2 {
 #housePicksContainer {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-around;
-    gap: 30px;
+    justify-content: center;
+    gap: 20px;
     padding: 20px;
 }
 
@@ -240,7 +164,9 @@ h2 {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-    width: 550px;
+    width: 100%;
+    max-width: 300px; /* Set max width to allow 3 tables to fit in a row */
+    flex: 1 1 300px; /* Allow tables to wrap and adjust width as needed */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -265,6 +191,7 @@ h2 {
     border: 1px solid #444;
     background-color: #333;
     color: #FFD700;
+    word-break: break-word; /* Ensures text wraps within cells */
 }
 
 .user-picks-table th {
@@ -274,6 +201,71 @@ h2 {
 
 .user-picks-table tr:hover {
     background-color: #555;
+}
+
+/* Table Styling for Making Picks */
+#gamesTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #333;
+    color: #FFD700;
+}
+
+#gamesTable th, #gamesTable td {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid #444;
+}
+
+#gamesTable th {
+    background-color: #444;
+    font-weight: bold;
+}
+
+#gamesTable td {
+    background-color: #282828;
+}
+
+/* Styling for Team Selection Buttons */
+#gamesTable button {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    margin: 0 5px;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+#gamesTable button.selected {
+    background-color: #28a745;
+    color: #FFFFFF;
+    transform: scale(1.1);
+}
+
+#gamesTable button:hover {
+    background-color: #1F5B99;
+    color: #FFFFFF;
+}
+
+#gamesTable select {
+    padding: 8px;
+    font-size: 16px;
+    color: #333;
+    background-color: #FFD700;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#gamesTable select:hover {
+    background-color: #ffeb3b;
 }
 
 /* House Picks Link Styling */
@@ -305,13 +297,6 @@ h2 {
     background-color: #dc3545;
     color: #ffffff;
     border-radius: 4px;
-}
-
-.user-picks-table th,
-.user-picks-table td {
-    padding: 10px;
-    text-align: center;
-    border: 1px solid #444;
 }
 
 .user-picks-table .correct {
