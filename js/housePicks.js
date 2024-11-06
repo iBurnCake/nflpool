@@ -2,30 +2,29 @@ import { db, ref, get } from './firebaseConfig.js';
 
 document.addEventListener('DOMContentLoaded', loadHousePicks);
 
-// Define the Week 9 game data with results where available
+// Week 10 game data
 const games = [
-    { homeTeam: 'Texans', awayTeam: 'Jets', homeRecord: '6-2', awayRecord: '2-6', result: 'away' },
-    { homeTeam: 'Saints', awayTeam: 'Panthers', homeRecord: '2-6', awayRecord: '1-7' },
-    { homeTeam: 'Commanders', awayTeam: 'Giants', homeRecord: '6-2', awayRecord: '2-6' },
-    { homeTeam: 'Dolphins', awayTeam: 'Bills', homeRecord: '2-5', awayRecord: '6-2' },
-    { homeTeam: 'Chargers', awayTeam: 'Browns', homeRecord: '4-3', awayRecord: '2-6' },
-    { homeTeam: 'Patriots', awayTeam: 'Titans', homeRecord: '2-6', awayRecord: '1-6' },
-    { homeTeam: 'Cowboys', awayTeam: 'Falcons', homeRecord: '3-4', awayRecord: '5-3' },
-    { homeTeam: 'Raiders', awayTeam: 'Bengals', homeRecord: '2-6', awayRecord: '3-5' },
-    { homeTeam: 'Broncos', awayTeam: 'Ravens', homeRecord: '5-3', awayRecord: '5-3' },
-    { homeTeam: 'Bears', awayTeam: 'Cardinals', homeRecord: '4-3', awayRecord: '4-4' },
-    { homeTeam: 'Jaguars', awayTeam: 'Eagles', homeRecord: '2-6', awayRecord: '5-2' },
-    { homeTeam: 'Rams', awayTeam: 'Seahawks', homeRecord: '3-4', awayRecord: '4-4' },
-    { homeTeam: 'Lions', awayTeam: 'Packers', homeRecord: '6-1', awayRecord: '6-2' },
-    { homeTeam: 'Colts', awayTeam: 'Vikings', homeRecord: '4-4', awayRecord: '5-2' },
-    { homeTeam: 'Buccaneers', awayTeam: 'Chiefs', homeRecord: '4-4', awayRecord: '7-0' }
+    { homeTeam: 'Bengals', awayTeam: 'Ravens', homeRecord: '4-5', awayRecord: '6-3' },
+    { homeTeam: 'Giants', awayTeam: 'Panthers', homeRecord: '2-7', awayRecord: '2-7' },
+    { homeTeam: 'Patriots', awayTeam: 'Bears', homeRecord: '2-7', awayRecord: '4-4' },
+    { homeTeam: '49ers', awayTeam: 'Buccaneers', homeRecord: '4-4', awayRecord: '4-5' },
+    { homeTeam: 'Broncos', awayTeam: 'Chiefs', homeRecord: '5-4', awayRecord: '8-0' },
+    { homeTeam: 'Bills', awayTeam: 'Colts', homeRecord: '7-2', awayRecord: '4-5' },
+    { homeTeam: 'Steelers', awayTeam: 'Commanders', homeRecord: '6-2', awayRecord: '7-2' },
+    { homeTeam: 'Vikings', awayTeam: 'Jaguars', homeRecord: '6-2', awayRecord: '2-7' },
+    { homeTeam: 'Falcons', awayTeam: 'Saints', homeRecord: '6-3', awayRecord: '2-7' },
+    { homeTeam: 'Titans', awayTeam: 'Chargers', homeRecord: '2-6', awayRecord: '5-3' },
+    { homeTeam: 'Jets', awayTeam: 'Cardinals', homeRecord: '3-6', awayRecord: '5-4' },
+    { homeTeam: 'Eagles', awayTeam: 'Cowboys', homeRecord: '6-2', awayRecord: '3-5' },
+    { homeTeam: 'Lions', awayTeam: 'Texans', homeRecord: '7-1', awayRecord: '6-3' },
+    { homeTeam: 'Dolphins', awayTeam: 'Rams', homeRecord: '2-6', awayRecord: '4-4' }
 ];
 
 function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
-    const week9Ref = ref(db, 'scoreboards/week9');
+    const week10Ref = ref(db, 'scoreboards/week10');
 
-    get(week9Ref)
+    get(week10Ref)
         .then(snapshot => {
             if (snapshot.exists()) {
                 const picksData = snapshot.val();
@@ -38,7 +37,7 @@ function loadHousePicks() {
                     createUserPicksTable(userName, userPicksData);
                 }
             } else {
-                housePicksContainer.innerHTML = '<p>No picks available for Week 9.</p>';
+                housePicksContainer.innerHTML = '<p>No picks available for Week 10.</p>';
             }
         })
         .catch(error => {
@@ -89,31 +88,18 @@ function createUserPicksTable(userName, userPicks) {
     for (const gameIndex in userPicks) {
         const pickData = userPicks[gameIndex];
         const game = games[gameIndex];
-        const result = game.result || 'N/A';
+        const resultText = 'N/A'; // Results are "N/A" since games haven't been played
 
-        let chosenTeam = 'N/A';
-        let opposingTeam = 'N/A';
-        let resultText = '';
+        const chosenTeam = pickData.team || 'N/A';
+        const confidencePoints = pickData.points || 'N/A';
 
-        if (pickData.team === 'home') {
-            chosenTeam = game.homeTeam;
-            opposingTeam = game.awayTeam;
-            resultText = result === 'home' ? 'Correct' : result === 'away' ? 'Incorrect' : 'N/A';
-        } else if (pickData.team === 'away') {
-            chosenTeam = game.awayTeam;
-            opposingTeam = game.homeTeam;
-            resultText = result === 'away' ? 'Correct' : result === 'home' ? 'Incorrect' : 'N/A';
-        }
-
-        if (resultText === 'Correct') {
-            totalScore += parseInt(pickData.points) || 0;
-        }
+        const matchup = `${game.homeTeam} (${game.homeRecord}) vs ${game.awayTeam} (${game.awayRecord})`;
 
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${opposingTeam} vs ${chosenTeam}</td>
+            <td>${matchup}</td>
             <td>${chosenTeam}</td>
-            <td>${pickData.points || 'N/A'}</td>
+            <td>${confidencePoints}</td>
             <td>${resultText}</td>
         `;
         tbody.appendChild(row);
