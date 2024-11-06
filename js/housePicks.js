@@ -56,7 +56,9 @@ function getUserName(userId) {
         '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant',
         '67khUuKYmhXxRumUjMpyoDbnq0s2': 'Thomas Romano',
         'JIdq2bYVCZgdAeC0y6P69puNQz43': 'Tony Romano',
-        '9PyTK0SHv7YKv7AYw5OV29dwH5q2': 'Emily Rossini'
+        '9PyTK0SHv7YKv7AYw5OV29dwH5q2': 'Emily Rossini',
+        'ORxFtuY13VfaUqc2ckcfw084Lxq1': 'Aunt Vicki',
+        'FIKVjOy8P7UTUGqq2WvjkARZPIE2': 'Tommy Kant'
     };
     return userMap[userId] || userId; // Default to userId if name is not in userMap
 }
