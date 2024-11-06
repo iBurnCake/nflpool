@@ -5,43 +5,30 @@ import { auth, db, signInWithEmailAndPassword, ref, set, get, child, onAuthState
 document.addEventListener("DOMContentLoaded", () => {
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            // User is signed in, show picks page
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('userHomeSection').style.display = 'block';
-            document.getElementById('usernameDisplay').textContent = user.email; // Display user's email
+            document.getElementById('usernameDisplay').textContent = user.email;
             displayGames();
             loadUserPicks(user.uid);
         } else {
-            // No user is signed in, show login page
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('userHomeSection').style.display = 'none';
-            auth.signOut(); // Ensures user is signed out if no session is found
+            auth.signOut();
         }
     });
 
-    // Add event listener for reset button
-    const resetButton = document.getElementById('resetButton');
-    if (resetButton) resetButton.addEventListener("click", resetPicks);
-
-    // Add event listener for submit button
-    const submitButton = document.getElementById('submitButton');
-    if (submitButton) submitButton.addEventListener("click", submitPicks);
-
-    // Add event listener for logout button
-    const logoutButton = document.getElementById('logoutButton');
-    if (logoutButton) {
-        logoutButton.addEventListener("click", () => {
-            auth.signOut().then(() => {
-                // Redirect to login page
-                document.getElementById('loginSection').style.display = 'block';
-                document.getElementById('userHomeSection').style.display = 'none';
-                alert("You have been logged out.");
-            }).catch((error) => {
-                console.error("Logout error:", error);
-                alert("Error logging out. Please try again.");
-            });
+    document.getElementById('resetButton')?.addEventListener("click", resetPicks);
+    document.getElementById('submitButton')?.addEventListener("click", submitPicks);
+    document.getElementById('logoutButton')?.addEventListener("click", () => {
+        auth.signOut().then(() => {
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('userHomeSection').style.display = 'none';
+            alert("You have been logged out.");
+        }).catch((error) => {
+            console.error("Logout error:", error);
+            alert("Error logging out. Please try again.");
         });
-    }
+    });
 });
 
 // Fixed game data for Week 9
@@ -136,7 +123,7 @@ function updateConfidenceDropdown(gameIndex) {
 // Function to handle team selection and highlight the selected button
 window.selectPick = function (gameIndex, team) {
     userPicks[gameIndex] = userPicks[gameIndex] || {};
-    userPicks[gameIndex].team = team === 'home' ? games[gameIndex].homeTeam : games[gameIndex].awayTeam; // Save actual team name
+    userPicks[gameIndex].team = team === 'home' ? games[gameIndex].homeTeam : games[gameIndex].awayTeam;
 
     const homeButton = document.getElementById(`home-${gameIndex}`);
     const awayButton = document.getElementById(`away-${gameIndex}`);
@@ -149,7 +136,7 @@ window.selectPick = function (gameIndex, team) {
         homeButton.classList.remove("selected");
     }
 
-    saveUserPicks(auth.currentUser.uid); // This saves the user's selection in Firebase
+    saveUserPicks(auth.currentUser.uid);
 };
 
 // Assign confidence points and update dropdowns
@@ -238,12 +225,10 @@ function displayUserPicks(picks) {
 window.submitPicks = function () {
     saveUserPicks(auth.currentUser.uid);
 
-    // After saving individual picks, store in House Picks for leaderboard
     const userId = auth.currentUser.uid;
-    const userEmail = auth.currentUser.email; // Get the user's email
+    const userEmail = auth.currentUser.email;
     const housePicksRef = ref(db, `housePicks/${userId}`);
 
-    // Include email with the user's picks
     const userPicksWithEmail = {
         email: userEmail,
         picks: userPicks
