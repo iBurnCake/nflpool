@@ -5,25 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadHousePicks();
 });
 
-// Define the matchup maps for both weeks
-const matchupMapWeek9 = {
-    0: { home: 'Texans', away: 'Jets' },
-    1: { home: 'Saints', away: 'Panthers' },
-    2: { home: 'Commanders', away: 'Giants' },
-    3: { home: 'Dolphins', away: 'Bills' },
-    4: { home: 'Chargers', away: 'Browns' },
-    5: { home: 'Patriots', away: 'Titans' },
-    6: { home: 'Cowboys', away: 'Falcons' },
-    7: { home: 'Raiders', away: 'Bengals' },
-    8: { home: 'Broncos', away: 'Ravens' },
-    9: { home: 'Bears', away: 'Cardinals' },
-    10: { home: 'Jaguars', away: 'Eagles' },
-    11: { home: 'Rams', away: 'Seahawks' },
-    12: { home: 'Packers', away: 'Lions' },
-    13: { home: 'Colts', away: 'Vikings' },
-    14: { home: 'Chiefs', away: 'Buccaneers' }
-};
-
+// Define the matchup map for Week 10
 const matchupMapWeek10 = {
     0: { home: 'Bengals', away: 'Ravens' },
     1: { home: 'Giants', away: 'Panthers' },
@@ -41,44 +23,23 @@ const matchupMapWeek10 = {
     13: { home: 'Dolphins', away: 'Rams' }
 };
 
-// Load House Picks for both Week 9 and Week 10
+// Load House Picks for Week 10 and display each user with their UID
 function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
     housePicksContainer.innerHTML = ''; // Clear previous content
 
-    // Fetch both Week 9 and Week 10 data
-    const week9Ref = ref(db, 'housePicks/week9');
+    // Reference to Week 10 data
     const week10Ref = ref(db, 'housePicks/week10');
 
-    // Fetch and display data for Week 9
-    get(week9Ref)
-        .then(snapshot => {
-            if (snapshot.exists()) {
-                const picksData = snapshot.val();
-                housePicksContainer.innerHTML += '<h2>Week 9 Picks</h2>'; // Section header for Week 9
-                for (const userEmail in picksData) {
-                    const userPicks = picksData[userEmail].picks;
-                    const totalScore = picksData[userEmail].totalScore || 0;
-                    createUserPicksTable(userEmail, userPicks, totalScore, 'Week 9', matchupMapWeek9);
-                }
-            } else {
-                housePicksContainer.innerHTML += '<p>No picks available for Week 9.</p>';
-            }
-        })
-        .catch(error => {
-            console.error('Error loading Week 9 picks:', error);
-        });
-
-    // Fetch and display data for Week 10
     get(week10Ref)
         .then(snapshot => {
             if (snapshot.exists()) {
                 const picksData = snapshot.val();
                 housePicksContainer.innerHTML += '<h2>Week 10 Picks</h2>'; // Section header for Week 10
-                for (const userEmail in picksData) {
-                    const userPicks = picksData[userEmail].picks;
-                    const totalScore = picksData[userEmail].totalScore || 0;
-                    createUserPicksTable(userEmail, userPicks, totalScore, 'Week 10', matchupMapWeek10);
+                for (const userUID in picksData) {
+                    const userPicks = picksData[userUID].picks;
+                    const totalScore = picksData[userUID].totalScore || 0;
+                    createUserPicksTable(userUID, userPicks, totalScore, 'Week 10', matchupMapWeek10);
                 }
             } else {
                 housePicksContainer.innerHTML += '<p>No picks available for Week 10.</p>';
@@ -90,14 +51,14 @@ function loadHousePicks() {
 }
 
 // Create user-specific table with picks, total score, result, and points earned
-function createUserPicksTable(userEmail, userPicks, totalScore, weekLabel, matchupMap) {
+function createUserPicksTable(userUID, userPicks, totalScore, weekLabel, matchupMap) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
     userContainer.classList.add('user-picks-container');
 
     const userHeader = document.createElement('h3');
     userHeader.classList.add('user-header');
-    userHeader.textContent = `${weekLabel} - User: ${userEmail} - Total Score: ${totalScore}`;
+    userHeader.textContent = `${weekLabel} - User UID: ${userUID} - Total Score: ${totalScore}`;
 
     userContainer.appendChild(userHeader);
 
@@ -131,8 +92,8 @@ function createUserPicksTable(userEmail, userPicks, totalScore, weekLabel, match
             <td>${matchup}</td>
             <td>${pickedTeam}</td>
             <td>${confidencePoints}</td>
-            <td>Pending</td> <!-- Display "Pending" until results are available -->
-            <td>Pending</td> <!-- Display "Pending" until points are calculated -->
+            <td>N/A</td> <!-- Result is "N/A" since the game hasn't been played -->
+            <td>N/A</td> <!-- Points Earned is "N/A" as no points have been calculated -->
         `;
 
         tbody.appendChild(row);
