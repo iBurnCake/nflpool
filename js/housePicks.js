@@ -58,7 +58,7 @@ function getUserNameById(userId) {
 // Load each user's picks and total score
 function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
-    const housePicksRef = ref(db, 'housePicks');
+    const housePicksRef = ref(db, 'housePicks/week10');
 
     get(housePicksRef)
         .then(snapshot => {

@@ -232,3 +232,10 @@ window.submitPicks = function () {
         })
         .catch((error) => console.error("Error submitting picks:", error));
 };
+
+function initializeWeek10Picks(userId) {
+    const emptyPicks = {}; // No picks assigned for the new week
+    set(ref(db, `housePicks/week10/${userId}`), { picks: emptyPicks, totalScore: 0 })
+        .then(() => console.log("Week 10 initialized with empty picks for user:", userId))
+        .catch(error => console.error("Error initializing week 10 picks:", error));
+}
