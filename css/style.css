@@ -292,3 +292,12 @@ th {
 #logoutButton:hover {
     background-color: #CC3700;
 }
+
+/* Style for View House Picks Button in Top Button Container */
+#viewHousePicksButton {
+    background-color: #3B7EED;
+}
+
+#viewHousePicksButton:hover {
+    background-color: #1F5B99;
+}
