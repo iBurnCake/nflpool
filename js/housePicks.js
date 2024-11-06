@@ -22,7 +22,7 @@ const games = [
 
 function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
-    const housePicksRef = ref(db, 'housePicks/week10'); // Adjust path to week 10
+    const housePicksRef = ref(db, 'housePicks/week9'); // Adjust path to week 10
 
     get(housePicksRef)
         .then(snapshot => {
