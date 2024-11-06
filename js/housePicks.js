@@ -5,43 +5,26 @@ document.addEventListener('DOMContentLoaded', () => {
     loadHousePicks();
 });
 
-// Define the matchup map
+// Define the matchup map for Week 10
 const matchupMap = {
-    0: { home: 'Texans', away: 'Jets' },
-    1: { home: 'Saints', away: 'Panthers' },
-    2: { home: 'Commanders', away: 'Giants' },
-    3: { home: 'Dolphins', away: 'Bills' },
-    4: { home: 'Chargers', away: 'Browns' },
-    5: { home: 'Patriots', away: 'Titans' },
-    6: { home: 'Cowboys', away: 'Falcons' },
-    7: { home: 'Raiders', away: 'Bengals' },
-    8: { home: 'Broncos', away: 'Ravens' },
-    9: { home: 'Bears', away: 'Cardinals' },
-    10: { home: 'Jaguars', away: 'Eagles' },
-    11: { home: 'Rams', away: 'Seahawks' },
-    12: { home: 'Packers', away: 'Lions' },
-    13: { home: 'Colts', away: 'Vikings' },
-    14: { home: 'Chiefs', away: 'Buccaneers' }
+    0: { home: 'Bengals', away: 'Ravens' },
+    1: { home: 'Giants', away: 'Panthers' },
+    2: { home: 'Patriots', away: 'Bears' },
+    3: { home: '49ers', away: 'Buccaneers' },
+    4: { home: 'Broncos', away: 'Chiefs' },
+    5: { home: 'Bills', away: 'Colts' },
+    6: { home: 'Steelers', away: 'Commanders' },
+    7: { home: 'Vikings', away: 'Jaguars' },
+    8: { home: 'Falcons', away: 'Saints' },
+    9: { home: 'Titans', away: 'Chargers' },
+    10: { home: 'Jets', away: 'Cardinals' },
+    11: { home: 'Eagles', away: 'Cowboys' },
+    12: { home: 'Lions', away: 'Texans' },
+    13: { home: 'Dolphins', away: 'Rams' }
 };
 
-// Map of winning teams for each game
-const gameWinners = {
-    0: 'Jets',
-    1: 'Panthers',
-    2: 'Commanders',
-    3: 'Bills',
-    4: 'Chargers',
-    5: 'Titans',
-    6: 'Falcons',
-    7: 'Bengals',
-    8: 'Ravens',
-    9: 'Cardinals',
-    10: 'Eagles',
-    11: 'Rams',
-    12: 'Lions',
-    13: 'Vikings',
-    14: 'Chiefs'
-};
+// If applicable, update the winning teams map for Week 
+
 
 // Map user IDs to names
 function getUserNameById(userId) {
