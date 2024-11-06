@@ -134,45 +134,61 @@ h2 {
     font-weight: bold;
 }
 
-/* Table Styling */
+/* General Table Styling */
 table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate; /* Allows spacing between cells */
+    border-spacing: 0 10px; /* Adds vertical space between rows */
     margin-top: 20px;
-    border-radius: 8px; /* Added rounded corners */
-    overflow: hidden; /* Ensures rounded corners are applied */
+    background-color: #282828; /* Dark background */
+    border-radius: 8px; /* Round table edges */
+    overflow: hidden;
 }
 
+/* Table Header and Row Styling */
 th, td {
-    border: 1px solid #ddd;
-    padding: 12px;
+    padding: 15px; /* Adds more padding for a spaced-out look */
     text-align: center;
-    background-color: #333;
-    color: #FFD700;
-    border-radius: 0; /* Remove inner rounded corners for cleaner look */
+    background-color: #333; /* Darker background for table cells */
+    color: #FFD700; /* Yellow text color for contrast */
+    border: none; /* Removes borders between cells */
 }
 
 th {
-    background-color: #444;
     font-weight: bold;
+    font-size: 18px; /* Slightly larger font for headers */
 }
 
-/* Highlight selected team */
+tr {
+    background-color: #282828; /* Row background color */
+    transition: background-color 0.3s; /* Smooth transition for hover effect */
+}
+
+tr:hover {
+    background-color: #3a3a3a; /* Slightly lighter background on hover */
+}
+
 button.selected {
-    background-color: #28a745;
-    color: #FFFFFF;
+    background-color: #28a745; /* Green for selected button */
 }
 
-/* Ensure only one team button can be highlighted at a time */
+/* Button Styling Inside Table Cells */
 button {
+    padding: 10px 15px;
+    font-size: 16px;
     background-color: #3B7EED;
     color: #FFFFFF;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    margin: 0 5px; /* Adds horizontal space between buttons */
 }
 
 button.selected:hover {
-    background-color: #218838;
+    background-color: #218838; /* Darker green on hover for selected button */
 }
-
 button:hover {
     background-color: #1F5B99;
 }
