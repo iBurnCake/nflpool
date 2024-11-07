@@ -105,16 +105,20 @@ function createUserPicksTable(userName, userPicks, userId) {
         const confidencePoints = pickData.points || 0;
 
         const gameWinner = gameWinners[gameIndex];
-        const isCorrectPick = chosenTeam === gameWinner;
+        const isCorrectPick = gameWinner && chosenTeam === gameWinner;
         const pointsEarned = isCorrectPick ? confidencePoints : 0;
         totalScore += pointsEarned;
+
+        const resultText = gameWinner
+            ? (isCorrectPick ? 'Win' : 'Loss')
+            : 'N/A'; // Display 'N/A' if there's no winner
 
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${matchup}</td>
             <td>${chosenTeam}</td>
             <td>${confidencePoints}</td>
-            <td class="${isCorrectPick ? 'correct' : 'incorrect'}">${isCorrectPick ? 'Win' : 'Loss'}</td>
+            <td class="${isCorrectPick ? 'correct' : 'incorrect'}">${resultText}</td>
             <td>${pointsEarned}</td>
         `;
 
