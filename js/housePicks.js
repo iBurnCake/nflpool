@@ -22,12 +22,13 @@ const games = [
 
 // Define the winner for the first game
 const gameWinners = {
-   // 0: 'Ravens' // First game winner
+    // 0: 'Ravens' // First game winner
 };
 
 function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const week10Ref = ref(db, 'scoreboards/week9');
+    const userScores = [];
 
     get(week10Ref)
         .then(snapshot => {
@@ -36,12 +37,26 @@ function loadHousePicks() {
                 const picksData = snapshot.val();
                 housePicksContainer.innerHTML = '';
 
+                // Collect user scores
                 for (const userId in picksData) {
                     const userPicksData = picksData[userId];
                     const userName = getUserName(userId);
+                    const totalScore = calculateTotalScore(userPicksData);
                     
-                    createUserPicksTable(userName, userPicksData, userId);
+                    userScores.push({ userId, userName, totalScore });
                 }
+
+                // Sort users by total score (highest to lowest)
+                userScores.sort((a, b) => b.totalScore - a.totalScore);
+
+                // Display leaderboard
+                createLeaderboardTable(userScores, housePicksContainer);
+
+                // Display each user's picks table
+                userScores.forEach(user => {
+                    const userPicksData = picksData[user.userId];
+                    createUserPicksTable(user.userName, userPicksData, user.userId, user.totalScore);
+                });
             } else {
                 housePicksContainer.innerHTML = '<p>No picks available for Week 10.</p>';
             }
@@ -68,14 +83,63 @@ function getUserName(userId) {
     return userMap[userId] || userId;
 }
 
-function createUserPicksTable(userName, userPicks, userId) {
+function calculateTotalScore(userPicks) {
+    let totalScore = 0;
+    for (const gameIndex in userPicks) {
+        const pickData = userPicks[gameIndex];
+        const chosenTeam = pickData.team;
+        const confidencePoints = pickData.points || 0;
+        const gameWinner = gameWinners[gameIndex];
+        if (chosenTeam === gameWinner) {
+            totalScore += confidencePoints;
+        }
+    }
+    return totalScore;
+}
+
+function createLeaderboardTable(userScores, container) {
+    const leaderboardContainer = document.createElement('div');
+    leaderboardContainer.classList.add('user-picks-container'); // Reusing the same style as individual user tables
+
+    const leaderboardHeader = document.createElement('h3');
+    leaderboardHeader.classList.add('user-header');
+    leaderboardHeader.textContent = 'Leaderboard';
+
+    leaderboardContainer.appendChild(leaderboardHeader);
+
+    const table = document.createElement('table');
+    table.classList.add('user-picks-table');
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>User</th>
+                <th>Total Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${userScores.map((user, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${user.userName}</td>
+                    <td>${user.totalScore}</td>
+                </tr>
+            `).join('')}
+        </tbody>
+    `;
+
+    leaderboardContainer.appendChild(table);
+    container.appendChild(leaderboardContainer);
+}
+
+function createUserPicksTable(userName, userPicks, userId, totalScore) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
     userContainer.classList.add('user-picks-container');
 
     const userHeader = document.createElement('h3');
     userHeader.classList.add('user-header');
-    userHeader.textContent = `${userName}`;
+    userHeader.textContent = `${userName} - Total Score: ${totalScore}`;
     userContainer.appendChild(userHeader);
 
     const table = document.createElement('table');
@@ -94,7 +158,6 @@ function createUserPicksTable(userName, userPicks, userId) {
         </tbody>
     `;
 
-    let totalScore = 0;
     const tbody = table.querySelector('tbody');
 
     for (const gameIndex in userPicks) {
@@ -107,13 +170,11 @@ function createUserPicksTable(userName, userPicks, userId) {
         const gameWinner = gameWinners[gameIndex];
         const isCorrectPick = gameWinner && chosenTeam === gameWinner;
         const pointsEarned = isCorrectPick ? confidencePoints : 0;
-        totalScore += pointsEarned;
 
         const resultText = gameWinner
             ? (isCorrectPick ? 'Win' : 'Loss')
-            : 'N/A'; // Display 'N/A' if there's no winner
-
-        const resultClass = gameWinner ? (isCorrectPick ? 'correct' : 'incorrect') : 'neutral'; // Apply 'neutral' for "N/A"
+            : 'N/A';
+        const resultClass = gameWinner ? (isCorrectPick ? 'correct' : 'incorrect') : 'neutral';
 
         const row = document.createElement('tr');
         row.innerHTML = `
