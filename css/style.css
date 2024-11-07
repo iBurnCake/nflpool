@@ -46,16 +46,6 @@ body {
     margin-bottom: 20px;
 }
 
-#welcomeMessage {
-    font-size: 28px;
-    font-weight: bold;
-    color: black !important;
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-
-
 /* Label and Input Styling */
 label {
     font-weight: bold;
