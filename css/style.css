@@ -22,15 +22,12 @@ body {
 }
 
 
-/* Welcome Message Styling */
 #welcomeMessage {
-    font-size: 32px; /* Increase font size */
+    font-size: 28px;
     font-weight: bold;
-    color: #000000; /* Set to a bright yellow or change as desired */
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* Add shadow for contrast */
+    color: #000000; /* Set color to black */
     margin-bottom: 20px;
     text-align: center;
-    font-family: 'Arial', sans-serif; /* Adjust font if desired */
 }
 
 /* Centered Login Container Styling */
