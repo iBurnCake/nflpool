@@ -7,17 +7,15 @@
 
 body {
     font-family: Arial, sans-serif;
-    background-image: url('../images/background.jpg'); /* Path to the image */
+    background-image: url('../images/nfl-background.jpg'); /* Ensure path is correct */
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
     color: #FFFFFF;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    padding: 20px;
     overflow: hidden; /* Prevents extra scrolling if necessary */
 }
 
@@ -25,7 +23,7 @@ body {
 #welcomeMessage {
     font-size: 28px;
     font-weight: bold;
-    color: #FFD700;
+    color: #3B7EED;
     margin-bottom: 20px;
     text-align: center;
 }
@@ -36,7 +34,7 @@ body {
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 100vh; /* Makes sure it fills the viewport */
+    height: 100vh; /* Full viewport height to center vertically */
 }
 
 .login-container {
@@ -47,7 +45,6 @@ body {
     width: 100%;
     max-width: 400px;
     text-align: center;
-    margin: auto;
 }
 
 .login-container h2 {
@@ -366,4 +363,3 @@ th {
         padding: 6px;
     }
 }
-
