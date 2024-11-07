@@ -22,7 +22,7 @@ const games = [
 
 // Define the winner for the first game
 const gameWinners = {
-    // 0: 'Ravens' // First game winner
+     0: 'Ravens' // First game winner
 };
 
 function loadHousePicks() {
