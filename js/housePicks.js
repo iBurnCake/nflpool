@@ -20,6 +20,11 @@ const games = [
     { homeTeam: 'Dolphins', awayTeam: 'Rams', homeRecord: '2-6', awayRecord: '4-4' }
 ];
 
+// Define the winner for the first game
+const gameWinners = {
+    0: 'Ravens' // First game winner
+};
+
 function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const week10Ref = ref(db, 'scoreboards/week9');
@@ -35,7 +40,7 @@ function loadHousePicks() {
                     const userPicksData = picksData[userId];
                     const userName = getUserName(userId);
                     
-                    createUserPicksTable(userName, userPicksData);
+                    createUserPicksTable(userName, userPicksData, userId);
                 }
             } else {
                 housePicksContainer.innerHTML = '<p>No picks available for Week 10.</p>';
@@ -63,7 +68,7 @@ function getUserName(userId) {
     return userMap[userId] || userId;
 }
 
-function createUserPicksTable(userName, userPicks) {
+function createUserPicksTable(userName, userPicks, userId) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
     userContainer.classList.add('user-picks-container');
@@ -82,6 +87,7 @@ function createUserPicksTable(userName, userPicks) {
                 <th>Pick</th>
                 <th>Confidence Points</th>
                 <th>Result</th>
+                <th>Points Earned</th>
             </tr>
         </thead>
         <tbody>
@@ -94,27 +100,31 @@ function createUserPicksTable(userName, userPicks) {
     for (const gameIndex in userPicks) {
         const pickData = userPicks[gameIndex];
         const game = games[gameIndex];
-        const resultText = 'N/A';
-
-        const chosenTeam = pickData.team || 'N/A';
-        const confidencePoints = pickData.points || 'N/A';
-
         const matchup = `${game.homeTeam} (${game.homeRecord}) vs ${game.awayTeam} (${game.awayRecord})`;
+        const chosenTeam = pickData.team || 'N/A';
+        const confidencePoints = pickData.points || 0;
+
+        const gameWinner = gameWinners[gameIndex];
+        const isCorrectPick = chosenTeam === gameWinner;
+        const pointsEarned = isCorrectPick ? confidencePoints : 0;
+        totalScore += pointsEarned;
 
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${matchup}</td>
             <td>${chosenTeam}</td>
             <td>${confidencePoints}</td>
-            <td>${resultText}</td>
+            <td class="${isCorrectPick ? 'correct' : 'incorrect'}">${isCorrectPick ? 'Win' : 'Loss'}</td>
+            <td>${pointsEarned}</td>
         `;
+
         tbody.appendChild(row);
     }
 
     const totalRow = document.createElement('tr');
     totalRow.innerHTML = `
         <td colspan="3" style="font-weight: bold; text-align: right;">Total Score:</td>
-        <td>${totalScore}</td>
+        <td colspan="2">${totalScore}</td>
     `;
     tbody.appendChild(totalRow);
 
