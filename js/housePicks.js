@@ -26,17 +26,30 @@ function loadHousePicks() {
 
     get(week10Ref)
         .then(snapshot => {
-            console.log(snapshot.val());
             if (snapshot.exists()) {
                 const picksData = snapshot.val();
-                housePicksContainer.innerHTML = '';
+                const userScores = [];
 
                 for (const userId in picksData) {
                     const userPicksData = picksData[userId];
                     const userName = getUserName(userId);
                     
-                    createUserPicksTable(userName, userPicksData);
+                    // Calculate total score if needed
+                    let totalScore = calculateTotalScore(userPicksData);
+
+                    // Store user data with total score
+                    userScores.push({ userId, userName, totalScore, userPicksData });
                 }
+
+                // Sort users by total score in descending order
+                userScores.sort((a, b) => b.totalScore - a.totalScore);
+
+                housePicksContainer.innerHTML = '';
+                
+                // Create tables for each user in sorted order
+                userScores.forEach(user => {
+                    createUserPicksTable(user.userName, user.userPicksData, user.totalScore);
+                });
             } else {
                 housePicksContainer.innerHTML = '<p>No picks available for Week 10.</p>';
             }
@@ -45,6 +58,17 @@ function loadHousePicks() {
             console.error('Error loading house picks:', error);
             housePicksContainer.innerHTML = '<p>Error loading picks. Please try again later.</p>';
         });
+}
+
+function calculateTotalScore(userPicks) {
+    let totalScore = 0;
+    for (const gameIndex in userPicks) {
+        const pickData = userPicks[gameIndex];
+        if (pickData.result === 'win') { // Assume 'result' is set to 'win' for correct picks
+            totalScore += pickData.points || 0;
+        }
+    }
+    return totalScore;
 }
 
 function getUserName(userId) {
@@ -63,7 +87,7 @@ function getUserName(userId) {
     return userMap[userId] || userId;
 }
 
-function createUserPicksTable(userName, userPicks) {
+function createUserPicksTable(userName, userPicks, totalScore) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
     userContainer.classList.add('user-picks-container');
@@ -88,13 +112,12 @@ function createUserPicksTable(userName, userPicks) {
         </tbody>
     `;
 
-    let totalScore = 0;
     const tbody = table.querySelector('tbody');
 
     for (const gameIndex in userPicks) {
         const pickData = userPicks[gameIndex];
         const game = games[gameIndex];
-        const resultText = 'N/A';
+        const resultText = pickData.result || 'N/A'; // Assume result property will hold 'win' or 'lose'
 
         const chosenTeam = pickData.team || 'N/A';
         const confidencePoints = pickData.points || 'N/A';
