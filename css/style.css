@@ -24,11 +24,13 @@ body {
 
 /* Welcome Message Styling */
 #welcomeMessage {
-    font-size: 28px;
+    font-size: 32px; /* Increase font size */
     font-weight: bold;
-    color: #FFD700;
+    color: #FFD700; /* Set to a bright yellow or change as desired */
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* Add shadow for contrast */
     margin-bottom: 20px;
     text-align: center;
+    font-family: 'Arial', sans-serif; /* Adjust font if desired */
 }
 
 /* Centered Login Container Styling */
