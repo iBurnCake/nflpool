@@ -121,32 +121,3 @@ function createUserPicksTable(userName, userPicks) {
     userContainer.appendChild(table);
     housePicksContainer.appendChild(userContainer);
 }
-
-// Custom order array with user IDs or names as per your choice
-const customOrder = [
-    "Angela Kant",
-    "Luke Romano",
-    "Tommy Kant",
-    "Ryan Sanders",
-    "Tony Romano",
-    "Aunt Vicki",
-    "Thomas Romano"
-];
-
-// Function to render the ordered list
-function displayOrderedPicks() {
-    const housePicksContainer = document.getElementById('housePicksContainer');
-    housePicksContainer.innerHTML = ''; // Clear existing content
-
-    // Loop through the custom order array
-    customOrder.forEach(userName => {
-        const userPicks = userData[userName]; // Assuming userData is an object with users' pick data
-        if (userPicks) {
-            const userPicksHTML = renderUserPicks(userPicks); // Render each user's picks
-            housePicksContainer.appendChild(userPicksHTML);
-        }
-    });
-}
-
-// Call this function after loading the picks data
-displayOrderedPicks();
