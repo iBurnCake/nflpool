@@ -13,19 +13,17 @@ body {
     background-position: center;
     color: #FFFFFF;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
     padding: 20px;
-    overflow: hidden; /* Prevents extra scrolling if necessary */
 }
 
 /* Welcome Message Styling */
 #welcomeMessage {
     font-size: 28px;
     font-weight: bold;
-    color: #FFD700;
+    color: #000000; /* Changed to black */
     margin-bottom: 20px;
     text-align: center;
 }
@@ -34,7 +32,9 @@ body {
 #loginSection {
     display: flex;
     justify-content: center;
+    align-items: center;
     width: 100%;
+    height: 100vh;
 }
 
 .login-container {
@@ -48,10 +48,9 @@ body {
 }
 
 .login-container h2 {
-    color: #FFD700;
+    color: #000000; /* Changed to black */
     margin-bottom: 20px;
 }
-
 
 /* Label and Input Styling */
 label {
@@ -143,7 +142,7 @@ section {
 }
 
 h2 {
-    color: #FFD700;
+    color: #000000; /* Changed to black */
     font-size: 24px;
     font-weight: bold;
 }
