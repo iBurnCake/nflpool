@@ -140,10 +140,9 @@ function updateGameResults(gameIndex, winningTeam) {
                 const userPicks = picksData[userId];
                 const userGamePick = userPicks[gameIndex];
 
-                // Set the result for the specific game
-                if (userGamePick) {
-                    const result = userGamePick.team === winningTeam ? 'win' : 'lose';
-                    userGamePick.result = result;
+                // Only add result field if it doesn't already exist to avoid overwriting structure
+                if (userGamePick && !userGamePick.result) {
+                    userGamePick.result = userGamePick.team === winningTeam ? 'win' : 'lose';
                 }
             }
 
