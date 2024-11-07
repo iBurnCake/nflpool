@@ -18,8 +18,9 @@ body {
     justify-content: center;
     min-height: 100vh;
     padding: 20px;
-    overflow: hidden; /* Prevents extra scrolling if necessary */
+    /* overflow: hidden; */ /* Remove this line to enable scrolling */
 }
+
 
 /* Welcome Message Styling */
 #welcomeMessage {
