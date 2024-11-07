@@ -21,15 +21,6 @@ body {
     /* overflow: hidden; */ /* Remove this line to enable scrolling */
 }
 
-
-#welcomeMessage {
-    font-size: 28px;
-    font-weight: bold;
-    color: black !important;
-    margin-bottom: 20px;
-    text-align: center;
-}
-
 /* Centered Login Container Styling */
 #loginSection {
     display: flex;
@@ -54,6 +45,15 @@ body {
     color: #FFD700;
     margin-bottom: 20px;
 }
+
+#welcomeMessage {
+    font-size: 28px;
+    font-weight: bold;
+    color: black !important;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
 
 
 /* Label and Input Styling */
