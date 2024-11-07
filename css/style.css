@@ -25,7 +25,7 @@ body {
 #welcomeMessage {
     font-size: 28px;
     font-weight: bold;
-    color: #000000; /* Set color to black */
+    color: black !important;
     margin-bottom: 20px;
     text-align: center;
 }
