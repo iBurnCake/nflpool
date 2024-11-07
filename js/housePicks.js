@@ -70,7 +70,7 @@ function createUserPicksTable(userName, userPicks) {
 
     const userHeader = document.createElement('h3');
     userHeader.classList.add('user-header');
-    userHeader.textContent = `User: ${userName}`;
+    userHeader.textContent = `${userName}`;
     userContainer.appendChild(userHeader);
 
     const table = document.createElement('table');
