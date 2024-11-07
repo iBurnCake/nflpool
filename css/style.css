@@ -357,3 +357,7 @@ th {
         padding: 6px;
     }
 }
+
+.neutral {
+    color: gray;
+}

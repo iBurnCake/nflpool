@@ -113,12 +113,14 @@ function createUserPicksTable(userName, userPicks, userId) {
             ? (isCorrectPick ? 'Win' : 'Loss')
             : 'N/A'; // Display 'N/A' if there's no winner
 
+        const resultClass = gameWinner ? (isCorrectPick ? 'correct' : 'incorrect') : 'neutral'; // Apply 'neutral' for "N/A"
+
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${matchup}</td>
             <td>${chosenTeam}</td>
             <td>${confidencePoints}</td>
-            <td class="${isCorrectPick ? 'correct' : 'incorrect'}">${resultText}</td>
+            <td class="${resultClass}">${resultText}</td>
             <td>${pointsEarned}</td>
         `;
 
