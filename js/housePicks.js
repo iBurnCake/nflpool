@@ -1,4 +1,4 @@
-import { db, ref, get, update } from './firebaseConfig.js';
+import { db, ref, get } from './firebaseConfig.js';
 
 document.addEventListener('DOMContentLoaded', loadHousePicks);
 
@@ -94,7 +94,7 @@ function createUserPicksTable(userName, userPicks) {
     for (const gameIndex in userPicks) {
         const pickData = userPicks[gameIndex];
         const game = games[gameIndex];
-        const resultText = pickData.result || 'N/A';
+        const resultText = 'N/A';
 
         const chosenTeam = pickData.team || 'N/A';
         const confidencePoints = pickData.points || 'N/A';
@@ -109,11 +109,6 @@ function createUserPicksTable(userName, userPicks) {
             <td>${resultText}</td>
         `;
         tbody.appendChild(row);
-
-        // Add points to total score if result is a win
-        if (resultText === 'win') {
-            totalScore += confidencePoints;
-        }
     }
 
     const totalRow = document.createElement('tr');
@@ -126,42 +121,3 @@ function createUserPicksTable(userName, userPicks) {
     userContainer.appendChild(table);
     housePicksContainer.appendChild(userContainer);
 }
-
-// Function to update game results in the database
-function updateGameResults(gameIndex, winningTeam) {
-    const week9Ref = ref(db, 'scoreboards/week9');
-
-    get(week9Ref).then(snapshot => {
-        if (snapshot.exists()) {
-            const picksData = snapshot.val();
-
-            // Iterate through each user and check if their pick matches the winning team
-            for (const userId in picksData) {
-                const userPicks = picksData[userId];
-                const userGamePick = userPicks[gameIndex];
-
-                // Only add result field if it doesn't already exist to avoid overwriting structure
-                if (userGamePick && !userGamePick.result) {
-                    userGamePick.result = userGamePick.team === winningTeam ? 'win' : 'lose';
-                }
-            }
-
-            // Update all users' picks in the database with the new result data
-            update(week9Ref, picksData)
-                .then(() => {
-                    console.log("Game results updated successfully.");
-                    loadHousePicks(); // Reload data to reflect updated scores
-                })
-                .catch(error => {
-                    console.error("Error updating game results:", error);
-                });
-        } else {
-            console.log("No picks data available to update.");
-        }
-    }).catch(error => {
-        console.error("Error retrieving picks data:", error);
-    });
-}
-
-// Call updateGameResults with the Ravens as the winners for the first game
-updateGameResults(0, 'Ravens');
