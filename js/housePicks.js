@@ -1,4 +1,4 @@
-import { db, ref, get } from './firebaseConfig.js';
+import { db, ref, get, update } from './firebaseConfig.js';
 
 document.addEventListener('DOMContentLoaded', loadHousePicks);
 
@@ -26,30 +26,17 @@ function loadHousePicks() {
 
     get(week10Ref)
         .then(snapshot => {
+            console.log(snapshot.val());
             if (snapshot.exists()) {
                 const picksData = snapshot.val();
-                const userScores = [];
+                housePicksContainer.innerHTML = '';
 
                 for (const userId in picksData) {
                     const userPicksData = picksData[userId];
                     const userName = getUserName(userId);
                     
-                    // Calculate total score if needed
-                    let totalScore = calculateTotalScore(userPicksData);
-
-                    // Store user data with total score
-                    userScores.push({ userId, userName, totalScore, userPicksData });
+                    createUserPicksTable(userName, userPicksData);
                 }
-
-                // Sort users by total score in descending order
-                userScores.sort((a, b) => b.totalScore - a.totalScore);
-
-                housePicksContainer.innerHTML = '';
-                
-                // Create tables for each user in sorted order
-                userScores.forEach(user => {
-                    createUserPicksTable(user.userName, user.userPicksData, user.totalScore);
-                });
             } else {
                 housePicksContainer.innerHTML = '<p>No picks available for Week 10.</p>';
             }
@@ -58,17 +45,6 @@ function loadHousePicks() {
             console.error('Error loading house picks:', error);
             housePicksContainer.innerHTML = '<p>Error loading picks. Please try again later.</p>';
         });
-}
-
-function calculateTotalScore(userPicks) {
-    let totalScore = 0;
-    for (const gameIndex in userPicks) {
-        const pickData = userPicks[gameIndex];
-        if (pickData.result === 'win') { // Assume 'result' is set to 'win' for correct picks
-            totalScore += pickData.points || 0;
-        }
-    }
-    return totalScore;
 }
 
 function getUserName(userId) {
@@ -87,7 +63,7 @@ function getUserName(userId) {
     return userMap[userId] || userId;
 }
 
-function createUserPicksTable(userName, userPicks, totalScore) {
+function createUserPicksTable(userName, userPicks) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
     userContainer.classList.add('user-picks-container');
@@ -112,12 +88,13 @@ function createUserPicksTable(userName, userPicks, totalScore) {
         </tbody>
     `;
 
+    let totalScore = 0;
     const tbody = table.querySelector('tbody');
 
     for (const gameIndex in userPicks) {
         const pickData = userPicks[gameIndex];
         const game = games[gameIndex];
-        const resultText = pickData.result || 'N/A'; // Assume result property will hold 'win' or 'lose'
+        const resultText = pickData.result || 'N/A';
 
         const chosenTeam = pickData.team || 'N/A';
         const confidencePoints = pickData.points || 'N/A';
@@ -132,6 +109,11 @@ function createUserPicksTable(userName, userPicks, totalScore) {
             <td>${resultText}</td>
         `;
         tbody.appendChild(row);
+
+        // Add points to total score if result is a win
+        if (resultText === 'win') {
+            totalScore += confidencePoints;
+        }
     }
 
     const totalRow = document.createElement('tr');
@@ -144,3 +126,43 @@ function createUserPicksTable(userName, userPicks, totalScore) {
     userContainer.appendChild(table);
     housePicksContainer.appendChild(userContainer);
 }
+
+// Function to update game results in the database
+function updateGameResults(gameIndex, winningTeam) {
+    const week9Ref = ref(db, 'scoreboards/week9');
+
+    get(week9Ref).then(snapshot => {
+        if (snapshot.exists()) {
+            const picksData = snapshot.val();
+
+            // Iterate through each user and check if their pick matches the winning team
+            for (const userId in picksData) {
+                const userPicks = picksData[userId];
+                const userGamePick = userPicks[gameIndex];
+
+                // Set the result for the specific game
+                if (userGamePick) {
+                    const result = userGamePick.team === winningTeam ? 'win' : 'lose';
+                    userGamePick.result = result;
+                }
+            }
+
+            // Update all users' picks in the database with the new result data
+            update(week9Ref, picksData)
+                .then(() => {
+                    console.log("Game results updated successfully.");
+                    loadHousePicks(); // Reload data to reflect updated scores
+                })
+                .catch(error => {
+                    console.error("Error updating game results:", error);
+                });
+        } else {
+            console.log("No picks data available to update.");
+        }
+    }).catch(error => {
+        console.error("Error retrieving picks data:", error);
+    });
+}
+
+// Call updateGameResults with the Ravens as the winners for the first game
+updateGameResults(0, 'Ravens');
