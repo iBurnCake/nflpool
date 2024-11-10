@@ -20,11 +20,23 @@ const games = [
     { homeTeam: 'Dolphins', awayTeam: 'Rams', homeRecord: '2-6', awayRecord: '4-4' }
 ];
 
-// Define the winners for games
 const gameWinners = {
-    0: 'Ravens', // First game winner
-    1: 'Panthers' // Second game winner
+    0: 'Ravens', 
+    1: 'Panthers', 
+    2: '', 
+    3: '', 
+    4: '', 
+    5: '', 
+    6: '', 
+    7: '', 
+    8: '', 
+    9: '', 
+    10: '', 
+    11: '', 
+    12: '', 
+    13: '', 
 };
+
 
 // Rest of your code remains the same
 function loadHousePicks() {
