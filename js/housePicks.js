@@ -22,7 +22,6 @@ const games = [
 
 const gameWinners = {
      0: 'Ravens' // First game winner
-     1: 'Panthers'
 };
 
 function loadHousePicks() {
