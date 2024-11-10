@@ -20,9 +20,9 @@ const games = [
     { homeTeam: 'Dolphins', awayTeam: 'Rams', homeRecord: '2-6', awayRecord: '4-4' }
 ];
 
-// Define the winner for the first game
 const gameWinners = {
      0: 'Ravens' // First game winner
+     2: 'Panthers'
 };
 
 function loadHousePicks() {
