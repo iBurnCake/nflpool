@@ -20,10 +20,13 @@ const games = [
     { homeTeam: 'Dolphins', awayTeam: 'Rams', homeRecord: '2-6', awayRecord: '4-4' }
 ];
 
+// Define the winners for games
 const gameWinners = {
-     0: 'Ravens' // First game winner
+    0: 'Ravens', // First game winner
+    1: 'Panthers' // Second game winner
 };
 
+// Rest of your code remains the same
 function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const week10Ref = ref(db, 'scoreboards/week9');
@@ -66,6 +69,7 @@ function loadHousePicks() {
         });
 }
 
+// Helper functions remain the same
 function getUserName(userId) {
     const userMap = {
         'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
@@ -96,9 +100,10 @@ function calculateTotalScore(userPicks) {
     return totalScore;
 }
 
+// Other functions remain the same
 function createLeaderboardTable(userScores, container) {
     const leaderboardContainer = document.createElement('div');
-    leaderboardContainer.classList.add('user-picks-container'); // Reusing the same style as individual user tables
+    leaderboardContainer.classList.add('user-picks-container');
 
     const leaderboardHeader = document.createElement('h3');
     leaderboardHeader.classList.add('user-header');
