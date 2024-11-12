@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCEIIp_7mw1lEJi2ySy8rbYI9zIGz1d2d8",
@@ -13,8 +14,13 @@ const firebaseConfig = {
     databaseURL: "https://nflpool-71337-default-rtdb.firebaseio.com/"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
+
+// Initialize Firebase services
 const auth = getAuth(app);
 const db = getDatabase(app);
+const storage = getStorage(app); // Initialize Firebase Storage
 
-export { auth, db, onAuthStateChanged, signInWithEmailAndPassword, ref, set, get, child };
+// Export necessary Firebase services
+export { auth, db, storage, onAuthStateChanged, signInWithEmailAndPassword, ref, set, get, child };

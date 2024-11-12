@@ -1,41 +1,43 @@
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, ref, set } from './firebaseConfig.js';
-import { auth, onAuthStateChanged } from './firebaseConfig.js'; // Assuming auth is initialized in firebaseConfig
+import { auth, onAuthStateChanged } from './firebaseConfig.js'; // Import auth functions
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Listen for user authentication state change
-    onAuthStateChanged(auth, (user) => {
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fileInput = document.getElementById('profileImage');
+    const file = fileInput.files[0];
+
+    // Check if a user is logged in and retrieve the user ID
+    onAuthStateChanged(auth, async (user) => {
         if (user) {
-            document.getElementById('uploadForm').addEventListener('submit', (e) => uploadProfileImage(e, user.uid));
+            const userId = user.uid; // Get logged-in user's ID
+
+            if (file) {
+                const storage = getStorage();
+                const imageRef = storageRef(storage, `profileImages/${userId}`);
+
+                try {
+                    // Upload the file to Firebase Storage
+                    await uploadBytes(imageRef, file);
+
+                    // Get the download URL and save it to the user's profile in Firebase
+                    const imageUrl = await getDownloadURL(imageRef);
+                    await set(ref(db, `users/${userId}/profileImage`), imageUrl);
+
+                    alert("Profile image uploaded successfully!");
+                    fileInput.value = ''; // Clear the input field
+
+                    // Redirect or update the UI as needed
+                    window.location.href = 'index.html'; // Redirect to home page
+                } catch (error) {
+                    console.error("Error uploading image:", error);
+                    alert("Failed to upload image. Please try again.");
+                }
+            } else {
+                alert("Please select a file.");
+            }
         } else {
-            alert("You must be logged in to upload a profile image.");
-            window.location.href = 'index.html'; // Redirect to login if not authenticated
+            alert("User not logged in. Please log in to upload a profile image.");
         }
     });
 });
-
-async function uploadProfileImage(e, userId) {
-    e.preventDefault();
-    const file = document.getElementById('profileImage').files[0];
-
-    if (file) {
-        const storage = getStorage();
-        const imageRef = storageRef(storage, `profileImages/${userId}`);
-
-        try {
-            // Upload the file to Firebase Storage
-            await uploadBytes(imageRef, file);
-
-            // Get the download URL and save it to the user's profile in Firebase
-            const imageUrl = await getDownloadURL(imageRef);
-            await set(ref(db, `users/${userId}/profileImage`), imageUrl);
-
-            alert("Profile image uploaded successfully!");
-        } catch (error) {
-            console.error("Error uploading profile image:", error);
-            alert("Failed to upload profile image. Please try again.");
-        }
-    } else {
-        alert("Please select a file to upload.");
-    }
-}
