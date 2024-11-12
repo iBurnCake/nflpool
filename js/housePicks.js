@@ -37,8 +37,20 @@ const gameWinners = {
     13: '', 
 };
 
+// Profile images map (example URLs or paths to images)
+const userProfileImages = {
+    'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'images/luke.jpg',
+    '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'images/charles.jpg',
+    'I3RfB1et3bhADFKRQbx3EU6yllI3': 'images/ryan.jpg',
+    'krvPcOneIcYrzc2GfIHXfsvbrD23': 'images/william.jpg',
+    '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'images/angela.jpg',
+    '67khUuKYmhXxRumUjMpyoDbnq0s2': 'images/thomas.jpg',
+    'JIdq2bYVCZgdAeC0y6P69puNQz43': 'images/tony.jpg',
+    '9PyTK0SHv7YKv7AYw5OV29dwH5q2': 'images/emily.jpg',
+    'ORxFtuY13VfaUqc2ckcfw084Lxq1': 'images/vicki.jpg',
+    'FIKVjOy8P7UTUGqq2WvjkARZPIE2': 'images/tommy.jpg'
+};
 
-// Rest of your code remains the same
 function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const week10Ref = ref(db, 'scoreboards/week9');
@@ -46,7 +58,6 @@ function loadHousePicks() {
 
     get(week10Ref)
         .then(snapshot => {
-            console.log(snapshot.val());
             if (snapshot.exists()) {
                 const picksData = snapshot.val();
                 housePicksContainer.innerHTML = '';
@@ -81,7 +92,6 @@ function loadHousePicks() {
         });
 }
 
-// Helper functions remain the same
 function getUserName(userId) {
     const userMap = {
         'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
@@ -112,7 +122,6 @@ function calculateTotalScore(userPicks) {
     return totalScore;
 }
 
-// Other functions remain the same
 function createLeaderboardTable(userScores, container) {
     const leaderboardContainer = document.createElement('div');
     leaderboardContainer.classList.add('user-picks-container');
@@ -137,7 +146,10 @@ function createLeaderboardTable(userScores, container) {
             ${userScores.map((user, index) => `
                 <tr>
                     <td>${index + 1}</td>
-                    <td>${user.userName}</td>
+                    <td>
+                        <img src="${userProfileImages[user.userId] || 'images/default.jpg'}" class="profile-image" alt="${user.userName}"/>
+                        ${user.userName}
+                    </td>
                     <td>${user.totalScore}</td>
                 </tr>
             `).join('')}
@@ -155,7 +167,10 @@ function createUserPicksTable(userName, userPicks, userId, totalScore) {
 
     const userHeader = document.createElement('h3');
     userHeader.classList.add('user-header');
-    userHeader.textContent = `${userName} - Total Score: ${totalScore}`;
+    userHeader.innerHTML = `
+        <img src="${userProfileImages[userId] || 'images/default.jpg'}" class="profile-image" alt="${userName}"/>
+        ${userName} - Total Score: ${totalScore}
+    `;
     userContainer.appendChild(userHeader);
 
     const table = document.createElement('table');
@@ -187,9 +202,7 @@ function createUserPicksTable(userName, userPicks, userId, totalScore) {
         const isCorrectPick = gameWinner && chosenTeam === gameWinner;
         const pointsEarned = isCorrectPick ? confidencePoints : 0;
 
-        const resultText = gameWinner
-            ? (isCorrectPick ? 'Win' : 'Loss')
-            : 'N/A';
+        const resultText = gameWinner ? (isCorrectPick ? 'Win' : 'Loss') : 'N/A';
         const resultClass = gameWinner ? (isCorrectPick ? 'correct' : 'incorrect') : 'neutral';
 
         const row = document.createElement('tr');
