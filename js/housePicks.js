@@ -40,7 +40,9 @@ const gameWinners = {
 function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const week10Ref = ref(db, 'scoreboards/week9');
+    const overallRef = ref(db, 'overallScores'); // Reference to the overall scores
     const userScores = [];
+    const overallScores = [];
 
     get(week10Ref)
         .then(snapshot => {
@@ -60,8 +62,8 @@ function loadHousePicks() {
                 // Sort by total score (highest to lowest)
                 userScores.sort((a, b) => b.totalScore - a.totalScore);
 
-                // Display the leaderboard
-                createLeaderboardTable(userScores, housePicksContainer);
+                // Display the weekly leaderboard
+                createLeaderboardTable(userScores, housePicksContainer, 'Weekly Leaderboard');
 
                 // Display each user's table
                 userScores.forEach(user => {
@@ -75,6 +77,31 @@ function loadHousePicks() {
         .catch(error => {
             console.error('Error loading house picks:', error);
             housePicksContainer.innerHTML = '<p>Error loading picks. Please try again later.</p>';
+        });
+
+    // Fetch overall scores
+    get(overallRef)
+        .then(snapshot => {
+            if (snapshot.exists()) {
+                const overallData = snapshot.val();
+
+                // Collect and prepare overall scores
+                for (const userId in overallData) {
+                    const userName = getUserName(userId);
+                    const totalPoints = overallData[userId].totalPoints || 0;
+
+                    overallScores.push({ userId, userName, totalPoints });
+                }
+
+                // Sort by total points (highest to lowest)
+                overallScores.sort((a, b) => b.totalPoints - a.totalPoints);
+
+                // Display the overall leaderboard
+                createLeaderboardTable(overallScores, housePicksContainer, 'Overall Leaderboard');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading overall scores:', error);
         });
 }
 
@@ -108,18 +135,18 @@ function calculateTotalScore(userPicks) {
     return totalScore;
 }
 
-function createLeaderboardTable(userScores, container) {
+function createLeaderboardTable(userScores, container, title) {
     const leaderboardContainer = document.createElement('div');
-    leaderboardContainer.classList.add('user-picks-container');
+    leaderboardContainer.classList.add('leaderboard-container');
 
     const leaderboardHeader = document.createElement('h3');
-    leaderboardHeader.classList.add('user-header');
-    leaderboardHeader.textContent = 'Leaderboard';
+    leaderboardHeader.classList.add('leaderboard-header');
+    leaderboardHeader.textContent = title;
 
     leaderboardContainer.appendChild(leaderboardHeader);
 
     const table = document.createElement('table');
-    table.classList.add('user-picks-table');
+    table.classList.add('leaderboard-table');
     table.innerHTML = `
         <thead>
             <tr>
@@ -133,7 +160,7 @@ function createLeaderboardTable(userScores, container) {
                 <tr>
                     <td>${index + 1}</td>
                     <td>${user.userName}</td>
-                    <td>${user.totalScore}</td>
+                    <td>${title === 'Weekly Leaderboard' ? user.totalScore : user.totalPoints}</td>
                 </tr>
             `).join('')}
         </tbody>

@@ -141,6 +141,58 @@ h2 {
     font-weight: bold;
 }
 
+/* Leaderboard Container Styling */
+.leaderboard-container {
+    background-color: #282828;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.7);
+    margin: 20px 0;
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+}
+
+/* Leaderboard Headers */
+.leaderboard-header {
+    color: #FFD700;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.overall-leaderboard-header {
+    color: #FFD700;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 20px 0 15px; /* Space between weekly and overall leaderboard */
+}
+
+/* Leaderboard Table Styling */
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px; /* Adds space below the table */
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+    border: 1px solid #444;
+    padding: 12px;
+    text-align: center;
+    color: #FFD700;
+    background-color: #333;
+}
+
+.leaderboard-table th {
+    background-color: #444;
+    font-weight: bold;
+}
+
+.leaderboard-table tbody tr:nth-child(even) {
+    background-color: #3B3B3B;
+}
+
 /* Table Styling */
 table {
     width: 100%;
