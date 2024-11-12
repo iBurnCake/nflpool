@@ -160,16 +160,19 @@ function createLeaderboardTable(userScores, container) {
     container.appendChild(leaderboardContainer);
 }
 
-function createUserPicksTable(userName, userPicks, userId, totalScore, profileImageUrl) {
+function createUserPicksTable(userName, userPicks, userId, totalScore) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
     userContainer.classList.add('user-picks-container');
+
+    // Get the profile image URL, if available
+    const profileImageUrl = userProfileImages[userId] || ''; // Replace with actual dynamic URL logic if needed
 
     // Add profile image and name header with total score
     const userHeader = document.createElement('h3');
     userHeader.classList.add('user-header');
     userHeader.innerHTML = `
-        ${profileImageUrl ? `<img src="${profileImageUrl}" class="profile-image" alt="${userName}'s Profile Picture">` : ''}
+        ${profileImageUrl ? `<img src="${profileImageUrl}" class="profile-image" alt="${userName}'s Profile Picture">` : `${userName}'s Profile Picture`}
         ${userName} - Total Score: ${totalScore}
     `;
     userContainer.appendChild(userHeader);
@@ -230,3 +233,4 @@ function createUserPicksTable(userName, userPicks, userId, totalScore, profileIm
     userContainer.appendChild(table);
     housePicksContainer.appendChild(userContainer);
 }
+
