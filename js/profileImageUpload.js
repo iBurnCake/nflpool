@@ -1,4 +1,4 @@
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
 import { db, ref, set } from './firebaseConfig.js';
 import { auth, onAuthStateChanged } from './firebaseConfig.js';
 
