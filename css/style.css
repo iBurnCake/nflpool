@@ -190,9 +190,22 @@ th {
 #housePicksContainer {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-around;
+    justify-content: center;
     gap: 40px;
     padding: 20px;
+}
+
+/* Leaderboard & Global Wins Combined Container */
+.combined-leaderboard-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #282828;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+    width: 500px;
+    gap: 30px; /* Space between Leaderboard and Global Wins */
 }
 
 /* Individual User Mini-Table Styling for House Picks Page */
@@ -282,47 +295,6 @@ th {
     font-weight: bold;
 }
 
-/* Global Wins Styling */
-#globalWinsContainer {
-    background-color: #282828;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-    width: 500px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-#globalWinsContainer h3 {
-    font-size: 20px;
-    font-weight: bold;
-    color: #FFD700;
-    margin-bottom: 10px;
-    text-align: center;
-}
-
-#globalWinsContainer table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-#globalWinsContainer th, #globalWinsContainer td {
-    padding: 10px;
-    border: 1px solid #444;
-    background-color: #333;
-    color: #FFD700;
-}
-
-#globalWinsContainer th {
-    background-color: #444;
-    font-weight: bold;
-}
-
-#globalWinsContainer tr:hover {
-    background-color: #555;
-}
-
 #logoutButton {
     background-color: #FF4500;
 }
@@ -367,7 +339,7 @@ th {
         padding: 8px;
     }
 
-    .user-picks-container {
+    .user-picks-container, .combined-leaderboard-container {
         width: 100%;
         max-width: 100%;
         padding: 15px;
