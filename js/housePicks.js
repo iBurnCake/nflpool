@@ -34,7 +34,7 @@ const gameWinners = {
     10: 'Cardinals', 
     11: 'Eagles', 
     12: 'Lions', 
-    13: '', 
+    13: 'Dolphins', 
 };
 
 // Profile images map (example URLs or paths to images)
