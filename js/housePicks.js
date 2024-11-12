@@ -43,7 +43,7 @@ function loadHousePicks() {
     const week9Ref = ref(db, 'scoreboards/week9');
     const userScores = [];
 
-    get(week11Ref)
+    get(week9Ref)
         .then(snapshot => {
             if (snapshot.exists()) {
                 const picksData = snapshot.val();
