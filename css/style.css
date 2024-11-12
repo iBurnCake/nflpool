@@ -299,6 +299,26 @@ th {
     background-color: #1F5B99;
 }
 
+/* Style for Edit Profile Button */
+#editProfileButton {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#editProfileButton:hover {
+    background-color: #0056b3;
+}
+
+/* Hide 'Edit Profile' button on House Picks page */
+.house-picks-view #editProfileButton {
+    display: none;
+}
+
 @media (max-width: 768px) {
     body {
         padding: 10px;
@@ -358,46 +378,10 @@ th {
     }
 }
 
-.neutral {
-    color: gray;
-}
-
+/* Profile Image Styling */
 .profile-image {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     margin-right: 10px;
-}
-
-#editProfileButton {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 20px;
-    margin: 5px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-#editProfileButton:hover {
-    background-color: #0056b3;
-}
-
-.nav-buttons {
-    display: flex;
-    gap: 10px;
-    margin: 20px;
-}
-
-#backButton, #editProfileButton {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 20px;
-    text-decoration: none;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-#backButton:hover, #editProfileButton:hover {
-    background-color: #0056b3;
 }
