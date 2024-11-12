@@ -40,7 +40,7 @@ const gameWinners = {
 
 function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
-    const week11Ref = ref(db, 'scoreboards/week11');
+    const week9Ref = ref(db, 'scoreboards/week9');
     const userScores = [];
 
     get(week11Ref)
