@@ -40,9 +40,7 @@ const gameWinners = {
 function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const week10Ref = ref(db, 'scoreboards/week9');
-    const overallRef = ref(db, 'overallScores'); // Reference to the overall scores
     const userScores = [];
-    const overallScores = [];
 
     get(week10Ref)
         .then(snapshot => {
@@ -62,8 +60,8 @@ function loadHousePicks() {
                 // Sort by total score (highest to lowest)
                 userScores.sort((a, b) => b.totalScore - a.totalScore);
 
-                // Display the weekly leaderboard
-                createLeaderboardTable(userScores, housePicksContainer, 'Weekly Leaderboard');
+                // Display the leaderboards
+                createLeaderboards(userScores, housePicksContainer);
 
                 // Display each user's table
                 userScores.forEach(user => {
@@ -77,31 +75,6 @@ function loadHousePicks() {
         .catch(error => {
             console.error('Error loading house picks:', error);
             housePicksContainer.innerHTML = '<p>Error loading picks. Please try again later.</p>';
-        });
-
-    // Fetch overall scores
-    get(overallRef)
-        .then(snapshot => {
-            if (snapshot.exists()) {
-                const overallData = snapshot.val();
-
-                // Collect and prepare overall scores
-                for (const userId in overallData) {
-                    const userName = getUserName(userId);
-                    const totalPoints = overallData[userId].totalPoints || 0;
-
-                    overallScores.push({ userId, userName, totalPoints });
-                }
-
-                // Sort by total points (highest to lowest)
-                overallScores.sort((a, b) => b.totalPoints - a.totalPoints);
-
-                // Display the overall leaderboard
-                createLeaderboardTable(overallScores, housePicksContainer, 'Overall Leaderboard');
-            }
-        })
-        .catch(error => {
-            console.error('Error loading overall scores:', error);
         });
 }
 
@@ -135,19 +108,20 @@ function calculateTotalScore(userPicks) {
     return totalScore;
 }
 
-function createLeaderboardTable(userScores, container, title) {
-    const leaderboardContainer = document.createElement('div');
-    leaderboardContainer.classList.add('leaderboard-container');
+function createLeaderboards(userScores, container) {
+    // Weekly Leaderboard
+    const weeklyLeaderboardContainer = document.createElement('div');
+    weeklyLeaderboardContainer.classList.add('user-picks-container');
+    weeklyLeaderboardContainer.id = 'weeklyLeaderboardContainer';
 
-    const leaderboardHeader = document.createElement('h3');
-    leaderboardHeader.classList.add('leaderboard-header');
-    leaderboardHeader.textContent = title;
+    const weeklyHeader = document.createElement('h3');
+    weeklyHeader.classList.add('user-header');
+    weeklyHeader.textContent = 'Weekly Leaderboard';
+    weeklyLeaderboardContainer.appendChild(weeklyHeader);
 
-    leaderboardContainer.appendChild(leaderboardHeader);
-
-    const table = document.createElement('table');
-    table.classList.add('leaderboard-table');
-    table.innerHTML = `
+    const weeklyTable = document.createElement('table');
+    weeklyTable.classList.add('user-picks-table');
+    weeklyTable.innerHTML = `
         <thead>
             <tr>
                 <th>Rank</th>
@@ -160,14 +134,48 @@ function createLeaderboardTable(userScores, container, title) {
                 <tr>
                     <td>${index + 1}</td>
                     <td>${user.userName}</td>
-                    <td>${title === 'Weekly Leaderboard' ? user.totalScore : user.totalPoints}</td>
+                    <td>${user.totalScore}</td>
                 </tr>
             `).join('')}
         </tbody>
     `;
+    weeklyLeaderboardContainer.appendChild(weeklyTable);
 
-    leaderboardContainer.appendChild(table);
-    container.appendChild(leaderboardContainer);
+    // Overall Leaderboard
+    const overallLeaderboardContainer = document.createElement('div');
+    overallLeaderboardContainer.classList.add('user-picks-container');
+    overallLeaderboardContainer.id = 'overallLeaderboardContainer';
+
+    const overallHeader = document.createElement('h3');
+    overallHeader.classList.add('user-header');
+    overallHeader.textContent = 'Overall Leaderboard';
+    overallLeaderboardContainer.appendChild(overallHeader);
+
+    const overallTable = document.createElement('table');
+    overallTable.classList.add('user-picks-table');
+    overallTable.innerHTML = `
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>User</th>
+                <th>Total Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${userScores.map((user, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${user.userName}</td>
+                    <td>${user.totalScore}</td>
+                </tr>
+            `).join('')}
+        </tbody>
+    `;
+    overallLeaderboardContainer.appendChild(overallTable);
+
+    // Append both leaderboards to the main container
+    container.appendChild(weeklyLeaderboardContainer);
+    container.appendChild(overallLeaderboardContainer);
 }
 
 function createUserPicksTable(userName, userPicks, totalScore) {
