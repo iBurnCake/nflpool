@@ -7,12 +7,17 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <a href="index.html" id="backButton">Back to Picks</a>
+    <div class="nav-buttons">
+        <a href="index.html" id="backButton">Back to Picks</a>
+        <button id="editProfileButton" onclick="window.location.href='editProfile.html'">Edit Profile</button>
+    </div>
+
     <div class="house-picks-view">
         <h1 id="housePicksTitle">House Picks</h1>
         <div id="housePicksContainer" class="house-picks-container">
         </div>
     </div>
+
     <script type="module" src="js/housePicks.js"></script>
 </body>
 </html>

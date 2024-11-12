@@ -369,17 +369,15 @@ th {
     margin-right: 10px;
 }
 
-.edit-profile-button {
-    margin-top: 10px;
-    padding: 5px 10px;
-    font-size: 14px;
-    background-color: #3B7EED;
+#editProfileButton {
+    background-color: #007bff;
     color: white;
+    padding: 10px 20px;
+    margin: 5px;
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
 }
-.edit-profile-button:hover {
-    background-color: #1F5B99;
+#editProfileButton:hover {
+    background-color: #0056b3;
 }
-
