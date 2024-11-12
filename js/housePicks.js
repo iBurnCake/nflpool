@@ -60,8 +60,8 @@ function loadHousePicks() {
                 // Sort by total score (highest to lowest)
                 userScores.sort((a, b) => b.totalScore - a.totalScore);
 
-                // Display the leaderboards
-                createLeaderboards(userScores, housePicksContainer);
+                // Display the leaderboard
+                createLeaderboardTable(userScores, housePicksContainer);
 
                 // Display each user's table
                 userScores.forEach(user => {
@@ -108,20 +108,19 @@ function calculateTotalScore(userPicks) {
     return totalScore;
 }
 
-function createLeaderboards(userScores, container) {
-    // Weekly Leaderboard
-    const weeklyLeaderboardContainer = document.createElement('div');
-    weeklyLeaderboardContainer.classList.add('user-picks-container');
-    weeklyLeaderboardContainer.id = 'weeklyLeaderboardContainer';
+function createLeaderboardTable(userScores, container) {
+    const leaderboardContainer = document.createElement('div');
+    leaderboardContainer.classList.add('user-picks-container');
 
-    const weeklyHeader = document.createElement('h3');
-    weeklyHeader.classList.add('user-header');
-    weeklyHeader.textContent = 'Weekly Leaderboard';
-    weeklyLeaderboardContainer.appendChild(weeklyHeader);
+    const leaderboardHeader = document.createElement('h3');
+    leaderboardHeader.classList.add('user-header');
+    leaderboardHeader.textContent = 'Leaderboard';
 
-    const weeklyTable = document.createElement('table');
-    weeklyTable.classList.add('user-picks-table');
-    weeklyTable.innerHTML = `
+    leaderboardContainer.appendChild(leaderboardHeader);
+
+    const table = document.createElement('table');
+    table.classList.add('user-picks-table');
+    table.innerHTML = `
         <thead>
             <tr>
                 <th>Rank</th>
@@ -139,43 +138,9 @@ function createLeaderboards(userScores, container) {
             `).join('')}
         </tbody>
     `;
-    weeklyLeaderboardContainer.appendChild(weeklyTable);
 
-    // Overall Leaderboard
-    const overallLeaderboardContainer = document.createElement('div');
-    overallLeaderboardContainer.classList.add('user-picks-container');
-    overallLeaderboardContainer.id = 'overallLeaderboardContainer';
-
-    const overallHeader = document.createElement('h3');
-    overallHeader.classList.add('user-header');
-    overallHeader.textContent = 'Overall Leaderboard';
-    overallLeaderboardContainer.appendChild(overallHeader);
-
-    const overallTable = document.createElement('table');
-    overallTable.classList.add('user-picks-table');
-    overallTable.innerHTML = `
-        <thead>
-            <tr>
-                <th>Rank</th>
-                <th>User</th>
-                <th>Total Score</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${userScores.map((user, index) => `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${user.userName}</td>
-                    <td>${user.totalScore}</td>
-                </tr>
-            `).join('')}
-        </tbody>
-    `;
-    overallLeaderboardContainer.appendChild(overallTable);
-
-    // Append both leaderboards to the main container
-    container.appendChild(weeklyLeaderboardContainer);
-    container.appendChild(overallLeaderboardContainer);
+    leaderboardContainer.appendChild(table);
+    container.appendChild(leaderboardContainer);
 }
 
 function createUserPicksTable(userName, userPicks, totalScore) {
