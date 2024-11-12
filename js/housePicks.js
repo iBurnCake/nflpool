@@ -37,20 +37,6 @@ const gameWinners = {
     13: 'Dolphins', 
 };
 
-// Manually defined Global Wins data
-const globalWinsData = [
-    { userName: 'Luke Romano', wins: 2 },
-    { userName: 'Charles Keegan', wins: 2 },
-    { userName: 'Ryan Sanders', wins: 1 },
-    { userName: 'Tony Romano', wins: 1 },
-    { userName: 'Angela Kant', wins: 0 },
-    { userName: 'Tommy Kant', wins: 0 },
-    { userName: 'Aunt Vicki', wins: 0 },
-    { userName: 'Thomas Romano', wins: 0 },
-    { userName: 'Emily Rossini', wins: 0 },
-    { userName: 'William Mathis', wins: 0 }
-];
-
 function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const week10Ref = ref(db, 'scoreboards/week9');
@@ -74,9 +60,8 @@ function loadHousePicks() {
                 // Sort by total score (highest to lowest)
                 userScores.sort((a, b) => b.totalScore - a.totalScore);
 
-                // Display the leaderboard and Global Wins table
+                // Display the leaderboard
                 createLeaderboardTable(userScores, housePicksContainer);
-                createGlobalWinsTable(housePicksContainer);
 
                 // Display each user's table
                 userScores.forEach(user => {
@@ -156,40 +141,6 @@ function createLeaderboardTable(userScores, container) {
 
     leaderboardContainer.appendChild(table);
     container.appendChild(leaderboardContainer);
-}
-
-function createGlobalWinsTable(container) {
-    const globalWinsContainer = document.createElement('div');
-    globalWinsContainer.classList.add('user-picks-container');
-
-    const globalWinsHeader = document.createElement('h3');
-    globalWinsHeader.classList.add('user-header');
-    globalWinsHeader.textContent = 'Global Wins';
-    globalWinsContainer.appendChild(globalWinsHeader);
-
-    const table = document.createElement('table');
-    table.classList.add('user-picks-table');
-    table.innerHTML = `
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>User</th>
-                <th>Wins</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${globalWinsData.map((user, index) => `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${user.userName}</td>
-                    <td>${user.wins}</td>
-                </tr>
-            `).join('')}
-        </tbody>
-    `;
-
-    globalWinsContainer.appendChild(table);
-    container.appendChild(globalWinsContainer);
 }
 
 function createUserPicksTable(userName, userPicks, totalScore) {
