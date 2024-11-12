@@ -299,29 +299,6 @@ th {
     background-color: #1F5B99;
 }
 
-/* Style for Edit Profile Button */
-#editProfileButton {
-    background-color: #6a0dad; /* Purple color */
-    color: white;
-    padding: 10px 16px; /* Match the padding with other buttons */
-    font-size: 16px;
-    font-weight: bold;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    text-align: center;
-}
-
-#editProfileButton:hover {
-    background-color: #5b0dac; /* Darker purple for hover effect */
-}
-
-/* Hide 'Edit Profile' button on House Picks page */
-.house-picks-view #editProfileButton {
-    display: none;
-}
-
 @media (max-width: 768px) {
     body {
         padding: 10px;
@@ -379,72 +356,4 @@ th {
     th, td {
         padding: 6px;
     }
-}
-
-/* Profile Image Styling */
-.profile-image {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 10px;
-}
-
-/* Profile Upload Container Styling */
-.profile-upload-container {
-    background-color: #282828;
-    padding: 40px;
-    border-radius: 8px;
-    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.7);
-    width: 100%;
-    max-width: 400px;
-    text-align: center;
-    margin: 50px auto;
-    color: #FFD700;
-}
-
-.profile-upload-container h1 {
-    color: #FFD700;
-    margin-bottom: 20px;
-}
-
-.profile-upload-container input[type="file"] {
-    margin-bottom: 15px;
-    font-size: 16px;
-    color: #FFFFFF;
-    padding: 8px;
-    border-radius: 4px;
-    background-color: #1E1E1E;
-    border: 1px solid #ddd;
-}
-
-#uploadButton {
-    padding: 10px 16px;
-    font-size: 16px;
-    background-color: #6a0dad; /* purple button color */
-    color: #FFFFFF;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s;
-}
-
-#uploadButton:hover {
-    background-color: #4a0072; /* darker purple on hover */
-}
-
-.back-button {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #3B7EED;
-    color: #FFFFFF;
-    text-decoration: none;
-    font-weight: bold;
-    border-radius: 4px;
-    transition: background-color 0.3s;
-}
-
-.back-button:hover {
-    background-color: #1F5B99;
 }

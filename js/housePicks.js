@@ -37,20 +37,6 @@ const gameWinners = {
     13: 'Dolphins', 
 };
 
-// Profile images map
-const userProfileImages = {
-    'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'images/luke.jpg',
-    '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'images/charles.jpg',
-    'I3RfB1et3bhADFKRQbx3EU6yllI3': 'images/ryan.jpg',
-    'krvPcOneIcYrzc2GfIHXfsvbrD23': 'images/william.jpg',
-    '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'images/angela.jpg',
-    '67khUuKYmhXxRumUjMpyoDbnq0s2': 'images/thomas.jpg',
-    'JIdq2bYVCZgdAeC0y6P69puNQz43': 'images/tony.jpg',
-    '9PyTK0SHv7YKv7AYw5OV29dwH5q2': 'images/emily.jpg',
-    'ORxFtuY13VfaUqc2ckcfw084Lxq1': 'images/vicki.jpg',
-    'FIKVjOy8P7UTUGqq2WvjkARZPIE2': 'images/tommy.jpg'
-};
-
 function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const week10Ref = ref(db, 'scoreboards/week9');
@@ -77,10 +63,10 @@ function loadHousePicks() {
                 // Display the leaderboard
                 createLeaderboardTable(userScores, housePicksContainer);
 
-                // Display each user's table with their profile picture
+                // Display each user's table
                 userScores.forEach(user => {
                     const userPicksData = picksData[user.userId];
-                    createUserPicksTable(user.userName, userPicksData, user.userId, user.totalScore, userProfileImages[user.userId]);
+                    createUserPicksTable(user.userName, userPicksData, user.totalScore);
                 });
             } else {
                 housePicksContainer.innerHTML = '<p>No picks available for Week 10.</p>';
@@ -146,10 +132,7 @@ function createLeaderboardTable(userScores, container) {
             ${userScores.map((user, index) => `
                 <tr>
                     <td>${index + 1}</td>
-                    <td>
-                        <img src="${userProfileImages[user.userId] || 'images/default.jpg'}" class="profile-image" alt="${user.userName}" />
-                        ${user.userName}
-                    </td>
+                    <td>${user.userName}</td>
                     <td>${user.totalScore}</td>
                 </tr>
             `).join('')}
@@ -160,21 +143,15 @@ function createLeaderboardTable(userScores, container) {
     container.appendChild(leaderboardContainer);
 }
 
-function createUserPicksTable(userName, userPicks, userId, totalScore) {
+function createUserPicksTable(userName, userPicks, totalScore) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
     userContainer.classList.add('user-picks-container');
 
-    // Get the profile image URL, if available
-    const profileImageUrl = userProfileImages[userId] || ''; // Replace with actual dynamic URL logic if needed
-
-    // Add profile image and name header with total score
+    // Add user's name and total score
     const userHeader = document.createElement('h3');
     userHeader.classList.add('user-header');
-    userHeader.innerHTML = `
-        ${profileImageUrl ? `<img src="${profileImageUrl}" class="profile-image" alt="${userName}'s Profile Picture">` : `${userName}'s Profile Picture`}
-        ${userName} - Total Score: ${totalScore}
-    `;
+    userHeader.textContent = `${userName} - Total Score: ${totalScore}`;
     userContainer.appendChild(userHeader);
 
     const table = document.createElement('table');
@@ -233,4 +210,3 @@ function createUserPicksTable(userName, userPicks, userId, totalScore) {
     userContainer.appendChild(table);
     housePicksContainer.appendChild(userContainer);
 }
-
