@@ -160,6 +160,7 @@ function createLeaderboardTable(userScores, container) {
     container.appendChild(leaderboardContainer);
 }
 
+// Updated function to create the user picks table with profile image and "Edit Profile" button
 function createUserPicksTable(userName, userPicks, userId, totalScore) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
@@ -168,10 +169,19 @@ function createUserPicksTable(userName, userPicks, userId, totalScore) {
     const userHeader = document.createElement('h3');
     userHeader.classList.add('user-header');
     userHeader.innerHTML = `
-        <img src="${userProfileImages[userId] || 'images/default.jpg'}" class="profile-image" alt="${userName}"/>
+        <img src="path/to/profile/images/${userId}.jpg" alt="${userName}'s Profile Picture" class="profile-image" /> 
         ${userName} - Total Score: ${totalScore}
-    `;
+    `; // Ensure the profile image path is correct
     userContainer.appendChild(userHeader);
+
+    // Add "Edit Profile" button for each user to link to profile image upload page
+    const editProfileButton = document.createElement('button');
+    editProfileButton.textContent = 'Edit Profile';
+    editProfileButton.classList.add('edit-profile-button');
+    editProfileButton.onclick = () => {
+        window.location.href = 'profileImageUpload.html';
+    };
+    userContainer.appendChild(editProfileButton);
 
     const table = document.createElement('table');
     table.classList.add('user-picks-table');
@@ -202,7 +212,9 @@ function createUserPicksTable(userName, userPicks, userId, totalScore) {
         const isCorrectPick = gameWinner && chosenTeam === gameWinner;
         const pointsEarned = isCorrectPick ? confidencePoints : 0;
 
-        const resultText = gameWinner ? (isCorrectPick ? 'Win' : 'Loss') : 'N/A';
+        const resultText = gameWinner
+            ? (isCorrectPick ? 'Win' : 'Loss')
+            : 'N/A';
         const resultClass = gameWinner ? (isCorrectPick ? 'correct' : 'incorrect') : 'neutral';
 
         const row = document.createElement('tr');
