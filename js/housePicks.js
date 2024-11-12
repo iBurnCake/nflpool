@@ -37,7 +37,7 @@ const gameWinners = {
     13: 'Dolphins', 
 };
 
-// Profile images map (example URLs or paths to images)
+// Profile images map
 const userProfileImages = {
     'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'images/luke.jpg',
     '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'images/charles.jpg',
@@ -80,7 +80,7 @@ function loadHousePicks() {
                 // Display each user's table with their profile picture
                 userScores.forEach(user => {
                     const userPicksData = picksData[user.userId];
-                    createUserPicksTable(user.userName, userPicksData, user.userId, user.totalScore);
+                    createUserPicksTable(user.userName, userPicksData, user.userId, user.totalScore, userProfileImages[user.userId]);
                 });
             } else {
                 housePicksContainer.innerHTML = '<p>No picks available for Week 10.</p>';
@@ -91,7 +91,6 @@ function loadHousePicks() {
             housePicksContainer.innerHTML = '<p>Error loading picks. Please try again later.</p>';
         });
 }
-
 
 function getUserName(userId) {
     const userMap = {
@@ -148,7 +147,7 @@ function createLeaderboardTable(userScores, container) {
                 <tr>
                     <td>${index + 1}</td>
                     <td>
-                        <img src="${userProfileImages[user.userId] || 'images/default.jpg'}" class="profile-image" alt="${user.userName}"/>
+                        <img src="${userProfileImages[user.userId] || 'images/default.jpg'}" class="profile-image" alt="${user.userName}" />
                         ${user.userName}
                     </td>
                     <td>${user.totalScore}</td>
