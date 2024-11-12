@@ -381,3 +381,23 @@ th {
 #editProfileButton:hover {
     background-color: #0056b3;
 }
+
+.nav-buttons {
+    display: flex;
+    gap: 10px;
+    margin: 20px;
+}
+
+#backButton, #editProfileButton {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#backButton:hover, #editProfileButton:hover {
+    background-color: #0056b3;
+}
