@@ -37,49 +37,45 @@ const gameWinners = {
     13: 'Dolphins', 
 };
 
-async function loadHousePicks() {
+function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const week10Ref = ref(db, 'scoreboards/week9');
-    const overallRef = ref(db, 'scoreboards/overall');
-    const weeklyUserScores = [];
-    const overallUserScores = [];
+    const userScores = [];
 
-    try {
-        const weekSnapshot = await get(week10Ref);
-        const overallSnapshot = await get(overallRef);
+    get(week10Ref)
+        .then(snapshot => {
+            if (snapshot.exists()) {
+                const picksData = snapshot.val();
+                housePicksContainer.innerHTML = '';
 
-        housePicksContainer.innerHTML = ''; // Clear container
+                // Collect and calculate total scores
+                for (const userId in picksData) {
+                    const userPicksData = picksData[userId];
+                    const userName = getUserName(userId);
+                    const totalScore = calculateTotalScore(userPicksData);
 
-        // Process weekly leaderboard
-        if (weekSnapshot.exists()) {
-            const picksData = weekSnapshot.val();
-            for (const userId in picksData) {
-                const userPicksData = picksData[userId];
-                const userName = getUserName(userId);
-                const totalScore = calculateTotalScore(userPicksData);
-                weeklyUserScores.push({ userId, userName, totalScore });
+                    userScores.push({ userId, userName, totalScore });
+                }
+
+                // Sort by total score (highest to lowest)
+                userScores.sort((a, b) => b.totalScore - a.totalScore);
+
+                // Display the leaderboards
+                createLeaderboards(userScores, housePicksContainer);
+
+                // Display each user's table
+                userScores.forEach(user => {
+                    const userPicksData = picksData[user.userId];
+                    createUserPicksTable(user.userName, userPicksData, user.totalScore);
+                });
+            } else {
+                housePicksContainer.innerHTML = '<p>No picks available for Week 10.</p>';
             }
-            weeklyUserScores.sort((a, b) => b.totalScore - a.totalScore);
-        }
-
-        // Process overall leaderboard
-        if (overallSnapshot.exists()) {
-            const overallData = overallSnapshot.val();
-            for (const userId in overallData) {
-                const userName = getUserName(userId);
-                const totalScore = overallData[userId];
-                overallUserScores.push({ userId, userName, totalScore });
-            }
-            overallUserScores.sort((a, b) => b.totalScore - a.totalScore);
-        }
-
-        // Create combined leaderboard table
-        createLeaderboards(weeklyUserScores, overallUserScores, housePicksContainer);
-
-    } catch (error) {
-        console.error('Error loading house picks:', error);
-        housePicksContainer.innerHTML = '<p>Error loading picks. Please try again later.</p>';
-    }
+        })
+        .catch(error => {
+            console.error('Error loading house picks:', error);
+            housePicksContainer.innerHTML = '<p>Error loading picks. Please try again later.</p>';
+        });
 }
 
 function getUserName(userId) {
@@ -112,14 +108,16 @@ function calculateTotalScore(userPicks) {
     return totalScore;
 }
 
-function createLeaderboards(weeklyScores, overallScores, container) {
-    const leaderboardContainer = document.createElement('div');
-    leaderboardContainer.classList.add('user-picks-container');
-
+function createLeaderboards(userScores, container) {
     // Weekly Leaderboard
+    const weeklyLeaderboardContainer = document.createElement('div');
+    weeklyLeaderboardContainer.classList.add('user-picks-container');
+    weeklyLeaderboardContainer.id = 'weeklyLeaderboardContainer';
+
     const weeklyHeader = document.createElement('h3');
     weeklyHeader.classList.add('user-header');
     weeklyHeader.textContent = 'Weekly Leaderboard';
+    weeklyLeaderboardContainer.appendChild(weeklyHeader);
 
     const weeklyTable = document.createElement('table');
     weeklyTable.classList.add('user-picks-table');
@@ -132,7 +130,7 @@ function createLeaderboards(weeklyScores, overallScores, container) {
             </tr>
         </thead>
         <tbody>
-            ${weeklyScores.map((user, index) => `
+            ${userScores.map((user, index) => `
                 <tr>
                     <td>${index + 1}</td>
                     <td>${user.userName}</td>
@@ -141,14 +139,17 @@ function createLeaderboards(weeklyScores, overallScores, container) {
             `).join('')}
         </tbody>
     `;
-
-    leaderboardContainer.appendChild(weeklyHeader);
-    leaderboardContainer.appendChild(weeklyTable);
+    weeklyLeaderboardContainer.appendChild(weeklyTable);
 
     // Overall Leaderboard
+    const overallLeaderboardContainer = document.createElement('div');
+    overallLeaderboardContainer.classList.add('user-picks-container');
+    overallLeaderboardContainer.id = 'overallLeaderboardContainer';
+
     const overallHeader = document.createElement('h3');
     overallHeader.classList.add('user-header');
     overallHeader.textContent = 'Overall Leaderboard';
+    overallLeaderboardContainer.appendChild(overallHeader);
 
     const overallTable = document.createElement('table');
     overallTable.classList.add('user-picks-table');
@@ -161,7 +162,7 @@ function createLeaderboards(weeklyScores, overallScores, container) {
             </tr>
         </thead>
         <tbody>
-            ${overallScores.map((user, index) => `
+            ${userScores.map((user, index) => `
                 <tr>
                     <td>${index + 1}</td>
                     <td>${user.userName}</td>
@@ -170,11 +171,11 @@ function createLeaderboards(weeklyScores, overallScores, container) {
             `).join('')}
         </tbody>
     `;
+    overallLeaderboardContainer.appendChild(overallTable);
 
-    leaderboardContainer.appendChild(overallHeader);
-    leaderboardContainer.appendChild(overallTable);
-
-    container.appendChild(leaderboardContainer);
+    // Append both leaderboards to the main container
+    container.appendChild(weeklyLeaderboardContainer);
+    container.appendChild(overallLeaderboardContainer);
 }
 
 function createUserPicksTable(userName, userPicks, totalScore) {
@@ -217,7 +218,9 @@ function createUserPicksTable(userName, userPicks, totalScore) {
         const isCorrectPick = gameWinner && chosenTeam === gameWinner;
         const pointsEarned = isCorrectPick ? confidencePoints : 0;
 
-        const resultText = gameWinner ? (isCorrectPick ? 'Win' : 'Loss') : 'N/A';
+        const resultText = gameWinner
+            ? (isCorrectPick ? 'Win' : 'Loss')
+            : 'N/A';
         const resultClass = gameWinner ? (isCorrectPick ? 'correct' : 'incorrect') : 'neutral';
 
         const row = document.createElement('tr');
