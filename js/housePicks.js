@@ -2,7 +2,7 @@ import { db, ref, get } from './firebaseConfig.js';
 
 document.addEventListener('DOMContentLoaded', loadHousePicks);
 
-// Week 10 game data
+// Week 11 game data
 const games = [
     { homeTeam: 'Commanders', awayTeam: 'Eagles', homeRecord: '7-3', awayRecord: '7-2' },
     { homeTeam: 'Raiders', awayTeam: 'Dolphins', homeRecord: '2-7', awayRecord: '3-6' },
@@ -20,6 +20,7 @@ const games = [
     { homeTeam: 'Texans', awayTeam: 'Cowboys', homeRecord: '6-4', awayRecord: '3-6' }
 ];
 
+// No game winners decided yet
 const gameWinners = {
     0: '', 
     1: '', 
@@ -39,10 +40,10 @@ const gameWinners = {
 
 function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
-    const week10Ref = ref(db, 'scoreboards/week9');
+    const week11Ref = ref(db, 'scoreboards/week11');
     const userScores = [];
 
-    get(week10Ref)
+    get(week11Ref)
         .then(snapshot => {
             if (snapshot.exists()) {
                 const picksData = snapshot.val();
@@ -69,7 +70,7 @@ function loadHousePicks() {
                     createUserPicksTable(user.userName, userPicksData, user.totalScore);
                 });
             } else {
-                housePicksContainer.innerHTML = '<p>No picks available for Week 10.</p>';
+                housePicksContainer.innerHTML = '<p>No picks available for Week 11.</p>';
             }
         })
         .catch(error => {
