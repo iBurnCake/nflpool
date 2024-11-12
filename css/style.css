@@ -301,17 +301,20 @@ th {
 
 /* Style for Edit Profile Button */
 #editProfileButton {
-    background-color: #007bff;
+    background-color: #6a0dad; /* Purple color */
     color: white;
-    padding: 10px 20px;
-    margin: 5px;
+    padding: 10px 16px; /* Match the padding with other buttons */
+    font-size: 16px;
+    font-weight: bold;
     border: none;
-    border-radius: 5px;
+    border-radius: 4px;
     cursor: pointer;
+    transition: background-color 0.3s;
+    text-align: center;
 }
 
 #editProfileButton:hover {
-    background-color: #0056b3;
+    background-color: #5b0dac; /* Darker purple for hover effect */
 }
 
 /* Hide 'Edit Profile' button on House Picks page */

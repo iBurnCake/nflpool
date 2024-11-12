@@ -161,25 +161,20 @@ function createLeaderboardTable(userScores, container) {
     container.appendChild(leaderboardContainer);
 }
 
-function createUserPicksTable(userName, userPicks, userId, totalScore) {
+function createUserPicksTable(userName, userPicks, userId, totalScore, profileImageUrl) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
     userContainer.classList.add('user-picks-container');
 
+    // Add profile image and name header with total score
     const userHeader = document.createElement('h3');
     userHeader.classList.add('user-header');
-    userHeader.textContent = `${userName} - Total Score: ${totalScore}`;
-
-    // Add Profile Image if Available
-    const profileImg = document.createElement('img');
-    profileImg.src = userPicks.profileImage || 'default-profile.png';
-    profileImg.alt = `${userName}'s Profile Picture`;
-    profileImg.classList.add('profile-image');
-    userHeader.prepend(profileImg);
-
+    userHeader.innerHTML = `
+        ${profileImageUrl ? `<img src="${profileImageUrl}" class="profile-image" alt="${userName}'s Profile Picture">` : ''}
+        ${userName} - Total Score: ${totalScore}
+    `;
     userContainer.appendChild(userHeader);
 
-    // Create User Picks Table (without additional Edit Profile Button)
     const table = document.createElement('table');
     table.classList.add('user-picks-table');
     table.innerHTML = `
@@ -195,6 +190,7 @@ function createUserPicksTable(userName, userPicks, userId, totalScore) {
         <tbody>
         </tbody>
     `;
+
     const tbody = table.querySelector('tbody');
 
     for (const gameIndex in userPicks) {
@@ -208,7 +204,9 @@ function createUserPicksTable(userName, userPicks, userId, totalScore) {
         const isCorrectPick = gameWinner && chosenTeam === gameWinner;
         const pointsEarned = isCorrectPick ? confidencePoints : 0;
 
-        const resultText = gameWinner ? (isCorrectPick ? 'Win' : 'Loss') : 'N/A';
+        const resultText = gameWinner
+            ? (isCorrectPick ? 'Win' : 'Loss')
+            : 'N/A';
         const resultClass = gameWinner ? (isCorrectPick ? 'correct' : 'incorrect') : 'neutral';
 
         const row = document.createElement('tr');
@@ -219,8 +217,16 @@ function createUserPicksTable(userName, userPicks, userId, totalScore) {
             <td class="${resultClass}">${resultText}</td>
             <td>${pointsEarned}</td>
         `;
+
         tbody.appendChild(row);
     }
+
+    const totalRow = document.createElement('tr');
+    totalRow.innerHTML = `
+        <td colspan="3" style="font-weight: bold; text-align: right;">Total Score:</td>
+        <td colspan="2">${totalScore}</td>
+    `;
+    tbody.appendChild(totalRow);
 
     userContainer.appendChild(table);
     housePicksContainer.appendChild(userContainer);
