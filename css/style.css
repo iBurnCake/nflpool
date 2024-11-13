@@ -394,3 +394,50 @@ th {
         padding: 6px;
     }
 }
+
+/* Rules Container Styling */
+#rulesContainer {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 300px;
+    background-color: #333;
+    color: #fff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#rulesContainer h2 {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 20px;
+    color: #ffcc00;
+}
+
+#rulesContainer table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    text-align: left;
+}
+
+#rulesContainer th,
+#rulesContainer td {
+    padding: 8px;
+    border: 1px solid #555;
+}
+
+#rulesContainer th {
+    background-color: #444;
+    color: #fff;
+}
+
+#rulesContainer tr:nth-child(even) {
+    background-color: #444;
+}
+
+/* Adjust User Home Section to Avoid Overlapping */
+#userHomeSection {
+    margin-left: 350px; /* Leave space for the rules table */
+}
