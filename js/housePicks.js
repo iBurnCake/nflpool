@@ -49,6 +49,8 @@ function loadHousePicks() {
                 const picksData = snapshot.val();
                 housePicksContainer.innerHTML = '';
 
+                console.log("Picks data loaded:", picksData); // Debugging log
+
                 // Collect and calculate total scores
                 for (const userId in picksData) {
                     const userPicksData = picksData[userId];
@@ -99,6 +101,7 @@ function calculateTotalScore(userPicks) {
     let totalScore = 0;
     for (const gameIndex in userPicks) {
         const pickData = userPicks[gameIndex];
+        if (!pickData) continue; // Skip if pickData is missing
         const chosenTeam = pickData.team;
         const confidencePoints = pickData.points || 0;
         const gameWinner = gameWinners[gameIndex];
@@ -175,6 +178,12 @@ function createUserPicksTable(userName, userPicks, totalScore) {
     for (const gameIndex in userPicks) {
         const pickData = userPicks[gameIndex];
         const game = games[gameIndex];
+
+        if (!game) {
+            console.warn(`Missing game data for index: ${gameIndex}`);
+            continue;
+        }
+
         const matchup = `${game.homeTeam} (${game.homeRecord}) vs ${game.awayTeam} (${game.awayRecord})`;
         const chosenTeam = pickData.team || 'N/A';
         const confidencePoints = pickData.points || 0;
