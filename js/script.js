@@ -6,7 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('userHomeSection').style.display = 'block';
             document.getElementById('usernameDisplay').textContent = user.email;
-            checkSubmissionStatus(user.uid); // Check if picks were submitted
+            displayGames();
+            loadUserPicks(user.uid);
         } else {
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('userHomeSection').style.display = 'none';
@@ -47,28 +48,6 @@ const games = [
 
 let userPicks = {};
 let usedPoints = new Set();
-
-function checkSubmissionStatus(userId) {
-    get(child(ref(db), `scoreboards/week9/${userId}/submitted`))
-        .then((snapshot) => {
-            if (snapshot.exists() && snapshot.val() === true) {
-                disableUserPicks(); // Disable picks table and reset button if submitted
-            } else {
-                displayGames();
-                loadUserPicks(userId);
-            }
-        })
-        .catch((error) => {
-            console.error("Error checking submission status:", error);
-        });
-}
-
-function disableUserPicks() {
-    const table = document.getElementById('gamesTable');
-    table.classList.add("disabled");
-    document.getElementById('resetButton').disabled = true;
-    document.getElementById('submitButton').disabled = true;
-}
 
 function displayGames() {
     const tableBody = document.getElementById('gamesTable').getElementsByTagName('tbody')[0];
@@ -201,16 +180,7 @@ function displayUserPicks(picks) {
 }
 
 window.submitPicks = function () {
-    const userId = auth.currentUser.uid;
-    saveUserPicks(userId);
-    
-    // Set the submitted flag in the database to true
-    set(ref(db, `scoreboards/week9/${userId}/submitted`), true)
-        .then(() => {
-            alert("Picks submitted successfully!");
-            disableUserPicks(); // Disable after submission
-        })
-        .catch((error) => {
-            console.error("Error submitting picks:", error);
-        });
+    saveUserPicks(auth.currentUser.uid);
+    alert("Picks submitted successfully!");
+    window.location.href = "housePicks.html";
 };
