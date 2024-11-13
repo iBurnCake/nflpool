@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('userHomeSection').style.display = 'block';
             document.getElementById('usernameDisplay').textContent = user.email;
-            checkSubmissionStatus(user.uid); // New function to check if picks were submitted
+            checkSubmissionStatus(user.uid); // Check if picks were submitted
         } else {
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('userHomeSection').style.display = 'none';
@@ -47,34 +47,6 @@ const games = [
 
 let userPicks = {};
 let usedPoints = new Set();
-
-document.addEventListener("DOMContentLoaded", () => {
-    const loginForm = document.getElementById("loginForm");
-    if (loginForm) {
-        loginForm.addEventListener("submit", handleLogin);
-    }
-});
-
-function handleLogin(event) {
-    event.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-
-    signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            document.getElementById('usernameDisplay').textContent = user.email;
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('userHomeSection').style.display = 'block';
-            checkSubmissionStatus(user.uid); // Check if picks were submitted
-        })
-        .catch((error) => {
-            console.error("Login error:", error);
-            if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-                alert("Invalid email or password.");
-            }
-        });
-}
 
 function checkSubmissionStatus(userId) {
     get(child(ref(db), `scoreboards/week9/${userId}/submitted`))
