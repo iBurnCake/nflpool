@@ -3,12 +3,14 @@ import { auth, db, signInWithEmailAndPassword, ref, set, get, child, onAuthState
 document.addEventListener("DOMContentLoaded", () => {
     onAuthStateChanged(auth, (user) => {
         if (user) {
+            console.log("User logged in:", user.email);
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('userHomeSection').style.display = 'block';
             document.getElementById('usernameDisplay').textContent = user.email;
             displayGames();
             loadUserPicks(user.uid);
         } else {
+            console.log("No user logged in");
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('userHomeSection').style.display = 'none';
             auth.signOut();
