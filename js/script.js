@@ -6,8 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('userHomeSection').style.display = 'block';
             document.getElementById('usernameDisplay').textContent = user.email;
-            displayGames();
-            loadUserPicks(user.uid);
+            checkSubmissionStatus(user.uid); // New function to check if picks were submitted
         } else {
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('userHomeSection').style.display = 'none';
@@ -67,8 +66,7 @@ function handleLogin(event) {
             document.getElementById('usernameDisplay').textContent = user.email;
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('userHomeSection').style.display = 'block';
-            displayGames();
-            loadUserPicks(user.uid);
+            checkSubmissionStatus(user.uid); // Check if picks were submitted
         })
         .catch((error) => {
             console.error("Login error:", error);
@@ -76,6 +74,28 @@ function handleLogin(event) {
                 alert("Invalid email or password.");
             }
         });
+}
+
+function checkSubmissionStatus(userId) {
+    get(child(ref(db), `scoreboards/week9/${userId}/submitted`))
+        .then((snapshot) => {
+            if (snapshot.exists() && snapshot.val() === true) {
+                disableUserPicks(); // Disable picks table and reset button if submitted
+            } else {
+                displayGames();
+                loadUserPicks(userId);
+            }
+        })
+        .catch((error) => {
+            console.error("Error checking submission status:", error);
+        });
+}
+
+function disableUserPicks() {
+    const table = document.getElementById('gamesTable');
+    table.classList.add("disabled");
+    document.getElementById('resetButton').disabled = true;
+    document.getElementById('submitButton').disabled = true;
 }
 
 function displayGames() {
@@ -153,7 +173,7 @@ window.assignConfidence = function (gameIndex) {
         confidenceSelect.value = "";
         confidenceDisplay.textContent = "";
     }
-};
+}
 
 function saveUserPicks(userId) {
     set(ref(db, `scoreboards/week9/${userId}`), userPicks)
@@ -209,7 +229,16 @@ function displayUserPicks(picks) {
 }
 
 window.submitPicks = function () {
-    saveUserPicks(auth.currentUser.uid);
-    alert("Picks submitted successfully!");
-    window.location.href = "housePicks.html";
+    const userId = auth.currentUser.uid;
+    saveUserPicks(userId);
+    
+    // Set the submitted flag in the database to true
+    set(ref(db, `scoreboards/week9/${userId}/submitted`), true)
+        .then(() => {
+            alert("Picks submitted successfully!");
+            disableUserPicks(); // Disable after submission
+        })
+        .catch((error) => {
+            console.error("Error submitting picks:", error);
+        });
 };
