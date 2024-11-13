@@ -13,8 +13,24 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("No user logged in");
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('userHomeSection').style.display = 'none';
-            auth.signOut();
         }
+    });
+
+    document.getElementById('loginForm')?.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        console.log("Attempting login with email:", email);
+
+        signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                console.log("Login successful:", userCredential.user.email);
+            })
+            .catch((error) => {
+                console.error("Login error:", error.message);
+                alert("Login failed. Please check your email and password.");
+            });
     });
 
     document.getElementById('resetButton')?.addEventListener("click", resetPicks);
@@ -25,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('userHomeSection').style.display = 'none';
             alert("You have been logged out.");
         }).catch((error) => {
-            console.error("Logout error:", error);
+            console.error("Logout error:", error.message);
             alert("Error logging out. Please try again.");
         });
     });
@@ -126,7 +142,7 @@ window.assignConfidence = function (gameIndex) {
         confidenceSelect.value = "";
         confidenceDisplay.textContent = "";
     }
-}
+};
 
 function saveUserPicks(userId) {
     set(ref(db, `scoreboards/week9/${userId}`), userPicks)
