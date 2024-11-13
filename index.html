@@ -7,18 +7,15 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- Welcome Message -->
-    <!-- <h1 id="welcomeMessage">Welcome to NFL Football Pool</h1> -->
-
     <!-- Login Section -->
     <div id="loginSection">
         <div class="login-container">
-            <h2>Login V244</h2>
+            <h2>Login</h2>
             <form id="loginForm">
                 <label for="email">Email:</label>
-                <input type="text" id="email" name="email" required>
+                <input type="text" id="email" name="email" autocomplete="email" required>
                 <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
+                <input type="password" id="password" name="password" autocomplete="current-password" required>
                 <button type="submit">Login</button>
             </form>
         </div>
@@ -26,21 +23,13 @@
 
     <!-- User Home Section -->
     <div id="userHomeSection" style="display: none;">
-        <!-- Top Button Container -->
+        <h2>Welcome, <span id="usernameDisplay"></span></h2>
         <div id="topButtonContainer">
             <button id="resetButton">Reset Picks</button>
             <button id="submitButton">Submit Picks</button>
             <button id="logoutButton">Logout</button>
             <button id="viewHousePicksButton" onclick="viewHousePicks()">View House Picks</button>
         </div>
-
-        <script>
-        function editProfile() {
-            window.location.href = 'profileImageUpload.html';
-        }
-        </script>
-
-        <h2>Welcome, <span id="usernameDisplay"></span></h2>
         <table id="gamesTable">
             <thead>
                 <tr>
@@ -54,7 +43,6 @@
         </table>
     </div>
 
-    <!-- Script for handling login and user functionality -->
     <script type="module" src="js/script.js"></script>
     <script>
         function viewHousePicks() {
