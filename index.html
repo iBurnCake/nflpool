@@ -7,15 +7,18 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <!-- Welcome Message -->
+    <!-- <h1 id="welcomeMessage">Welcome to NFL Football Pool</h1> -->
+
     <!-- Login Section -->
     <div id="loginSection">
         <div class="login-container">
             <h2>Login V243</h2>
             <form id="loginForm">
                 <label for="email">Email:</label>
-                <input type="text" id="email" name="email" autocomplete="email" required>
+                <input type="text" id="email" name="email" required>
                 <label for="password">Password:</label>
-                <input type="password" id="password" name="password" autocomplete="current-password required>
+                <input type="password" id="password" name="password" required>
                 <button type="submit">Login</button>
             </form>
         </div>
@@ -23,45 +26,6 @@
 
     <!-- User Home Section -->
     <div id="userHomeSection" style="display: none;">
-        <!-- Rules Container -->
-        <div id="rulesContainer">
-            <h2>How the Picks Table Works</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Rule</th>
-                        <th>Details</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1. Pick a Team</td>
-                        <td>Click the button for the team you think will win the game. Your selection will be highlighted.</td>
-                    </tr>
-                    <tr>
-                        <td>2. Assign Confidence Points</td>
-                        <td>Use the dropdown menu to assign confidence points (1-14). Higher points mean you're more confident in that pick.</td>
-                    </tr>
-                    <tr>
-                        <td>3. Save Your Picks</td>
-                        <td>Click the "Submit" button once all your picks and points are assigned. Your picks will be locked after submission.</td>
-                    </tr>
-                    <tr>
-                        <td>4. Reset Your Picks</td>
-                        <td>You can click "Reset" to clear all your picks and start over, but only before submission.</td>
-                    </tr>
-                    <tr>
-                        <td>5. Scoring System</td>
-                        <td>You earn points for each correct pick based on the confidence points you assigned. Incorrect picks earn 0 points.</td>
-                    </tr>
-                    <tr>
-                        <td>6. Leaderboard</td>
-                        <td>Your total score will be displayed on the leaderboard after the games are completed.</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
         <!-- Top Button Container -->
         <div id="topButtonContainer">
             <button id="resetButton">Reset Picks</button>
@@ -69,6 +33,12 @@
             <button id="logoutButton">Logout</button>
             <button id="viewHousePicksButton" onclick="viewHousePicks()">View House Picks</button>
         </div>
+
+        <script>
+        function editProfile() {
+            window.location.href = 'profileImageUpload.html';
+        }
+        </script>
 
         <h2>Welcome, <span id="usernameDisplay"></span></h2>
         <table id="gamesTable">
