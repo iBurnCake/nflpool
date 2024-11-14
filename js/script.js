@@ -180,6 +180,13 @@ function loadUserPicks(userId) {
 function displayUserPicks(picks) {
     for (const gameIndex in picks) {
         const pick = picks[gameIndex];
+        const game = games[gameIndex];
+
+        // Validate game existence
+        if (!game) {
+            console.warn(`Invalid gameIndex: ${gameIndex} in user picks`);
+            continue; // Skip invalid indices
+        }
 
         if (pick.team === games[gameIndex].homeTeam) {
             document.getElementById(`home-${gameIndex}`).classList.add("selected");
