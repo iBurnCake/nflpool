@@ -145,6 +145,7 @@ window.assignConfidence = function (gameIndex) {
 };
 
 function saveUserPicks(userId) {
+    console.log("Saving user picks for userId:", userId, userPicks);
     set(ref(db, `scoreboards/week9/${userId}`), userPicks)
         .then(() => {
             console.log("Picks saved successfully!");
@@ -155,6 +156,7 @@ function saveUserPicks(userId) {
 }
 
 window.resetPicks = function () {
+    console.log("Resetting picks...");
     userPicks = {};
     usedPoints.clear();
 
@@ -163,10 +165,12 @@ window.resetPicks = function () {
 };
 
 function loadUserPicks(userId) {
+    console.log("Loading user picks for userId:", userId);
     get(child(ref(db), `scoreboards/week9/${userId}`))
         .then((snapshot) => {
             if (snapshot.exists()) {
                 userPicks = snapshot.val();
+                console.log("Loaded picks:", userPicks);
                 displayUserPicks(userPicks);
             } else {
                 console.log("No picks available for this user.");
@@ -182,15 +186,14 @@ function displayUserPicks(picks) {
         const pick = picks[gameIndex];
         const game = games[gameIndex];
 
-        // Validate game existence
         if (!game) {
             console.warn(`Invalid gameIndex: ${gameIndex} in user picks`);
-            continue; // Skip invalid indices
+            continue;
         }
 
-        if (pick.team === games[gameIndex].homeTeam) {
+        if (pick.team === game.homeTeam) {
             document.getElementById(`home-${gameIndex}`).classList.add("selected");
-        } else if (pick.team === games[gameIndex].awayTeam) {
+        } else if (pick.team === game.awayTeam) {
             document.getElementById(`away-${gameIndex}`).classList.add("selected");
         }
 
@@ -205,7 +208,14 @@ function displayUserPicks(picks) {
 }
 
 window.submitPicks = function () {
-    saveUserPicks(auth.currentUser.uid);
-    alert("Picks submitted successfully!");
-    window.location.href = "housePicks.html";
+    console.log("Submitting picks:", userPicks);
+    saveUserPicks(auth.currentUser.uid)
+        .then(() => {
+            alert("Picks submitted successfully!");
+            window.location.href = "housePicks.html";
+        })
+        .catch((error) => {
+            console.error("Error submitting picks:", error);
+            alert("Error submitting picks. Please try again.");
+        });
 };
