@@ -22,7 +22,7 @@ const games = [
 
 // No game winners decided yet
 const gameWinners = {
-    0: '', 
+    0: 'Eagles', 
     1: '', 
     2: '', 
     3: '', 
