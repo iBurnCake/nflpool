@@ -23,12 +23,12 @@ const games = [
 // No game winners decided yet
 const gameWinners = {
     0: 'Eagles', 
-    1: '', 
-    2: '', 
-    3: '', 
-    4: '', 
-    5: '', 
-    6: '', 
+    1: 'Dolphins', 
+    2: 'Saints', 
+    3: 'Colts', 
+    4: 'Vikings', 
+    5: 'Packers', 
+    6: 'Lions', 
     7: '', 
     8: '', 
     9: '', 
