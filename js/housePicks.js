@@ -20,7 +20,6 @@ const games = [
     { homeTeam: 'Texans', awayTeam: 'Cowboys', homeRecord: '6-4', awayRecord: '3-6' }
 ];
 
-// No game winners decided yet
 const gameWinners = {
     0: 'Eagles', 
     1: 'Dolphins', 
