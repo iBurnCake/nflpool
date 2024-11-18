@@ -4,6 +4,13 @@ document.addEventListener("DOMContentLoaded", () => {
     onAuthStateChanged(auth, (user) => {
         if (user) {
             console.log("User logged in:", user.email);
+
+            // Redirect to picks.html if the user is logged in and currently on index.html
+            if (window.location.pathname.includes('index.html')) {
+                window.location.href = "picks.html";
+                return;
+            }
+
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('userHomeSection').style.display = 'block';
             document.getElementById('usernameDisplay').textContent = user.email;
@@ -11,6 +18,13 @@ document.addEventListener("DOMContentLoaded", () => {
             loadUserPicks(user.uid);
         } else {
             console.log("No user logged in");
+
+            // Redirect to index.html if the user is not logged in and not on the login page
+            if (!window.location.pathname.includes('index.html')) {
+                window.location.href = "index.html";
+                return;
+            }
+
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('userHomeSection').style.display = 'none';
         }
@@ -37,9 +51,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('submitButton')?.addEventListener("click", submitPicks);
     document.getElementById('logoutButton')?.addEventListener("click", () => {
         auth.signOut().then(() => {
-            document.getElementById('loginSection').style.display = 'block';
-            document.getElementById('userHomeSection').style.display = 'none';
             alert("You have been logged out.");
+            window.location.href = "index.html"; // Ensure logout redirects to login page
         }).catch((error) => {
             console.error("Logout error:", error.message);
             alert("Error logging out. Please try again.");
