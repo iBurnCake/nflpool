@@ -34,7 +34,7 @@ const gameWinners = {
     9: 'Seahawks', 
     10: 'Broncos', 
     11: 'Bills', 
-    12: '', 
+    12: 'Chargers', 
     13: '', 
 };
 
