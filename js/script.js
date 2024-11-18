@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Redirect to picks.html if the user is logged in and currently on index.html
             if (window.location.pathname.includes('index.html')) {
-                window.location.href = "picks.html";
+                window.location.href = "housePicks.html";
                 return;
             }
 
