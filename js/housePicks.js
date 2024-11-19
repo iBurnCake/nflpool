@@ -34,7 +34,7 @@ const gameWinners = {
     10: 'Broncos', 
     11: 'Bills', 
     12: 'Chargers', 
-    13: '', 
+    13: 'Texans', 
 };
 
 function loadHousePicks() {
