@@ -345,83 +345,41 @@ th {
     background-color: #1F5B99;
 }
 
-/* For devices with max-width of 768px (tablets and smaller) */
 @media (max-width: 768px) {
     body {
         padding: 10px;
         font-size: 16px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
     }
 
     #topButtonContainer {
-        position: relative;
-        margin-bottom: 15px;
         flex-direction: column;
-        align-items: stretch;
-        width: 100%;
-        gap: 8px;
+        align-items: center;
+        gap: 10px;
     }
 
     #topButtonContainer button {
         width: 100%;
         padding: 12px;
         font-size: 14px;
-        border-radius: 5px;
-        font-weight: bold;
     }
 
-    .table-container {
+    .user-picks-container, .combined-leaderboard-container, #globalWinsContainer {
         width: 100%;
-        overflow-x: auto; /* Allow horizontal scrolling */
-        margin-bottom: 20px; /* Add spacing below the table */
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    th, td {
-        padding: 10px;
-        font-size: 14px;
-        text-align: center;
-        white-space: nowrap; /* Prevent content wrapping */
-    }
-
-    td {
-        display: grid; /* Align items in a grid layout */
-        grid-template-columns: 1fr 1fr; /* Two equal-width columns */
-        gap: 5px;
-        align-items: center;
-    }
-
-    select {
-        width: 100%;
-        margin-top: 5px;
-        padding: 8px;
-        border-radius: 5px;
-        font-size: 14px;
-    }
-
-    tr {
-        border-bottom: 1px solid #ddd; /* Add subtle borders */
-    }
-
-    .house-picks-view {
-        padding: 10px; /* Remove excessive spacing */
-        margin: 0 auto;
         max-width: 100%;
+        padding: 15px;
+        box-shadow: none;
     }
 
-    h2 {
-        font-size: 20px;
-        margin-bottom: 10px;
+    .login-container {
+        width: 90%;
+        max-width: 300px;
+    }
+
+    #welcomeMessage {
+        font-size: 22px;
     }
 }
 
-/* For very small devices with max-width of 480px (phones) */
 @media (max-width: 480px) {
     body {
         font-size: 14px;
@@ -433,18 +391,9 @@ th {
     }
 
     th, td {
-        padding: 8px;
-    }
-
-    select {
         padding: 6px;
-        font-size: 12px;
     }
-
-    .house-picks-view {
-        padding: 5px;
-        margin: 0 auto;
-    }
+}
 
     h2 {
         font-size: 18px;
