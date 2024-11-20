@@ -374,51 +374,18 @@ th {
     display: flex;
     flex-wrap: wrap; /* Allow wrapping for smaller screens */
     justify-content: center; /* Center align the tables */
-    align-items: flex-start; /* Align tables to the top */
     gap: 20px; /* Space between tables */
     margin-top: 20px;
 }
 
 .week-section {
-    flex: 1 1 300px; /* Allow flexibility, but maintain minimum width */
-    max-width: 300px; /* Limit the maximum width of each table */
+    flex: 0 1 calc(50% - 40px); /* Take up 50% of the container width minus gap, adjust for responsiveness */
+    max-width: 400px; /* Ensure tables have a max width */
+    margin: 0; /* Remove unnecessary vertical margins */
     background-color: #282828;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    margin: 0; /* Remove vertical margins */
-}
-
-.week-section h2 {
-    font-size: 24px;
-    color: #FFD700;
-    margin-bottom: 10px;
-    text-align: center;
-}
-
-#pastWeeksTitle {
-    font-size: 32px;
-    color: #FFD700;
-    margin-bottom: 20px;
-}
-
-#pastWeeksButton {
-    background-color: #800080; /* Purple background */
-}
-
-#pastWeeksButton:hover {
-    background-color: #660066; /* Darker purple on hover */
-}
-
-
-.week-section {
-    background-color: #282828;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    width: 100%;
-    max-width: 600px;
 }
 
 .week-section h2 {
@@ -429,7 +396,7 @@ th {
 }
 
 .leaderboard-table {
-    width: 100%; /* Ensure tables do not exceed their container */
+    width: 100%; /* Fit the table to its container */
     border-collapse: collapse;
     margin-top: 10px;
     border-radius: 8px;
@@ -448,6 +415,20 @@ th {
     background-color: #444;
     font-weight: bold;
 }
+
+/* For smaller screens, stack the tables */
+@media (max-width: 768px) {
+    .past-weeks-view {
+        flex-direction: column; /* Stack tables vertically */
+        gap: 20px;
+    }
+
+    .week-section {
+        flex: 1 1 100%; /* Ensure full width for smaller screens */
+        max-width: 100%;
+    }
+}
+
 
 
 @media (max-width: 768px) {
