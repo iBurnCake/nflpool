@@ -370,32 +370,48 @@ th {
     background-color: #1F5B99;
 }
 
+/* Past Weeks Styling */
 .past-weeks-view {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px;
+    margin-top: 20px;
 }
 
-.week-container {
+#pastWeeksTitle {
+    font-size: 32px;
+    color: #FFD700;
+    margin-bottom: 20px;
+}
+
+.week-section {
     background-color: #282828;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-    margin: 20px 0;
-    width: 90%;
-    max-width: 800px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 600px;
+}
+
+.week-section h2 {
+    font-size: 24px;
+    color: #FFD700;
+    margin-bottom: 10px;
+    text-align: center;
 }
 
 .leaderboard-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin-top: 10px;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .leaderboard-table th, .leaderboard-table td {
     border: 1px solid #444;
-    padding: 10px;
+    padding: 12px;
     text-align: center;
     background-color: #333;
     color: #FFD700;
@@ -406,9 +422,6 @@ th {
     font-weight: bold;
 }
 
-.leaderboard-table tr:hover {
-    background-color: #555;
-}
 
 
 @media (max-width: 768px) {
