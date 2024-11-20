@@ -91,7 +91,7 @@ function updateConfidenceDropdown(gameIndex) {
     const dropdown = document.getElementById(`confidence${gameIndex}`);
     dropdown.innerHTML = '<option value="">Select</option>';
 
-    for (let i = 1; i <= 3; i++) {
+    for (let i = 1; i <= 13; i++) {
         if (!usedPoints.has(i)) {
             const option = document.createElement("option");
             option.value = i;
