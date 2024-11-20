@@ -3,35 +3,36 @@ document.addEventListener('DOMContentLoaded', loadPastWeeks);
 function loadPastWeeks() {
     const pastWeeksContainer = document.getElementById('pastWeeksContainer');
     const pastWeeksData = [
-        {
-            week: 11,
-            leaderboard: [
-                { name: 'Ryan Sanders', score: 92 },
-                { name: 'Aunt Vicki', score: 90 },
-                { name: 'Angela Kant', score: 83 },
-                { name: 'Tony Romano', score: 82 },
-                { name : 'Luke Romano', score: 79 },
-                { name : 'Emily Rossini', score: 79 },
-                { name : 'Charles Keean', score: 73 },
-                { name : 'Tommy Kant', score: 73 },
-                { name : 'Thomas Romano', score: 69 },
-            ],
-        },
-        {
-            week: 10,
-            leaderboard: [
-                { name: 'Tony Romano', score: 92 },
-                { name: 'Luke Romano', score: 88 },
-                { name: 'Emily Rossini', score: 82 },
-                { name: 'Aunt Vicki', score: 81 },
-                { name: 'Tommy Kant', score: 77 },
-                { name: 'Ryan Sanders', score: 76 },
-                { name: 'Charles Keegan', score: 76 },
-                { name: 'Angela Kant', score: 72 },
-                { name: 'Thomas Romano', score: 60 },
-            ],
-        },
-    ];
+    {
+        week: 11,
+        leaderboard: [
+            { name: 'Ryan Sanders', score: 92 },
+            { name: 'Aunt Vicki', score: 90 },
+            { name: 'Angela Kant', score: 83 },
+            { name: 'Tony Romano', score: 82 },
+            { name: 'Luke Romano', score: 79 },
+            { name: 'Emily Rossini', score: 79 },
+            { name: 'Charles Keean', score: 73 },
+            { name: 'Tommy Kant', score: 73 },
+            { name: 'Thomas Romano', score: 69 },
+        ],
+    },
+    {
+        week: 10,
+        leaderboard: [
+            { name: 'Tony Romano', score: 92 },
+            { name: 'Luke Romano', score: 88 },
+            { name: 'Emily Rossini', score: 82 },
+            { name: 'Aunt Vicki', score: 81 },
+            { name: 'Tommy Kant', score: 77 },
+            { name: 'Ryan Sanders', score: 76 },
+            { name: 'Charles Keegan', score: 76 },
+            { name: 'Angela Kant', score: 72 },
+            { name: 'Thomas Romano', score: 60 },
+        ],
+    },
+];
+
     
     pastWeeksData.forEach(weekData => {
         const weekSection = document.createElement('div');
