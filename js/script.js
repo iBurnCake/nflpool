@@ -128,7 +128,7 @@ window.assignConfidence = function (gameIndex) {
         usedPoints.delete(userPicks[gameIndex].points);
     }
 
-    if (points >= 1 && points <= 14 && !usedPoints.has(points)) {
+    if (points >= 1 && points <= 13 && !usedPoints.has(points)) {
         userPicks[gameIndex] = userPicks[gameIndex] || {};
         userPicks[gameIndex].points = points;
         usedPoints.add(points);
