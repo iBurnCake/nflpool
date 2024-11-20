@@ -18,12 +18,17 @@ function loadPastWeeks() {
             ],
         },
         {
-            week: 8,
+            week: 10,
             leaderboard: [
-                { name: 'Angela Kant', score: 130 },
-                { name: 'Ryan Sanders', score: 125 },
-                { name: 'Charles Keegan', score: 115 },
-                { name: 'Luke Romano', score: 110 },
+                { name: 'Tony Romano', score: 92 },
+                { name: 'Luke Romano', score: 88 ),
+                { name: 'Emily Rossini', score: 82 },
+                { name: 'Aunt Vicki', score: 81 },
+                { name: 'Tommy Kant', score: 77 },
+                { name: 'Ryan Sanders', score: 76 },
+                { name: 'Charles Keegan', score: 76 },
+                { name: 'Angela Kant', score: 72 },
+                { name: 'Thomas Romano', score: 60 },
             ],
         },
     ];
