@@ -45,10 +45,15 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("Error logging out. Please try again.");
         });
     });
+
+    // Add event listener for the new Past Weeks button
+    document.getElementById('pastWeeksButton')?.addEventListener("click", () => {
+        window.location.href = 'pastWeeks.html';
+    });
 });
 
 const games = [
-{ homeTeam: 'Steelers', awayTeam: 'Browns', homeRecord: '8-2', awayRecord: '2-8' },
+    { homeTeam: 'Steelers', awayTeam: 'Browns', homeRecord: '8-2', awayRecord: '2-8' },
     { homeTeam: 'Titans', awayTeam: 'Texans', homeRecord: '2-8', awayRecord: '7-4' },
     { homeTeam: 'Vikings', awayTeam: 'Bears', homeRecord: '8-2', awayRecord: '4-6' },
     { homeTeam: 'Cowboys', awayTeam: 'Commanders', homeRecord: '3-7', awayRecord: '7-4' },
