@@ -356,74 +356,67 @@ th {
     }
 
     #topButtonContainer {
-        position: relative; /* Ensure buttons flow naturally */
-        margin-bottom: 15px; /* Add spacing below the buttons */
-        flex-direction: column; /* Stack buttons vertically */
+        position: relative;
+        margin-bottom: 15px;
+        flex-direction: column;
         align-items: stretch;
-        width: 100%; /* Full-width container */
-        gap: 8px; /* Reduce spacing for better compactness */
+        width: 100%;
+        gap: 8px;
     }
 
     #topButtonContainer button {
-        width: 100%; /* Full-width buttons */
-        padding: 12px; /* Adequate touch target size */
-        font-size: 14px; /* Maintain readable font size */
-        border-radius: 5px; /* Add a smoother design */
+        width: 100%;
+        padding: 12px;
+        font-size: 14px;
+        border-radius: 5px;
         font-weight: bold;
     }
 
-    .login-container {
-        width: 90%; /* Adapt container size for mobile */
-        max-width: 300px; /* Limit maximum width */
-        padding: 20px; /* Add padding for better spacing */
-        border-radius: 8px; /* Rounded corners for a modern look */
-    }
-
-    #welcomeMessage {
-        font-size: 18px;
-        text-align: center;
-        margin-bottom: 10px;
-    }
-
     .table-container {
-        width: 100%; /* Full width for the table */
-        overflow-x: auto; /* Enable horizontal scrolling if needed */
+        width: 100%;
+        overflow-x: auto; /* Allow horizontal scrolling */
+        margin-bottom: 20px; /* Add spacing below the table */
     }
 
     table {
-        width: 100%; /* Make table responsive */
+        width: 100%;
         border-collapse: collapse;
     }
 
     th, td {
-        padding: 10px; /* Adequate spacing for readability */
+        padding: 10px;
         font-size: 14px;
         text-align: center;
         white-space: nowrap; /* Prevent content wrapping */
     }
 
     td {
-        display: flex;
-        flex-direction: column; /* Stack contents vertically */
+        display: grid; /* Align items in a grid layout */
+        grid-template-columns: 1fr 1fr; /* Two equal-width columns */
+        gap: 5px;
         align-items: center;
-        justify-content: center;
     }
 
     select {
-        width: 100%; /* Full-width dropdown for consistency */
-        margin-top: 8px; /* Add space above dropdowns */
-        padding: 8px; /* Improve touch target size */
-        border-radius: 5px; /* Rounded corners for dropdown */
-        font-size: 14px; /* Maintain consistency in font size */
+        width: 100%;
+        margin-top: 5px;
+        padding: 8px;
+        border-radius: 5px;
+        font-size: 14px;
     }
 
     tr {
-        border-bottom: 1px solid #ddd; /* Add a subtle border between rows */
-        margin-bottom: 10px;
+        border-bottom: 1px solid #ddd; /* Add subtle borders */
+    }
+
+    .house-picks-view {
+        padding: 10px; /* Remove excessive spacing */
+        margin: 0 auto;
+        max-width: 100%;
     }
 
     h2 {
-        font-size: 20px; /* Slightly smaller header for mobile */
+        font-size: 20px;
         margin-bottom: 10px;
     }
 }
@@ -431,29 +424,30 @@ th {
 /* For very small devices with max-width of 480px (phones) */
 @media (max-width: 480px) {
     body {
-        font-size: 14px; /* Slightly smaller text for very small screens */
+        font-size: 14px;
     }
 
     #topButtonContainer button {
-        padding: 10px; /* Compact padding for smaller screens */
-        font-size: 12px; /* Smaller text size */
+        padding: 10px;
+        font-size: 12px;
     }
 
     th, td {
-        padding: 8px; /* Compact table cells for smaller screens */
-    }
-
-    .login-container {
-        padding: 15px; /* Adjust padding for smaller screens */
-    }
-
-    h2 {
-        font-size: 18px; /* Reduce header size for smaller devices */
-        margin-bottom: 8px;
+        padding: 8px;
     }
 
     select {
-        padding: 6px; /* Smaller dropdown padding for compact screens */
-        font-size: 12px; /* Smaller text size for dropdowns */
+        padding: 6px;
+        font-size: 12px;
+    }
+
+    .house-picks-view {
+        padding: 5px;
+        margin: 0 auto;
+    }
+
+    h2 {
+        font-size: 18px;
+        margin-bottom: 8px;
     }
 }
