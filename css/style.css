@@ -345,6 +345,7 @@ th {
     background-color: #1F5B99;
 }
 
+/* For devices with max-width of 768px (tablets and smaller) */
 @media (max-width: 768px) {
     body {
         padding: 10px;
@@ -352,18 +353,23 @@ th {
     }
 
     #topButtonContainer {
+        position: relative; /* Remove fixed positioning for better flow */
+        margin-bottom: 20px; /* Add spacing below the buttons */
         flex-direction: column;
-        align-items: center;
+        align-items: stretch;
+        width: 100%;
         gap: 10px;
     }
 
     #topButtonContainer button {
-        width: 100%;
+        width: 100%; /* Full-width buttons */
         padding: 12px;
         font-size: 14px;
     }
 
-    .user-picks-container, .combined-leaderboard-container, #globalWinsContainer {
+    .user-picks-container,
+    .combined-leaderboard-container,
+    #globalWinsContainer {
         width: 100%;
         max-width: 100%;
         padding: 15px;
@@ -371,26 +377,67 @@ th {
     }
 
     .login-container {
-        width: 90%;
-        max-width: 300px;
+        width: 90%; /* Shrink login container for smaller devices */
+        max-width: 300px; /* Ensure it doesn’t take up too much space */
     }
 
     #welcomeMessage {
-        font-size: 22px;
-    }
-}
-
-@media (max-width: 480px) {
-    body {
-        font-size: 14px;
+        font-size: 18px;
+        text-align: center;
+        margin-bottom: 10px; /* Add spacing below the welcome message */
     }
 
-    #topButtonContainer button {
-        padding: 10px;
-        font-size: 12px;
+    table {
+        display: block;
+        width: 100%;
+        overflow-x: auto; /* Enable horizontal scrolling for wide tables */
+        white-space: nowrap; /* Prevent text wrapping */
     }
 
     th, td {
-        padding: 6px;
+        padding: 8px; /* Increase spacing for better readability */
+        font-size: 14px;
+        text-align: center;
+    }
+
+    td {
+        vertical-align: middle; /* Align dropdowns properly */
+    }
+
+    select {
+        width: 100%; /* Make dropdowns responsive */
+        font-size: 14px;
+    }
+
+    tr {
+        margin-bottom: 10px; /* Add spacing between rows */
+    }
+
+    h2 {
+        font-size: 20px; /* Reduce header size for smaller devices */
+    }
+}
+
+/* For very small devices with max-width of 480px (phones) */
+@media (max-width: 480px) {
+    body {
+        font-size: 14px; /* Slightly smaller text for very small screens */
+    }
+
+    #topButtonContainer button {
+        padding: 10px; /* Compact padding for buttons */
+        font-size: 12px; /* Smaller text size */
+    }
+
+    th, td {
+        padding: 6px; /* Reduce table padding for smaller screens */
+    }
+
+    .login-container {
+        padding: 20px; /* Adjust padding for smaller screens */
+    }
+
+    h2 {
+        font-size: 18px; /* Reduce header size further for smaller devices */
     }
 }
