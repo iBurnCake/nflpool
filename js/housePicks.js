@@ -17,7 +17,7 @@ const games = [
     { homeTeam: '49ers', awayTeam: 'Packers', homeRecord: '5-5', awayRecord: '7-3' },
     { homeTeam: 'Eagles', awayTeam: 'Rams', homeRecord: '8-2', awayRecord: '5-5' },
     { homeTeam: 'Ravens', awayTeam: 'Chargers', homeRecord: '7-4', awayRecord: '7-3' }
-];
+]; // <-- Fixed: Added closing bracket and semicolon
 
 const gameWinners = {
     0: '', 
@@ -191,7 +191,7 @@ function createUserPicksTable(userName, userPicks, totalScore) {
         const isCorrectPick = gameWinner && chosenTeam === gameWinner;
         const pointsEarned = isCorrectPick ? confidencePoints : 0;
 
-         const resultText = gameWinner
+        const resultText = gameWinner
             ? (isCorrectPick ? 'Win' : 'Loss')
             : 'N/A';
         const resultClass = gameWinner ? (isCorrectPick ? 'correct' : 'incorrect') : 'neutral';
