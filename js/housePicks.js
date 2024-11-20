@@ -190,10 +190,9 @@ function createUserPicksTable(userName, userPicks, totalScore) {
         const isCorrectPick = gameWinner && chosenTeam === gameWinner;
         const pointsEarned = isCorrectPick ? confidencePoints : 0;
 
-       const resultText = gameWinner === ''
-        ? 'N/A'
-        : (isCorrectPick ? 'Win' : 'Loss');
-
+         const resultText = gameWinner
+            ? (isCorrectPick ? 'Win' : 'Loss')
+            : 'N/A';
         const resultClass = gameWinner ? (isCorrectPick ? 'correct' : 'incorrect') : 'neutral';
 
         const row = document.createElement('tr');
