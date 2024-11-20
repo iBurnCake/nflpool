@@ -370,19 +370,35 @@ th {
     background-color: #1F5B99;
 }
 
-/* Past Weeks Styling */
 .past-weeks-view {
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    flex-wrap: wrap; /* Allow wrapping for smaller screens */
+    justify-content: center;
+    gap: 20px; /* Space between tables */
     margin-top: 20px;
 }
+
+.week-section {
+    flex: 1 1 300px; /* Allow flexibility and ensure each table takes up space */
+    max-width: 300px; /* Limit the maximum width of each table */
+    margin: 0; /* Remove vertical margins */
+}
+
 
 #pastWeeksTitle {
     font-size: 32px;
     color: #FFD700;
     margin-bottom: 20px;
 }
+
+#pastWeeksButton {
+    background-color: #800080; /* Purple background */
+}
+
+#pastWeeksButton:hover {
+    background-color: #660066; /* Darker purple on hover */
+}
+
 
 .week-section {
     background-color: #282828;
