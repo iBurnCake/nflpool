@@ -1,10 +1,54 @@
-import { db, ref, get } from './firebaseConfig.js';
+import { auth, db, signInWithEmailAndPassword, ref, set, get, child, onAuthStateChanged } from './firebaseConfig.js';
 
-document.addEventListener('DOMContentLoaded', loadHousePicks);
+document.addEventListener("DOMContentLoaded", () => {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log("User logged in:", user.email);
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('userHomeSection').style.display = 'block';
+            document.getElementById('usernameDisplay').textContent = user.email;
+            displayGames();
+            loadUserPicks(user.uid);
+        } else {
+            console.log("No user logged in");
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('userHomeSection').style.display = 'none';
+        }
+    });
 
-// week 11 games
+    document.getElementById('loginForm')?.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        console.log("Attempting login with email:", email);
+
+        signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                console.log("Login successful:", userCredential.user.email);
+            })
+            .catch((error) => {
+                console.error("Login error:", error.message);
+                alert("Login failed. Please check your email and password.");
+            });
+    });
+
+    document.getElementById('resetButton')?.addEventListener("click", resetPicks);
+    document.getElementById('submitButton')?.addEventListener("click", submitPicks);
+    document.getElementById('logoutButton')?.addEventListener("click", () => {
+        auth.signOut().then(() => {
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('userHomeSection').style.display = 'none';
+            alert("You have been logged out.");
+        }).catch((error) => {
+            console.error("Logout error:", error.message);
+            alert("Error logging out. Please try again.");
+        });
+    });
+});
+
 const games = [
-    { homeTeam: 'Steelers', awayTeam: 'Browns', homeRecord: '8-2', awayRecord: '2-8' },
+{ homeTeam: 'Steelers', awayTeam: 'Browns', homeRecord: '8-2', awayRecord: '2-8' },
     { homeTeam: 'Titans', awayTeam: 'Texans', homeRecord: '2-8', awayRecord: '7-4' },
     { homeTeam: 'Vikings', awayTeam: 'Bears', homeRecord: '8-2', awayRecord: '4-6' },
     { homeTeam: 'Cowboys', awayTeam: 'Commanders', homeRecord: '3-7', awayRecord: '7-4' },
@@ -17,203 +61,167 @@ const games = [
     { homeTeam: '49ers', awayTeam: 'Packers', homeRecord: '5-5', awayRecord: '7-3' },
     { homeTeam: 'Eagles', awayTeam: 'Rams', homeRecord: '8-2', awayRecord: '5-5' },
     { homeTeam: 'Ravens', awayTeam: 'Chargers', homeRecord: '7-4', awayRecord: '7-3' }
+];
 
-const gameWinners = {
-    0: '', 
-    1: '', 
-    2: '', 
-    3: '', 
-    4: '', 
-    5: '', 
-    6: '', 
-    7: '', 
-    8: '', 
-    9: '', 
-    10: '', 
-    11: '', 
-    12: '',  
+let userPicks = {};
+let usedPoints = new Set();
+
+function displayGames() {
+    const tableBody = document.getElementById('gamesTable').getElementsByTagName('tbody')[0];
+    tableBody.innerHTML = '';
+
+    games.forEach((game, index) => {
+        const row = tableBody.insertRow();
+        row.innerHTML = `
+            <td>${game.homeTeam} (${game.homeRecord}) vs ${game.awayTeam} (${game.awayRecord})</td>
+            <td>
+                <button id="home-${index}" onclick="selectPick(${index}, 'home')">${game.homeTeam}</button>
+                <button id="away-${index}" onclick="selectPick(${index}, 'away')">${game.awayTeam}</button>
+            </td>
+            <td>
+                <select id="confidence${index}" onchange="assignConfidence(${index})" required></select>
+                <span id="confidenceDisplay${index}" class="confidence-display"></span>
+            </td>
+        `;
+        updateConfidenceDropdown(index);
+    });
+}
+
+function updateConfidenceDropdown(gameIndex) {
+    const dropdown = document.getElementById(`confidence${gameIndex}`);
+    dropdown.innerHTML = '<option value="">Select</option>';
+
+    for (let i = 1; i <= 13; i++) {
+        if (!usedPoints.has(i)) {
+            const option = document.createElement("option");
+            option.value = i;
+            option.text = i;
+            dropdown.appendChild(option);
+        }
+    }
+}
+
+window.selectPick = function (gameIndex, team) {
+    userPicks[gameIndex] = userPicks[gameIndex] || {};
+    userPicks[gameIndex].team = team === 'home' ? games[gameIndex].homeTeam : games[gameIndex].awayTeam;
+
+    const homeButton = document.getElementById(`home-${gameIndex}`);
+    const awayButton = document.getElementById(`away-${gameIndex}`);
+    
+    if (team === 'home') {
+        homeButton.classList.add("selected");
+        awayButton.classList.remove("selected");
+    } else {
+        awayButton.classList.add("selected");
+        homeButton.classList.remove("selected");
+    }
+
+    saveUserPicks(auth.currentUser.uid);
 };
 
-function loadHousePicks() {
-    const housePicksContainer = document.getElementById('housePicksContainer');
-    const week9Ref = ref(db, 'scoreboards/week9');
-    const userScores = [];
+window.assignConfidence = function (gameIndex) {
+    const confidenceSelect = document.getElementById(`confidence${gameIndex}`);
+    const points = parseInt(confidenceSelect.value);
+    const confidenceDisplay = document.getElementById(`confidenceDisplay${gameIndex}`);
 
-    get(week9Ref)
-        .then(snapshot => {
-            if (snapshot.exists()) {
-                const picksData = snapshot.val();
-                housePicksContainer.innerHTML = '';
+    if (userPicks[gameIndex]?.points) {
+        usedPoints.delete(userPicks[gameIndex].points);
+    }
 
-                console.log("Picks data loaded:", picksData); // Debugging log
+    if (points >= 1 && points <= 13 && !usedPoints.has(points)) {
+        userPicks[gameIndex] = userPicks[gameIndex] || {};
+        userPicks[gameIndex].points = points;
+        usedPoints.add(points);
 
-                // Collect and calculate total scores
-                for (const userId in picksData) {
-                    const userPicksData = picksData[userId];
-                    const userName = getUserName(userId);
-                    const totalScore = calculateTotalScore(userPicksData);
+        confidenceDisplay.textContent = points;
 
-                    userScores.push({ userId, userName, totalScore });
-                }
+        saveUserPicks(auth.currentUser.uid);
+        games.forEach((_, i) => updateConfidenceDropdown(i));
+    } else {
+        confidenceSelect.value = "";
+        confidenceDisplay.textContent = "";
+    }
+};
 
-                // Sort by total score (highest to lowest)
-                userScores.sort((a, b) => b.totalScore - a.totalScore);
-
-                // Display the leaderboard
-                createLeaderboardTable(userScores, housePicksContainer);
-
-                // Display each user's table
-                userScores.forEach(user => {
-                    const userPicksData = picksData[user.userId];
-                    createUserPicksTable(user.userName, userPicksData, user.totalScore);
-                });
-            } else {
-                housePicksContainer.innerHTML = '<p>No picks available for Week 11.</p>';
-            }
+function saveUserPicks(userId) {
+    console.log("Saving user picks for userId:", userId, userPicks);
+    set(ref(db, `scoreboards/week9/${userId}`), userPicks)
+        .then(() => {
+            console.log("Picks saved successfully!");
         })
-        .catch(error => {
-            console.error('Error loading house picks:', error);
-            housePicksContainer.innerHTML = '<p>Error loading picks. Please try again later.</p>';
+        .catch((error) => {
+            console.error("Error saving picks:", error);
         });
 }
 
-function getUserName(userId) {
-    const userMap = {
-        'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano $',
-        '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan $',
-        'I3RfB1et3bhADFKRQbx3EU6yllI3': 'Ryan Sanders $',
-        'krvPcOneIcYrzc2GfIHXfsvbrD23': 'William Mathis',
-        '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant $',
-        '67khUuKYmhXxRumUjMpyoDbnq0s2': 'Thomas Romano',
-        'JIdq2bYVCZgdAeC0y6P69puNQz43': 'Tony Romano',
-        '9PyTK0SHv7YKv7AYw5OV29dwH5q2': 'Emily Rossini',
-        'ORxFtuY13VfaUqc2ckcfw084Lxq1': 'Aunt Vicki',
-        'FIKVjOy8P7UTUGqq2WvjkARZPIE2': 'Tommy Kant',
-        'FFIWPuZYzYRI2ibmVbVHDIq1mjj2': 'De Von',
-        'i6s97ZqeN1YCM39Sjqh65VablvA3': 'Kyra Kafel'
-    };
-    return userMap[userId] || userId;
+window.resetPicks = function () {
+    console.log("Resetting picks...");
+    userPicks = {};
+    usedPoints.clear();
+
+    displayGames();
+    saveUserPicks(auth.currentUser.uid);
+};
+
+function loadUserPicks(userId) {
+    console.log("Loading user picks for userId:", userId);
+    get(child(ref(db), `scoreboards/week9/${userId}`))
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                userPicks = snapshot.val();
+                console.log("Loaded picks:", userPicks);
+                displayUserPicks(userPicks);
+            } else {
+                console.log("No picks available for this user.");
+            }
+        })
+        .catch((error) => {
+            console.error("Error loading picks:", error);
+        });
 }
 
-function calculateTotalScore(userPicks) {
-    let totalScore = 0;
-    for (const gameIndex in userPicks) {
-        const pickData = userPicks[gameIndex];
-        if (!pickData) continue; // Skip if pickData is missing
-        const chosenTeam = pickData.team;
-        const confidencePoints = pickData.points || 0;
-        const gameWinner = gameWinners[gameIndex];
-        if (chosenTeam === gameWinner) {
-            totalScore += confidencePoints;
-        }
-    }
-    return totalScore;
-}
-
-function createLeaderboardTable(userScores, container) {
-    const leaderboardContainer = document.createElement('div');
-    leaderboardContainer.classList.add('user-picks-container');
-
-    const leaderboardHeader = document.createElement('h3');
-    leaderboardHeader.classList.add('user-header');
-    leaderboardHeader.textContent = 'Leaderboard';
-
-    leaderboardContainer.appendChild(leaderboardHeader);
-
-    const table = document.createElement('table');
-    table.classList.add('user-picks-table');
-    table.innerHTML = `
-        <thead>
-            <tr>
-                <th>Rank</th>
-                <th>User</th>
-                <th>Total Score</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${userScores.map((user, index) => `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${user.userName}</td>
-                    <td>${user.totalScore}</td>
-                </tr>
-            `).join('')}
-        </tbody>
-    `;
-
-    leaderboardContainer.appendChild(table);
-    container.appendChild(leaderboardContainer);
-}
-
-function createUserPicksTable(userName, userPicks, totalScore) {
-    const housePicksContainer = document.getElementById('housePicksContainer');
-    const userContainer = document.createElement('div');
-    userContainer.classList.add('user-picks-container');
-
-    const userHeader = document.createElement('h3');
-    userHeader.classList.add('user-header');
-    userHeader.textContent = `${userName} - Total Score: ${totalScore}`;
-    userContainer.appendChild(userHeader);
-
-    const table = document.createElement('table');
-    table.classList.add('user-picks-table');
-    table.innerHTML = `
-        <thead>
-            <tr>
-                <th>Matchup</th>
-                <th>Pick</th>
-                <th>Confidence Points</th>
-                <th>Result</th>
-                <th>Points Earned</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    `;
-
-    const tbody = table.querySelector('tbody');
-
-    for (const gameIndex in userPicks) {
-        const pickData = userPicks[gameIndex];
+function displayUserPicks(picks) {
+    for (const gameIndex in picks) {
+        const pick = picks[gameIndex];
         const game = games[gameIndex];
 
         if (!game) {
-            console.warn(`Missing game data for index: ${gameIndex}`);
+            console.warn(`Invalid gameIndex: ${gameIndex} in user picks`);
             continue;
         }
 
-        const matchup = `${game.homeTeam} (${game.homeRecord}) vs ${game.awayTeam} (${game.awayRecord})`;
-        const chosenTeam = pickData.team || 'N/A';
-        const confidencePoints = pickData.points || 0;
+        if (pick.team === game.homeTeam) {
+            document.getElementById(`home-${gameIndex}`).classList.add("selected");
+        } else if (pick.team === game.awayTeam) {
+            document.getElementById(`away-${gameIndex}`).classList.add("selected");
+        }
 
-        const gameWinner = gameWinners[gameIndex];
-        const isCorrectPick = gameWinner && chosenTeam === gameWinner;
-        const pointsEarned = isCorrectPick ? confidencePoints : 0;
-
-        const resultText = gameWinner
-            ? (isCorrectPick ? 'Win' : 'Loss')
-            : 'N/A';
-        const resultClass = gameWinner ? (isCorrectPick ? 'correct' : 'incorrect') : 'neutral';
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${matchup}</td>
-            <td>${chosenTeam}</td>
-            <td>${confidencePoints}</td>
-            <td class="${resultClass}">${resultText}</td>
-            <td>${pointsEarned}</td>
-        `;
-
-        tbody.appendChild(row);
+        if (pick.points) {
+            usedPoints.add(pick.points);
+            document.getElementById(`confidence${gameIndex}`).value = pick.points;
+            document.getElementById(`confidenceDisplay${gameIndex}`).textContent = pick.points;
+        }
     }
 
-    const totalRow = document.createElement('tr');
-    totalRow.innerHTML = `
-        <td colspan="3" style="font-weight: bold; text-align: right;">Total Score:</td>
-        <td colspan="2">${totalScore}</td>
-    `;
-    tbody.appendChild(totalRow);
-
-    userContainer.appendChild(table);
-    housePicksContainer.appendChild(userContainer);
+    games.forEach((_, i) => updateConfidenceDropdown(i));
 }
+
+window.submitPicks = function () {
+    console.log("Submitting picks:", userPicks);
+
+    // Save picks directly using Firebase's set method
+    set(ref(db, `scoreboards/week9/${auth.currentUser.uid}`), userPicks)
+        .then(() => {
+            // Log success and notify the user
+            console.log("Picks saved successfully!");
+            alert("Picks submitted successfully!");
+            
+            // Redirect to housePicks.html
+            window.location.href = "housePicks.html";
+        })
+        .catch((error) => {
+            // Log and notify the user about the error
+            console.error("Error submitting picks:", error.message);
+            alert("Error submitting picks. Please try again.");
+        });
+};
