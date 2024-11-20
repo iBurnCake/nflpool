@@ -350,58 +350,53 @@ th {
     body {
         padding: 10px;
         font-size: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
     #topButtonContainer {
-        position: relative; /* Remove fixed positioning for better flow */
-        margin-bottom: 20px; /* Add spacing below the buttons */
-        flex-direction: column;
+        position: relative; /* Ensure buttons flow naturally */
+        margin-bottom: 15px; /* Add spacing below the buttons */
+        flex-direction: column; /* Stack buttons vertically */
         align-items: stretch;
-        width: 100%;
-        gap: 10px;
+        width: 100%; /* Full-width container */
+        gap: 8px; /* Reduce spacing for better compactness */
     }
 
     #topButtonContainer button {
         width: 100%; /* Full-width buttons */
-        padding: 12px;
-        font-size: 14px;
-    }
-
-    .user-picks-container,
-    .combined-leaderboard-container,
-    #globalWinsContainer {
-        width: 100%;
-        max-width: 100%;
-        padding: 15px;
-        box-shadow: none;
+        padding: 12px; /* Adequate touch target size */
+        font-size: 14px; /* Maintain readable font size */
+        border-radius: 5px; /* Add a smoother design */
+        font-weight: bold;
     }
 
     .login-container {
-        width: 90%; /* Shrink login container for smaller devices */
-        max-width: 300px; /* Ensure it doesn’t take up too much space */
+        width: 90%; /* Adapt container size for mobile */
+        max-width: 300px; /* Limit maximum width */
+        padding: 20px; /* Add padding for better spacing */
+        border-radius: 8px; /* Rounded corners for a modern look */
     }
 
     #welcomeMessage {
         font-size: 18px;
         text-align: center;
-        margin-bottom: 10px; /* Add spacing below the welcome message */
-    }
-
-    table {
-        display: table; /* Ensure the table structure remains intact */
-        width: 100%;
-        overflow-x: auto; /* Enable horizontal scrolling for wide tables */
-        white-space: nowrap; /* Prevent text wrapping */
+        margin-bottom: 10px;
     }
 
     .table-container {
-        display: block;
-        width: 100%;
-        overflow-x: auto; /* Allow horizontal scrolling */
+        width: 100%; /* Full width for the table */
+        overflow-x: auto; /* Enable horizontal scrolling if needed */
+    }
+
+    table {
+        width: 100%; /* Make table responsive */
+        border-collapse: collapse;
     }
 
     th, td {
-        padding: 8px; /* Increase spacing for better readability */
+        padding: 10px; /* Adequate spacing for readability */
         font-size: 14px;
         text-align: center;
         white-space: nowrap; /* Prevent content wrapping */
@@ -411,20 +406,25 @@ th {
         display: flex;
         flex-direction: column; /* Stack contents vertically */
         align-items: center;
-        vertical-align: middle; /* Align dropdowns properly */
+        justify-content: center;
     }
 
     select {
-        width: 100%; /* Make dropdowns responsive */
-        font-size: 14px;
+        width: 100%; /* Full-width dropdown for consistency */
+        margin-top: 8px; /* Add space above dropdowns */
+        padding: 8px; /* Improve touch target size */
+        border-radius: 5px; /* Rounded corners for dropdown */
+        font-size: 14px; /* Maintain consistency in font size */
     }
 
     tr {
-        margin-bottom: 10px; /* Add spacing between rows */
+        border-bottom: 1px solid #ddd; /* Add a subtle border between rows */
+        margin-bottom: 10px;
     }
 
     h2 {
-        font-size: 20px; /* Reduce header size for smaller devices */
+        font-size: 20px; /* Slightly smaller header for mobile */
+        margin-bottom: 10px;
     }
 }
 
@@ -435,19 +435,25 @@ th {
     }
 
     #topButtonContainer button {
-        padding: 10px; /* Compact padding for buttons */
+        padding: 10px; /* Compact padding for smaller screens */
         font-size: 12px; /* Smaller text size */
     }
 
     th, td {
-        padding: 6px; /* Reduce table padding for smaller screens */
+        padding: 8px; /* Compact table cells for smaller screens */
     }
 
     .login-container {
-        padding: 20px; /* Adjust padding for smaller screens */
+        padding: 15px; /* Adjust padding for smaller screens */
     }
 
     h2 {
-        font-size: 18px; /* Reduce header size further for smaller devices */
+        font-size: 18px; /* Reduce header size for smaller devices */
+        margin-bottom: 8px;
+    }
+
+    select {
+        padding: 6px; /* Smaller dropdown padding for compact screens */
+        font-size: 12px; /* Smaller text size for dropdowns */
     }
 }
