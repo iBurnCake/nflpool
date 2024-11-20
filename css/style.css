@@ -373,17 +373,28 @@ th {
 .past-weeks-view {
     display: flex;
     flex-wrap: wrap; /* Allow wrapping for smaller screens */
-    justify-content: center;
+    justify-content: center; /* Center align the tables */
+    align-items: flex-start; /* Align tables to the top */
     gap: 20px; /* Space between tables */
     margin-top: 20px;
 }
 
 .week-section {
-    flex: 1 1 300px; /* Allow flexibility and ensure each table takes up space */
+    flex: 1 1 300px; /* Allow flexibility, but maintain minimum width */
     max-width: 300px; /* Limit the maximum width of each table */
+    background-color: #282828;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     margin: 0; /* Remove vertical margins */
 }
 
+.week-section h2 {
+    font-size: 24px;
+    color: #FFD700;
+    margin-bottom: 10px;
+    text-align: center;
+}
 
 #pastWeeksTitle {
     font-size: 32px;
@@ -418,7 +429,7 @@ th {
 }
 
 .leaderboard-table {
-    width: 100%;
+    width: 100%; /* Ensure tables do not exceed their container */
     border-collapse: collapse;
     margin-top: 10px;
     border-radius: 8px;
@@ -437,7 +448,6 @@ th {
     background-color: #444;
     font-weight: bold;
 }
-
 
 
 @media (max-width: 768px) {
