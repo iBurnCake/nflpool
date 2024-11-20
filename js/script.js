@@ -48,20 +48,19 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 const games = [
-    { homeTeam: 'Commanders', awayTeam: 'Eagles', homeRecord: '7-3', awayRecord: '7-2' },
-    { homeTeam: 'Raiders', awayTeam: 'Dolphins', homeRecord: '2-7', awayRecord: '3-6' },
-    { homeTeam: 'Browns', awayTeam: 'Saints', homeRecord: '2-7', awayRecord: '3-7' },
-    { homeTeam: 'Colts', awayTeam: 'Jets', homeRecord: '4-6', awayRecord: '3-7' },
-    { homeTeam: 'Vikings', awayTeam: 'Titans', homeRecord: '7-2', awayRecord: '2-7' },
-    { homeTeam: 'Packers', awayTeam: 'Bears', homeRecord: '6-3', awayRecord: '4-5' },
-    { homeTeam: 'Jaguars', awayTeam: 'Lions', homeRecord: '2-8', awayRecord: '8-1' },
-    { homeTeam: 'Rams', awayTeam: 'Patriots', homeRecord: '4-5', awayRecord: '3-7' },
-    { homeTeam: 'Ravens', awayTeam: 'Steelers', homeRecord: '7-3', awayRecord: '7-2' },
-    { homeTeam: 'Seahawks', awayTeam: '49ers', homeRecord: '4-5', awayRecord: '5-4' },
-    { homeTeam: 'Falcons', awayTeam: 'Broncos', homeRecord: '6-4', awayRecord: '5-5' },
-    { homeTeam: 'Chiefs', awayTeam: 'Bills', homeRecord: '9-0', awayRecord: '8-2' },
-    { homeTeam: 'Bengals', awayTeam: 'Chargers', homeRecord: '4-6', awayRecord: '6-3' },
-    { homeTeam: 'Texans', awayTeam: 'Cowboys', homeRecord: '6-4', awayRecord: '3-6' }
+{ homeTeam: 'Steelers', awayTeam: 'Browns', homeRecord: '8-2', awayRecord: '2-8' },
+    { homeTeam: 'Titans', awayTeam: 'Texans', homeRecord: '2-8', awayRecord: '7-4' },
+    { homeTeam: 'Vikings', awayTeam: 'Bears', homeRecord: '8-2', awayRecord: '4-6' },
+    { homeTeam: 'Cowboys', awayTeam: 'Commanders', homeRecord: '3-7', awayRecord: '7-4' },
+    { homeTeam: 'Patriots', awayTeam: 'Dolphins', homeRecord: '3-8', awayRecord: '4-6' },
+    { homeTeam: 'Chiefs', awayTeam: 'Panthers', homeRecord: '9-1', awayRecord: '3-7' },
+    { homeTeam: 'Buccaneers', awayTeam: 'Giants', homeRecord: '4-6', awayRecord: '2-8' },
+    { homeTeam: 'Lions', awayTeam: 'Colts', homeRecord: '9-1', awayRecord: '5-6' },
+    { homeTeam: 'Broncos', awayTeam: 'Raiders', homeRecord: '6-5', awayRecord: '2-8' },
+    { homeTeam: 'Cardinals', awayTeam: 'Seahawks', homeRecord: '6-4', awayRecord: '5-5' },
+    { homeTeam: '49ers', awayTeam: 'Packers', homeRecord: '5-5', awayRecord: '7-3' },
+    { homeTeam: 'Eagles', awayTeam: 'Rams', homeRecord: '8-2', awayRecord: '5-5' },
+    { homeTeam: 'Ravens', awayTeam: 'Chargers', homeRecord: '7-4', awayRecord: '7-3' }
 ];
 
 let userPicks = {};
@@ -92,7 +91,7 @@ function updateConfidenceDropdown(gameIndex) {
     const dropdown = document.getElementById(`confidence${gameIndex}`);
     dropdown.innerHTML = '<option value="">Select</option>';
 
-    for (let i = 1; i <= 14; i++) {
+    for (let i = 1; i <= 3; i++) {
         if (!usedPoints.has(i)) {
             const option = document.createElement("option");
             option.value = i;
