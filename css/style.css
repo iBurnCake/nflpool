@@ -416,6 +416,15 @@ th {
     font-weight: bold;
 }
 
+#pastWeeksButton {
+    background-color: #800080; /* Purple background */
+}
+
+#pastWeeksButton:hover {
+    background-color: #660066; /* Darker purple on hover */
+}
+
+
 
 /* For smaller screens, stack the tables */
 @media (max-width: 768px) {
