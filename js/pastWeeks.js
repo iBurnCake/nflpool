@@ -21,7 +21,7 @@ function loadPastWeeks() {
             week: 10,
             leaderboard: [
                 { name: 'Tony Romano', score: 92 },
-                { name: 'Luke Romano', score: 88 ),
+                { name: 'Luke Romano', score: 88 },
                 { name: 'Emily Rossini', score: 82 },
                 { name: 'Aunt Vicki', score: 81 },
                 { name: 'Tommy Kant', score: 77 },
