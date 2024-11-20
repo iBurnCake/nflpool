@@ -370,6 +370,47 @@ th {
     background-color: #1F5B99;
 }
 
+.past-weeks-view {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.week-container {
+    background-color: #282828;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+    margin: 20px 0;
+    width: 90%;
+    max-width: 800px;
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.leaderboard-table th, .leaderboard-table td {
+    border: 1px solid #444;
+    padding: 10px;
+    text-align: center;
+    background-color: #333;
+    color: #FFD700;
+}
+
+.leaderboard-table th {
+    background-color: #444;
+    font-weight: bold;
+}
+
+.leaderboard-table tr:hover {
+    background-color: #555;
+}
+
+
 @media (max-width: 768px) {
     body {
         padding: 10px;
