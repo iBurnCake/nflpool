@@ -371,23 +371,21 @@ th {
 }
 
 .past-weeks-view {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Creates 2 fixed columns */
-    grid-gap: 20px; /* Space between tables */
-    max-width: 100%; /* Ensure the grid fits the container */
-    padding: 20px; /* Optional padding for spacing */
-    justify-content: center; /* Centers the grid in the container */
+    display: flex;
+    flex-direction: column; /* Stacks tables vertically */
+    align-items: center; /* Centers the tables horizontally */
+    gap: 20px; /* Space between tables */
+    margin-top: 20px;
 }
 
 .week-section {
     background-color: #282828;
     padding: 20px;
     border-radius: 8px;
+    margin-bottom: 20px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    text-align: center;
-    width: 300px; /* Fixed width for each table */
-    height: auto; /* Adjust height dynamically based on content */
-    margin: 0 auto; /* Center the table within the grid cell */
+    width: 100%;
+    max-width: 600px;
 }
 
 .week-section h2 {
@@ -398,7 +396,7 @@ th {
 }
 
 .leaderboard-table {
-    width: 100%; /* Fit the table to its container */
+    width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
     border-radius: 8px;
@@ -417,6 +415,7 @@ th {
     background-color: #444;
     font-weight: bold;
 }
+
 
 /* For smaller screens, stack the tables */
 @media (max-width: 768px) {
