@@ -32,7 +32,7 @@ function loadPastWeeks() {
             ],
         },
     ];
-
+}
     pastWeeksData.forEach(weekData => {
         const weekSection = document.createElement('div');
         weekSection.classList.add('week-section');
