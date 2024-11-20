@@ -2,39 +2,36 @@ import { db, ref, get } from './firebaseConfig.js';
 
 document.addEventListener('DOMContentLoaded', loadHousePicks);
 
-// Week 11 game data
+// week 11 games
 const games = [
-    { homeTeam: 'Commanders', awayTeam: 'Eagles', homeRecord: '7-3', awayRecord: '7-2' },
-    { homeTeam: 'Raiders', awayTeam: 'Dolphins', homeRecord: '2-7', awayRecord: '3-6' },
-    { homeTeam: 'Browns', awayTeam: 'Saints', homeRecord: '2-7', awayRecord: '3-7' },
-    { homeTeam: 'Colts', awayTeam: 'Jets', homeRecord: '4-6', awayRecord: '3-7' },
-    { homeTeam: 'Vikings', awayTeam: 'Titans', homeRecord: '7-2', awayRecord: '2-7' },
-    { homeTeam: 'Packers', awayTeam: 'Bears', homeRecord: '6-3', awayRecord: '4-5' },
-    { homeTeam: 'Jaguars', awayTeam: 'Lions', homeRecord: '2-8', awayRecord: '8-1' },
-    { homeTeam: 'Rams', awayTeam: 'Patriots', homeRecord: '4-5', awayRecord: '3-7' },
-    { homeTeam: 'Ravens', awayTeam: 'Steelers', homeRecord: '7-3', awayRecord: '7-2' },
-    { homeTeam: 'Seahawks', awayTeam: '49ers', homeRecord: '4-5', awayRecord: '5-4' },
-    { homeTeam: 'Falcons', awayTeam: 'Broncos', homeRecord: '6-4', awayRecord: '5-5' },
-    { homeTeam: 'Chiefs', awayTeam: 'Bills', homeRecord: '9-0', awayRecord: '8-2' },
-    { homeTeam: 'Bengals', awayTeam: 'Chargers', homeRecord: '4-6', awayRecord: '6-3' },
-    { homeTeam: 'Texans', awayTeam: 'Cowboys', homeRecord: '6-4', awayRecord: '3-6' }
-];
+    { homeTeam: 'Steelers', awayTeam: 'Browns', homeRecord: '8-2', awayRecord: '2-8' },
+    { homeTeam: 'Titans', awayTeam: 'Texans', homeRecord: '2-8', awayRecord: '7-4' },
+    { homeTeam: 'Vikings', awayTeam: 'Bears', homeRecord: '8-2', awayRecord: '4-6' },
+    { homeTeam: 'Cowboys', awayTeam: 'Commanders', homeRecord: '3-7', awayRecord: '7-4' },
+    { homeTeam: 'Patriots', awayTeam: 'Dolphins', homeRecord: '3-8', awayRecord: '4-6' },
+    { homeTeam: 'Chiefs', awayTeam: 'Panthers', homeRecord: '9-1', awayRecord: '3-7' },
+    { homeTeam: 'Buccaneers', awayTeam: 'Giants', homeRecord: '4-6', awayRecord: '2-8' },
+    { homeTeam: 'Lions', awayTeam: 'Colts', homeRecord: '9-1', awayRecord: '5-6' },
+    { homeTeam: 'Broncos', awayTeam: 'Raiders', homeRecord: '6-5', awayRecord: '2-8' },
+    { homeTeam: 'Cardinals', awayTeam: 'Seahawks', homeRecord: '6-4', awayRecord: '5-5' },
+    { homeTeam: '49ers', awayTeam: 'Packers', homeRecord: '5-5', awayRecord: '7-3' },
+    { homeTeam: 'Eagles', awayTeam: 'Rams', homeRecord: '8-2', awayRecord: '5-5' },
+    { homeTeam: 'Ravens', awayTeam: 'Chargers', homeRecord: '7-4', awayRecord: '7-3' },
 
 const gameWinners = {
-    0: 'Eagles', 
-    1: 'Dolphins', 
-    2: 'Saints', 
-    3: 'Colts', 
-    4: 'Vikings', 
-    5: 'Packers', 
-    6: 'Lions', 
-    7: 'Rams', 
-    8: 'Steelers', 
-    9: 'Seahawks', 
-    10: 'Broncos', 
-    11: 'Bills', 
-    12: 'Chargers', 
-    13: 'Texans', 
+    0: '', 
+    1: '', 
+    2: '', 
+    3: '', 
+    4: '', 
+    5: '', 
+    6: '', 
+    7: '', 
+    8: '', 
+    9: '', 
+    10: '', 
+    11: '', 
+    12: '',  
 };
 
 function loadHousePicks() {
@@ -82,18 +79,18 @@ function loadHousePicks() {
 
 function getUserName(userId) {
     const userMap = {
-        'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': '$ Luke Romano',
-        '7INNhg6p0gVa3KK5nEmJ811Z4sf1': '$ Charles Keegan',
-        'I3RfB1et3bhADFKRQbx3EU6yllI3': '$ Ryan Sanders',
+        'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano $',
+        '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan $',
+        'I3RfB1et3bhADFKRQbx3EU6yllI3': 'Ryan Sanders $',
         'krvPcOneIcYrzc2GfIHXfsvbrD23': 'William Mathis',
-        '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': '$ Angela Kant',
+        '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant $',
         '67khUuKYmhXxRumUjMpyoDbnq0s2': 'Thomas Romano',
         'JIdq2bYVCZgdAeC0y6P69puNQz43': 'Tony Romano',
         '9PyTK0SHv7YKv7AYw5OV29dwH5q2': 'Emily Rossini',
         'ORxFtuY13VfaUqc2ckcfw084Lxq1': 'Aunt Vicki',
         'FIKVjOy8P7UTUGqq2WvjkARZPIE2': 'Tommy Kant',
-        'FFIWPuZYzYRI2ibmVbVHDIq1mjj2': '$ De Von',
-        'i6s97ZqeN1YCM39Sjqh65VablvA3': '$ Kyra Kafel'
+        'FFIWPuZYzYRI2ibmVbVHDIq1mjj2': 'De Von',
+        'i6s97ZqeN1YCM39Sjqh65VablvA3': 'Kyra Kafel'
     };
     return userMap[userId] || userId;
 }
