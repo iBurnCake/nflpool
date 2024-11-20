@@ -388,19 +388,29 @@ th {
     }
 
     table {
-        display: block;
+        display: table; /* Ensure the table structure remains intact */
         width: 100%;
         overflow-x: auto; /* Enable horizontal scrolling for wide tables */
         white-space: nowrap; /* Prevent text wrapping */
+    }
+
+    .table-container {
+        display: block;
+        width: 100%;
+        overflow-x: auto; /* Allow horizontal scrolling */
     }
 
     th, td {
         padding: 8px; /* Increase spacing for better readability */
         font-size: 14px;
         text-align: center;
+        white-space: nowrap; /* Prevent content wrapping */
     }
 
     td {
+        display: flex;
+        flex-direction: column; /* Stack contents vertically */
+        align-items: center;
         vertical-align: middle; /* Align dropdowns properly */
     }
 
