@@ -371,21 +371,23 @@ th {
 }
 
 .past-weeks-view {
-    display: flex;
-    flex-wrap: wrap; /* Allow wrapping for smaller screens */
-    justify-content: center; /* Center align the tables */
-    gap: 20px; /* Space between tables */
-    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Creates 2 fixed columns */
+    grid-gap: 20px; /* Space between tables */
+    max-width: 100%; /* Ensure the grid fits the container */
+    padding: 20px; /* Optional padding for spacing */
+    justify-content: center; /* Centers the grid in the container */
 }
 
 .week-section {
-    flex: 0 1 calc(50% - 40px); /* Take up 50% of the container width minus gap, adjust for responsiveness */
-    max-width: 400px; /* Ensure tables have a max width */
-    margin: 0; /* Remove unnecessary vertical margins */
     background-color: #282828;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    width: 300px; /* Fixed width for each table */
+    height: auto; /* Adjust height dynamically based on content */
+    margin: 0 auto; /* Center the table within the grid cell */
 }
 
 .week-section h2 {
