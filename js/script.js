@@ -148,6 +148,41 @@ window.assignConfidence = function (gameIndex) {
     }
 };
 
+document.addEventListener("DOMContentLoaded", () => {
+    const emailToNameMap = {
+        "devonstankis3@gmail.com": "De Von",
+        "kyrakafel@gmail.com": "Kyra Kafel",
+        "tom.kant21@gmail.com": "Tommy Kant",
+        "vickiocf@gmail.com": "Aunt Vicki",
+        "erossini02@gmail.com": "Emily Rossini",
+        "tony.romano222@gmail.com": "Tony Romano",
+        "thomasromano19707@gmail.com": "Thomas Romano",
+        "ckeegan437@gmail.com": "Charles Keegan",
+        "ryansanders603@hotmail.com": "Ryan Sanders",
+        "williammathis2004@gmail.com": "William Mathis",
+        "angelakant007@gmail.com": "Angela Kant",
+        "luke.romano2004@gmail.com": "Luke Romano"
+    };
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log("User logged in:", user.email);
+
+            // Display the mapped name or fallback to email if not found
+            const displayName = emailToNameMap[user.email] || user.email;
+            document.getElementById("usernameDisplay").textContent = displayName;
+
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('userHomeSection').style.display = 'block';
+        } else {
+            console.log("No user logged in");
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('userHomeSection').style.display = 'none';
+        }
+    });
+});
+
+
 function saveUserPicks(userId) {
     console.log("Saving user picks for userId:", userId, userPicks);
     set(ref(db, `scoreboards/week9/${userId}`), userPicks)
@@ -184,6 +219,8 @@ function loadUserPicks(userId) {
             console.error("Error loading picks:", error);
         });
 }
+
+
 
 function displayUserPicks(picks) {
     for (const gameIndex in picks) {
