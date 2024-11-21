@@ -2,7 +2,7 @@ import { db, ref, get } from './firebaseConfig.js';
 
 document.addEventListener('DOMContentLoaded', loadHousePicks);
 
-// week 11 games
+// Week 11 games
 const games = [
     { homeTeam: 'Steelers', awayTeam: 'Browns', homeRecord: '8-2', awayRecord: '2-8' },
     { homeTeam: 'Titans', awayTeam: 'Texans', homeRecord: '2-8', awayRecord: '7-4' },
@@ -16,7 +16,7 @@ const games = [
     { homeTeam: 'Cardinals', awayTeam: 'Seahawks', homeRecord: '6-4', awayRecord: '5-5' },
     { homeTeam: '49ers', awayTeam: 'Packers', homeRecord: '5-5', awayRecord: '7-3' },
     { homeTeam: 'Eagles', awayTeam: 'Rams', homeRecord: '8-2', awayRecord: '5-5' },
-    { homeTeam: 'Ravens', awayTeam: 'Chargers', homeRecord: '7-4', awayRecord: '7-3' }
+    { homeTeam: 'Ravens', awayTeam: 'Chargers', homeRecord: '7-4', awayRecord: '7-3' },
 ];
 
 const gameWinners = {
@@ -32,7 +32,7 @@ const gameWinners = {
     9: '',
     10: '',
     11: '',
-    12: ''
+    12: '',
 };
 
 function loadHousePicks() {
@@ -46,12 +46,12 @@ function loadHousePicks() {
                 const picksData = snapshot.val();
                 housePicksContainer.innerHTML = '';
 
-                console.log("Picks data loaded:", picksData);
+                console.log('Picks data loaded:', picksData); // Debugging log
 
                 // Collect and calculate total scores
                 for (const userId in picksData) {
                     const userPicksData = picksData[userId];
-                    const userName = getUserName(userId); // Correctly retrieve username
+                    const userName = getUserName(userId);
                     const totalScore = calculateTotalScore(userPicksData);
 
                     userScores.push({ userId, userName, totalScore });
@@ -80,7 +80,7 @@ function loadHousePicks() {
 
 function getUserName(userId) {
     const userMap = {
-        'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano $',
+       'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano $',
         '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan $',
         'I3RfB1et3bhADFKRQbx3EU6yllI3': 'Ryan Sanders $',
         'krvPcOneIcYrzc2GfIHXfsvbrD23': 'William Mathis',
@@ -111,6 +111,41 @@ function calculateTotalScore(userPicks) {
     return totalScore;
 }
 
+function createLeaderboardTable(userScores, container) {
+    const leaderboardContainer = document.createElement('div');
+    leaderboardContainer.classList.add('user-picks-container');
+
+    const leaderboardHeader = document.createElement('h3');
+    leaderboardHeader.classList.add('user-header');
+    leaderboardHeader.textContent = 'Leaderboard';
+
+    leaderboardContainer.appendChild(leaderboardHeader);
+
+    const table = document.createElement('table');
+    table.classList.add('user-picks-table');
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>User</th>
+                <th>Total Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${userScores.map((user, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${user.userName}</td>
+                    <td>${user.totalScore}</td>
+                </tr>
+            `).join('')}
+        </tbody>
+    `;
+
+    leaderboardContainer.appendChild(table);
+    container.appendChild(leaderboardContainer);
+}
+
 function createUserPicksTable(userId, userName, userPicks, totalScore) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
@@ -131,7 +166,6 @@ function createUserPicksTable(userId, userName, userPicks, totalScore) {
         console.error('Error fetching user color:', error);
     });
 
-    // Table for user picks
     const table = document.createElement('table');
     table.classList.add('user-picks-table');
     table.innerHTML = `
