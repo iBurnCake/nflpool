@@ -238,4 +238,3 @@ window.submitPicks = function () {
             alert("Error submitting picks. Please try again.");
         });
 };
-}
