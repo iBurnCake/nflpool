@@ -87,7 +87,6 @@ function loadUsernameColor(userId) {
                 alert("Failed to save username color.");
             });
     });
-});
 
 const games = [
     { homeTeam: 'Steelers', awayTeam: 'Browns', homeRecord: '8-2', awayRecord: '2-8' },
