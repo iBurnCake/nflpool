@@ -262,3 +262,35 @@ window.submitPicks = function () {
             alert("Error submitting picks. Please try again.");
         });
 };
+
+document.addEventListener("DOMContentLoaded", () => {
+    const colorPicker = document.getElementById("usernameColorPicker");
+    const saveButton = document.getElementById("saveColorButton");
+    const usernameDisplay = document.getElementById("usernameDisplay");
+
+    // Fetch and apply the saved color on page load
+    const userId = auth.currentUser.uid;
+    const colorRef = ref(db, `users/${userId}/usernameColor`);
+
+    get(colorRef).then(snapshot => {
+        if (snapshot.exists()) {
+            const color = snapshot.val();
+            usernameDisplay.style.color = color;
+        }
+    });
+
+    // Save the selected color to Firebase
+    saveButton.addEventListener("click", () => {
+        const selectedColor = colorPicker.value;
+        set(colorRef, selectedColor)
+            .then(() => {
+                usernameDisplay.style.color = selectedColor;
+                alert("Username color saved successfully!");
+            })
+            .catch(error => {
+                console.error("Error saving color:", error);
+                alert("Failed to save username color. Please try again.");
+            });
+    });
+});
+
