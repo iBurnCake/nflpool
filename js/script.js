@@ -294,3 +294,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+    const usernameElements = document.querySelectorAll(".username");
+
+    // Fetch and apply the saved color for all usernames
+    usernameElements.forEach(element => {
+        const userId = element.dataset.userid; // Assuming you store user IDs in a data attribute
+        const colorRef = ref(db, `users/${userId}/usernameColor`);
+
+        get(colorRef).then(snapshot => {
+            if (snapshot.exists()) {
+                const color = snapshot.val();
+                element.style.color = color;
+            }
+        });
+    });
+});
+
+
