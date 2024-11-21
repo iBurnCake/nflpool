@@ -40,37 +40,43 @@ function loadHousePicks() {
     const week9Ref = ref(db, 'scoreboards/week9');
     const userScores = [];
 
-    get(week9Ref)
-        .then(snapshot => {
-            if (snapshot.exists()) {
-                const picksData = snapshot.val();
-                housePicksContainer.innerHTML = '';
+    // Fetch all username colors
+    get(usersRef)
+        .then(userSnapshot => {
+            const userColors = userSnapshot.exists() ? userSnapshot.val() : {};
 
-                console.log("Picks data loaded:", picksData);
+            // Fetch all picks
+            return get(week9Ref).then(snapshot => {
+                if (snapshot.exists()) {
+                    const picksData = snapshot.val();
+                    housePicksContainer.innerHTML = '';
 
-                // Collect and calculate total scores
-                for (const userId in picksData) {
-                    const userPicksData = picksData[userId];
-                    const userName = getUserName(userId);
-                    const totalScore = calculateTotalScore(userPicksData);
+                    console.log("Picks data loaded:", picksData);
 
-                    userScores.push({ userId, userName, totalScore });
+                    // Collect and calculate total scores
+                    for (const userId in picksData) {
+                        const userPicksData = picksData[userId];
+                        const userName = getUserName(userId);
+                        const totalScore = calculateTotalScore(userPicksData);
+
+                        userScores.push({ userId, userName, totalScore, color: userColors[userId]?.usernameColor || '#000000' });
+                    }
+
+                    // Sort by total score (highest to lowest)
+                    userScores.sort((a, b) => b.totalScore - a.totalScore);
+
+                    // Display the leaderboard
+                    createLeaderboardTable(userScores, housePicksContainer);
+
+                    // Display each user's table
+                    userScores.forEach(user => {
+                        const userPicksData = picksData[user.userId];
+                        createUserPicksTable(user.userName, user.color, userPicksData, user.totalScore);
+                    });
+                } else {
+                    housePicksContainer.innerHTML = '<p>No picks available for Week 11.</p>';
                 }
-
-                // Sort by total score (highest to lowest)
-                userScores.sort((a, b) => b.totalScore - a.totalScore);
-
-                // Display the leaderboard
-                createLeaderboardTable(userScores, housePicksContainer);
-
-                // Display each user's table
-                userScores.forEach(user => {
-                    const userPicksData = picksData[user.userId];
-                    createUserPicksTable(user.userName, userPicksData, user.totalScore);
-                });
-            } else {
-                housePicksContainer.innerHTML = '<p>No picks available for Week 11.</p>';
-            }
+            });
         })
         .catch(error => {
             console.error('Error loading house picks:', error);
@@ -124,7 +130,7 @@ function createLeaderboardTable(userScores, container) {
     const table = document.createElement('table');
     table.classList.add('user-picks-table');
     table.innerHTML = `
-        <thead>
+       <thead>
             <tr>
                 <th>Rank</th>
                 <th>User</th>
@@ -135,7 +141,7 @@ function createLeaderboardTable(userScores, container) {
             ${userScores.map((user, index) => `
                 <tr>
                     <td>${index + 1}</td>
-                    <td>${user.userName}</td>
+                    <td style="color:${user.color}">${user.userName}</td>
                     <td>${user.totalScore}</td>
                 </tr>
             `).join('')}
@@ -153,6 +159,7 @@ function createUserPicksTable(userName, userPicks, totalScore) {
 
     const userHeader = document.createElement('h3');
     userHeader.classList.add('user-header');
+    userHeader.style.color = userColor;
     userHeader.textContent = `${userName} - Total Score: ${totalScore}`;
     userContainer.appendChild(userHeader);
 
