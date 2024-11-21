@@ -146,7 +146,7 @@ function createLeaderboardTable(userScores, container) {
     container.appendChild(leaderboardContainer);
 }
 
-function createUserPicksTable(userName, userPicks, totalScore) {
+function createUserPicksTable(userId, userName, userPicks, totalScore) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
     userContainer.classList.add('user-picks-container');
@@ -156,6 +156,20 @@ function createUserPicksTable(userName, userPicks, totalScore) {
     userHeader.textContent = `${userName} - Total Score: ${totalScore}`;
     userContainer.appendChild(userHeader);
 
+    // Fetch and apply username color
+    const userColorRef = ref(db, `users/${userId}/usernameColor`);
+    get(userColorRef)
+        .then(snapshot => {
+            if (snapshot.exists()) {
+                const color = snapshot.val();
+                userHeader.style.color = color;
+            }
+        })
+        .catch(error => {
+            console.error(`Error fetching color for ${userName}:`, error);
+        });
+
+    // Table for user picks
     const table = document.createElement('table');
     table.classList.add('user-picks-table');
     table.innerHTML = `
@@ -218,3 +232,4 @@ function createUserPicksTable(userName, userPicks, totalScore) {
     userContainer.appendChild(table);
     housePicksContainer.appendChild(userContainer);
 }
+
