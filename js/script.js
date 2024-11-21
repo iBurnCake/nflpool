@@ -239,3 +239,16 @@ window.submitPicks = function () {
             alert("Error submitting picks. Please try again.");
         });
 };
+
+document.addEventListener('DOMContentLoaded', () => {
+    const userAgent = navigator.userAgent;
+    const isSafari = /^((?!chrome|android).)*safari/i.test(userAgent);
+
+    if (isSafari) {
+        // Redirect to a block page or show a message
+        document.body.innerHTML = `
+            <h1>Unsupported Browser</h1>
+            <p>We're sorry, but this website does not support Safari. Please use a different browser like Chrome or Firefox.</p>
+        `;
+    }
+});
