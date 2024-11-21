@@ -122,7 +122,7 @@ function createUserPicksTable(userName, userPicks, totalScore) {
     userContainer.appendChild(userHeader);
 
     // Fetch and apply username color
-    const userColorRef = ref(db, `users/${getUserIdByName(userName)}/usernameColor`);
+    const userColorRef = ref(db, `users/${userId}/usernameColor`);
     get(userColorRef).then(snapshot => {
         if (snapshot.exists()) {
             userHeader.style.color = snapshot.val();
@@ -193,12 +193,3 @@ function createUserPicksTable(userName, userPicks, totalScore) {
     housePicksContainer.appendChild(userContainer);
 }
 
-
-  // Fetch and apply username color for user header
-    const colorRef = ref(db, `users/${getUserIdByName(userName)}/usernameColor`);
-    get(colorRef).then(snapshot => {
-        if (snapshot.exists()) {
-            userHeader.style.color = snapshot.val();
-        }
-    });
-}
