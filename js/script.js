@@ -57,15 +57,19 @@ function loadUsernameColor(userId) {
     const colorRef = ref(db, `users/${userId}/usernameColor`);
     const usernameDisplay = document.getElementById("usernameDisplay");
 
-    get(colorRef).then(snapshot => {
+    // Listen for real-time changes to the color
+    onValue(colorRef, (snapshot) => {
         if (snapshot.exists()) {
             const color = snapshot.val();
             usernameDisplay.style.color = color;
-        }
-    }).catch(error => {
-        console.error("Error loading username color:", error);
-    });
 
+            // Update usernames in House Picks dynamically
+            const usernameElements = document.querySelectorAll(`[data-uid="${userId}"]`);
+            usernameElements.forEach((element) => {
+                element.style.color = color;
+            });
+        }
+    });
     // Add event listener for the Save button
     const saveButton = document.getElementById("saveColorButton");
     const colorPicker = document.getElementById("usernameColorPicker");
