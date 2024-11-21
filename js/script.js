@@ -6,8 +6,12 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("User logged in:", user.email);
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('userHomeSection').style.display = 'block';
+
+            // Fetch and display username
             document.getElementById('usernameDisplay').textContent = user.email;
-            loadUsernameColor(user.uid); // Call the updated function to load the username color
+            loadUsernameColor(user.uid);
+
+            // Initialize game display and user picks
             displayGames();
             loadUserPicks(user.uid);
         } else {
@@ -17,12 +21,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+     // Login form submission handler
     document.getElementById('loginForm')?.addEventListener("submit", (event) => {
         event.preventDefault();
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
-
-        console.log("Attempting login with email:", email);
 
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
@@ -52,41 +55,39 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// Function to load username color
+// Function to load user color
 function loadUsernameColor(userId) {
     const colorRef = ref(db, `users/${userId}/usernameColor`);
     const usernameDisplay = document.getElementById("usernameDisplay");
 
-    // Listen for real-time changes to the color
-    onValue(colorRef, (snapshot) => {
+    get(colorRef).then(snapshot => {
         if (snapshot.exists()) {
-            const color = snapshot.val();
-            usernameDisplay.style.color = color;
-
-            // Update usernames in House Picks dynamically
-            const usernameElements = document.querySelectorAll(`[data-uid="${userId}"]`);
-            usernameElements.forEach((element) => {
-                element.style.color = color;
-            });
+            usernameDisplay.style.color = snapshot.val();
         }
-    });
-    // Add event listener for the Save button
-    const saveButton = document.getElementById("saveColorButton");
-    const colorPicker = document.getElementById("usernameColorPicker");
-
-    saveButton.addEventListener("click", () => {
-        const selectedColor = colorPicker.value;
-        set(colorRef, selectedColor)
-            .then(() => {
-                usernameDisplay.style.color = selectedColor;
-                alert("Username color saved successfully!");
-            })
-            .catch(error => {
-                console.error("Error saving username color:", error);
-                alert("Failed to save username color. Please try again.");
-            });
+    }).catch(error => {
+        console.error("Error loading username color:", error);
     });
 }
+    // Color picker functionality
+    const colorPicker = document.getElementById("usernameColorPicker");
+    const saveColorButton = document.getElementById("saveColorButton");
+
+    saveColorButton.addEventListener("click", () => {
+        const selectedColor = colorPicker.value;
+        const userId = auth.currentUser.uid;
+        const colorRef = ref(db, `users/${userId}/usernameColor`);
+
+        set(colorRef, selectedColor)
+            .then(() => {
+                document.getElementById('usernameDisplay').style.color = selectedColor;
+                alert("Username color saved successfully!");
+            })
+            .catch((error) => {
+                console.error("Error saving username color:", error);
+                alert("Failed to save username color.");
+            });
+    });
+});
 
 const games = [
     { homeTeam: 'Steelers', awayTeam: 'Browns', homeRecord: '8-2', awayRecord: '2-8' },
