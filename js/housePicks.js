@@ -117,7 +117,6 @@ function createUserPicksTable(userName, userId, userPicks, totalScore) {
     userHeader.textContent = `${userName} - Total Score: ${totalScore}`;
     userContainer.appendChild(userHeader);
 
-    // Fetch and apply username color
     const userColorRef = ref(db, `users/${userId}/usernameColor`);
     get(userColorRef).then(snapshot => {
         if (snapshot.exists()) {
@@ -147,7 +146,10 @@ function createUserPicksTable(userName, userId, userPicks, totalScore) {
         const pickData = userPicks[gameIndex];
         const game = games[gameIndex];
 
-        if (!game) continue;
+        if (!game) {
+            console.warn(`Missing game data for index: ${gameIndex}`);
+            continue;
+        }
 
         const matchup = `${game.homeTeam} (${game.homeRecord}) vs ${game.awayTeam} (${game.awayRecord})`;
         const chosenTeam = pickData.team || 'N/A';
@@ -183,4 +185,39 @@ function createUserPicksTable(userName, userId, userPicks, totalScore) {
 
     userContainer.appendChild(table);
     housePicksContainer.appendChild(userContainer);
+}
+
+function createLeaderboardTable(userScores, container) {
+    const leaderboardContainer = document.createElement('div');
+    leaderboardContainer.classList.add('user-picks-container');
+
+    const leaderboardHeader = document.createElement('h3');
+    leaderboardHeader.classList.add('user-header');
+    leaderboardHeader.textContent = 'Leaderboard';
+
+    leaderboardContainer.appendChild(leaderboardHeader);
+
+    const table = document.createElement('table');
+    table.classList.add('user-picks-table');
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>User</th>
+                <th>Total Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${userScores.map((user, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${user.userName}</td>
+                    <td>${user.totalScore}</td>
+                </tr>
+            `).join('')}
+        </tbody>
+    `;
+
+    leaderboardContainer.appendChild(table);
+    container.appendChild(leaderboardContainer);
 }
