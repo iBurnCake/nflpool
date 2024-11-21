@@ -6,12 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("User logged in:", user.email);
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('userHomeSection').style.display = 'block';
-
-            // Fetch and display username
             document.getElementById('usernameDisplay').textContent = user.email;
-            loadUsernameColor(user.uid);
-
-            // Initialize game display and user picks
+            loadUsernameColor(user.uid); // Call the updated function to load the username color
             displayGames();
             loadUserPicks(user.uid);
         } else {
@@ -21,11 +17,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-     // Login form submission handler
     document.getElementById('loginForm')?.addEventListener("submit", (event) => {
         event.preventDefault();
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
+
+        console.log("Attempting login with email:", email);
 
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
@@ -55,38 +52,37 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// Function to load user color
+// Function to load username color
 function loadUsernameColor(userId) {
     const colorRef = ref(db, `users/${userId}/usernameColor`);
     const usernameDisplay = document.getElementById("usernameDisplay");
 
     get(colorRef).then(snapshot => {
         if (snapshot.exists()) {
-            usernameDisplay.style.color = snapshot.val();
+            const color = snapshot.val();
+            usernameDisplay.style.color = color;
         }
     }).catch(error => {
         console.error("Error loading username color:", error);
     });
-}
-    // Color picker functionality
+
+    // Add event listener for the Save button
+    const saveButton = document.getElementById("saveColorButton");
     const colorPicker = document.getElementById("usernameColorPicker");
-    const saveColorButton = document.getElementById("saveColorButton");
 
-    saveColorButton.addEventListener("click", () => {
+    saveButton.addEventListener("click", () => {
         const selectedColor = colorPicker.value;
-        const userId = auth.currentUser.uid;
-        const colorRef = ref(db, `users/${userId}/usernameColor`);
-
         set(colorRef, selectedColor)
             .then(() => {
-                document.getElementById('usernameDisplay').style.color = selectedColor;
+                usernameDisplay.style.color = selectedColor;
                 alert("Username color saved successfully!");
             })
-            .catch((error) => {
+            .catch(error => {
                 console.error("Error saving username color:", error);
-                alert("Failed to save username color.");
+                alert("Failed to save username color. Please try again.");
             });
     });
+}
 
 const games = [
     { homeTeam: 'Steelers', awayTeam: 'Browns', homeRecord: '8-2', awayRecord: '2-8' },
@@ -185,82 +181,29 @@ window.assignConfidence = function (gameIndex) {
 };
 
 function saveUserPicks(userId) {
+    console.log("Saving user picks for userId:", userId, userPicks);
     set(ref(db, `scoreboards/week9/${userId}`), userPicks)
         .then(() => console.log("Picks saved successfully!"))
         .catch(error => console.error("Error saving picks:", error));
 }
 
-
-document.addEventListener("DOMContentLoaded", () => {
-    const emailToNameMap = {
-        "devonstankis3@gmail.com": "De Von",
-        "kyrakafel@gmail.com": "Kyra Kafel",
-        "tom.kant21@gmail.com": "Tommy Kant",
-        "vickiocf@gmail.com": "Aunt Vicki",
-        "erossini02@gmail.com": "Emily Rossini",
-        "tony.romano222@gmail.com": "Tony Romano",
-        "thomasromano19707@gmail.com": "Thomas Romano",
-        "ckeegan437@gmail.com": "Charles Keegan",
-        "ryansanders603@hotmail.com": "Ryan Sanders",
-        "williammathis2004@gmail.com": "William Mathis",
-        "angelakant007@gmail.com": "Angela Kant",
-        "luke.romano2004@gmail.com": "Luke Romano"
-    };
-
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            console.log("User logged in:", user.email);
-
-            const displayName = emailToNameMap[user.email] || user.email;
-            document.getElementById("usernameDisplay").textContent = displayName;
-
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('userHomeSection').style.display = 'block';
-        } else {
-            console.log("No user logged in");
-            document.getElementById('loginSection').style.display = 'block';
-            document.getElementById('userHomeSection').style.display = 'none';
-        }
-    });
-});
-
-window.resetPicks = function () {
-    console.log("Resetting picks...");
-    userPicks = {};
-    usedPoints.clear();
-
-    displayGames();
-    saveUserPicks(auth.currentUser.uid);
-};
-
 function loadUserPicks(userId) {
-    console.log("Loading user picks for userId:", userId);
     get(child(ref(db), `scoreboards/week9/${userId}`))
-        .then((snapshot) => {
+        .then(snapshot => {
             if (snapshot.exists()) {
                 userPicks = snapshot.val();
-                console.log("Loaded picks:", userPicks);
                 displayUserPicks(userPicks);
-            } else {
-                console.log("No picks available for this user.");
             }
         })
-        .catch((error) => {
-            console.error("Error loading picks:", error);
-        });
+        .catch(error => console.error("Error loading picks:", error));
 }
-
-
 
 function displayUserPicks(picks) {
     for (const gameIndex in picks) {
         const pick = picks[gameIndex];
         const game = games[gameIndex];
 
-        if (!game) {
-            console.warn(`Invalid gameIndex: ${gameIndex} in user picks`);
-            continue;
-        }
+        if (!game) continue;
 
         if (pick.team === game.homeTeam) {
             document.getElementById(`home-${gameIndex}`).classList.add("selected");
@@ -278,68 +221,21 @@ function displayUserPicks(picks) {
     games.forEach((_, i) => updateConfidenceDropdown(i));
 }
 
-window.submitPicks = function () {
-    console.log("Submitting picks:", userPicks);
+window.resetPicks = function () {
+    userPicks = {};
+    usedPoints.clear();
+    displayGames();
+    saveUserPicks(auth.currentUser.uid);
+};
 
+window.submitPicks = function () {
     set(ref(db, `scoreboards/week9/${auth.currentUser.uid}`), userPicks)
         .then(() => {
-            console.log("Picks saved successfully!");
             alert("Picks submitted successfully!");
-            
             window.location.href = "housePicks.html";
         })
-        .catch((error) => {
+        .catch(error => {
             console.error("Error submitting picks:", error.message);
             alert("Error submitting picks. Please try again.");
         });
 };
-
-document.addEventListener("DOMContentLoaded", () => {
-    const colorPicker = document.getElementById("usernameColorPicker");
-    const saveButton = document.getElementById("saveColorButton");
-    const usernameDisplay = document.getElementById("usernameDisplay");
-
-    // Fetch and apply the saved color on page load
-    const userId = auth.currentUser.uid;
-    const colorRef = ref(db, `users/${userId}/usernameColor`);
-
-    get(colorRef).then(snapshot => {
-        if (snapshot.exists()) {
-            const color = snapshot.val();
-            usernameDisplay.style.color = color;
-        }
-    });
-
-    // Save the selected color to Firebase
-    saveButton.addEventListener("click", () => {
-        const selectedColor = colorPicker.value;
-        set(colorRef, selectedColor)
-            .then(() => {
-                usernameDisplay.style.color = selectedColor;
-                alert("Username color saved successfully!");
-            })
-            .catch(error => {
-                console.error("Error saving color:", error);
-                alert("Failed to save username color. Please try again.");
-            });
-    });
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-    const usernameElements = document.querySelectorAll(".username");
-
-    // Fetch and apply the saved color for all usernames
-    usernameElements.forEach(element => {
-        const userId = element.dataset.userid; // Assuming you store user IDs in a data attribute
-        const colorRef = ref(db, `users/${userId}/usernameColor`);
-
-        get(colorRef).then(snapshot => {
-            if (snapshot.exists()) {
-                const color = snapshot.val();
-                element.style.color = color;
-            }
-        });
-    });
-});
-
-
