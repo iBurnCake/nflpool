@@ -16,7 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('userHomeSection').style.display = 'none';
         }
     });
-});
 
     document.getElementById('loginForm')?.addEventListener("submit", (event) => {
         event.preventDefault();
@@ -51,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('pastWeeksButton')?.addEventListener("click", () => {
         window.location.href = 'pastWeeks.html';
     });
+});
 
 // Function to load username color
 function loadUsernameColor(userId) {
@@ -70,19 +70,19 @@ function loadUsernameColor(userId) {
     const saveButton = document.getElementById("saveColorButton");
     const colorPicker = document.getElementById("usernameColorPicker");
 
-   saveButton.addEventListener("click", () => {
-    const selectedColor = colorPicker.value; // Get the selected color
-    set(colorRef, selectedColor)
-        .then(() => {
-            console.log("Username color saved successfully:", selectedColor); // Log success
-            usernameDisplay.style.color = selectedColor; // Apply the new color
-            alert("Username color saved successfully!"); // Notify the user
-        })
-        .catch(error => {
-            console.error("Error saving username color:", error.message); // Log the error
-            alert("Failed to save username color. Please check your internet connection and try again."); // Notify the user
-        });
-});
+    saveButton.addEventListener("click", () => {
+        const selectedColor = colorPicker.value;
+        set(colorRef, selectedColor)
+            .then(() => {
+                usernameDisplay.style.color = selectedColor;
+                alert("Username color saved successfully!");
+            })
+            .catch(error => {
+                console.error("Error saving username color:", error);
+                alert("Failed to save username color. Please try again.");
+            });
+    });
+}
 
 const games = [
     { homeTeam: 'Steelers', awayTeam: 'Browns', homeRecord: '8-2', awayRecord: '2-8' },
@@ -104,13 +104,8 @@ let userPicks = {};
 let usedPoints = new Set();
 
 function displayGames() {
-    const tableBody = document.getElementById('gamesTable')?.querySelector('tbody');
-    if (!tableBody) {
-        console.error("Table body element not found. Ensure a table with ID 'gamesTable' exists in your HTML.");
-        return;
-    }
-
-    tableBody.innerHTML = ''; // Clear existing rows
+    const tableBody = document.getElementById('gamesTable').getElementsByTagName('tbody')[0];
+    tableBody.innerHTML = '';
 
     games.forEach((game, index) => {
         const row = tableBody.insertRow();
@@ -121,9 +116,7 @@ function displayGames() {
                 <button id="away-${index}" onclick="selectPick(${index}, 'away')">${game.awayTeam}</button>
             </td>
             <td>
-                <select id="confidence${index}" onchange="assignConfidence(${index})" required>
-                    <option value="">Select</option>
-                </select>
+                <select id="confidence${index}" onchange="assignConfidence(${index})" required></select>
                 <span id="confidenceDisplay${index}" class="confidence-display"></span>
             </td>
         `;
@@ -131,27 +124,20 @@ function displayGames() {
     });
 }
 
-// Dynamically populate the confidence dropdown
 function updateConfidenceDropdown(gameIndex) {
     const dropdown = document.getElementById(`confidence${gameIndex}`);
-    if (!dropdown) {
-        console.error(`Dropdown for gameIndex ${gameIndex} not found.`);
-        return;
-    }
-
-    dropdown.innerHTML = '<option value="">Select</option>'; // Reset options
+    dropdown.innerHTML = '<option value="">Select</option>';
 
     for (let i = 1; i <= 13; i++) {
         if (!usedPoints.has(i)) {
-            const option = document.createElement('option');
+            const option = document.createElement("option");
             option.value = i;
-            option.textContent = i;
+            option.text = i;
             dropdown.appendChild(option);
         }
     }
 }
 
-// Ensure buttons work for pick selection
 window.selectPick = function (gameIndex, team) {
     userPicks[gameIndex] = userPicks[gameIndex] || {};
     userPicks[gameIndex].team = team === 'home' ? games[gameIndex].homeTeam : games[gameIndex].awayTeam;
@@ -252,5 +238,4 @@ window.submitPicks = function () {
             console.error("Error submitting picks:", error.message);
             alert("Error submitting picks. Please try again.");
         });
-};
 };
