@@ -89,7 +89,7 @@ function getUserName(userId) {
         'FFIWPuZYzYRI2ibmVbVHDIq1mjj2': 'De Von',
         'i6s97ZqeN1YCM39Sjqh65VablvA3': 'Kyra Kafel'
     };
-    return userMap[userId] || userId;
+    return userMap[userName] || null;
 }
 
 function calculateTotalScore(userPicks) {
