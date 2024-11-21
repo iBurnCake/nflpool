@@ -250,18 +250,14 @@ function displayUserPicks(picks) {
 window.submitPicks = function () {
     console.log("Submitting picks:", userPicks);
 
-    // Save picks directly using Firebase's set method
     set(ref(db, `scoreboards/week9/${auth.currentUser.uid}`), userPicks)
         .then(() => {
-            // Log success and notify the user
             console.log("Picks saved successfully!");
             alert("Picks submitted successfully!");
             
-            // Redirect to housePicks.html
             window.location.href = "housePicks.html";
         })
         .catch((error) => {
-            // Log and notify the user about the error
             console.error("Error submitting picks:", error.message);
             alert("Error submitting picks. Please try again.");
         });
