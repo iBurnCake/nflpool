@@ -50,7 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('pastWeeksButton')?.addEventListener("click", () => {
         window.location.href = 'pastWeeks.html';
     });
-});
 
 // Function to load username color
 function loadUsernameColor(userId) {
