@@ -38,71 +38,43 @@ const gameWinners = {
 function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const week9Ref = ref(db, 'scoreboards/week9');
-    const userColorsRef = ref(db, 'users'); // Reference to fetch all user colors
     const userScores = [];
-    const userColors = {}; // Object to store colors
 
-    // Fetch all username colors
-    get(userColorsRef)
-        .then((snapshot) => {
+    get(week9Ref)
+        .then(snapshot => {
             if (snapshot.exists()) {
-                const usersData = snapshot.val();
-                for (const userId in usersData) {
-                    if (usersData[userId].usernameColor) {
-                        userColors[userId] = usersData[userId].usernameColor;
-                    }
+                const picksData = snapshot.val();
+                housePicksContainer.innerHTML = '';
+
+                console.log("Picks data loaded:", picksData);
+
+                // Collect and calculate total scores
+                for (const userId in picksData) {
+                    const userPicksData = picksData[userId];
+                    const userName = getUserName(userId);
+                    const totalScore = calculateTotalScore(userPicksData);
+
+                    userScores.push({ userId, userName, totalScore });
                 }
+
+                // Sort by total score (highest to lowest)
+                userScores.sort((a, b) => b.totalScore - a.totalScore);
+
+                // Display the leaderboard
+                createLeaderboardTable(userScores, housePicksContainer);
+
+                // Display each user's table
+                userScores.forEach(user => {
+                    const userPicksData = picksData[user.userId];
+                    createUserPicksTable(user.userName, userPicksData, user.totalScore);
+                });
+            } else {
+                housePicksContainer.innerHTML = '<p>No picks available for Week 11.</p>';
             }
         })
-        .catch((error) => {
-            console.error('Error loading username colors:', error);
-        })
-        .finally(() => {
-            // Fetch all picks after colors are loaded
-            get(week9Ref)
-                .then((snapshot) => {
-                    if (snapshot.exists()) {
-                        const picksData = snapshot.val();
-                        housePicksContainer.innerHTML = '';
-
-                        console.log('Picks data loaded:', picksData);
-
-                        // Collect and calculate total scores
-                        for (const userId in picksData) {
-                            const userPicksData = picksData[userId];
-                            const userName = getUserName(userId);
-                            const totalScore = calculateTotalScore(userPicksData);
-
-                            userScores.push({ userId, userName, totalScore });
-                        }
-
-                        // Sort by total score (highest to lowest)
-                        userScores.sort((a, b) => b.totalScore - a.totalScore);
-
-                        // Display the leaderboard
-                        createLeaderboardTable(userScores, housePicksContainer);
-
-                        // Display each user's table
-                        userScores.forEach((user) => {
-                            const userPicksData = picksData[user.userId];
-                            createUserPicksTable(
-                                user.userId,
-                                user.userName,
-                                userPicksData,
-                                user.totalScore,
-                                userColors[user.userId] // Pass the color for the user
-                            );
-                        });
-                    } else {
-                        housePicksContainer.innerHTML =
-                            '<p>No picks available for Week 11.</p>';
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error loading house picks:', error);
-                    housePicksContainer.innerHTML =
-                        '<p>Error loading picks. Please try again later.</p>';
-                });
+        .catch(error => {
+            console.error('Error loading house picks:', error);
+            housePicksContainer.innerHTML = '<p>Error loading picks. Please try again later.</p>';
         });
 }
 
@@ -128,7 +100,7 @@ function calculateTotalScore(userPicks) {
     let totalScore = 0;
     for (const gameIndex in userPicks) {
         const pickData = userPicks[gameIndex];
-        if (!pickData) continue; // Skip if pickData is missing
+        if (!pickData) continue;
         const chosenTeam = pickData.team;
         const confidencePoints = pickData.points || 0;
         const gameWinner = gameWinners[gameIndex];
@@ -139,7 +111,42 @@ function calculateTotalScore(userPicks) {
     return totalScore;
 }
 
-function createUserPicksTable(userId, userName, userPicks, totalScore, userColor) {
+function createLeaderboardTable(userScores, container) {
+    const leaderboardContainer = document.createElement('div');
+    leaderboardContainer.classList.add('user-picks-container');
+
+    const leaderboardHeader = document.createElement('h3');
+    leaderboardHeader.classList.add('user-header');
+    leaderboardHeader.textContent = 'Leaderboard';
+
+    leaderboardContainer.appendChild(leaderboardHeader);
+
+    const table = document.createElement('table');
+    table.classList.add('user-picks-table');
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>User</th>
+                <th>Total Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${userScores.map((user, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${user.userName}</td>
+                    <td>${user.totalScore}</td>
+                </tr>
+            `).join('')}
+        </tbody>
+    `;
+
+    leaderboardContainer.appendChild(table);
+    container.appendChild(leaderboardContainer);
+}
+
+function createUserPicksTable(userName, userPicks, totalScore) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
     userContainer.classList.add('user-picks-container');
@@ -147,9 +154,6 @@ function createUserPicksTable(userId, userName, userPicks, totalScore, userColor
     const userHeader = document.createElement('h3');
     userHeader.classList.add('user-header');
     userHeader.textContent = `${userName} - Total Score: ${totalScore}`;
-    if (userColor) {
-        userHeader.style.color = userColor; // Apply the user's custom color
-    }
     userContainer.appendChild(userHeader);
 
     const table = document.createElement('table');
@@ -188,15 +192,9 @@ function createUserPicksTable(userId, userName, userPicks, totalScore, userColor
         const pointsEarned = isCorrectPick ? confidencePoints : 0;
 
         const resultText = gameWinner
-            ? isCorrectPick
-                ? 'Win'
-                : 'Loss'
+            ? (isCorrectPick ? 'Win' : 'Loss')
             : 'N/A';
-        const resultClass = gameWinner
-            ? isCorrectPick
-                ? 'correct'
-                : 'incorrect'
-            : 'neutral';
+        const resultClass = gameWinner ? (isCorrectPick ? 'correct' : 'incorrect') : 'neutral';
 
         const row = document.createElement('tr');
         row.innerHTML = `
