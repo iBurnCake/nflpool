@@ -13,12 +13,8 @@ const firebaseConfig = {
     databaseURL: "https://nflpool-71337-default-rtdb.firebaseio.com/"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-// Initialize Firebase services
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-// Export necessary Firebase services
 export { auth, db, onAuthStateChanged, signInWithEmailAndPassword, ref, set, get, child };
