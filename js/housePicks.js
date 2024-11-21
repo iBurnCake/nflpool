@@ -146,18 +146,17 @@ function createLeaderboardTable(userScores, container) {
     container.appendChild(leaderboardContainer);
 }
 
-// Function to get the saved color for a user
-function getUserColor(userId) {
-    const userColorRef = ref(db, `usersColors/${userId}`);
-    let color = '#000000'; // Default to black
-    onValue(userColorRef, snapshot => {
-        if (snapshot.exists()) {
-            color = snapshot.val();
-        }
+ // Fetch and apply username colors
+    userScores.forEach(user => {
+        const colorRef = ref(db, `users/${user.userId}/usernameColor`);
+        const usernameElement = leaderboardContainer.querySelector(`.username[data-uid="${user.userId}"]`);
+        get(colorRef).then(snapshot => {
+            if (snapshot.exists()) {
+                usernameElement.style.color = snapshot.val();
+            }
+        });
     });
-    return color;
 }
-
 function createUserPicksTable(userName, userPicks, totalScore) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
@@ -229,4 +228,13 @@ function createUserPicksTable(userName, userPicks, totalScore) {
 
     userContainer.appendChild(table);
     housePicksContainer.appendChild(userContainer);
+}
+
+  // Fetch and apply username color for user header
+    const colorRef = ref(db, `users/${getUserIdByName(userName)}/usernameColor`);
+    get(colorRef).then(snapshot => {
+        if (snapshot.exists()) {
+            userHeader.style.color = snapshot.val();
+        }
+    });
 }
