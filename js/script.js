@@ -168,7 +168,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (user) {
             console.log("User logged in:", user.email);
 
-            // Display the mapped name or fallback to email if not found
             const displayName = emailToNameMap[user.email] || user.email;
             document.getElementById("usernameDisplay").textContent = displayName;
 
