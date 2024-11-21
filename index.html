@@ -22,33 +22,42 @@
     </div>
 
     <!-- User Home Section -->
-    <div id="userHomeSection" style="display: none;">
-        <h2>Welcome, <span id="usernameDisplay"></span></h2>
-        <div id="topButtonContainer">
-            <button id="resetButton">Reset Picks</button>
-            <button id="submitButton">Submit Picks</button>
-            <button id="logoutButton">Logout</button>
-            <button id="viewHousePicksButton" onclick="viewHousePicks()">View House Picks</button>
-            <button id="pastWeeksButton">Past Weeks</button>
-        </div>
-        <table id="gamesTable">
-            <thead>
-                <tr>
-                    <th>Game</th>
-                    <th>Pick</th>
-                    <th>Confidence</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+<div id="userHomeSection" style="display: none;">
+    <h2>Welcome, <span id="usernameDisplay"></span></h2>
+
+    <!-- Username Color Picker -->
+    <div id="colorPickerContainer" style="margin: 20px 0;">
+        <label for="usernameColorPicker" style="font-weight: bold; color: #FFD700;">Select Username Color:</label>
+        <input type="color" id="usernameColorPicker" style="margin-left: 10px;">
+        <button id="saveColorButton" style="padding: 5px 10px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">Save</button>
     </div>
 
-    <script type="module" src="js/script.js"></script>
-    <script>
-        function viewHousePicks() {
-            window.location.href = 'housePicks.html';
-        }
-    </script>
+    <div id="topButtonContainer">
+        <button id="resetButton">Reset Picks</button>
+        <button id="submitButton">Submit Picks</button>
+        <button id="logoutButton">Logout</button>
+        <button id="viewHousePicksButton" onclick="viewHousePicks()">View House Picks</button>
+        <button id="pastWeeksButton">Past Weeks</button>
+    </div>
+
+    <table id="gamesTable">
+        <thead>
+            <tr>
+                <th>Game</th>
+                <th>Pick</th>
+                <th>Confidence</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+<script type="module" src="js/script.js"></script>
+<script>
+    function viewHousePicks() {
+        window.location.href = 'housePicks.html';
+    }
+</script>
 </body>
 </html>
