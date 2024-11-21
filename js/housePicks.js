@@ -1,4 +1,3 @@
-
 import { db, ref, get } from './firebaseConfig.js';
 
 document.addEventListener('DOMContentLoaded', loadHousePicks);
@@ -52,7 +51,7 @@ function loadHousePicks() {
                 // Collect and calculate total scores
                 for (const userId in picksData) {
                     const userPicksData = picksData[userId];
-                    const userName = getUserName(userId);
+                    const userName = getUserName(userId); // Correctly retrieve username
                     const totalScore = calculateTotalScore(userPicksData);
 
                     userScores.push({ userId, userName, totalScore });
@@ -67,7 +66,7 @@ function loadHousePicks() {
                 // Display each user's table
                 userScores.forEach(user => {
                     const userPicksData = picksData[user.userId];
-                    createUserPicksTable(user.userName, userPicksData, user.totalScore);
+                    createUserPicksTable(user.userId, user.userName, userPicksData, user.totalScore);
                 });
             } else {
                 housePicksContainer.innerHTML = '<p>No picks available for Week 11.</p>';
@@ -81,20 +80,14 @@ function loadHousePicks() {
 
 function getUserName(userId) {
     const userMap = {
-        'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano $',
-        '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan $',
-        'I3RfB1et3bhADFKRQbx3EU6yllI3': 'Ryan Sanders $',
+        'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
+        '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan',
+        'I3RfB1et3bhADFKRQbx3EU6yllI3': 'Ryan Sanders',
         'krvPcOneIcYrzc2GfIHXfsvbrD23': 'William Mathis',
-        '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant $',
-        '67khUuKYmhXxRumUjMpyoDbnq0s2': 'Thomas Romano',
-        'JIdq2bYVCZgdAeC0y6P69puNQz43': 'Tony Romano',
-        '9PyTK0SHv7YKv7AYw5OV29dwH5q2': 'Emily Rossini',
-        'ORxFtuY13VfaUqc2ckcfw084Lxq1': 'Aunt Vicki',
-        'FIKVjOy8P7UTUGqq2WvjkARZPIE2': 'Tommy Kant',
-        'FFIWPuZYzYRI2ibmVbVHDIq1mjj2': 'De Von',
-        'i6s97ZqeN1YCM39Sjqh65VablvA3': 'Kyra Kafel'
+        '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant'
+        // Add more userId mappings as needed
     };
-    return userMap[userName] || null; // Return null if the username isn't found
+    return userMap[userId] || `User ${userId}`;
 }
 
 function calculateTotalScore(userPicks) {
@@ -112,7 +105,7 @@ function calculateTotalScore(userPicks) {
     return totalScore;
 }
 
-function createUserPicksTable(userName, userPicks, totalScore) {
+function createUserPicksTable(userId, userName, userPicks, totalScore) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
     userContainer.classList.add('user-picks-container');
@@ -123,11 +116,13 @@ function createUserPicksTable(userName, userPicks, totalScore) {
     userContainer.appendChild(userHeader);
 
     // Fetch and apply username color
-    const userColorRef = ref(db, `users/${getUserIdByName(userName)}/usernameColor`);
+    const userColorRef = ref(db, `users/${userId}/usernameColor`);
     get(userColorRef).then(snapshot => {
         if (snapshot.exists()) {
             userHeader.style.color = snapshot.val();
         }
+    }).catch(error => {
+        console.error('Error fetching user color:', error);
     });
 
     // Table for user picks
@@ -192,14 +187,4 @@ function createUserPicksTable(userName, userPicks, totalScore) {
 
     userContainer.appendChild(table);
     housePicksContainer.appendChild(userContainer);
-}
-
-
-  // Fetch and apply username color for user header
-    const colorRef = ref(db, `users/${getUserIdByName(userName)}/usernameColor`);
-    get(colorRef).then(snapshot => {
-        if (snapshot.exists()) {
-            userHeader.style.color = snapshot.val();
-        }
-    });
 }
