@@ -38,6 +38,7 @@ const gameWinners = {
 function loadHousePicks() {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const week9Ref = ref(db, 'scoreboards/week9');
+    const usersRef = ref(db, 'users'); // Define the usersRef pointing to the users node
     const userScores = [];
 
     // Fetch all username colors
@@ -59,7 +60,12 @@ function loadHousePicks() {
                         const userName = getUserName(userId);
                         const totalScore = calculateTotalScore(userPicksData);
 
-                        userScores.push({ userId, userName, totalScore, color: userColors[userId]?.usernameColor || '#000000' });
+                        userScores.push({
+                            userId,
+                            userName,
+                            totalScore,
+                            color: userColors[userId]?.usernameColor || '#000000'
+                        });
                     }
 
                     // Sort by total score (highest to lowest)
@@ -130,7 +136,7 @@ function createLeaderboardTable(userScores, container) {
     const table = document.createElement('table');
     table.classList.add('user-picks-table');
     table.innerHTML = `
-       <thead>
+        <thead>
             <tr>
                 <th>Rank</th>
                 <th>User</th>
@@ -152,7 +158,7 @@ function createLeaderboardTable(userScores, container) {
     container.appendChild(leaderboardContainer);
 }
 
-function createUserPicksTable(userName, userPicks, totalScore) {
+function createUserPicksTable(userName, userColor, userPicks, totalScore) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
     userContainer.classList.add('user-picks-container');
