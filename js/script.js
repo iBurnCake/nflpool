@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('userHomeSection').style.display = 'block';
             document.getElementById('usernameDisplay').textContent = user.email;
-            loadUsernameColor(user.uid); // Call the updated function to load the username color
+            loadUsernameColor(user.uid); // Load the username color
             displayGames();
             loadUserPicks(user.uid);
         } else {
