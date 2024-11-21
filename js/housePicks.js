@@ -146,17 +146,6 @@ function createLeaderboardTable(userScores, container) {
     container.appendChild(leaderboardContainer);
 }
 
- // Fetch and apply username colors
-    userScores.forEach(user => {
-        const colorRef = ref(db, `users/${user.userId}/usernameColor`);
-        const usernameElement = leaderboardContainer.querySelector(`.username[data-uid="${user.userId}"]`);
-        get(colorRef).then(snapshot => {
-            if (snapshot.exists()) {
-                usernameElement.style.color = snapshot.val();
-            }
-        });
-    });
-}
 function createUserPicksTable(userName, userPicks, totalScore) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
