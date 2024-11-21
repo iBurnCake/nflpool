@@ -224,18 +224,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-
-function saveUserPicks(userId) {
-    console.log("Saving user picks for userId:", userId, userPicks);
-    set(ref(db, `scoreboards/week9/${userId}`), userPicks)
-        .then(() => {
-            console.log("Picks saved successfully!");
-        })
-        .catch((error) => {
-            console.error("Error saving picks:", error);
-        });
-}
-
 window.resetPicks = function () {
     console.log("Resetting picks...");
     userPicks = {};
