@@ -104,8 +104,13 @@ let userPicks = {};
 let usedPoints = new Set();
 
 function displayGames() {
-    const tableBody = document.getElementById('gamesTable').getElementsByTagName('tbody')[0];
-    tableBody.innerHTML = '';
+    const tableBody = document.getElementById('gamesTable')?.querySelector('tbody');
+    if (!tableBody) {
+        console.error("Table body element not found. Ensure a table with ID 'gamesTable' exists in your HTML.");
+        return;
+    }
+
+    tableBody.innerHTML = ''; // Clear existing rows
 
     games.forEach((game, index) => {
         const row = tableBody.insertRow();
@@ -116,7 +121,9 @@ function displayGames() {
                 <button id="away-${index}" onclick="selectPick(${index}, 'away')">${game.awayTeam}</button>
             </td>
             <td>
-                <select id="confidence${index}" onchange="assignConfidence(${index})" required></select>
+                <select id="confidence${index}" onchange="assignConfidence(${index})" required>
+                    <option value="">Select</option>
+                </select>
                 <span id="confidenceDisplay${index}" class="confidence-display"></span>
             </td>
         `;
@@ -124,20 +131,27 @@ function displayGames() {
     });
 }
 
+// Dynamically populate the confidence dropdown
 function updateConfidenceDropdown(gameIndex) {
     const dropdown = document.getElementById(`confidence${gameIndex}`);
-    dropdown.innerHTML = '<option value="">Select</option>';
+    if (!dropdown) {
+        console.error(`Dropdown for gameIndex ${gameIndex} not found.`);
+        return;
+    }
+
+    dropdown.innerHTML = '<option value="">Select</option>'; // Reset options
 
     for (let i = 1; i <= 13; i++) {
         if (!usedPoints.has(i)) {
-            const option = document.createElement("option");
+            const option = document.createElement('option');
             option.value = i;
-            option.text = i;
+            option.textContent = i;
             dropdown.appendChild(option);
         }
     }
 }
 
+// Ensure buttons work for pick selection
 window.selectPick = function (gameIndex, team) {
     userPicks[gameIndex] = userPicks[gameIndex] || {};
     userPicks[gameIndex].team = team === 'home' ? games[gameIndex].homeTeam : games[gameIndex].awayTeam;
