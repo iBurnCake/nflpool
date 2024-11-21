@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('userHomeSection').style.display = 'none';
         }
     });
+});
 
     document.getElementById('loginForm')?.addEventListener("submit", (event) => {
         event.preventDefault();
