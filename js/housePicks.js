@@ -146,6 +146,18 @@ function createLeaderboardTable(userScores, container) {
     container.appendChild(leaderboardContainer);
 }
 
+// Function to get the saved color for a user
+function getUserColor(userId) {
+    const userColorRef = ref(db, `usersColors/${userId}`);
+    let color = '#000000'; // Default to black
+    onValue(userColorRef, snapshot => {
+        if (snapshot.exists()) {
+            color = snapshot.val();
+        }
+    });
+    return color;
+}
+
 function createUserPicksTable(userName, userPicks, totalScore) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
