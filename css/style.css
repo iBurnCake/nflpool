@@ -111,6 +111,20 @@ button:hover {
     transition: background-color 0.3s;
 }
 
+#colorPicker {
+    margin-left: 10px;
+    cursor: pointer;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+#colorPicker:hover {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
 #resetButton {
     background-color: #FF0000;
 }
