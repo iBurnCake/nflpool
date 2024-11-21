@@ -70,19 +70,19 @@ function loadUsernameColor(userId) {
     const saveButton = document.getElementById("saveColorButton");
     const colorPicker = document.getElementById("usernameColorPicker");
 
-    saveButton.addEventListener("click", () => {
-        const selectedColor = colorPicker.value;
-        set(colorRef, selectedColor)
-            .then(() => {
-                usernameDisplay.style.color = selectedColor;
-                alert("Username color saved successfully!");
-            })
-            .catch(error => {
-                console.error("Error saving username color:", error);
-                alert("Failed to save username color. Please try again.");
-            });
-    });
-}
+   saveButton.addEventListener("click", () => {
+    const selectedColor = colorPicker.value; // Get the selected color
+    set(colorRef, selectedColor)
+        .then(() => {
+            console.log("Username color saved successfully:", selectedColor); // Log success
+            usernameDisplay.style.color = selectedColor; // Apply the new color
+            alert("Username color saved successfully!"); // Notify the user
+        })
+        .catch(error => {
+            console.error("Error saving username color:", error.message); // Log the error
+            alert("Failed to save username color. Please check your internet connection and try again."); // Notify the user
+        });
+});
 
 const games = [
     { homeTeam: 'Steelers', awayTeam: 'Browns', homeRecord: '8-2', awayRecord: '2-8' },
