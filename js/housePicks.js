@@ -46,9 +46,8 @@ function loadHousePicks() {
                 const picksData = snapshot.val();
                 housePicksContainer.innerHTML = '';
 
-                console.log("Picks data loaded:", picksData); // Debugging log
+                console.log("Picks data loaded:", picksData);
 
-                // Collect and calculate total scores
                 for (const userId in picksData) {
                     const userPicksData = picksData[userId];
                     const userName = getUserName(userId);
@@ -57,16 +56,13 @@ function loadHousePicks() {
                     userScores.push({ userId, userName, totalScore });
                 }
 
-                // Sort by total score (highest to lowest)
                 userScores.sort((a, b) => b.totalScore - a.totalScore);
 
-                // Display the leaderboard
                 createLeaderboardTable(userScores, housePicksContainer);
 
-                // Display each user's table
                 userScores.forEach(user => {
                     const userPicksData = picksData[user.userId];
-                    createUserPicksTable(user.userName, userPicksData, user.totalScore);
+                    createUserPicksTable(user.userName, user.userId, userPicksData, user.totalScore);
                 });
             } else {
                 housePicksContainer.innerHTML = '<p>No picks available for Week 11.</p>';
@@ -93,14 +89,14 @@ function getUserName(userId) {
         'FFIWPuZYzYRI2ibmVbVHDIq1mjj2': 'De Von',
         'i6s97ZqeN1YCM39Sjqh65VablvA3': 'Kyra Kafel'
     };
-    return userMap[userName] || null; // Return null if the username isn't found
+    return userMap[userId] || userId;
 }
 
 function calculateTotalScore(userPicks) {
     let totalScore = 0;
     for (const gameIndex in userPicks) {
         const pickData = userPicks[gameIndex];
-        if (!pickData) continue; // Skip if pickData is missing
+        if (!pickData) continue;
         const chosenTeam = pickData.team;
         const confidencePoints = pickData.points || 0;
         const gameWinner = gameWinners[gameIndex];
@@ -111,7 +107,7 @@ function calculateTotalScore(userPicks) {
     return totalScore;
 }
 
-function createUserPicksTable(userName, userPicks, totalScore) {
+function createUserPicksTable(userName, userId, userPicks, totalScore) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
     userContainer.classList.add('user-picks-container');
@@ -129,7 +125,6 @@ function createUserPicksTable(userName, userPicks, totalScore) {
         }
     });
 
-    // Table for user picks
     const table = document.createElement('table');
     table.classList.add('user-picks-table');
     table.innerHTML = `
@@ -152,10 +147,7 @@ function createUserPicksTable(userName, userPicks, totalScore) {
         const pickData = userPicks[gameIndex];
         const game = games[gameIndex];
 
-        if (!game) {
-            console.warn(`Missing game data for index: ${gameIndex}`);
-            continue;
-        }
+        if (!game) continue;
 
         const matchup = `${game.homeTeam} (${game.homeRecord}) vs ${game.awayTeam} (${game.awayRecord})`;
         const chosenTeam = pickData.team || 'N/A';
@@ -192,4 +184,3 @@ function createUserPicksTable(userName, userPicks, totalScore) {
     userContainer.appendChild(table);
     housePicksContainer.appendChild(userContainer);
 }
-
