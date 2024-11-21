@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('userHomeSection').style.display = 'block';
             document.getElementById('usernameDisplay').textContent = user.email;
-            loadUsernameColor();
+            loadUsernameColor(user.uid); // Call the updated function to load the username color
             displayGames();
             loadUserPicks(user.uid);
         } else {
@@ -47,11 +47,42 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Add event listener for the new Past Weeks button
     document.getElementById('pastWeeksButton')?.addEventListener("click", () => {
         window.location.href = 'pastWeeks.html';
     });
 });
+
+// Function to load username color
+function loadUsernameColor(userId) {
+    const colorRef = ref(db, `users/${userId}/usernameColor`);
+    const usernameDisplay = document.getElementById("usernameDisplay");
+
+    get(colorRef).then(snapshot => {
+        if (snapshot.exists()) {
+            const color = snapshot.val();
+            usernameDisplay.style.color = color;
+        }
+    }).catch(error => {
+        console.error("Error loading username color:", error);
+    });
+
+    // Add event listener for the Save button
+    const saveButton = document.getElementById("saveColorButton");
+    const colorPicker = document.getElementById("usernameColorPicker");
+
+    saveButton.addEventListener("click", () => {
+        const selectedColor = colorPicker.value;
+        set(colorRef, selectedColor)
+            .then(() => {
+                usernameDisplay.style.color = selectedColor;
+                alert("Username color saved successfully!");
+            })
+            .catch(error => {
+                console.error("Error saving username color:", error);
+                alert("Failed to save username color. Please try again.");
+            });
+    });
+}
 
 const games = [
     { homeTeam: 'Steelers', awayTeam: 'Browns', homeRecord: '8-2', awayRecord: '2-8' },
@@ -148,6 +179,13 @@ window.assignConfidence = function (gameIndex) {
         confidenceDisplay.textContent = "";
     }
 };
+
+function saveUserPicks(userId) {
+    set(ref(db, `scoreboards/week9/${userId}`), userPicks)
+        .then(() => console.log("Picks saved successfully!"))
+        .catch(error => console.error("Error saving picks:", error));
+}
+
 
 document.addEventListener("DOMContentLoaded", () => {
     const emailToNameMap = {
