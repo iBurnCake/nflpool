@@ -20,19 +20,19 @@ const games = [
 ];
 
 const gameWinners = {
-    0: '', 
-    1: '', 
-    2: '', 
-    3: '', 
-    4: '', 
-    5: '', 
-    6: '', 
-    7: '', 
-    8: '', 
-    9: '', 
-    10: '', 
-    11: '', 
-    12: ''  
+    0: '',
+    1: '',
+    2: '',
+    3: '',
+    4: '',
+    5: '',
+    6: '',
+    7: '',
+    8: '',
+    9: '',
+    10: '',
+    11: '',
+    12: ''
 };
 
 function loadHousePicks() {
@@ -46,7 +46,7 @@ function loadHousePicks() {
                 const picksData = snapshot.val();
                 housePicksContainer.innerHTML = '';
 
-                console.log("Picks data loaded:", picksData); // Debugging log
+                console.log("Picks data loaded:", picksData);
 
                 // Collect and calculate total scores
                 for (const userId in picksData) {
