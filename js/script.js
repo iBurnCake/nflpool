@@ -240,32 +240,3 @@ window.submitPicks = function () {
         });
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    const userAgent = navigator.userAgent;
-    const isSafari = /^((?!chrome|android).)*safari/i.test(userAgent);
-
-    if (isSafari) {
-        // Redirect to a block page or show a message with a gray box
-        document.body.innerHTML = `
-            <div style="
-                background-color: rgba(0, 0, 0, 0.6);
-                color: white;
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                text-align: center;
-                padding: 20px;
-                box-sizing: border-box;
-            ">
-                <h1 style="font-size: 2em; margin-bottom: 10px;">Unsupported Browser</h1>
-                <p style="font-size: 1.2em;">We're sorry, but this website does not support Safari. Please use a different browser like Chrome or Firefox.</p>
-            </div>
-        `;
-    }
-});
