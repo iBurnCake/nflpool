@@ -2,7 +2,10 @@ document.addEventListener('DOMContentLoaded', loadPastWeeks);
 
 function loadPastWeeks() {
     const pastWeeksContainer = document.getElementById('pastWeeksContainer');
-    const pastWeeksData = [
+
+    // Fetch user data dynamically
+    fetchUserData((userMap, userColors) => {
+        const pastWeeksData = [
         {
             week: 11,
             leaderboard: [
@@ -85,7 +88,7 @@ function loadPastWeeks() {
                 ${weekData.leaderboard.map((entry, index) => `
                     <tr>
                         <td>${index + 1}</td>
-                        <td>${entry.name}</td>
+                        <td style="color: ${userColors[entry.userId] || 'inherit'};">${userMap[entry.userId] || 'Unknown User'}</td>
                         <td>${entry.score}</td>
                     </tr>
                 `).join('')}
@@ -95,4 +98,34 @@ function loadPastWeeks() {
 
         pastWeeksContainer.appendChild(weekSection);
     });
+});
+}
+
+// Fetch user data including names and colors
+function fetchUserData(callback) {
+const usersRef = ref(db, 'users');
+get(usersRef).then((snapshot) => {
+    if (snapshot.exists()) {
+        const usersData = snapshot.val();
+        const userMap = {};
+        const userColors = {};
+
+        // Extract user names and colors
+        for (const userId in usersData) {
+            if (usersData[userId].username) {
+                userMap[userId] = usersData[userId].username;
+            }
+            if (usersData[userId].usernameColor) {
+                userColors[userId] = usersData[userId].usernameColor;
+            }
+        }
+        callback(userMap, userColors);
+    } else {
+        console.warn('No user data found.');
+        callback({}, {});
+    }
+}).catch((error) => {
+    console.error('Error fetching user data:', error);
+    callback({}, {});
+});
 }
