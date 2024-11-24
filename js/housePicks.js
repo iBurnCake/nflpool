@@ -154,9 +154,9 @@ function createLeaderboardTable(userScores, container, userColors) {
         </thead>
         <tbody>
             ${userScores.map((user, index) => `
-                <tr style="color: ${userColors[user.userId] || 'inherit'};">
+                <tr>
                     <td>${index + 1}</td>
-                    <td>${user.userName}</td>
+                    <td style="color: ${userColors[user.userId] || 'inherit'};">${user.userName}</td>
                     <td>${user.totalScore}</td>
                 </tr>
             `).join('')}
