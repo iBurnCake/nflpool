@@ -23,7 +23,7 @@ const games = [
 const gameWinners = {
     0: 'Browns',
     1: 'Titans',
-    2: '',
+    2: 'Chiefs',
     3: 'Cowboys',
     4: 'Dolphins',
     5: 'Chiefs',
