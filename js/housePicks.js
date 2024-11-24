@@ -3,7 +3,7 @@ import { db, ref, get } from './firebaseConfig.js';
 
 document.addEventListener('DOMContentLoaded', loadHousePicks);
 
-// week 11 games
+// week 12 games
 const games = [
     { homeTeam: 'Steelers', awayTeam: 'Browns', homeRecord: '8-2', awayRecord: '2-8' },
     { homeTeam: 'Titans', awayTeam: 'Texans', homeRecord: '2-8', awayRecord: '7-4' },
@@ -27,7 +27,7 @@ const gameWinners = {
     3: '',
     4: '',
     5: '',
-    6: '',
+    6: 'Buccaneers',
     7: '',
     8: '',
     9: '',
