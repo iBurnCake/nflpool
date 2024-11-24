@@ -156,7 +156,9 @@ function createLeaderboardTable(userScores, container, userColors) {
             ${userScores.map((user, index) => `
                 <tr>
                     <td>${index + 1}</td>
-                    <td style="color: ${userColors[user.userId] || 'inherit'};">${user.userName}</td>
+                    <td style="color: ${userColors[user.userId] ? userColors[user.userId] : 'inherit'};">
+                        ${user.userName}
+                    </td>
                     <td>${user.totalScore}</td>
                 </tr>
             `).join('')}
@@ -166,6 +168,7 @@ function createLeaderboardTable(userScores, container, userColors) {
     leaderboardContainer.appendChild(table);
     container.appendChild(leaderboardContainer);
 }
+
 
 function createUserPicksTable(userName, userPicks, totalScore, userColor) {
     const housePicksContainer = document.getElementById('housePicksContainer');
