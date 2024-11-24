@@ -6,8 +6,11 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("User logged in:", user.email);
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('userHomeSection').style.display = 'block';
-            document.getElementById('usernameDisplay').textContent = user.email;
-            loadUsernameColor(user.uid); // Load the username color
+
+            const displayName = getNameByEmail(user.email);
+            document.getElementById('usernameDisplay').textContent = displayName;
+
+            loadUsernameColor(user.uid); 
             displayGames();
             loadUserPicks(user.uid);
         } else {
@@ -16,6 +19,25 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('userHomeSection').style.display = 'none';
         }
     });
+
+    const emailToNameMap = {
+        "devonstankis3@gmail.com": "De Von",
+        "kyrakafel@gmail.com": "Kyra Kafel",
+        "tom.kant21@gmail.com": "Tommy Kant",
+        "vickiocf@gmail.com": "Aunt Vicki",
+        "erossini02@gmail.com": "Emily Rossini",
+        "tony.romano222@gmail.com": "Tony Romano",
+        "thomasromano19707@gmail.com": "Thomas Romano",
+        "ckeegan437@gmail.com": "Charles Keegan",
+        "ryansanders603@hotmail.com": "Ryan Sanders",
+        "williammathis2004@gmail.com": "William Mathis",
+        "angelakant007@gmail.com": "Angela Kant",
+        "luke.romano2004@gmail.com": "Luke Romano"
+    };
+
+    function getNameByEmail(email) {
+        return emailToNameMap[email] || email; 
+    }
 
     document.getElementById('loginForm')?.addEventListener("submit", (event) => {
         event.preventDefault();
@@ -52,7 +74,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// Function to load username color
 function loadUsernameColor(userId) {
     const colorRef = ref(db, `users/${userId}/usernameColor`);
     const usernameDisplay = document.getElementById("usernameDisplay");
@@ -66,23 +87,22 @@ function loadUsernameColor(userId) {
         console.error("Error loading username color:", error);
     });
 
-    // Add event listener for the Save button
-    const saveButton = document.getElementById("saveColorButton");
-    const colorPicker = document.getElementById("usernameColorPicker");
-
-    saveButton.addEventListener("click", () => {
-        const selectedColor = colorPicker.value;
-        set(colorRef, selectedColor)
-            .then(() => {
-                usernameDisplay.style.color = selectedColor;
-                alert("Username color saved successfully!");
-            })
-            .catch(error => {
-                console.error("Error saving username color:", error);
-                alert("Failed to save username color. Please try again.");
-            });
-    });
-}
+      const saveButton = document.getElementById("saveColorButton");
+      const colorPicker = document.getElementById("usernameColorPicker");
+  
+      saveButton.addEventListener("click", () => {
+          const selectedColor = colorPicker.value;
+          set(colorRef, selectedColor)
+              .then(() => {
+                  usernameDisplay.style.color = selectedColor;
+                  alert("Username color saved successfully!");
+              })
+              .catch(error => {
+                  console.error("Error saving username color:", error);
+                  alert("Failed to save username color. Please try again.");
+              });
+      });
+  }
 
 const games = [
     { homeTeam: 'Steelers', awayTeam: 'Browns', homeRecord: '8-2', awayRecord: '2-8' },
