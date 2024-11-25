@@ -46,6 +46,32 @@
         #saveColorButton:hover {
             background-color: #45a049;
         }
+
+        /* Instructions Boxes */
+        #instructionsContainer {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        #instructionsBox, #colorInstructionsBox {
+            width: 30%;
+            background-color: #333; /* Dark background */
+            color: #fff; /* White text */
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #FFD700; /* Gold border */
+            font-size: 14px;
+        }
+
+        #instructionsBox h3, #colorInstructionsBox h3 {
+            color: #FFD700;
+        }
+
+        #instructionsBox ul, #colorInstructionsBox ul {
+            list-style: none;
+            padding-left: 0;
+        }
     </style>
 </head>
 <body>
@@ -76,6 +102,30 @@
             </div>
         </div>
 
+        <!-- Instructions Section -->
+        <div id="instructionsContainer">
+            <!-- Picks Instructions -->
+            <div id="instructionsBox">
+                <h3>Pick Instructions</h3>
+                <ul>
+                    <li>1. Select your team pick for each game.</li>
+                    <li>2. Assign confidence points (1-13) for each game.</li>
+                    <li>3. Once the game starts, your picks are locked in.</li>
+                    <li>4. Any changes made during the week of games will result in account disabling and picks being wiped.</li>
+                </ul>
+            </div>
+
+            <!-- Color Customization Instructions -->
+            <div id="colorInstructionsBox">
+                <h3>Color Customization</h3>
+                <ul>
+                    <li>1. Use the color picker above to customize your username color.</li>
+                    <li>2. Your selected color will update your username on all leaderboards.</li>
+                    <li>3. Save your changes to apply them immediately.</li>
+                </ul>
+            </div>
+        </div>
+
         <!-- Buttons -->
         <div id="topButtonContainer">
             <button id="resetButton">Reset Picks</button>
@@ -86,17 +136,19 @@
         </div>
 
         <!-- Games Table -->
-        <table id="gamesTable">
-            <thead>
-                <tr>
-                    <th>Game</th>
-                    <th>Pick</th>
-                    <th>Confidence</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <div style="display: flex; flex-grow: 1;">
+            <table id="gamesTable" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>Game</th>
+                        <th>Pick</th>
+                        <th>Confidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script type="module" src="js/script.js"></script>
