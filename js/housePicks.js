@@ -33,7 +33,7 @@ const gameWinners = {
     9: 'Seahawks',
     10: 'Packers',
     11: 'Eagles',
-    12: ''
+    12: 'Ravens'
 };
 
 function loadHousePicks() {
