@@ -30,7 +30,7 @@ const gameWinners = {
     6: 'Buccaneers',
     7: 'Lions',
     8: 'Broncos',
-    9: 'Seahwawks',
+    9: 'Seahawks',
     10: 'Packers',
     11: 'Eagles',
     12: ''
