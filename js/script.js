@@ -152,7 +152,7 @@ function updateConfidenceDropdown(gameIndex) {
     const dropdown = document.getElementById(`confidence${gameIndex}`);
     dropdown.innerHTML = '<option value="">Select</option>';
 
-    for (let i = 1; i <= 13; i++) {
+    for (let i = 1; i <= 16; i++) {
         if (!usedPoints.has(i)) {
             const option = document.createElement("option");
             option.value = i;
@@ -189,7 +189,7 @@ window.assignConfidence = function (gameIndex) {
         usedPoints.delete(userPicks[gameIndex].points);
     }
 
-    if (points >= 1 && points <= 13 && !usedPoints.has(points)) {
+    if (points >= 1 && points <= 16 && !usedPoints.has(points)) {
         userPicks[gameIndex] = userPicks[gameIndex] || {};
         userPicks[gameIndex].points = points;
         usedPoints.add(points);
