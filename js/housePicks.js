@@ -118,7 +118,7 @@ function getUserName(userId) {
         'ORxFtuY13VfaUqc2ckcfw084Lxq1': 'Aunt Vicki',
         'FIKVjOy8P7UTUGqq2WvjkARZPIE2': 'Tommy Kant',
         'FFIWPuZYzYRI2ibmVbVHDIq1mjj2': 'De Von $',
-        'i6s97ZqeN1YCM39Sjqh65VablvA3': 'Kyra Kafel',
+        'i6s97ZqeN1YCM39Sjqh65VablvA3': 'Kyra Kafel $',
         'ICenzfFJ8CPauw1lCK1eq3Yr4hG3': 'Rual Sanjay $'
     };
     return userMap[userId] || `User ${userId}`;
