@@ -32,7 +32,8 @@ document.addEventListener("DOMContentLoaded", () => {
         "ryansanders603@hotmail.com": "Ryan Sanders",
         "williammathis2004@gmail.com": "William Mathis",
         "angelakant007@gmail.com": "Angela Kant",
-        "luke.romano2004@gmail.com": "Luke Romano"
+        "luke.romano2004@gmail.com": "Luke Romano",
+        "rsanjay@udel.edu": "Raul Sanjay",
     };
 
     function getNameByEmail(email) {
