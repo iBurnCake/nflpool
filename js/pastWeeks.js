@@ -5,6 +5,22 @@ function loadPastWeeks() {
     const pastWeeksContainer = document.getElementById('pastWeeksContainer');
     const pastWeeksData = [
         {
+            week: 12,
+            leaderboard: [
+                { name: 'Kyra Kafel', score: 68},
+                { name: 'Thomas Romano', score: 65},
+                { name: 'Tony Romano', score: 61},
+                { name: 'Ryan Sanders', score: 59},
+                { name: 'De Von', score: 58},
+                { name: 'Aunt Vicki', score: 58},
+                { name: 'Charles Keegan', score: 56},
+                { name: 'Tommy Kant', score: 56},
+                { name: 'Angela Kant', score: 55},
+                { name: 'Luke Romano', score: 53},
+                { name: 'William Mathis', score: 32},
+            ]
+        },
+        {
             week: 11,
             leaderboard: [
                 { name: 'Ryan Sanders', score: 92 },
