@@ -24,19 +24,22 @@ const games = [
 ];
 
 const gameWinners = {
-    0: 'Browns',
-    1: 'Titans',
-    2: 'Vikings',
-    3: 'Cowboys',
-    4: 'Dolphins',
-    5: 'Chiefs',
-    6: 'Buccaneers',
-    7: 'Lions',
-    8: 'Broncos',
-    9: 'Seahawks',
-    10: 'Packers',
-    11: 'Eagles',
-    12: 'Ravens'
+    0: '',
+    1: '',
+    2: '',
+    3: '',
+    4: '',
+    5: '',
+    6: '',
+    7: '',
+    8: '',
+    9: '',
+    10: '',
+    11: '',
+    12: '',
+    13: '',
+    14: '',
+    15: ''
 };
 
 function loadHousePicks() {
