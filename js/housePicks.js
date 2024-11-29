@@ -25,7 +25,7 @@ const games = [
 
 const gameWinners = {
     0: 'Lions',
-    1: '',
+    1: 'Cowboys',
     2: '',
     3: '',
     4: '',
