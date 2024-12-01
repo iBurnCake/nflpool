@@ -30,7 +30,7 @@ const gameWinners = {
     3: 'Chiefs',
     4: '',
     5: '',
-    6: '',
+    6: 'Chargers',
     7: '',
     8: '',
     9: '',
