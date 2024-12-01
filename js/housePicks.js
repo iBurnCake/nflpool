@@ -28,7 +28,7 @@ const gameWinners = {
     1: 'Cowboys',
     2: 'Packers',
     3: 'Chiefs',
-    4: '',
+    4: 'Texans',
     5: 'Colts',
     6: 'Chargers',
     7: 'Seahawks',
