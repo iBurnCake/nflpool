@@ -35,7 +35,7 @@ const gameWinners = {
     8: 'Commanders',
     9: 'Steelers',
     10: 'Vikings',
-    11: '',
+    11: 'Rams',
     12: '',
     13: '',
     14: '',
