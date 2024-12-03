@@ -5,41 +5,35 @@ document.addEventListener('DOMContentLoaded', loadHousePicks);
 
 // week 12 games
 const games = [
-    { homeTeam: 'Bears', awayTeam: 'Lions', homeRecord: '4-7', awayRecord: '10-1' }, 
-    { homeTeam: 'Giants', awayTeam: 'Cowboys', homeRecord: '2-9', awayRecord: '4-7' }, 
-    { homeTeam: 'Dolphins', awayTeam: 'Packers', homeRecord: '5-6', awayRecord: '8-3' }, 
-    { homeTeam: 'Raiders', awayTeam: 'Chiefs', homeRecord: '2-9', awayRecord: '10-1' }, 
-    { homeTeam: 'Texans', awayTeam: 'Jaguars', homeRecord: '7-5', awayRecord: '2-9' }, 
-    { homeTeam: 'Colts', awayTeam: 'Patriots', homeRecord: '5-7', awayRecord: '3-9' }, 
-    { homeTeam: 'Chargers', awayTeam: 'Falcons', homeRecord: '7-4', awayRecord: '6-5' }, 
-    { homeTeam: 'Seahawks', awayTeam: 'Jets', homeRecord: '6-5', awayRecord: '3-8' }, 
-    { homeTeam: 'Titans', awayTeam: 'Commanders', homeRecord: '3-8', awayRecord: '7-5' }, 
-    { homeTeam: 'Steelers', awayTeam: 'Bengals', homeRecord: '8-3', awayRecord: '4-7' }, 
-    { homeTeam: 'Cardinals', awayTeam: 'Vikings', homeRecord: '8-5', awayRecord: '9-2' }, 
-    { homeTeam: 'Rams', awayTeam: 'Saints', homeRecord: '5-6', awayRecord: '4-7' }, 
-    { homeTeam: 'Buccaneers', awayTeam: 'Panthers', homeRecord: '5-6', awayRecord: '3-8' }, 
-    { homeTeam: 'Eagles', awayTeam: 'Ravens', homeRecord: '9-2', awayRecord: '8-4' }, 
-    { homeTeam: '49ers', awayTeam: 'Bills', homeRecord: '5-6', awayRecord: '9-2' }, 
-    { homeTeam: 'Browns', awayTeam: 'Broncos', homeRecord: '3-8', awayRecord: '7-5' }
+    { homeTeam: 'Packers', awayTeam: 'Lions', homeRecord: '9-3', awayRecord: '11-1' }, 
+    { homeTeam: 'Browns', awayTeam: 'Steelers', homeRecord: '3-9', awayRecord: '9-3' }, 
+    { homeTeam: 'Saints', awayTeam: 'Giants', homeRecord: '4-8', awayRecord: '2-10' }, 
+    { homeTeam: 'Jets', awayTeam: 'Dolphins', homeRecord: '3-9', awayRecord: '5-7' }, 
+    { homeTeam: 'Jaguars', awayTeam: 'Titans', homeRecord: '2-10', awayRecord: '3-9' }, 
+    { homeTeam: 'Falcons', awayTeam: 'Vikings', homeRecord: '6-6', awayRecord: '10-2' }, 
+    { homeTeam: 'Panthers', awayTeam: 'Eagles', homeRecord: '3-9', awayRecord: '10-2' }, 
+    { homeTeam: 'Raiders', awayTeam: 'Buccaneers', homeRecord: '2-10', awayRecord: '6-6' }, 
+    { homeTeam: 'Seahawks', awayTeam: 'Cardinals', homeRecord: '7-5', awayRecord: '6-6' }, 
+    { homeTeam: 'Bears', awayTeam: '49ers', homeRecord: '4-8', awayRecord: '5-7' }, 
+    { homeTeam: 'Bills', awayTeam: 'Rams', homeRecord: '10-2', awayRecord: '6-6' }, 
+    { homeTeam: 'Chargers', awayTeam: 'Chiefs', homeRecord: '8-4', awayRecord: '11-1' }, 
+    { homeTeam: 'Bengals', awayTeam: 'Cowboys', homeRecord: '4-8', awayRecord: '5-7' }
 ];
 
 const gameWinners = {
-    0: 'Lions',
-    1: 'Cowboys',
-    2: 'Packers',
-    3: 'Chiefs',
-    4: 'Texans',
-    5: 'Colts',
-    6: 'Chargers',
-    7: 'Seahawks',
-    8: 'Commanders',
-    9: 'Steelers',
-    10: 'Vikings',
-    11: 'Rams',
-    12: 'Buccaneers',
-    13: 'Eagles',
-    14: 'Bills',
-    15: 'Broncos'
+    0: '',
+    1: '',
+    2: '',
+    3: '',
+    4: '',
+    5: '',
+    6: '',
+    7: '',
+    8: '',
+    9: '',
+    10: '',
+    11: '',
+    12: ''
 };
 
 function loadHousePicks() {
