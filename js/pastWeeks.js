@@ -93,6 +93,15 @@ function loadPastWeeks() {
                 { name: 'Ryan Sanders', score: 76 },
                 { name: 'Owen Doherty', score: 36 },
             ],
+        },
+        {
+            week: 6,
+            leaderboard: [
+                { name: 'Luke Romano', score: 93 },
+                { name: 'Ryan Sanders', score: 87 },
+                { name: 'Charles Keegan', score: 85 },
+                { name: 'Angela Kant', score: 71 },
+            ],
         }
     ];
     
