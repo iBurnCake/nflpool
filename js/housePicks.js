@@ -28,8 +28,7 @@ const gameWinners = {
     4: 'Jaguars',
     5: 'Vikings',
     6: 'Eagles',
-    7: 'Buccaneers
-    ',
+    7: 'Buccaneers',
     8: '',
     9: '',
     10: '',
