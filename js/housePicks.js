@@ -22,13 +22,13 @@ const games = [
 
 const gameWinners = {
     0: 'Lions',
-    1: '',
-    2: '',
+    1: 'Steelers',
+    2: 'Saints',
     3: '',
     4: 'Jaguars',
     5: 'Vikings',
     6: 'Eagles',
-    7: 'Vikings',
+    7: 'Buccaneers',
     8: '',
     9: '',
     10: '',
