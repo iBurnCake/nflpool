@@ -33,7 +33,7 @@ const gameWinners = {
     9: '49ers',
     10: 'Rams',
     11: 'Chiefs',
-    12: ''
+    12: 'Bengals'
 };
 
 function loadHousePicks() {
