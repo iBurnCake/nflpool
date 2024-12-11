@@ -74,7 +74,7 @@ function loadHousePicks() {
                         createUserPicksTable(user.userName, userPicksData, user.totalScore, userColors[user.userId]);
                     });
                 } else {
-                    housePicksContainer.innerHTML = '<p>No picks available for Week 11.</p>';
+                    housePicksContainer.innerHTML = '<p>No picks submitted for Week 15.</p>';
                 }
             })
             .catch(error => {
