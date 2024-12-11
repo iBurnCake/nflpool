@@ -3,37 +3,44 @@ import { db, ref, get } from './firebaseConfig.js';
 
 document.addEventListener('DOMContentLoaded', loadHousePicks);
 
-// week 12 games
+// week 15 games
 const games = [
-    { homeTeam: 'Packers', awayTeam: 'Lions', homeRecord: '9-3', awayRecord: '11-1' }, 
-    { homeTeam: 'Browns', awayTeam: 'Steelers', homeRecord: '3-9', awayRecord: '9-3' }, 
-    { homeTeam: 'Saints', awayTeam: 'Giants', homeRecord: '4-8', awayRecord: '2-10' }, 
-    { homeTeam: 'Jets', awayTeam: 'Dolphins', homeRecord: '3-9', awayRecord: '5-7' }, 
-    { homeTeam: 'Jaguars', awayTeam: 'Titans', homeRecord: '2-10', awayRecord: '3-9' }, 
-    { homeTeam: 'Falcons', awayTeam: 'Vikings', homeRecord: '6-6', awayRecord: '10-2' }, 
-    { homeTeam: 'Panthers', awayTeam: 'Eagles', homeRecord: '3-9', awayRecord: '10-2' }, 
-    { homeTeam: 'Raiders', awayTeam: 'Buccaneers', homeRecord: '2-10', awayRecord: '6-6' }, 
-    { homeTeam: 'Seahawks', awayTeam: 'Cardinals', homeRecord: '7-5', awayRecord: '6-6' }, 
-    { homeTeam: 'Bears', awayTeam: '49ers', homeRecord: '4-8', awayRecord: '5-7' }, 
-    { homeTeam: 'Bills', awayTeam: 'Rams', homeRecord: '10-2', awayRecord: '6-6' }, 
-    { homeTeam: 'Chargers', awayTeam: 'Chiefs', homeRecord: '8-4', awayRecord: '11-1' }, 
-    { homeTeam: 'Bengals', awayTeam: 'Cowboys', homeRecord: '4-8', awayRecord: '5-7' }
+    { homeTeam: 'Rams', awayTeam: '49ers', homeRecord: '7-6', awayRecord: '6-7' },
+    { homeTeam: 'Commanders', awayTeam: 'Saints', homeRecord: '8-5', awayRecord: '5-8' },
+    { homeTeam: 'Chiefs', awayTeam: 'Browns', homeRecord: '12-1', awayRecord: '3-10' },
+    { homeTeam: 'Bengals', awayTeam: 'Titans', homeRecord: '5-8', awayRecord: '3-10' },
+    { homeTeam: 'Dolphins', awayTeam: 'Texans', homeRecord: '6-7', awayRecord: '8-5' },
+    { homeTeam: 'Ravens', awayTeam: 'Giants', homeRecord: '8-5', awayRecord: '2-11' },
+    { homeTeam: 'Jets', awayTeam: 'Jaguars', homeRecord: '3-10', awayRecord: '3-10' },
+    { homeTeam: 'Cowboys', awayTeam: 'Panthers', homeRecord: '5-8', awayRecord: '3-10' },
+    { homeTeam: 'Buccaneers', awayTeam: 'Chargers', homeRecord: '7-6', awayRecord: '8-5' },
+    { homeTeam: 'Colts', awayTeam: 'Broncos', homeRecord: '6-7', awayRecord: '8-5' },
+    { homeTeam: 'Patriots', awayTeam: 'Cardinals', homeRecord: '3-10', awayRecord: '6-7' },
+    { homeTeam: 'Bills', awayTeam: 'Lions', homeRecord: '10-3', awayRecord: '12-1' },
+    { homeTeam: 'Steelers', awayTeam: 'Eagles', homeRecord: '10-3', awayRecord: '11-2' },
+    { homeTeam: 'Packers', awayTeam: 'Seahawks', homeRecord: '9-4', awayRecord: '8-5' },
+    { homeTeam: 'Bears', awayTeam: 'Vikings', homeRecord: '4-9', awayRecord: '11-2' },
+    { homeTeam: 'Falcons', awayTeam: 'Raiders', homeRecord: '6-7', awayRecord: '2-11' }
 ];
 
+
 const gameWinners = {
-    0: 'Lions',
-    1: 'Steelers',
-    2: 'Saints',
-    3: 'Dolphins',
-    4: 'Jaguars',
-    5: 'Vikings',
-    6: 'Eagles',
-    7: 'Buccaneers',
-    8: 'Seahawks',
-    9: '49ers',
-    10: 'Rams',
-    11: 'Chiefs',
-    12: 'Bengals'
+    0: '', // Rams or 49ers
+    1: '', // Commanders or Saints
+    2: '', // Chiefs or Browns
+    3: '', // Bengals or Titans
+    4: '', // Dolphins or Texans
+    5: '', // Ravens or Giants
+    6: '', // Jets or Jaguars
+    7: '', // Cowboys or Panthers
+    8: '', // Buccaneers or Chargers
+    9: '', // Colts or Broncos
+    10: '', // Patriots or Cardinals
+    11: '', // Bills or Lions
+    12: '', // Steelers or Eagles
+    13: '', // Packers or Seahawks
+    14: '', // Bears or Vikings
+    15: '' // Falcons or Raiders
 };
 
 function loadHousePicks() {
@@ -102,7 +109,7 @@ function fetchUserColors(callback) {
 function getUserName(userId) {
     const userMap = {
         'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano $',
-        '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan $',
+        '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan',
         'I3RfB1et3bhADFKRQbx3EU6yllI3': 'Ryan Sanders $',
         'krvPcOneIcYrzc2GfIHXfsvbrD23': 'William Mathis',
         '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant $',
@@ -113,7 +120,7 @@ function getUserName(userId) {
         'FIKVjOy8P7UTUGqq2WvjkARZPIE2': 'Tommy Kant',
         'FFIWPuZYzYRI2ibmVbVHDIq1mjj2': 'De Von $',
         'i6s97ZqeN1YCM39Sjqh65VablvA3': 'Kyra (bum) Kafel $',
-        'ICenzfFJ8CPauw1lCK1eq3Yr4hG3': 'Rual Sanjay $'
+        'ICenzfFJ8CPauw1lCK1eq3Yr4hG3': 'Raul Sanjay $'
     };
     return userMap[userId] || `User ${userId}`;
 }
