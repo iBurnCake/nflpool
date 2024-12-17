@@ -40,7 +40,7 @@ const gameWinners = {
     12: 'Eagles', // Steelers or Eagles
     13: 'Packers', // Packers or Seahawks
     14: 'Vikings', // Bears or Vikings
-    15: '' // Falcons or Raiders
+    15: 'Falcons' // Falcons or Raiders
 };
 
 function loadHousePicks() {
