@@ -107,22 +107,23 @@ function loadUsernameColor(userId) {
 
 const games = [
     { homeTeam: 'Chargers', awayTeam: 'Broncos', homeRecord: '8-6', awayRecord: '9-5' },
-    { homeTeam: 'Chiefs', awayTeam: 'Texans', homeRecord: '10-4', awayRecord: '9-5' },
-    { homeTeam: 'Ravens', awayTeam: 'Steelers', homeRecord: '11-3', awayRecord: '9-5' },
-    { homeTeam: 'Falcons', awayTeam: 'Giants', homeRecord: '6-8', awayRecord: '4-10' },
-    { homeTeam: 'Bears', awayTeam: 'Lions', homeRecord: '5-9', awayRecord: '10-4' },
-    { homeTeam: 'Colts', awayTeam: 'Titans', homeRecord: '7-7', awayRecord: '5-9' },
-    { homeTeam: 'Bengals', awayTeam: 'Browns', homeRecord: '8-6', awayRecord: '6-8' },
-    { homeTeam: 'Panthers', awayTeam: 'Cardinals', homeRecord: '2-12', awayRecord: '4-10' },
-    { homeTeam: 'Commanders', awayTeam: 'Eagles', homeRecord: '6-8', awayRecord: '12-2' },
-    { homeTeam: 'Jets', awayTeam: 'Rams', homeRecord: '5-9', awayRecord: '8-6' },
-    { homeTeam: 'Seahawks', awayTeam: 'Vikings', homeRecord: '8-6', awayRecord: '9-5' },
-    { homeTeam: 'Raiders', awayTeam: 'Jaguars', homeRecord: '6-8', awayRecord: '8-6' },
-    { homeTeam: 'Bills', awayTeam: 'Patriots', homeRecord: '11-3', awayRecord: '4-10' },
-    { homeTeam: 'Dolphins', awayTeam: '49ers', homeRecord: '10-4', awayRecord: '11-3' },
-    { homeTeam: 'Cowboys', awayTeam: 'Buccaneers', homeRecord: '9-5', awayRecord: '8-6' },
-    { homeTeam: 'Packers', awayTeam: 'Saints', homeRecord: '8-6', awayRecord: '7-7' }
+    { homeTeam: 'Chiefs', awayTeam: 'Texans', homeRecord: '13-1', awayRecord: '9-5' },
+    { homeTeam: 'Ravens', awayTeam: 'Steelers', homeRecord: '9-5', awayRecord: '10-4' },
+    { homeTeam: 'Falcons', awayTeam: 'Giants', homeRecord: '7-7', awayRecord: '2-12' },
+    { homeTeam: 'Bears', awayTeam: 'Lions', homeRecord: '4-10', awayRecord: '12-2' },
+    { homeTeam: 'Colts', awayTeam: 'Titans', homeRecord: '6-8', awayRecord: '3-11' },
+    { homeTeam: 'Bengals', awayTeam: 'Browns', homeRecord: '6-8', awayRecord: '3-11' },
+    { homeTeam: 'Panthers', awayTeam: 'Cardinals', homeRecord: '3-11', awayRecord: '7-7' },
+    { homeTeam: 'Commanders', awayTeam: 'Eagles', homeRecord: '9-5', awayRecord: '12-2' },
+    { homeTeam: 'Jets', awayTeam: 'Rams', homeRecord: '4-10', awayRecord: '8-6' },
+    { homeTeam: 'Seahawks', awayTeam: 'Vikings', homeRecord: '8-6', awayRecord: '12-2' },
+    { homeTeam: 'Raiders', awayTeam: 'Jaguars', homeRecord: '2-12', awayRecord: '3-11' },
+    { homeTeam: 'Bills', awayTeam: 'Patriots', homeRecord: '11-3', awayRecord: '3-11' },
+    { homeTeam: 'Dolphins', awayTeam: '49ers', homeRecord: '6-8', awayRecord: '6-8' },
+    { homeTeam: 'Cowboys', awayTeam: 'Buccaneers', homeRecord: '6-8', awayRecord: '8-6' },
+    { homeTeam: 'Packers', awayTeam: 'Saints', homeRecord: '10-4', awayRecord: '5-9' }
 ];
+
 
 let userPicks = {};
 let usedPoints = new Set();
