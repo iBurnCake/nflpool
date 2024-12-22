@@ -29,7 +29,7 @@ const gameWinners = {
     1: 'Chiefs', // Cheifs or Texans
     2: 'Ravens', // Ravens or Steelers
     3: 'Falcons', // Falcons or Giants
-    4: '', // Bears or Lions
+    4: 'Lions', // Bears or Lions
     5: '', // Colts or Titans
     6: '', // Bengals or Browns
     7: '', // Panthers or Cardinals
