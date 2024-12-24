@@ -40,7 +40,7 @@ const gameWinners = {
     12: 'Bills', // Bills or Patriots
     13: 'Dolphins', // Dolphins or 49ers
     14: 'Cowboys', // Cowboys or Buccaneers
-    15: '' // Packers or Saints
+    15: 'Packers' // Packers or Saints
 };
 
 function loadHousePicks() {
