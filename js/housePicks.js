@@ -1,8 +1,10 @@
 
 import { db, ref, get } from './firebaseConfig.js';
 
-document.addEventListener('DOMContentLoaded', loadHousePicks);
-
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOMContentLoaded event fired");
+    loadHousePicks();
+});
 // week 15 games
 const games = [
     { homeTeam: 'Chiefs', awayTeam: 'Steelers', homeRecord: '14-1', awayRecord: '10-5' },
