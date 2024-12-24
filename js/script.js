@@ -124,8 +124,6 @@ const games = [
     { homeTeam: 'Lions', awayTeam: '49ers', homeRecord: '13-2', awayRecord: '6-9' }
 ];
 
-
-
 let userPicks = {};
 let usedPoints = new Set();
 
