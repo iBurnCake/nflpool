@@ -10,7 +10,7 @@ const games = [
     { homeTeam: 'Seahawks', awayTeam: 'Bears', homeRecord: '8-7', awayRecord: '4-11' },
     { homeTeam: 'Chargers', awayTeam: 'Patriots', homeRecord: '9-6', awayRecord: '3-12' },
     { homeTeam: 'Broncos', awayTeam: 'Bengals', homeRecord: '9-6', awayRecord: '7-8' },
-    { homeTeam: 'Cardinals', awayTeam: 'Rams', homeRecord: '7-8', awayRecord: 9-6'' },
+    { homeTeam: 'Cardinals', awayTeam: 'Rams', homeRecord: '7-8', awayRecord: '9-6' },
     { homeTeam: 'Cowboys', awayTeam: 'Eagles', homeRecord: '7-8', awayRecord: '12-3' },
     { homeTeam: 'Panthers', awayTeam: 'Buccaneers', homeRecord: '4-11', awayRecord: '8-7' },
     { homeTeam: 'Jets', awayTeam: 'Bills', homeRecord: '4-11', awayRecord: '12-3' },
