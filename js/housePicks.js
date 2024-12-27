@@ -29,7 +29,7 @@ const games = [
 const gameWinners = {
     0: 'Chiefs', // Chiefs or Steelers
     1: 'Ravens', // Ravens or Texans
-    2: '', // Seahawks or Bears
+    2: 'Seahawks', // Seahawks or Bears
     3: '', // Chargers or Patriots
     4: '', // Broncos or Bengals
     5: '', // Cardinals or Rams
