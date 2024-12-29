@@ -32,7 +32,7 @@ const gameWinners = {
     2: 'Seahawks', // Seahawks or Bears
     3: 'Chargers', // Chargers or Patriots
     4: 'Bengals', // Broncos or Bengals
-    5: '', // Cardinals or Rams
+    5: 'Rams', // Cardinals or Rams
     6: '', // Cowboys or Eagles
     7: '', // Panthers or Buccaneers
     8: '', // Jets or Bills
