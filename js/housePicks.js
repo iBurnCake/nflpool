@@ -33,12 +33,12 @@ const gameWinners = {
     3: 'Chargers', // Chargers or Patriots
     4: 'Bengals', // Broncos or Bengals
     5: 'Rams', // Cardinals or Rams
-    6: '', // Cowboys or Eagles
-    7: '', // Panthers or Buccaneers
-    8: '', // Jets or Bills
-    9: '', // Colts or Giants
-    10: '', // Raiders or Saints
-    11: '', // Titans or Jaguars
+    6: 'Eagles', // Cowboys or Eagles
+    7: 'Buccaneers', // Panthers or Buccaneers
+    8: 'Bills', // Jets or Bills
+    9: 'Giants', // Colts or Giants
+    10: 'Raiders', // Raiders or Saints
+    11: 'Jaguars', // Titans or Jaguars
     12: '', // Dolphins or Browns
     13: '', // Packers or Vikings
     14: '', // Falcons or Commanders
