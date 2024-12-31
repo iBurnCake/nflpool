@@ -42,7 +42,7 @@ const gameWinners = {
     12: 'Dolphins', // Dolphins or Browns
     13: 'Vikings', // Packers or Vikings
     14: 'Commanders', // Falcons or Commanders
-    15: '' // Lions or 49ers
+    15: 'Lions' // Lions or 49ers
 };
 
 function loadHousePicks() {
