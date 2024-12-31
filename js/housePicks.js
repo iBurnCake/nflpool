@@ -5,44 +5,44 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("DOMContentLoaded event fired");
     loadHousePicks();
 });
-// week 15 games
+// week 16 games
 const games = [
-    { homeTeam: 'Chiefs', awayTeam: 'Steelers', homeRecord: '14-1', awayRecord: '10-5' },
-    { homeTeam: 'Ravens', awayTeam: 'Texans', homeRecord: '10-5', awayRecord: '9-6' },
-    { homeTeam: 'Seahawks', awayTeam: 'Bears', homeRecord: '8-7', awayRecord: '4-11' },
-    { homeTeam: 'Chargers', awayTeam: 'Patriots', homeRecord: '9-6', awayRecord: '3-12' },
-    { homeTeam: 'Broncos', awayTeam: 'Bengals', homeRecord: '9-6', awayRecord: '7-8' },
-    { homeTeam: 'Cardinals', awayTeam: 'Rams', homeRecord: '7-8', awayRecord: '9-6' },
-    { homeTeam: 'Cowboys', awayTeam: 'Eagles', homeRecord: '7-8', awayRecord: '12-3' },
-    { homeTeam: 'Panthers', awayTeam: 'Buccaneers', homeRecord: '4-11', awayRecord: '8-7' },
-    { homeTeam: 'Jets', awayTeam: 'Bills', homeRecord: '4-11', awayRecord: '12-3' },
-    { homeTeam: 'Colts', awayTeam: 'Giants', homeRecord: '7-8', awayRecord: '2-13' },
-    { homeTeam: 'Raiders', awayTeam: 'Saints', homeRecord: '3-12', awayRecord: '5-10' },
-    { homeTeam: 'Titans', awayTeam: 'Jaguars', homeRecord: '3-12', awayRecord: '3-12' },
-    { homeTeam: 'Dolphins', awayTeam: 'Browns', homeRecord: '7-8', awayRecord: '3-12' },
-    { homeTeam: 'Packers', awayTeam: 'Vikings', homeRecord: '11-4', awayRecord: '13-2' },
-    { homeTeam: 'Falcons', awayTeam: 'Commanders', homeRecord: '8-7', awayRecord: '10-5' },
-    { homeTeam: 'Lions', awayTeam: '49ers', homeRecord: '13-2', awayRecord: '6-9' }
+    { homeTeam: 'Ravens', awayTeam: 'Browns', homeRecord: '11-5', awayRecord: '3-13' },
+    { homeTeam: 'Steelers', awayTeam: 'Bengals', homeRecord: '10-6', awayRecord: '8-6' },
+    { homeTeam: 'Falcons', awayTeam: 'Panthers', homeRecord: '8-8', awayRecord: '4-12' },
+    { homeTeam: 'Titans', awayTeam: 'Texans', homeRecord: '3-13', awayRecord: '9-7' },
+    { homeTeam: 'Eagles', awayTeam: 'Giants', homeRecord: '13-3', awayRecord: '3-13' },
+    { homeTeam: 'Colts', awayTeam: 'Jaguars', homeRecord: '7-9', awayRecord: '4-12' },
+    { homeTeam: 'Cowboys', awayTeam: 'Commanders', homeRecord: '7-9', awayRecord: '11-5' },
+    { homeTeam: 'Packers', awayTeam: 'Bears', homeRecord: '11-5', awayRecord: '4-12' },
+    { homeTeam: 'Buccaneers', awayTeam: 'Saints', homeRecord: '9-7', awayRecord: '5-11' },
+    { homeTeam: 'Patriots', awayTeam: 'Bills', homeRecord: '3-13', awayRecord: '13-3' },
+    { homeTeam: 'Raiders', awayTeam: 'Chargers', homeRecord: '4-12', awayRecord: '10-6' },
+    { homeTeam: 'Cardinals', awayTeam: '49ers', homeRecord: '7-9', awayRecord: '6-10' },
+    { homeTeam: 'Broncos', awayTeam: 'Chiefs', homeRecord: '9-7', awayRecord: '15-1' },
+    { homeTeam: 'Rams', awayTeam: 'Seahawks', homeRecord: '10-6', awayRecord: '9-7' },
+    { homeTeam: 'Jets', awayTeam: 'Dolphins', homeRecord: '4-12', awayRecord: '8-8' },
+    { homeTeam: 'Lions', awayTeam: 'Vikings', homeRecord: '14-2', awayRecord: '14-2' }
 ];
 
 
 const gameWinners = {
-    0: 'Chiefs', // Chiefs or Steelers
-    1: 'Ravens', // Ravens or Texans
-    2: 'Seahawks', // Seahawks or Bears
-    3: 'Chargers', // Chargers or Patriots
-    4: 'Bengals', // Broncos or Bengals
-    5: 'Rams', // Cardinals or Rams
-    6: 'Eagles', // Cowboys or Eagles
-    7: 'Buccaneers', // Panthers or Buccaneers
-    8: 'Bills', // Jets or Bills
-    9: 'Giants', // Colts or Giants
-    10: 'Raiders', // Raiders or Saints
-    11: 'Jaguars', // Titans or Jaguars
-    12: 'Dolphins', // Dolphins or Browns
-    13: 'Vikings', // Packers or Vikings
-    14: 'Commanders', // Falcons or Commanders
-    15: 'Lions' // Lions or 49ers
+    0: '', // Ravens or Browns
+    1: '', // Steelers or Bengals
+    2: '', // Falcons or Panthers
+    3: '', // Titans or Texans
+    4: '', // Eagles or Giants
+    5: '', // Colts or Jaguars
+    6: '', // Cowboys or Commanders
+    7: '', // Packers or Bears
+    8: '', // Buccaneers or Saints
+    9: '', // Patriots or Bills
+    10: '', // Raiders or Chargers
+    11: '', // Cardinals or 49ers
+    12: '', // Broncos or Chiefs
+    13: '', // Rams or Seahawks
+    14: '', // Jets or Dolphins
+    15: '' // Lions or Vikings
 };
 
 function loadHousePicks() {
