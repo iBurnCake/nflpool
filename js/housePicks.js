@@ -27,7 +27,7 @@ const games = [
 
 
 const gameWinners = {
-    0: '', // Ravens or Browns
+    0: 'Ravens', // Ravens or Browns
     1: '', // Steelers or Bengals
     2: '', // Falcons or Panthers
     3: '', // Titans or Texans
