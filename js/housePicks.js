@@ -42,7 +42,7 @@ const gameWinners = {
     12: 'Chiefs', // Broncos or Chiefs
     13: 'Seahawks', // Rams or Seahawks
     14: 'Jets', // Jets or Dolphins
-    15: '' // Lions or Vikings
+    15: 'Lions' // Lions or Vikings
 };
 
 function loadHousePicks() {
