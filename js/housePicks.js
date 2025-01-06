@@ -40,7 +40,7 @@ const gameWinners = {
     10: 'Chargers', // Raiders or Chargers
     11: '', // Cardinals or 49ers
     12: 'Chiefs', // Broncos or Chiefs
-    13: '', // Rams or Seahawks
+    13: 'Seahawks', // Rams or Seahawks
     14: 'Jets', // Jets or Dolphins
     15: '' // Lions or Vikings
 };
