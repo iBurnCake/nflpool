@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "ckeegan437@gmail.com": "Charles Keegan",
         "ryansanders603@hotmail.com": "Ryan Sanders",
         "williammathis2004@gmail.com": "William Mathis",
-        "angelakant007@gmail.com": "Angela Kant",
+        "angelakant007@gmail.com": "cheating whore",
         "luke.romano2004@gmail.com": "Luke Romano",
         "rsanjay@udel.edu": "Raul Sanjay",
     };
