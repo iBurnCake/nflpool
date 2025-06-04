@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const displayName = getNameByEmail(user.email);
             document.getElementById('usernameDisplay').textContent = displayName;
 
-            loadUsernameColor(user.uid); 
+            loadUsernameColor(user.uid);
             displayGames();
             loadUserPicks(user.uid);
         } else {
@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     function getNameByEmail(email) {
-        return emailToNameMap[email] || email; 
+        return emailToNameMap[email] || email;
     }
 
 
@@ -86,7 +86,7 @@ function loadUsernameColor(userId) {
 
       const saveButton = document.getElementById("saveColorButton");
       const colorPicker = document.getElementById("usernameColorPicker");
-  
+
       saveButton.addEventListener("click", () => {
           const selectedColor = colorPicker.value;
           set(colorRef, selectedColor)
@@ -164,7 +164,7 @@ window.selectPick = function (gameIndex, team) {
 
     const homeButton = document.getElementById(`home-${gameIndex}`);
     const awayButton = document.getElementById(`away-${gameIndex}`);
-    
+
     if (team === 'home') {
         homeButton.classList.add("selected");
         awayButton.classList.remove("selected");
