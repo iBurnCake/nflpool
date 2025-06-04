@@ -1,4 +1,4 @@
-import { auth, db, signInWithEmailAndPassword, ref, set, get, child, onAuthStateChanged } from './firebaseConfig.js';
+import { auth, db, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, ref, set, get, child, onAuthStateChanged } from './firebaseConfig.js';
 
 document.addEventListener("DOMContentLoaded", () => {
     onAuthStateChanged(auth, (user) => {
@@ -54,6 +54,18 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch((error) => {
                 console.error("Login error:", error.message);
                 alert("Login failed. Please check your email and password.");
+            });
+    });
+
+    document.getElementById('googleLoginButton')?.addEventListener("click", () => {
+        const provider = new GoogleAuthProvider();
+        signInWithPopup(auth, provider)
+            .then((result) => {
+                console.log("Google login successful:", result.user.email);
+            })
+            .catch((error) => {
+                console.error("Google login error:", error.message);
+                alert("Google login failed. Please try again.");
             });
     });
 
