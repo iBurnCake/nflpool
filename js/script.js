@@ -1,4 +1,4 @@
-import { auth, db, signInWithEmailAndPassword, ref, set, get, child, onAuthStateChanged } from './firebaseConfig.js';
+import { auth, db, signInWithPopup, GoogleAuthProvider, ref, set, get, child, onAuthStateChanged } from './firebaseConfig.js';
 
 document.addEventListener("DOMContentLoaded", () => {
     onAuthStateChanged(auth, (user) => {
@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const displayName = getNameByEmail(user.email);
             document.getElementById('usernameDisplay').textContent = displayName;
 
-            loadUsernameColor(user.uid); 
+            loadUsernameColor(user.uid);
             displayGames();
             loadUserPicks(user.uid);
         } else {
@@ -37,23 +37,19 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     function getNameByEmail(email) {
-        return emailToNameMap[email] || email; 
+        return emailToNameMap[email] || email;
     }
 
-    document.getElementById('loginForm')?.addEventListener("submit", (event) => {
-        event.preventDefault();
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
 
-        console.log("Attempting login with email:", email);
-
-        signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                console.log("Login successful:", userCredential.user.email);
+    document.getElementById('googleLoginButton')?.addEventListener("click", () => {
+        const provider = new GoogleAuthProvider();
+        signInWithPopup(auth, provider)
+            .then((result) => {
+                console.log("Google login successful:", result.user.email);
             })
             .catch((error) => {
-                console.error("Login error:", error.message);
-                alert("Login failed. Please check your email and password.");
+                console.error("Google login error:", error.message);
+                alert("Google login failed. Please try again.");
             });
     });
 
@@ -90,7 +86,7 @@ function loadUsernameColor(userId) {
 
       const saveButton = document.getElementById("saveColorButton");
       const colorPicker = document.getElementById("usernameColorPicker");
-  
+
       saveButton.addEventListener("click", () => {
           const selectedColor = colorPicker.value;
           set(colorRef, selectedColor)
@@ -168,7 +164,7 @@ window.selectPick = function (gameIndex, team) {
 
     const homeButton = document.getElementById(`home-${gameIndex}`);
     const awayButton = document.getElementById(`away-${gameIndex}`);
-    
+
     if (team === 'home') {
         homeButton.classList.add("selected");
         awayButton.classList.remove("selected");
