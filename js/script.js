@@ -57,17 +57,38 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     });
 
-    document.getElementById('googleLoginButton')?.addEventListener("click", () => {
-        const provider = new GoogleAuthProvider();
-        signInWithPopup(auth, provider)
-            .then((result) => {
-                console.log("Google login successful:", result.user.email);
-            })
-            .catch((error) => {
-                console.error("Google login error:", error.message);
+   // =======================
+// GOOGLE LOGIN
+// =======================
+document.getElementById('googleLoginButton')?.addEventListener("click", () => {
+    const provider = new GoogleAuthProvider();
+
+    signInWithPopup(auth, provider)
+        .then((result) => {
+            console.log("Google login successful:", result.user.email);
+            // Hide login, show home section
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('userHomeSection').style.display = 'block';
+
+            const displayName = getNameByEmail(result.user.email);
+            document.getElementById('usernameDisplay').textContent = displayName;
+
+            loadUsernameColor(result.user.uid);
+            displayGames();
+            loadUserPicks(result.user.uid);
+        })
+        .catch((error) => {
+            console.error("Google login error:", error);
+
+            if (error.code === 'auth/account-exists-with-different-credential') {
+                const email = error.customData?.email;
+                alert(`An account with ${email} already exists with a different login method. Please log in using your email/password first.`);
+            } else {
                 alert("Google login failed. Please try again.");
-            });
-    });
+            }
+        });
+});
+
 
     document.getElementById('resetButton')?.addEventListener("click", resetPicks);
     document.getElementById('submitButton')?.addEventListener("click", submitPicks);
