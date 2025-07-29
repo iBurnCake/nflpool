@@ -142,6 +142,31 @@ button:hover {
     background-color: #218838;
 }
 
+#logoutButton {
+    background-color: #FF4500;
+}
+
+#logoutButton:hover {
+    background-color: #d1704d;
+}
+
+#viewHousePicksButton {
+    background-color: #3B7EED;
+}
+
+#viewHousePicksButton:hover {
+    background-color: #1F5B99;
+}
+
+#pastWeeksButton {
+    background-color: #800080; /* Purple background */
+}
+
+#pastWeeksButton:hover {
+    background-color: #660066; /* Darker purple on hover */
+}
+
+
 /* Games and Leaderboard Sections */
 section {
     width: 90%;
@@ -368,23 +393,6 @@ th {
     font-weight: bold;
 }
 
-#logoutButton {
-    background-color: #FF4500;
-}
-
-#logoutButton:hover {
-    background-color: #d1704d;
-}
-
-/* Style for View House Picks Button in Top Button Container */
-#viewHousePicksButton {
-    background-color: #3B7EED;
-}
-
-#viewHousePicksButton:hover {
-    background-color: #1F5B99;
-}
-
 .past-weeks-view {
     display: flex;
     flex-direction: column; /* Stacks tables vertically */
@@ -430,16 +438,6 @@ th {
     background-color: #444;
     font-weight: bold;
 }
-
-#pastWeeksButton {
-    background-color: #800080; /* Purple background */
-}
-
-#pastWeeksButton:hover {
-    background-color: #660066; /* Darker purple on hover */
-}
-
-
 
 /* For smaller screens, stack the tables */
 @media (max-width: 768px) {
