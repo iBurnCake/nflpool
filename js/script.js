@@ -20,6 +20,17 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // Force session-only persistence so login ends when tab closes
+import { setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+setPersistence(auth, browserSessionPersistence)
+  .then(() => {
+    console.log("Session persistence set: Users will log in fresh when they open a new tab.");
+  })
+  .catch((error) => {
+    console.error("Error setting persistence:", error);
+  });
+
     const emailToNameMap = {
         "devonstankis3@gmail.com": "De Von",
         "kyrakafel@gmail.com": "Kyra Kafel",
