@@ -1,51 +1,4 @@
-import { auth, db, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, ref, set, get, child, onAuthStateChanged, fetchSignInMethodsForEmail, linkWithCredential} from './firebaseConfig.js';
-import { setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-// Set login persistence
-setPersistence(auth, browserSessionPersistence)
-  .then(() => console.log("Session persistence set."))
-  .catch((error) => console.error("Error setting persistence:", error));
-
-// Google login button handler
-document.getElementById('googleLoginButton')?.addEventListener("click", () => {
-    const provider = new GoogleAuthProvider();
-
-    signInWithPopup(auth, provider)
-        .then((result) => {
-            console.log("Google login successful:", result.user.email);
-            handleSuccessfulLogin(result.user);
-        })
-        .catch(async (error) => {
-            console.error("Google login error:", error);
-
-            if (error.code === 'auth/account-exists-with-different-credential') {
-                const email = error.customData?.email;
-                const pendingCred = error.credential;
-
-                try {
-                    const methods = await fetchSignInMethodsForEmail(auth, email);
-
-                    if (methods.includes('password')) {
-                        const password = prompt(`An account already exists for ${email}. Please enter your password to link Google login:`);
-                        if (!password) return alert("Linking cancelled.");
-
-                        const emailUser = await signInWithEmailAndPassword(auth, email, password);
-                        await linkWithCredential(emailUser.user, pendingCred);
-
-                        console.log("Google account linked successfully.");
-                        handleSuccessfulLogin(emailUser.user);
-                    } else {
-                        alert(`Please log in using: ${methods.join(', ')}`);
-                    }
-                } catch (linkError) {
-                    console.error("Error linking accounts:", linkError);
-                    alert("Account linking failed.");
-                }
-            } else {
-                alert("Google login failed. Please try again.");
-            }
-        });
-});
+import { auth, db, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, ref, set, get, child, onAuthStateChanged } from './firebaseConfig.js';
 
 document.addEventListener("DOMContentLoaded", () => {
     onAuthStateChanged(auth, (user) => {
@@ -67,16 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-
-
-setPersistence(auth, browserSessionPersistence)
-  .then(() => {
-    console.log("Session persistence set: Users will log in fresh when they open a new tab.");
-  })
-  .catch((error) => {
-    console.error("Error setting persistence:", error);
-  });
-
     const emailToNameMap = {
         "devonstankis3@gmail.com": "De Von",
         "kyrakafel@gmail.com": "Kyra Kafel",
@@ -97,6 +40,57 @@ setPersistence(auth, browserSessionPersistence)
         return emailToNameMap[email] || email; 
     }
 
+
+// =======================
+// GOOGLE LOGIN (with account linking)
+// =======================
+document.getElementById('googleLoginButton')?.addEventListener("click", () => {
+    const provider = new GoogleAuthProvider();
+
+    signInWithPopup(auth, provider)
+        .then((result) => {
+            console.log("Google login successful:", result.user.email);
+            handleSuccessfulLogin(result.user);
+        })
+        .catch(async (error) => {
+            console.error("Google login error:", error);
+
+            if (error.code === 'auth/account-exists-with-different-credential') {
+                const email = error.customData?.email;
+                const pendingCred = error.credential;
+
+                try {
+                    // Get sign-in methods for this email
+                    const methods = await fetchSignInMethodsForEmail(auth, email);
+
+                    if (methods.includes('password')) {
+                        // Ask user for password to link accounts
+                        const password = prompt(`An account already exists for ${email}. Please enter your password to link Google login:`);
+                        if (!password) {
+                            alert("Linking cancelled.");
+                            return;
+                        }
+
+                        // Sign in with email/password
+                        const emailUser = await signInWithEmailAndPassword(auth, email, password);
+
+                        // Link Google credential to this account
+                        await linkWithCredential(emailUser.user, pendingCred);
+
+                        console.log("Google account successfully linked to existing email/password account.");
+                        handleSuccessfulLogin(emailUser.user);
+                    } else {
+                        alert(`Please log in using your existing method: ${methods.join(', ')}`);
+                    }
+                } catch (linkError) {
+                    console.error("Error linking accounts:", linkError);
+                    alert("Account linking failed. Please try logging in with your original method.");
+                }
+            } else {
+                alert("Google login failed. Please try again.");
+            }
+        });
+});
 
 // Helper to handle showing the correct UI after login
 function handleSuccessfulLogin(user) {
@@ -267,23 +261,16 @@ function saveUserPicks(userId) {
         .catch(error => console.error("Error saving picks:", error));
 }
 
-import { onValue} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
 function loadUserPicks(userId) {
-    const picksRef = ref(db, `scoreboards/week9/${userId}`);
-    onValue(picksRef, (snapshot) => {
-    const data = snapshot.val() || {}; 
-    userPicks = {};
-    usedPoints.clear();
-    if (Object.keys(data).length > 0) {
-        userPicks = data;
-        displayUserPicks(userPicks);
-    } else {
-        displayGames();
-    }
-}, (error) => {
-    console.error("Error loading picks:", error);
-});
+    get(child(ref(db), `scoreboards/week9/${userId}`))
+        .then(snapshot => {
+            if (snapshot.exists()) {
+                userPicks = snapshot.val();
+                displayUserPicks(userPicks);
+            }
+        })
+        .catch(error => console.error("Error loading picks:", error));
+}
 
 function displayUserPicks(picks) {
     for (const gameIndex in picks) {
@@ -326,4 +313,3 @@ window.submitPicks = function () {
             alert("Error submitting picks. Please try again.");
         });
 };
-
