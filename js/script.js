@@ -51,10 +51,6 @@ setPersistence(auth, browserSessionPersistence)
         return emailToNameMap[email] || email; 
     }
 
-
-// =======================
-// GOOGLE LOGIN (with account linking)
-// =======================
 document.getElementById('googleLoginButton')?.addEventListener("click", () => {
     const provider = new GoogleAuthProvider();
 
@@ -276,14 +272,11 @@ import { onValue, ref } from "https://www.gstatic.com/firebasejs/10.12.0/firebas
 
 function loadUserPicks(userId) {
     const picksRef = ref(db, `scoreboards/week9/${userId}`);
-
-    // Live listener for changes in this user's picks
     onValue(picksRef, (snapshot) => {
         if (snapshot.exists()) {
             userPicks = snapshot.val();
             displayUserPicks(userPicks);
         } else {
-            // No picks found — reset UI
             userPicks = {};
             usedPoints.clear();
             displayGames();
