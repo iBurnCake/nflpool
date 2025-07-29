@@ -273,18 +273,18 @@ import { onValue, ref } from "https://www.gstatic.com/firebasejs/10.12.0/firebas
 function loadUserPicks(userId) {
     const picksRef = ref(db, `scoreboards/week9/${userId}`);
     onValue(picksRef, (snapshot) => {
-        if (snapshot.exists()) {
-            userPicks = snapshot.val();
-            displayUserPicks(userPicks);
-        } else {
-            userPicks = {};
-            usedPoints.clear();
-            displayGames();
-        }
-    }, (error) => {
-        console.error("Error loading picks:", error);
-    });
-}
+    const data = snapshot.val() || {}; 
+    userPicks = {};
+    usedPoints.clear();
+    if (Object.keys(data).length > 0) {
+        userPicks = data;
+        displayUserPicks(userPicks);
+    } else {
+        displayGames();
+    }
+}, (error) => {
+    console.error("Error loading picks:", error);
+});
 
 function displayUserPicks(picks) {
     for (const gameIndex in picks) {
