@@ -267,7 +267,7 @@ function saveUserPicks(userId) {
         .catch(error => console.error("Error saving picks:", error));
 }
 
-import { onValue, ref } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { onValue} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 function loadUserPicks(userId) {
     const picksRef = ref(db, `scoreboards/week9/${userId}`);
