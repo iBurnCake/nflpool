@@ -1,4 +1,4 @@
-import { auth, db, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, ref, set, get, child, onAuthStateChanged } from './firebaseConfig.js';
+import { auth, db, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, ref, set, get, child, onAuthStateChanged, fetchSignInMethodsForEmail, linkWithCredential} from './firebaseConfig.js';
 
 document.addEventListener("DOMContentLoaded", () => {
     onAuthStateChanged(auth, (user) => {
