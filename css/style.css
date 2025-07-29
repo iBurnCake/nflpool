@@ -131,7 +131,7 @@ button:hover {
 }
 
 #resetButton:hover {
-    background-color: #CC0000;
+    background-color: #dd7d7d;
 }
 
 #submitButton {
@@ -373,7 +373,7 @@ th {
 }
 
 #logoutButton:hover {
-    background-color: #CC3700;
+    background-color: #d1704d;
 }
 
 /* Style for View House Picks Button in Top Button Container */
