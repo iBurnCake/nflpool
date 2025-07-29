@@ -272,15 +272,25 @@ function saveUserPicks(userId) {
         .catch(error => console.error("Error saving picks:", error));
 }
 
+import { onValue, ref } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
 function loadUserPicks(userId) {
-    get(child(ref(db), `scoreboards/week9/${userId}`))
-        .then(snapshot => {
-            if (snapshot.exists()) {
-                userPicks = snapshot.val();
-                displayUserPicks(userPicks);
-            }
-        })
-        .catch(error => console.error("Error loading picks:", error));
+    const picksRef = ref(db, `scoreboards/week9/${userId}`);
+
+    // Live listener for changes in this user's picks
+    onValue(picksRef, (snapshot) => {
+        if (snapshot.exists()) {
+            userPicks = snapshot.val();
+            displayUserPicks(userPicks);
+        } else {
+            // No picks found — reset UI
+            userPicks = {};
+            usedPoints.clear();
+            displayGames();
+        }
+    }, (error) => {
+        console.error("Error loading picks:", error);
+    });
 }
 
 function displayUserPicks(picks) {
