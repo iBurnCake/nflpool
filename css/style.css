@@ -439,6 +439,29 @@ th {
     font-weight: bold;
 }
 
+/* Button Box Styling */
+#buttonBox {
+    width: 30%;
+    background-color: #333;
+    border: 2px solid #FFD700;
+    border-radius: 10px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Make buttons fill width inside box */
+#buttonBox button {
+    width: 100%;
+    padding: 8px;
+    color: white;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
 /* For smaller screens, stack the tables */
 @media (max-width: 768px) {
     .past-weeks-view {
