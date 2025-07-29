@@ -40,22 +40,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return emailToNameMap[email] || email; 
     }
 
-    document.getElementById('loginForm')?.addEventListener("submit", (event) => {
-        event.preventDefault();
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-
-        console.log("Attempting login with email:", email);
-
-        signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                console.log("Login successful:", userCredential.user.email);
-            })
-            .catch((error) => {
-                console.error("Login error:", error.message);
-                alert("Login failed. Please check your email and password.");
-            });
-    });
 
 // =======================
 // GOOGLE LOGIN (with account linking)
