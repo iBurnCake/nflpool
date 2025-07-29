@@ -57,8 +57,8 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     });
 
-   // =======================
-// GOOGLE LOGIN
+// =======================
+// GOOGLE LOGIN (with account linking)
 // =======================
 document.getElementById('googleLoginButton')?.addEventListener("click", () => {
     const provider = new GoogleAuthProvider();
@@ -66,28 +66,61 @@ document.getElementById('googleLoginButton')?.addEventListener("click", () => {
     signInWithPopup(auth, provider)
         .then((result) => {
             console.log("Google login successful:", result.user.email);
-            // Hide login, show home section
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('userHomeSection').style.display = 'block';
-
-            const displayName = getNameByEmail(result.user.email);
-            document.getElementById('usernameDisplay').textContent = displayName;
-
-            loadUsernameColor(result.user.uid);
-            displayGames();
-            loadUserPicks(result.user.uid);
+            handleSuccessfulLogin(result.user);
         })
-        .catch((error) => {
+        .catch(async (error) => {
             console.error("Google login error:", error);
 
             if (error.code === 'auth/account-exists-with-different-credential') {
                 const email = error.customData?.email;
-                alert(`An account with ${email} already exists with a different login method. Please log in using your email/password first.`);
+                const pendingCred = error.credential;
+
+                try {
+                    // Get sign-in methods for this email
+                    const methods = await fetchSignInMethodsForEmail(auth, email);
+
+                    if (methods.includes('password')) {
+                        // Ask user for password to link accounts
+                        const password = prompt(`An account already exists for ${email}. Please enter your password to link Google login:`);
+                        if (!password) {
+                            alert("Linking cancelled.");
+                            return;
+                        }
+
+                        // Sign in with email/password
+                        const emailUser = await signInWithEmailAndPassword(auth, email, password);
+
+                        // Link Google credential to this account
+                        await linkWithCredential(emailUser.user, pendingCred);
+
+                        console.log("Google account successfully linked to existing email/password account.");
+                        handleSuccessfulLogin(emailUser.user);
+                    } else {
+                        alert(`Please log in using your existing method: ${methods.join(', ')}`);
+                    }
+                } catch (linkError) {
+                    console.error("Error linking accounts:", linkError);
+                    alert("Account linking failed. Please try logging in with your original method.");
+                }
             } else {
                 alert("Google login failed. Please try again.");
             }
         });
 });
+
+// Helper to handle showing the correct UI after login
+function handleSuccessfulLogin(user) {
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('userHomeSection').style.display = 'block';
+
+    const displayName = getNameByEmail(user.email);
+    document.getElementById('usernameDisplay').textContent = displayName;
+
+    loadUsernameColor(user.uid);
+    displayGames();
+    loadUserPicks(user.uid);
+}
+
 
 
     document.getElementById('resetButton')?.addEventListener("click", resetPicks);
