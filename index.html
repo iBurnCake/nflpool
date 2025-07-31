@@ -84,69 +84,75 @@
         </div>
     </div>
 
-    <!-- User Home Section -->
-    <div id="userHomeSection" style="display: none;">
-        <div class="settings-container">
-            <h2>Welcome, <span id="usernameDisplay"></span></h2>
+<!-- User Home Section -->
+<div id="userHomeSection" style="display: none;">
 
-            <!-- Username Color Picker + Profile Picture -->
-            <div id="colorPickerContainer">
-                <label for="usernameColorPicker">Select Username Color:</label>
-                <input type="color" id="usernameColorPicker">
-                <button id="saveColorButton">Save</button>
+    <!-- 1️⃣ Profile & Username Color -->
+    <div class="settings-container">
+        <h2>Welcome, <span id="usernameDisplay"></span></h2>
+        <div id="colorPickerContainer">
+            <label for="usernameColorPicker">Select Username Color:</label>
+            <input type="color" id="usernameColorPicker">
+            <button id="saveColorButton">Save</button>
 
-                <!-- Profile Picture Upload -->
-                <div id="profilePicContainer">
-                    <label for="profilePicInput">Upload Profile Picture:</label>
-                    <input type="file" id="profilePicInput" accept="image/*">
-                    <img id="profilePicPreview" src="" alt="Profile Preview">
-                    <button id="saveProfilePicButton">Save Profile Picture</button>
-                </div>
-            </div>
-
-            <!-- Instructions + Buttons -->
-            <div id="instructionsContainer">
-                <div id="instructionsBox">
-                    <h3>Pick Instructions</h3>
-                    <ul>
-                        <li>1. Select your team pick for each game.</li>
-                        <li>2. Assign confidence points (1-16) for each game.</li>
-                        <li>3. Once the game starts, your picks are locked in.</li>
-                        <li>4. Any cheating attempts will result in account disabling.</li>
-                    </ul>
-                </div>
-                <div id="colorInstructionsBox">
-                    <h3>Color Customization</h3>
-                    <ul>
-                        <li>1. Pick your username color above.</li>
-                        <li>2. Save it to apply across all leaderboards.</li>
-                        <li>3. Your color is instantly applied.</li>
-                    </ul>
-                </div>
-                <div id="buttonBox">
-                    <button id="resetButton">Reset Picks</button>
-                    <button id="submitButton">Submit Picks</button>
-                    <button id="viewHousePicksButton" onclick="viewHousePicks()">View House Picks</button>
-                    <button id="pastWeeksButton">Past Weeks</button>
-                    <button id="logoutButton">Logout</button>
-                </div>
-            </div>
-
-            <!-- Games Table -->
-            <div style="display: flex; flex-grow: 1;">
-                <table id="gamesTable" style="width: 100%;">
-                    <thead>
-                        <tr>
-                            <th>Game</th>
-                            <th>Pick</th>
-                            <th>Confidence</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+            <!-- Profile Picture Upload -->
+            <div id="profilePicContainer">
+                <label for="profilePicInput">Upload Profile Picture:</label>
+                <input type="file" id="profilePicInput" accept="image/*">
+                <img id="profilePicPreview" src="" alt="Profile Preview">
+                <button id="saveProfilePicButton">Save Profile Picture</button>
             </div>
         </div>
     </div>
+
+    <!-- 2️⃣ Instructions & Buttons -->
+    <div class="settings-container">
+        <div id="instructionsContainer">
+            <div id="instructionsBox">
+                <h3>Pick Instructions</h3>
+                <ul>
+                    <li>1. Select your team pick for each game.</li>
+                    <li>2. Assign confidence points (1-16) for each game.</li>
+                    <li>3. Once the game starts, your picks are locked in.</li>
+                    <li>4. Any cheating attempts will result in account disabling.</li>
+                </ul>
+            </div>
+            <div id="colorInstructionsBox">
+                <h3>Color Customization</h3>
+                <ul>
+                    <li>1. Pick your username color above.</li>
+                    <li>2. Save it to apply across all leaderboards.</li>
+                    <li>3. Your color is instantly applied.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div id="buttonBox" style="margin-top: 15px;">
+            <button id="resetButton">Reset Picks</button>
+            <button id="submitButton">Submit Picks</button>
+            <button id="viewHousePicksButton" onclick="viewHousePicks()">View House Picks</button>
+            <button id="pastWeeksButton">Past Weeks</button>
+            <button id="logoutButton">Logout</button>
+        </div>
+    </div>
+
+    <!-- 3️⃣ Game Picks Table -->
+    <div class="settings-container">
+        <table id="gamesTable" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Game</th>
+                    <th>Pick</th>
+                    <th>Confidence</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+</div>
+
 
     <script type="module" src="js/script.js"></script>
     <script>
