@@ -1,24 +1,53 @@
-import { auth, db, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, ref, set, get, child, onAuthStateChanged } from './firebaseConfig.js';
+import { auth, db, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, ref, set, get, child, onAuthStateChanged, fetchSignInMethodsForEmail, linkWithCredential} from './firebaseConfig.js';
 
 document.addEventListener("DOMContentLoaded", () => {
     onAuthStateChanged(auth, (user) => {
-        if (user) {
-            console.log("User logged in:", user.email);
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('userHomeSection').style.display = 'block';
+    if (user) {
+        console.log("User logged in:", user.email);
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('userHomeSection').style.display = 'block';
 
-            const displayName = getNameByEmail(user.email);
-            document.getElementById('usernameDisplay').textContent = displayName;
+        const displayName = getNameByEmail(user.email);
+        document.getElementById('usernameDisplay').textContent = displayName;
 
-            loadUsernameColor(user.uid); 
-            displayGames();
-            loadUserPicks(user.uid);
-        } else {
-            console.log("No user logged in");
-            document.getElementById('loginSection').style.display = 'block';
-            document.getElementById('userHomeSection').style.display = 'none';
-        }
+        // Load username color
+        loadUsernameColor(user.uid); 
+
+        // Load profile picture
+        loadUserProfilePicture(user.uid); // <-- ADDED LINE
+
+        // Display games and picks
+        displayGames();
+        loadUserPicks(user.uid);
+    } else {
+        console.log("No user logged in");
+        document.getElementById('loginSection').style.display = 'block';
+        document.getElementById('userHomeSection').style.display = 'none';
+    }
+});
+
+    // =======================
+    // PROFILE PICTURE UPLOAD HANDLER
+    // =======================
+    document.getElementById('profilePicInput')?.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const base64Data = event.target.result;
+
+            // Save to Firebase Realtime Database
+            set(ref(db, `users/${auth.currentUser.uid}/profilePicture`), base64Data)
+                .then(() => {
+                    document.getElementById('profileImage').src = base64Data;
+                    alert("Profile picture updated!");
+                })
+                .catch(error => console.error("Error saving profile picture:", error));
+        };
+        reader.readAsDataURL(file);
     });
+    
 
     const emailToNameMap = {
         "devonstankis3@gmail.com": "De Von",
@@ -313,3 +342,19 @@ window.submitPicks = function () {
             alert("Error submitting picks. Please try again.");
         });
 };
+
+function loadUserProfilePicture(userId) {
+    const profilePicRef = ref(db, `users/${userId}/profilePicture`);
+    const profileImg = document.getElementById('profileImage');
+
+    get(profilePicRef).then(snapshot => {
+        if (snapshot.exists()) {
+            profileImg.src = snapshot.val();
+        } else {
+            profileImg.src = 'images/default-profile.png';
+        }
+    }).catch(error => {
+        console.error("Error loading profile picture:", error);
+        profileImg.src = 'images/default-profile.png';
+    });
+}
