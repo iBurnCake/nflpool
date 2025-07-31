@@ -166,6 +166,21 @@ button:hover {
     background-color: #660066; /* Darker purple on hover */
 }
 
+#profilePicContainer {
+    margin-top: 15px;
+    text-align: center;
+}
+
+#profilePicPreview {
+    display: block;
+    margin: 10px auto;
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #FFD700;
+}
+
 
 /* Games and Leaderboard Sections */
 section {
