@@ -10,6 +10,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const displayName = getNameByEmail(user.email);
             document.getElementById('usernameDisplay').textContent = displayName;
 
+            // Set profile picture
+            document.getElementById('profilePic').src = getProfilePicByEmail(user.email);
+
             loadUsernameColor(user.uid); 
             displayGames();
             loadUserPicks(user.uid);
@@ -20,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+     // Email → Name
     const emailToNameMap = {
         "devonstankis3@gmail.com": "De Von",
         "kyrakafel@gmail.com": "Kyra Kafel",
@@ -36,8 +40,29 @@ document.addEventListener("DOMContentLoaded", () => {
         "rsanjay@udel.edu": "Raul Sanjay",
     };
 
+    // Email → Profile Picture
+    const emailToProfilePicMap = {
+        "devonstankis3@gmail.com": "images/profiles/devon.jpg",
+        "kyrakafel@gmail.com": "images/profiles/kyra.jpg",
+        "tom.kant21@gmail.com": "images/profiles/tommy.jpg",
+        "vickiocf@gmail.com": "images/profiles/vicki.jpg",
+        "erossini02@gmail.com": "images/profiles/emily.jpg",
+        "tony.romano222@gmail.com": "images/profiles/tony.jpg",
+        "thomasromano19707@gmail.com": "images/profiles/thomas.jpg",
+        "ckeegan437@gmail.com": "images/profiles/charles.jpg",
+        "ryansanders603@hotmail.com": "images/profiles/ryan.jpg",
+        "williammathis2004@gmail.com": "images/profiles/william.jpg",
+        "angelakant007@gmail.com": "images/profiles/angela.jpg",
+        "luke.romano2004@gmail.com": "images/profiles/luke.jpg",
+        "rsanjay@udel.edu": "images/profiles/raul.jpg",
+    };
+
     function getNameByEmail(email) {
         return emailToNameMap[email] || email; 
+    }
+
+    function getProfilePicByEmail(email) {
+        return emailToProfilePicMap[email] || "images/profiles/default.png";
     }
 
 
@@ -92,20 +117,20 @@ document.getElementById('googleLoginButton')?.addEventListener("click", () => {
         });
 });
 
-// Helper to handle showing the correct UI after login
 function handleSuccessfulLogin(user) {
-    document.getElementById('loginSection').style.display = 'none';
-    document.getElementById('userHomeSection').style.display = 'block';
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('userHomeSection').style.display = 'block';
 
-    const displayName = getNameByEmail(user.email);
-    document.getElementById('usernameDisplay').textContent = displayName;
+        const displayName = getNameByEmail(user.email);
+        document.getElementById('usernameDisplay').textContent = displayName;
 
-    loadUsernameColor(user.uid);
-    displayGames();
-    loadUserPicks(user.uid);
-}
+        // Set profile picture
+        document.getElementById('profilePic').src = getProfilePicByEmail(user.email);
 
-
+        loadUsernameColor(user.uid);
+        displayGames();
+        loadUserPicks(user.uid);
+    }
 
     document.getElementById('resetButton')?.addEventListener("click", resetPicks);
     document.getElementById('submitButton')?.addEventListener("click", submitPicks);
