@@ -46,11 +46,13 @@
         #saveColorButton:hover {
             background-color: #45a049;
         }
+        /* Default profile pic */
         #profilePicPreview {
             display: block;
             margin: 10px auto;
             max-width: 100px;
             border-radius: 50%;
+            border: 2px solid #FFD700;
         }
         #instructionsContainer {
             display: flex;
@@ -90,18 +92,17 @@
     <!-- 1️⃣ Profile & Username Color -->
     <div class="settings-container">
         <h2>Welcome, <span id="usernameDisplay"></span></h2>
+
+        <!-- Username Color Picker -->
         <div id="colorPickerContainer">
             <label for="usernameColorPicker">Select Username Color:</label>
             <input type="color" id="usernameColorPicker">
             <button id="saveColorButton">Save</button>
+        </div>
 
-            <!-- Profile Picture Upload -->
-            <div id="profilePicContainer">
-                <label for="profilePicInput">Upload Profile Picture:</label>
-                <input type="file" id="profilePicInput" accept="image/*">
-                <img id="profilePicPreview" src="" alt="Profile Preview">
-                <button id="saveProfilePicButton">Save Profile Picture</button>
-            </div>
+        <!-- Default NFL Logo from Database -->
+        <div id="profilePicContainer">
+            <img id="profilePicPreview" src="images/nfl-logo.png" alt="Default NFL Logo">
         </div>
     </div>
 
