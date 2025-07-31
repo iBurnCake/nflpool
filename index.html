@@ -1,34 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NFL Football Pool</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        /* Add inline styles or move to style.css */
+        /* Dark theme container */
         .settings-container {
-            background-color: #333; /* Dark theme */
-            color: #fff; /* Text color for contrast */
+            background-color: #333;
+            color: #fff;
             padding: 20px;
             margin: 20px auto;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             text-align: center;
             max-width: 500px;
-            border: 2px solid #FFD700; /* Gold border */
+            border: 2px solid #FFD700;
         }
         .settings-container h2 {
             margin-bottom: 15px;
             font-size: 1.5em;
-            color: #FFD700; /* Gold text for headers */
+            color: #FFD700;
         }
         #colorPickerContainer {
             margin: 15px 0;
         }
         #colorPickerContainer label {
             font-weight: bold;
-            color: #FFD700; /* Matches gold style */
+            color: #FFD700;
         }
         #usernameColorPicker {
             margin-left: 10px;
@@ -46,28 +46,29 @@
         #saveColorButton:hover {
             background-color: #45a049;
         }
-
-        /* Instructions Boxes */
+        #profilePicPreview {
+            display: block;
+            margin: 10px auto;
+            max-width: 100px;
+            border-radius: 50%;
+        }
         #instructionsContainer {
             display: flex;
             gap: 20px;
             margin-bottom: 20px;
         }
-
         #instructionsBox, #colorInstructionsBox {
             width: 30%;
-            background-color: #333; /* Dark background */
-            color: #fff; /* White text */
+            background-color: #333;
+            color: #fff;
             padding: 15px;
             border-radius: 10px;
-            border: 2px solid #FFD700; /* Gold border */
+            border: 2px solid #FFD700;
             font-size: 14px;
         }
-
         #instructionsBox h3, #colorInstructionsBox h3 {
             color: #FFD700;
         }
-
         #instructionsBox ul, #colorInstructionsBox ul {
             list-style: none;
             padding-left: 0;
@@ -75,13 +76,13 @@
     </style>
 </head>
 <body>
-   <!-- Login Section -->
-<div id="loginSection">
-    <div class="login-container">
-        <h2>Login</h2>
-        <button type="button" id="googleLoginButton">Login with Google</button>
+    <!-- Login Section -->
+    <div id="loginSection">
+        <div class="login-container">
+            <h2>Login</h2>
+            <button type="button" id="googleLoginButton">Login with Google</button>
+        </div>
     </div>
-</div>
 
     <!-- User Home Section -->
     <div id="userHomeSection" style="display: none;">
@@ -89,67 +90,61 @@
             <h2>Welcome, <span id="usernameDisplay"></span></h2>
 
             <!-- Username Color Picker + Profile Picture -->
-<div id="colorPickerContainer">
-    <label for="usernameColorPicker">Select Username Color:</label>
-    <input type="color" id="usernameColorPicker">
-    <button id="saveColorButton">Save</button>
+            <div id="colorPickerContainer">
+                <label for="usernameColorPicker">Select Username Color:</label>
+                <input type="color" id="usernameColorPicker">
+                <button id="saveColorButton">Save</button>
 
-    <!-- Profile Picture Upload -->
-    <div id="profilePicContainer">
-        <label for="profilePicInput">Upload Profile Picture:</label>
-        <input type="file" id="profilePicInput" accept="image/*">
-        <img id="profilePicPreview" src="" alt="Profile Preview">
-        <button id="saveProfilePicButton">Save Profile Picture</button>
-    </div>
-</div>
+                <!-- Profile Picture Upload -->
+                <div id="profilePicContainer">
+                    <label for="profilePicInput">Upload Profile Picture:</label>
+                    <input type="file" id="profilePicInput" accept="image/*">
+                    <img id="profilePicPreview" src="" alt="Profile Preview">
+                    <button id="saveProfilePicButton">Save Profile Picture</button>
+                </div>
+            </div>
 
-       <!-- Instructions + Buttons all in one row -->
-<div id="instructionsContainer">
-    <!-- Picks Instructions -->
-    <div id="instructionsBox">
-        <h3>Pick Instructions</h3>
-        <ul>
-            <li>1. Select your team pick for each game.</li>
-            <li>2. Assign confidence points (1-16) for each game.</li>
-            <li>3. Once the game starts, your picks are locked in.</li>
-            <li>4. Any changes made during the week of games will result in account disabling and picks being wiped.</li>
-        </ul>
-    </div>
+            <!-- Instructions + Buttons -->
+            <div id="instructionsContainer">
+                <div id="instructionsBox">
+                    <h3>Pick Instructions</h3>
+                    <ul>
+                        <li>1. Select your team pick for each game.</li>
+                        <li>2. Assign confidence points (1-16) for each game.</li>
+                        <li>3. Once the game starts, your picks are locked in.</li>
+                        <li>4. Any cheating attempts will result in account disabling.</li>
+                    </ul>
+                </div>
+                <div id="colorInstructionsBox">
+                    <h3>Color Customization</h3>
+                    <ul>
+                        <li>1. Pick your username color above.</li>
+                        <li>2. Save it to apply across all leaderboards.</li>
+                        <li>3. Your color is instantly applied.</li>
+                    </ul>
+                </div>
+                <div id="buttonBox">
+                    <button id="resetButton">Reset Picks</button>
+                    <button id="submitButton">Submit Picks</button>
+                    <button id="viewHousePicksButton" onclick="viewHousePicks()">View House Picks</button>
+                    <button id="pastWeeksButton">Past Weeks</button>
+                    <button id="logoutButton">Logout</button>
+                </div>
+            </div>
 
-    <!-- Color Customization Instructions -->
-    <div id="colorInstructionsBox">
-        <h3>Color Customization</h3>
-        <ul>
-            <li>1. Use the color picker above to customize your username color.</li>
-            <li>2. Your selected color will update your username on all leaderboards.</li>
-            <li>3. Save your changes to apply them immediately.</li>
-        </ul>
-    </div>
-
-    <!-- Button Box -->
-    <div id="buttonBox">
-        <button id="resetButton">Reset Picks</button>
-        <button id="submitButton">Submit Picks</button>
-        <button id="viewHousePicksButton" onclick="viewHousePicks()">View House Picks</button>
-        <button id="pastWeeksButton">Past Weeks</button>
-        <button id="logoutButton">Logout</button>
-    </div>
-</div>
-
-
-        <!-- Games Table -->
-        <div style="display: flex; flex-grow: 1;">
-            <table id="gamesTable" style="width: 100%;">
-                <thead>
-                    <tr>
-                        <th>Game</th>
-                        <th>Pick</th>
-                        <th>Confidence</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+            <!-- Games Table -->
+            <div style="display: flex; flex-grow: 1;">
+                <table id="gamesTable" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Game</th>
+                            <th>Pick</th>
+                            <th>Confidence</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -161,6 +156,3 @@
     </script>
 </body>
 </html>
-
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
-
