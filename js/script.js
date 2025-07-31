@@ -1,4 +1,4 @@
-import { auth, db, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, ref, set, get, child, onAuthStateChanged } from './firebaseConfig.js';
+import { auth, db, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, ref, set, get, child, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence} from './firebaseConfig.js';
 
 document.addEventListener("DOMContentLoaded", () => {
     onAuthStateChanged(auth, (user) => {
@@ -10,8 +10,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const displayName = getNameByEmail(user.email);
             document.getElementById('usernameDisplay').textContent = displayName;
 
-            // Set profile picture
-            document.getElementById('profilePic').src = getProfilePicByEmail(user.email);
+            // Load profile picture from DB (NFL default if not set)
+            loadProfilePic(user.uid, user.email);
 
             loadUsernameColor(user.uid); 
             displayGames();
@@ -22,7 +22,6 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('userHomeSection').style.display = 'none';
         }
     });
-
      // Email → Name
     const emailToNameMap = {
         "devonstankis3@gmail.com": "De Von",
@@ -40,31 +39,27 @@ document.addEventListener("DOMContentLoaded", () => {
         "rsanjay@udel.edu": "Raul Sanjay",
     };
 
-    // Email → Profile Picture
-    const emailToProfilePicMap = {
-        "devonstankis3@gmail.com": "images/profiles/devon.jpg",
-        "kyrakafel@gmail.com": "images/profiles/kyra.jpg",
-        "tom.kant21@gmail.com": "images/profiles/tommy.jpg",
-        "vickiocf@gmail.com": "images/profiles/vicki.jpg",
-        "erossini02@gmail.com": "images/profiles/emily.jpg",
-        "tony.romano222@gmail.com": "images/profiles/tony.jpg",
-        "thomasromano19707@gmail.com": "images/profiles/thomas.jpg",
-        "ckeegan437@gmail.com": "images/profiles/charles.jpg",
-        "ryansanders603@hotmail.com": "images/profiles/ryan.jpg",
-        "williammathis2004@gmail.com": "images/profiles/william.jpg",
-        "angelakant007@gmail.com": "images/profiles/angela.jpg",
-        "luke.romano2004@gmail.com": "images/profiles/luke.jpg",
-        "rsanjay@udel.edu": "images/profiles/raul.jpg",
-    };
-
     function getNameByEmail(email) {
         return emailToNameMap[email] || email; 
     }
+// Load profile picture with NFL default
+    function loadProfilePic(userId, email) {
+        const profilePicElement = document.getElementById('profilePic');
+        const defaultNFLLogo = "images/profiles/nfl_default.png";
 
-    function getProfilePicByEmail(email) {
-        return emailToProfilePicMap[email] || "images/profiles/default.png";
+        get(ref(db, `users/${userId}/profilePic`))
+            .then(snapshot => {
+                if (snapshot.exists() && snapshot.val()) {
+                    profilePicElement.src = snapshot.val();
+                } else {
+                    profilePicElement.src = defaultNFLLogo;
+                }
+            })
+            .catch(err => {
+                console.error("Error loading profile picture:", err);
+                profilePicElement.src = defaultNFLLogo;
+            });
     }
-
 
 // =======================
 // GOOGLE LOGIN (with account linking)
