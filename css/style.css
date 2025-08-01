@@ -430,6 +430,42 @@ th {
     border-radius: 5px;
 }
 
+
+.username-color-box {
+    background-color: #1E1E1E;
+    border: 2px solid #FFD700;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.username-color-box h2 {
+    color: #FFD700;
+    margin-bottom: 10px;
+}
+
+.color-picker-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-picture-box {
+    background-color: #282828;
+    border: 2px solid #FFD700;
+    padding: 20px;
+}
+
+#saveColorButton {
+    background-color: #28a745;
+}
+
+#saveColorButton:hover {
+    background-color: #218838;
+}
+
+
+
 /* ---------------------------------------
    RESPONSIVE SECTION (for all devices)
    --------------------------------------- */
