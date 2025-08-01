@@ -107,20 +107,6 @@ function saveProfilePic(userId, picUrl) {
         });
 }
 
-// ✅ Load profile pic
-function loadProfilePic(userId) {
-    const userRef = ref(db, 'users/' + userId + '/profilePic');
-    get(userRef)
-        .then((snapshot) => {
-            if (snapshot.exists()) {
-                const picUrl = snapshot.val();
-                document.getElementById('profilePicPreview').src = picUrl;
-            }
-        })
-        .catch((error) => {
-            console.error("Error loading profile picture:", error);
-        });
-}
 // ✅ Called when a logo is clicked
 function handleLogoClick(imgSrc) {
     document.getElementById('profilePicPreview').src = imgSrc;
