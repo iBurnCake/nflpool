@@ -122,14 +122,16 @@ function loadProfilePic(userId) {
         });
 }
 
-function handleLogoClick(imgSrc) {
+// When a logo is clicked, update preview and save to Firebase
+window.handleLogoClick = function (imgSrc) {
     const profilePicPreview = document.getElementById('profilePicPreview');
     profilePicPreview.src = imgSrc;
 
     if (auth.currentUser) {
         saveProfilePic(auth.currentUser.uid, imgSrc);
     }
-}
+};
+
 // Username color save/load
 function loadUsernameColor(userId) {
     const colorRef = ref(db, `users/${userId}/usernameColor`);
