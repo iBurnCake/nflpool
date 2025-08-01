@@ -200,13 +200,6 @@ function loadProfilePic(userId) {
         });
 }
 
-
-
-
-
-
-
-
 // Username color save/load
 function loadUsernameColor(userId) {
     const colorRef = ref(db, `users/${userId}/usernameColor`);
