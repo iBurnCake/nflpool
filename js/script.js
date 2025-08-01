@@ -123,7 +123,7 @@ function loadProfilePic(userId) {
 // When a logo is clicked, update preview and save to Firebase
 function handleLogoClick(imgSrc) {
     const profilePicPreview = document.getElementById('profilePicPreview');
-    profilePicPreview.src = imgSrc;
+    handleLogoClick(img.src);
 
     if (auth.currentUser) {
         saveProfilePic(auth.currentUser.uid, imgSrc);
