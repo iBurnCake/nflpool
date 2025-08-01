@@ -164,59 +164,6 @@
     function viewHousePicks() {
         window.location.href = 'housePicks.html';
     }
-
-    // Populate NFL logos
-    const teams = [
-        "arizona-cardinals-logo.png",
-        "atlanta-falcons-logo.png",
-        "baltimore-ravens-logo.png",
-        "buffalo-bills-logo.png",
-        "carolina-panthers-logo.png",
-        "chicago-bears-logo.png",
-        "cincinnati-bengals-logo.png",
-        "cleveland-browns-logo.png",
-        "dallas-cowboys-logo.png",
-        "denver-broncos-logo.png",
-        "detroit-lions-logo.png",
-        "green-bay-packers-logo.png",
-        "houston-texans-logo.png",
-        "indianapolis-colts-logo.png",
-        "jacksonville-jaguars-logo.png",
-        "kansas-city-chiefs-logo.png",
-        "la-rams-logo.png",
-        "los-angeles-chargers-logo.png",
-        "los-angeles-rams-logo.png",
-        "miami-dolphins-logo.png",
-        "minnesota-vikings-logo.png",
-        "new-england-patriots-logo.png",
-        "new-orleans-saints-logo.png",
-        "new-york-giants-logo.png",
-        "new-york-jets-logo.png",
-        "oakland-raiders-logo.png",
-        "philadelphia-eagles-logo.png",
-        "pittsburgh-steelers-logo.png",
-        "san-francisco-49ers-logo.png",
-        "seattle-seahawks-logo.png",
-        "tampa-bay-buccaneers-logo.png",
-        "tennessee-titans-logo.png",
-        "washington-commanders-logo.png",
-        "washington-redskins-logo.png"
-    ];
-
-    const logoSelection = document.getElementById("logoSelection");
-    const profilePicPreview = document.getElementById("profilePicPreview");
-
-    teams.forEach(team => {
-        const div = document.createElement("div");
-        div.classList.add("profile-pic-option");
-
-        const img = document.createElement("img");
-        img.src = `images/NFL LOGOS/${team}`;
-        img.alt = team;
-
-        div.appendChild(img);
-        logoSelection.appendChild(div);
-});
 </script>
 </body>
 </html>
