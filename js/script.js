@@ -1,4 +1,4 @@
-import { auth, db, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, ref, set, get, child, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence} from './firebaseConfig.js';
+import { auth, db, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, fetchSignInMethodsForEmail, linkWithCredential, ref, set, get, child, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence} from './firebaseConfig.js';
 
 document.addEventListener("DOMContentLoaded", () => {
     onAuthStateChanged(auth, (user) => {
@@ -7,21 +7,20 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('userHomeSection').style.display = 'block';
 
+            // Set username text
             const displayName = getNameByEmail(user.email);
             document.getElementById('usernameDisplay').textContent = displayName;
 
-            // Load profile picture from DB (NFL default if not set)
-            loadProfilePic(user.uid, user.email);
+            // Apply saved username color
+            loadUsernameColor(user.uid);
 
-            loadUsernameColor(user.uid); 
-            displayGames();
-            loadUserPicks(user.uid);
         } else {
             console.log("No user logged in");
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('userHomeSection').style.display = 'none';
         }
     });
+});
      // Email → Name
     const emailToNameMap = {
         "devonstankis3@gmail.com": "De Von",
