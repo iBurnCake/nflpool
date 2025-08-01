@@ -122,10 +122,9 @@ function loadProfilePic(userId) {
         });
 }
 
-// When a logo is clicked, update preview and save to Firebase
 function handleLogoClick(imgSrc) {
     const profilePicPreview = document.getElementById('profilePicPreview');
-    handleLogoClick(img.src);
+    profilePicPreview.src = imgSrc;
 
     if (auth.currentUser) {
         saveProfilePic(auth.currentUser.uid, imgSrc);
