@@ -130,6 +130,114 @@ function handleLogoClick(imgSrc) {
     }
 }
 
+// =======================
+// NFL Logo Grid + Profile Pic Save
+// =======================
+
+// List of NFL logo filenames
+const teams = [
+    "arizona-cardinals-logo.png",
+    "atlanta-falcons-logo.png",
+    "baltimore-ravens-logo.png",
+    "buffalo-bills-logo.png",
+    "carolina-panthers-logo.png",
+    "chicago-bears-logo.png",
+    "cincinnati-bengals-logo.png",
+    "cleveland-browns-logo.png",
+    "dallas-cowboys-logo.png",
+    "denver-broncos-logo.png",
+    "detroit-lions-logo.png",
+    "green-bay-packers-logo.png",
+    "houston-texans-logo.png",
+    "indianapolis-colts-logo.png",
+    "jacksonville-jaguars-logo.png",
+    "kansas-city-chiefs-logo.png",
+    "la-rams-logo.png",
+    "los-angeles-chargers-logo.png",
+    "los-angeles-rams-logo.png",
+    "miami-dolphins-logo.png",
+    "minnesota-vikings-logo.png",
+    "new-england-patriots-logo.png",
+    "new-orleans-saints-logo.png",
+    "new-york-giants-logo.png",
+    "new-york-jets-logo.png",
+    "oakland-raiders-logo.png",
+    "philadelphia-eagles-logo.png",
+    "pittsburgh-steelers-logo.png",
+    "san-francisco-49ers-logo.png",
+    "seattle-seahawks-logo.png",
+    "tampa-bay-buccaneers-logo.png",
+    "tennessee-titans-logo.png",
+    "washington-commanders-logo.png",
+    "washington-redskins-logo.png"
+];
+
+// DOM references
+const logoSelection = document.getElementById("logoSelection");
+const profilePicPreview = document.getElementById("profilePicPreview");
+
+// Create clickable logos
+teams.forEach(team => {
+    const div = document.createElement("div");
+    div.classList.add("profile-pic-option");
+
+    const img = document.createElement("img");
+    img.src = `images/NFL LOGOS/${team}`;
+    img.alt = team;
+
+    div.appendChild(img);
+    logoSelection.appendChild(div);
+
+    // Logo click event
+    div.addEventListener("click", () => {
+        if (auth.currentUser) {
+            // Update preview
+            profilePicPreview.src = img.src;
+
+            // Save to Firebase under users/{uid}/profilePic
+            saveProfilePic(auth.currentUser.uid, img.src);
+
+            // Highlight selected
+            document.querySelectorAll(".profile-pic-option").forEach(opt => opt.classList.remove("selected"));
+            div.classList.add("selected");
+        } else {
+            alert("You must be logged in to set a profile picture.");
+        }
+    });
+});
+
+// Highlight the saved profile picture after loading it
+function highlightSavedProfilePic(picUrl) {
+    document.querySelectorAll(".profile-pic-option img").forEach(img => {
+        if (img.src.includes(picUrl.split("/").pop())) {
+            img.parentElement.classList.add("selected");
+        }
+    });
+}
+
+// Update your loadProfilePic to also call highlightSavedProfilePic
+function loadProfilePic(userId) {
+    const userRef = ref(db, 'users/' + userId + '/profilePic');
+    get(userRef)
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                const picUrl = snapshot.val();
+                profilePicPreview.src = picUrl;
+                highlightSavedProfilePic(picUrl);
+            }
+        })
+        .catch((error) => {
+            console.error("Error loading profile picture:", error);
+        });
+}
+
+
+
+
+
+
+
+
 // Username color save/load
 function loadUsernameColor(userId) {
     const colorRef = ref(db, `users/${userId}/usernameColor`);
