@@ -120,9 +120,6 @@ function handleSuccessfulLogin(user) {
         const displayName = getNameByEmail(user.email);
         document.getElementById('usernameDisplay').textContent = displayName;
 
-        // Set profile picture
-        document.getElementById('profilePic').src = getProfilePicByEmail(user.email);
-
         loadUsernameColor(user.uid);
         displayGames();
         loadUserPicks(user.uid);
