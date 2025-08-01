@@ -462,135 +462,50 @@ th {
     border-radius: 5px;
 }
 
-/* For smaller screens, stack the tables */
-@media (max-width: 768px) {
-    .past-weeks-view {
-        flex-direction: column; /* Stack tables vertically */
-        gap: 20px;
-    }
-
-    .week-section {
-        flex: 1 1 100%; /* Ensure full width for smaller screens */
-        max-width: 100%;
-    }
-}
-
-
-
-@media (max-width: 768px) {
-    body {
-        padding: 10px;
-        font-size: 16px;
-    }
-
-    #topButtonContainer {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-    }
-
-    #topButtonContainer button {
-        width: 100%;
-        padding: 12px;
-        font-size: 14px;
-    }
-
-    .user-picks-container, .combined-leaderboard-container, #globalWinsContainer {
-        width: 100%;
-        max-width: 100%;
-        padding: 15px;
-        box-shadow: none;
-    }
-
-    .login-container {
-        width: 90%;
-        max-width: 300px;
-    }
-
-    #welcomeMessage {
-        font-size: 22px;
-    }
-}
-
-@media (max-width: 480px) {
-    body {
-        font-size: 14px;
-    }
-
-    #topButtonContainer button {
-        padding: 10px;
-        font-size: 12px;
-    }
-
-    th, td {
-        padding: 6px;
-    }
-}
-
-    h2 {
-        font-size: 18px;
-        margin-bottom: 8px;
-}
-
 /* Mobile layout adjustments */
 @media (max-width: 768px) {
-    #instructionsContainer {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    #instructionsBox,
-    #colorInstructionsBox,
-    #buttonBox {
-        width: 90%; /* full width on mobile */
-    }
-
-    #buttonBox {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 10px;
-    }
-
-    #buttonBox button {
-        width: 45%; /* two buttons per row on mobile */
-    }
-}
-
-
-@media (max-width: 768px) {
     body {
-        padding: 10px;
+        padding: 8px;
         font-size: 16px;
     }
 
-    /* NFL logo selection grid scales down nicely */
+    /* NFL logo selection grid fits screen width */
     .profile-pic-selection {
         grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
-        gap: 8px;
+        gap: 10px;
         padding: 10px;
         width: 100%;
         box-sizing: border-box;
     }
     .profile-pic-option img {
+        width: 100%;
         max-width: 50px;
         height: auto;
     }
 
-    /* Make picks table scrollable horizontally */
-    #gamesTable {
+    /* Make picks and leaderboard tables scrollable with extra room */
+    table {
         display: block;
         overflow-x: auto;
         white-space: nowrap;
+        margin-bottom: 15px;
     }
-    #gamesTable table {
-        min-width: 500px;
+    th, td {
+        padding: 12px;
+    }
+    table::-webkit-scrollbar {
+        height: 8px;
+    }
+    table::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.3);
+        border-radius: 4px;
     }
 
-    /* Reduce padding in settings containers */
+    /* Settings containers adjust to fit phone screens */
     .settings-container {
         padding: 10px;
         margin: 10px auto;
+        width: 100%;
     }
 
     /* Stack top buttons vertically */
@@ -605,7 +520,7 @@ th {
         font-size: 14px;
     }
 
-    /* Containers take full width */
+    /* Make user pick containers stretch full width */
     .user-picks-container,
     .combined-leaderboard-container,
     #globalWinsContainer {
@@ -615,13 +530,13 @@ th {
         box-shadow: none;
     }
 
-    /* Login container */
+    /* Login container smaller on mobile */
     .login-container {
         width: 90%;
         max-width: 300px;
     }
 
-    /* Smaller headings */
+    /* Smaller headings for better fit */
     h2 {
         font-size: 18px;
     }
@@ -631,6 +546,8 @@ th {
     body {
         font-size: 14px;
     }
+
+    /* Smaller NFL logos for very small screens */
     .profile-pic-selection {
         grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
         gap: 6px;
@@ -638,12 +555,15 @@ th {
     .profile-pic-option img {
         max-width: 40px;
     }
+
+    /* Buttons a bit smaller */
     #topButtonContainer button {
         padding: 10px;
         font-size: 12px;
     }
+
+    /* Slightly tighter table padding */
     th, td {
-        padding: 6px;
+        padding: 8px;
     }
 }
-
