@@ -42,39 +42,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 // =======================
-// GOOGLE LOGIN (with account linking)
+// GOOGLE LOGIN (with improved error handling)
 // =======================
-document.getElementById('googleLoginButton')?.addEventListener("click", () => {
-    const provider = new GoogleAuthProvider();
+document.addEventListener("DOMContentLoaded", () => {
+    const googleBtn = document.getElementById('googleLoginButton');
 
-    signInWithPopup(auth, provider)
-        .then((result) => {
+    if (!googleBtn) {
+        console.error("Google login button not found in DOM.");
+        alert("Error: Google login button missing from page.");
+        return;
+    }
+
+    googleBtn.addEventListener("click", async () => {
+        try {
+            const provider = new GoogleAuthProvider();
+            const result = await signInWithPopup(auth, provider);
+
             console.log("Google login successful:", result.user.email);
             handleSuccessfulLogin(result.user);
-        })
-        .catch(async (error) => {
+
+        } catch (error) {
             console.error("Google login error:", error);
 
+            // Handle account linking scenario
             if (error.code === 'auth/account-exists-with-different-credential') {
                 const email = error.customData?.email;
                 const pendingCred = error.credential;
 
                 try {
-                    // Get sign-in methods for this email
                     const methods = await fetchSignInMethodsForEmail(auth, email);
 
                     if (methods.includes('password')) {
-                        // Ask user for password to link accounts
                         const password = prompt(`An account already exists for ${email}. Please enter your password to link Google login:`);
                         if (!password) {
                             alert("Linking cancelled.");
                             return;
                         }
 
-                        // Sign in with email/password
                         const emailUser = await signInWithEmailAndPassword(auth, email, password);
-
-                        // Link Google credential to this account
                         await linkWithCredential(emailUser.user, pendingCred);
 
                         console.log("Google account successfully linked to existing email/password account.");
@@ -86,10 +91,30 @@ document.getElementById('googleLoginButton')?.addEventListener("click", () => {
                     console.error("Error linking accounts:", linkError);
                     alert("Account linking failed. Please try logging in with your original method.");
                 }
-            } else {
-                alert("Google login failed. Please try again.");
+                return;
             }
-        });
+
+            // Friendly readable error messages
+            switch (error.code) {
+                case 'auth/operation-not-allowed':
+                    alert("Google login is disabled in Firebase settings.");
+                    break;
+                case 'auth/popup-blocked':
+                    alert("Your browser blocked the login popup. Please allow popups for this site.");
+                    break;
+                case 'auth/popup-closed-by-user':
+                    alert("You closed the login popup before completing sign in.");
+                    break;
+                case 'auth/unauthorized-domain':
+                    alert(`This domain is not authorized in Firebase.
+Add it under Authentication → Settings → Authorized Domains.`);
+                    break;
+                default:
+                    alert(`Google login failed: ${error.message}`);
+                    break;
+            }
+        }
+    });
 });
 
 // Helper to handle showing the correct UI after login
