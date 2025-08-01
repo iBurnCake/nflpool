@@ -174,23 +174,6 @@ teams.forEach(team => {
     div.appendChild(img);
     logoSelection.appendChild(div);
 
-    // Logo click event
-    div.addEventListener("click", () => {
-        if (auth.currentUser) {
-            // Update preview
-            profilePicPreview.src = img.src;
-
-            // Save to Firebase under users/{uid}/profilePic
-            saveProfilePic(auth.currentUser.uid, img.src);
-
-            // Highlight selected
-            document.querySelectorAll(".profile-pic-option").forEach(opt => opt.classList.remove("selected"));
-            div.classList.add("selected");
-        } else {
-            alert("You must be logged in to set a profile picture.");
-        }
-    });
-});
 
 // Highlight the saved profile picture after loading it
 function highlightSavedProfilePic(picUrl) {
