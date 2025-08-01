@@ -1,4 +1,4 @@
-import { auth, db, signInWithPopup, GoogleAuthProvider, ref, set, get, child, update, onAuthStateChanged} from './firebaseConfig.js';
+import { auth, db, signInWithPopup, GoogleAuthProvider, ref, set, get, child, update, onAuthStateChanged } from './firebaseConfig.js';
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -107,13 +107,29 @@ function saveProfilePic(userId, picUrl) {
         });
 }
 
-// ✅ Called when a logo is clicked
-function handleLogoClick(imgSrc) {
-    document.getElementById('profilePicPreview').src = imgSrc;
+// ✅ Highlight the saved profile picture
+function highlightSavedProfilePic(picUrl) {
+    document.querySelectorAll(".profile-pic-option img").forEach(img => {
+        if (img.src.includes(picUrl.split("/").pop())) {
+            img.parentElement.classList.add("selected");
+        }
+    });
+}
 
-    if (auth.currentUser) {
-        saveProfilePic(auth.currentUser.uid, imgSrc);
-    }
+// ✅ Load profile pic
+function loadProfilePic(userId) {
+    const userRef = ref(db, 'users/' + userId + '/profilePic');
+    get(userRef)
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                const picUrl = snapshot.val();
+                profilePicPreview.src = picUrl;
+                highlightSavedProfilePic(picUrl);
+            }
+        })
+        .catch((error) => {
+            console.error("Error loading profile picture:", error);
+        });
 }
 
 // =======================
@@ -174,33 +190,22 @@ teams.forEach(team => {
     div.appendChild(img);
     logoSelection.appendChild(div);
 
-
-// Highlight the saved profile picture after loading it
-function highlightSavedProfilePic(picUrl) {
-    document.querySelectorAll(".profile-pic-option img").forEach(img => {
-        if (img.src.includes(picUrl.split("/").pop())) {
-            img.parentElement.classList.add("selected");
+    // Logo click event
+    div.addEventListener("click", () => {
+        if (auth.currentUser) {
+            profilePicPreview.src = img.src;
+            saveProfilePic(auth.currentUser.uid, img.src);
+            document.querySelectorAll(".profile-pic-option").forEach(opt => opt.classList.remove("selected"));
+            div.classList.add("selected");
+        } else {
+            alert("You must be logged in to set a profile picture.");
         }
     });
-}
+});
 
-// Update your loadProfilePic to also call highlightSavedProfilePic
-function loadProfilePic(userId) {
-    const userRef = ref(db, 'users/' + userId + '/profilePic');
-    get(userRef)
-        .then((snapshot) => {
-            if (snapshot.exists()) {
-                const picUrl = snapshot.val();
-                profilePicPreview.src = picUrl;
-                highlightSavedProfilePic(picUrl);
-            }
-        })
-        .catch((error) => {
-            console.error("Error loading profile picture:", error);
-        });
-}
-
+// =======================
 // Username color save/load
+// =======================
 function loadUsernameColor(userId) {
     const colorRef = ref(db, `users/${userId}/usernameColor`);
     const usernameDisplay = document.getElementById("usernameDisplay");
@@ -231,7 +236,9 @@ function loadUsernameColor(userId) {
     });
 }
 
-// Game data
+// =======================
+// Game data + picks logic
+// =======================
 const games = [
     { homeTeam: 'Eagles', awayTeam: 'Cowboys', homeRecord: '0-0', awayRecord: '0-0' },
     { homeTeam: 'Chargers', awayTeam: 'Chiefs', homeRecord: '0-0', awayRecord: '0-0' },
