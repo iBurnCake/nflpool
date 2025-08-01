@@ -165,31 +165,43 @@ button:hover {
     background-color: #660066;
 }
 
-#profilePicPreview {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 50%; /* Makes it perfectly circular */
-    border: 2px solid #FFD700;
-    display: block;
-    margin: 10px auto;
-    aspect-ratio: 1 / 1; /* Forces square shape */
+/* Profile Picture Selection Container */
+.profile-pic-selection {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 15px;
+    padding: 20px;
+    max-width: 700px;
+    margin: 0 auto;
 }
 
-.profile-icon-choice {
-    background-color: #3B7EED;
-    color: #FFFFFF;
-    padding: 8px 14px;
-    border-radius: 5px;
-    border: none;
+/* Each logo item */
+.profile-pic-option {
     cursor: pointer;
-    font-weight: bold;
-    margin: 5px;
-    transition: background-color 0.3s;
+    border: 3px solid transparent;
+    border-radius: 50%;
+    padding: 5px;
+    transition: border 0.2s ease, transform 0.2s ease;
+    background-color: #222; /* Optional: dark background for NFL theme */
 }
 
-.profile-icon-choice:hover {
-    background-color: #1F5B99;
+/* Logo images */
+.profile-pic-option img {
+    width: 100%;
+    height: auto;
+    border-radius: 50%;
+    display: block;
+}
+
+/* Hover effect */
+.profile-pic-option:hover {
+    border: 3px solid #FFD700; /* NFL gold highlight */
+    transform: scale(1.05);
+}
+
+/* Selected option */
+.profile-pic-option.selected {
+    border: 3px solid #00BFFF; /* Blue highlight for selection */
 }
 
 /* Games and Leaderboard Sections */
