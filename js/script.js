@@ -93,6 +93,32 @@ function getNameByEmail(email) {
     return emailToNameMap[email] || email;
 }
 
+// Save profile pic when user selects a team logo
+function saveProfilePic(userId, picUrl) {
+    const userRef = ref(db, 'users/' + userId + '/profilePic');
+    set(userRef, picUrl)
+        .then(() => {
+            console.log("Profile picture saved:", picUrl);
+        })
+        .catch((error) => {
+            console.error("Error saving profile picture:", error);
+        });
+}
+
+// Load profile pic when user logs in
+function loadProfilePic(userId) {
+    const userRef = ref(db, 'users/' + userId + '/profilePic');
+    get(userRef)
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                const picUrl = snapshot.val();
+                document.getElementById('profilePicPreview').src = picUrl;
+            }
+        })
+        .catch((error) => {
+            console.error("Error loading profile picture:", error);
+        });
+}
 // Username color save/load
 function loadUsernameColor(userId) {
     const colorRef = ref(db, `users/${userId}/usernameColor`);
