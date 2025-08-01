@@ -556,3 +556,94 @@ th {
         width: 45%; /* two buttons per row on mobile */
     }
 }
+
+
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+        font-size: 16px;
+    }
+
+    /* NFL logo selection grid scales down nicely */
+    .profile-pic-selection {
+        grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+        gap: 8px;
+        padding: 10px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .profile-pic-option img {
+        max-width: 50px;
+        height: auto;
+    }
+
+    /* Make picks table scrollable horizontally */
+    #gamesTable {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    #gamesTable table {
+        min-width: 500px;
+    }
+
+    /* Reduce padding in settings containers */
+    .settings-container {
+        padding: 10px;
+        margin: 10px auto;
+    }
+
+    /* Stack top buttons vertically */
+    #topButtonContainer {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    #topButtonContainer button {
+        width: 100%;
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    /* Containers take full width */
+    .user-picks-container,
+    .combined-leaderboard-container,
+    #globalWinsContainer {
+        width: 100%;
+        max-width: 100%;
+        padding: 10px;
+        box-shadow: none;
+    }
+
+    /* Login container */
+    .login-container {
+        width: 90%;
+        max-width: 300px;
+    }
+
+    /* Smaller headings */
+    h2 {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        font-size: 14px;
+    }
+    .profile-pic-selection {
+        grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+        gap: 6px;
+    }
+    .profile-pic-option img {
+        max-width: 40px;
+    }
+    #topButtonContainer button {
+        padding: 10px;
+        font-size: 12px;
+    }
+    th, td {
+        padding: 6px;
+    }
+}
+
