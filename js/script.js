@@ -95,7 +95,7 @@ function getNameByEmail(email) {
     return emailToNameMap[email] || email;
 }
 
-// Save profile pic (doesn't overwrite usernameColor)
+// ✅ Save profile pic (doesn't overwrite usernameColor)
 function saveProfilePic(userId, picUrl) {
     const userRef = ref(db, 'users/' + userId);
     update(userRef, { profilePic: picUrl })
@@ -107,7 +107,7 @@ function saveProfilePic(userId, picUrl) {
         });
 }
 
-// Load profile pic
+// ✅ Load profile pic
 function loadProfilePic(userId) {
     const userRef = ref(db, 'users/' + userId + '/profilePic');
     get(userRef)
@@ -121,16 +121,14 @@ function loadProfilePic(userId) {
             console.error("Error loading profile picture:", error);
         });
 }
-
-// When a logo is clicked, update preview and save to Firebase
-window.handleLogoClick = function (imgSrc) {
-    const profilePicPreview = document.getElementById('profilePicPreview');
-    profilePicPreview.src = imgSrc;
+// ✅ Called when a logo is clicked
+function handleLogoClick(imgSrc) {
+    document.getElementById('profilePicPreview').src = imgSrc;
 
     if (auth.currentUser) {
         saveProfilePic(auth.currentUser.uid, imgSrc);
     }
-};
+}
 
 // Username color save/load
 function loadUsernameColor(userId) {
