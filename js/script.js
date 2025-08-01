@@ -119,6 +119,16 @@ function loadProfilePic(userId) {
             console.error("Error loading profile picture:", error);
         });
 }
+
+// When a logo is clicked, update preview and save to Firebase
+function handleLogoClick(imgSrc) {
+    const profilePicPreview = document.getElementById('profilePicPreview');
+    profilePicPreview.src = imgSrc;
+
+    if (auth.currentUser) {
+        saveProfilePic(auth.currentUser.uid, imgSrc);
+    }
+}
 // Username color save/load
 function loadUsernameColor(userId) {
     const colorRef = ref(db, `users/${userId}/usernameColor`);
