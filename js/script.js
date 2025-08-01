@@ -1,4 +1,4 @@
-import { auth, db, signInWithPopup, GoogleAuthProvider, ref, set, get, child, onAuthStateChanged} from './firebaseConfig.js';
+import { auth, db, signInWithPopup, GoogleAuthProvider, ref, set, get, child, update, onAuthStateChanged} from './firebaseConfig.js';
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -13,8 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const displayName = getNameByEmail(user.email);
             document.getElementById('usernameDisplay').textContent = displayName;
 
-            // Apply saved username color
+            // Load saved username color & profile picture
             loadUsernameColor(user.uid);
+            loadProfilePic(user.uid);
 
             // Show games & saved picks
             displayGames();
@@ -68,6 +69,7 @@ function handleSuccessfulLogin(user) {
     document.getElementById('usernameDisplay').textContent = displayName;
 
     loadUsernameColor(user.uid);
+    loadProfilePic(user.uid);
     displayGames();
     loadUserPicks(user.uid);
 }
@@ -93,10 +95,10 @@ function getNameByEmail(email) {
     return emailToNameMap[email] || email;
 }
 
-// Save profile pic when user selects a team logo
+// Save profile pic (doesn't overwrite usernameColor)
 function saveProfilePic(userId, picUrl) {
-    const userRef = ref(db, 'users/' + userId + '/profilePic');
-    set(userRef, picUrl)
+    const userRef = ref(db, 'users/' + userId);
+    update(userRef, { profilePic: picUrl })
         .then(() => {
             console.log("Profile picture saved:", picUrl);
         })
@@ -105,7 +107,7 @@ function saveProfilePic(userId, picUrl) {
         });
 }
 
-// Load profile pic when user logs in
+// Load profile pic
 function loadProfilePic(userId) {
     const userRef = ref(db, 'users/' + userId + '/profilePic');
     get(userRef)
