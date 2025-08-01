@@ -1,132 +1,46 @@
-import { auth, db, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, fetchSignInMethodsForEmail, linkWithCredential, ref, set, get, child, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence} from './firebaseConfig.js';
+import { auth, db, signInWithPopup, GoogleAuthProvider, ref, set, get, child, onAuthStateChanged} from './firebaseConfig.js';
 
 document.addEventListener("DOMContentLoaded", () => {
+
+    // Handle login state changes
     onAuthStateChanged(auth, (user) => {
         if (user) {
             console.log("User logged in:", user.email);
-
-            // Hide login section / show home
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('userHomeSection').style.display = 'block';
 
-            // Set display name
+            // Display mapped username
             const displayName = getNameByEmail(user.email);
             document.getElementById('usernameDisplay').textContent = displayName;
 
             // Apply saved username color
             loadUsernameColor(user.uid);
 
+            // Show games & saved picks
+            displayGames();
+            loadUserPicks(user.uid);
         } else {
             console.log("No user logged in");
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('userHomeSection').style.display = 'none';
         }
     });
-});
-     // Email → Name
-    const emailToNameMap = {
-        "devonstankis3@gmail.com": "De Von",
-        "kyrakafel@gmail.com": "Kyra Kafel",
-        "tom.kant21@gmail.com": "Tommy Kant",
-        "vickiocf@gmail.com": "Aunt Vicki",
-        "erossini02@gmail.com": "Emily Rossini",
-        "tony.romano222@gmail.com": "Tony Romano",
-        "thomasromano19707@gmail.com": "Thomas Romano",
-        "ckeegan437@gmail.com": "Charles Keegan",
-        "ryansanders603@hotmail.com": "Ryan Sanders",
-        "williammathis2004@gmail.com": "William Mathis",
-        "angelakant007@gmail.com": "Angela Kant",
-        "luke.romano2004@gmail.com": "Luke Romano",
-        "rsanjay@udel.edu": "Raul Sanjay",
-    };
 
-    function getNameByEmail(email) {
-        return emailToNameMap[email] || email; 
-    }
-// Load profile picture with NFL default
-    function loadProfilePic(userId, email) {
-        const profilePicElement = document.getElementById('profilePic');
-        const defaultNFLLogo = "images/profiles/nfl_default.png";
-
-        get(ref(db, `users/${userId}/profilePic`))
-            .then(snapshot => {
-                if (snapshot.exists() && snapshot.val()) {
-                    profilePicElement.src = snapshot.val();
-                } else {
-                    profilePicElement.src = defaultNFLLogo;
-                }
+    // Google login button
+    document.getElementById('googleLoginButton')?.addEventListener("click", () => {
+        const provider = new GoogleAuthProvider();
+        signInWithPopup(auth, provider)
+            .then((result) => {
+                console.log("Google login successful:", result.user.email);
+                handleSuccessfulLogin(result.user);
             })
-            .catch(err => {
-                console.error("Error loading profile picture:", err);
-                profilePicElement.src = defaultNFLLogo;
-            });
-    }
-
-// =======================
-// GOOGLE LOGIN (with account linking)
-// =======================
-document.getElementById('googleLoginButton')?.addEventListener("click", () => {
-    const provider = new GoogleAuthProvider();
-
-    signInWithPopup(auth, provider)
-        .then((result) => {
-            console.log("Google login successful:", result.user.email);
-            handleSuccessfulLogin(result.user);
-        })
-        .catch(async (error) => {
-            console.error("Google login error:", error);
-
-            if (error.code === 'auth/account-exists-with-different-credential') {
-                const email = error.customData?.email;
-                const pendingCred = error.credential;
-
-                try {
-                    // Get sign-in methods for this email
-                    const methods = await fetchSignInMethodsForEmail(auth, email);
-
-                    if (methods.includes('password')) {
-                        // Ask user for password to link accounts
-                        const password = prompt(`An account already exists for ${email}. Please enter your password to link Google login:`);
-                        if (!password) {
-                            alert("Linking cancelled.");
-                            return;
-                        }
-
-                        // Sign in with email/password
-                        const emailUser = await signInWithEmailAndPassword(auth, email, password);
-
-                        // Link Google credential to this account
-                        await linkWithCredential(emailUser.user, pendingCred);
-
-                        console.log("Google account successfully linked to existing email/password account.");
-                        handleSuccessfulLogin(emailUser.user);
-                    } else {
-                        alert(`Please log in using your existing method: ${methods.join(', ')}`);
-                    }
-                } catch (linkError) {
-                    console.error("Error linking accounts:", linkError);
-                    alert("Account linking failed. Please try logging in with your original method.");
-                }
-            } else {
+            .catch((error) => {
+                console.error("Google login error:", error);
                 alert("Google login failed. Please try again.");
-            }
-        });
-});
+            });
+    });
 
-function handleSuccessfulLogin(user) {
-        document.getElementById('loginSection').style.display = 'none';
-        document.getElementById('userHomeSection').style.display = 'block';
-
-        const displayName = getNameByEmail(user.email);
-        document.getElementById('usernameDisplay').textContent = displayName;
-
-        loadUsernameColor(user.uid);
-        displayGames();
-        loadUserPicks(user.uid);
-    }
-
-    document.getElementById('resetButton')?.addEventListener("click", resetPicks);
-    document.getElementById('submitButton')?.addEventListener("click", submitPicks);
+    // Logout
     document.getElementById('logoutButton')?.addEventListener("click", () => {
         auth.signOut().then(() => {
             document.getElementById('loginSection').style.display = 'block';
@@ -138,11 +52,48 @@ function handleSuccessfulLogin(user) {
         });
     });
 
+    // Buttons
+    document.getElementById('resetButton')?.addEventListener("click", resetPicks);
+    document.getElementById('submitButton')?.addEventListener("click", submitPicks);
     document.getElementById('pastWeeksButton')?.addEventListener("click", () => {
         window.location.href = 'pastWeeks.html';
     });
 });
 
+function handleSuccessfulLogin(user) {
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('userHomeSection').style.display = 'block';
+
+    const displayName = getNameByEmail(user.email);
+    document.getElementById('usernameDisplay').textContent = displayName;
+
+    loadUsernameColor(user.uid);
+    displayGames();
+    loadUserPicks(user.uid);
+}
+
+// Email → Display Name
+const emailToNameMap = {
+    "devonstankis3@gmail.com": "De Von",
+    "kyrakafel@gmail.com": "Kyra Kafel",
+    "tom.kant21@gmail.com": "Tommy Kant",
+    "vickiocf@gmail.com": "Aunt Vicki",
+    "erossini02@gmail.com": "Emily Rossini",
+    "tony.romano222@gmail.com": "Tony Romano",
+    "thomasromano19707@gmail.com": "Thomas Romano",
+    "ckeegan437@gmail.com": "Charles Keegan",
+    "ryansanders603@hotmail.com": "Ryan Sanders",
+    "williammathis2004@gmail.com": "William Mathis",
+    "angelakant007@gmail.com": "Angela Kant",
+    "luke.romano2004@gmail.com": "Luke Romano",
+    "rsanjay@udel.edu": "Raul Sanjay",
+};
+
+function getNameByEmail(email) {
+    return emailToNameMap[email] || email;
+}
+
+// Username color save/load
 function loadUsernameColor(userId) {
     const colorRef = ref(db, `users/${userId}/usernameColor`);
     const usernameDisplay = document.getElementById("usernameDisplay");
@@ -156,23 +107,24 @@ function loadUsernameColor(userId) {
         console.error("Error loading username color:", error);
     });
 
-      const saveButton = document.getElementById("saveColorButton");
-      const colorPicker = document.getElementById("usernameColorPicker");
-  
-      saveButton.addEventListener("click", () => {
-          const selectedColor = colorPicker.value;
-          set(colorRef, selectedColor)
-              .then(() => {
-                  usernameDisplay.style.color = selectedColor;
-                  alert("Username color saved successfully!");
-              })
-              .catch(error => {
-                  console.error("Error saving username color:", error);
-                  alert("Failed to save username color. Please try again.");
-              });
-      });
-  }
+    const saveButton = document.getElementById("saveColorButton");
+    const colorPicker = document.getElementById("usernameColorPicker");
 
+    saveButton.addEventListener("click", () => {
+        const selectedColor = colorPicker.value;
+        set(colorRef, selectedColor)
+            .then(() => {
+                usernameDisplay.style.color = selectedColor;
+                alert("Username color saved successfully!");
+            })
+            .catch(error => {
+                console.error("Error saving username color:", error);
+                alert("Failed to save username color. Please try again.");
+            });
+    });
+}
+
+// Game data
 const games = [
     { homeTeam: 'Eagles', awayTeam: 'Cowboys', homeRecord: '0-0', awayRecord: '0-0' },
     { homeTeam: 'Chargers', awayTeam: 'Chiefs', homeRecord: '0-0', awayRecord: '0-0' },
@@ -195,6 +147,7 @@ const games = [
 let userPicks = {};
 let usedPoints = new Set();
 
+// Display games in table
 function displayGames() {
     const tableBody = document.getElementById('gamesTable').getElementsByTagName('tbody')[0];
     tableBody.innerHTML = '';
@@ -273,7 +226,6 @@ window.assignConfidence = function (gameIndex) {
 };
 
 function saveUserPicks(userId) {
-    console.log("Saving user picks for userId:", userId, userPicks);
     set(ref(db, `scoreboards/week9/${userId}`), userPicks)
         .then(() => console.log("Picks saved successfully!"))
         .catch(error => console.error("Error saving picks:", error));
