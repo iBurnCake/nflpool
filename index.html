@@ -216,15 +216,6 @@
 
         div.appendChild(img);
         logoSelection.appendChild(div);
-
-        // ✅ Save to Firebase and update preview on click
-    div.addEventListener("click", () => {
-        if (auth.currentUser) {
-            handleLogoClick(img.src); // updates preview and saves to db
-            document.querySelectorAll('.profile-pic-option').forEach(opt => opt.classList.remove('selected'));
-            div.classList.add('selected');
-        }
-    });
 });
 </script>
 </body>
