@@ -54,8 +54,25 @@
             font-size: 1.5em;
             color: #FFD700;
         }
+
+        /* Username Color Box */
+        .username-color-box {
+            background-color: #1E1E1E;
+            border: 2px solid #FFD700;
+            margin-bottom: 20px;
+            padding: 15px;
+        }
+        .username-color-box h2 {
+            color: #FFD700;
+            margin-bottom: 10px;
+        }
+        .color-picker-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
         #usernameColorPicker {
-            margin-left: 10px;
             border: none;
             cursor: pointer;
         }
@@ -70,6 +87,7 @@
         #saveColorButton:hover {
             background-color: #45a049;
         }
+
         #profilePicPreview {
             display: block;
             margin: 10px auto;
@@ -91,26 +109,27 @@
 <!-- User Home Section -->
 <div id="userHomeSection" style="display: none;">
 
-    <!-- Welcome & Username Color -->
+    <!-- Welcome Message -->
     <div class="settings-container">
         <h2>Welcome, <span id="usernameDisplay"></span></h2>
+    </div>
 
-        <!-- Username Color Picker -->
-        <div>
-            <label for="usernameColorPicker">Select Username Color:</label>
+    <!-- Username Color Picker Section -->
+    <div class="settings-container username-color-box">
+        <h2>Change Username Color</h2>
+        <div class="color-picker-wrapper">
+            <label for="usernameColorPicker">Select Color:</label>
             <input type="color" id="usernameColorPicker">
             <button id="saveColorButton">Save</button>
         </div>
+    </div>
 
-        <!-- Current NFL Logo -->
+    <!-- Profile Picture Selection -->
+    <div class="settings-container">
+        <h2>Select Your NFL Team Logo</h2>
         <div id="profilePicContainer">
             <img id="profilePicPreview" src="images/NFL LOGOS/nfl-logo.jpg" alt="Default NFL Logo">
         </div>
-    </div>
-
-    <!-- NFL Logo Selection -->
-    <div class="settings-container">
-        <h2>Select Your NFL Team Logo</h2>
         <div class="profile-pic-selection" id="logoSelection">
             <!-- Logos will be added dynamically via JS -->
         </div>
