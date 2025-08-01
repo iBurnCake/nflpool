@@ -18,6 +18,7 @@ body {
     justify-content: center;
     min-height: 100vh;
     padding: 20px;
+    /* overflow: hidden; */ /* Remove this line to enable scrolling */
 }
 
 /* Centered Login Container Styling */
@@ -26,7 +27,7 @@ body {
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 100vh;
+    height: 100vh; /* Makes sure it fills the viewport */
 }
 
 .login-container {
@@ -158,51 +159,13 @@ button:hover {
 }
 
 #pastWeeksButton {
-    background-color: #800080;
+    background-color: #800080; /* Purple background */
 }
 
 #pastWeeksButton:hover {
-    background-color: #660066;
+    background-color: #660066; /* Darker purple on hover */
 }
 
-/* Profile Picture Selection Container */
-.profile-pic-selection {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-    gap: 15px;
-    padding: 20px;
-    max-width: 700px;
-    margin: 0 auto;
-}
-
-/* Each logo item */
-.profile-pic-option {
-    cursor: pointer;
-    border: 3px solid transparent;
-    border-radius: 50%;
-    padding: 5px;
-    transition: border 0.2s ease, transform 0.2s ease;
-    background-color: #222; /* Optional: dark background for NFL theme */
-}
-
-/* Logo images */
-.profile-pic-option img {
-    width: 100%;
-    height: auto;
-    border-radius: 50%;
-    display: block;
-}
-
-/* Hover effect */
-.profile-pic-option:hover {
-    border: 3px solid #FFD700; /* NFL gold highlight */
-    transform: scale(1.05);
-}
-
-/* Selected option */
-.profile-pic-option.selected {
-    border: 3px solid #00BFFF; /* Blue highlight for selection */
-}
 
 /* Games and Leaderboard Sections */
 section {
@@ -278,7 +241,7 @@ th {
     font-size: 18px;
     font-weight: bold;
     color: white;
-    background-color: #4CAF50;
+    background-color: #4CAF50; /* Green background */
     text-align: center;
     text-decoration: none;
     border-radius: 5px;
@@ -288,18 +251,18 @@ th {
 }
 
 #backToPicksButton:hover {
-    background-color: #45a049;
-    transform: scale(1.05);
+    background-color: #45a049; /* Slightly darker green */
+    transform: scale(1.05); /* Slightly enlarge */
 }
 
 #backToPicksButton:active {
-    background-color: #39843c;
-    transform: scale(0.95);
+    background-color: #39843c; /* Even darker green */
+    transform: scale(0.95); /* Slightly shrink */
 }
 
 /* Leaderboard & Global Wins Combined Container */
 .combined-leaderboard-container {
-    display: none;
+    display: none; /* Hide the Global Wins table from house picks page */
 }
 
 /* Global Wins Styling for Picks Page */
@@ -309,7 +272,7 @@ th {
     border-radius: 8px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
     width: 250px;
-    max-height: calc(100vh - 100px);
+    max-height: calc(100vh - 100px); /* Ensures the table fits within viewport */
     overflow-y: auto;
     margin-right: 20px;
 }
@@ -384,6 +347,7 @@ th {
     background-color: #555;
 }
 
+/* House Picks Link Styling */
 #housePicksLink {
     display: inline-block;
     margin-top: 20px;
@@ -431,9 +395,9 @@ th {
 
 .past-weeks-view {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
+    flex-direction: column; /* Stacks tables vertically */
+    align-items: center; /* Centers the tables horizontally */
+    gap: 20px; /* Space between tables */
     margin-top: 20px;
 }
 
@@ -487,6 +451,7 @@ th {
     gap: 10px;
 }
 
+/* Make buttons fill width inside box */
 #buttonBox button {
     width: 100%;
     padding: 8px;
@@ -497,7 +462,21 @@ th {
     border-radius: 5px;
 }
 
-/* Responsive */
+/* For smaller screens, stack the tables */
+@media (max-width: 768px) {
+    .past-weeks-view {
+        flex-direction: column; /* Stack tables vertically */
+        gap: 20px;
+    }
+
+    .week-section {
+        flex: 1 1 100%; /* Ensure full width for smaller screens */
+        max-width: 100%;
+    }
+}
+
+
+
 @media (max-width: 768px) {
     body {
         padding: 10px;
@@ -548,11 +527,12 @@ th {
     }
 }
 
-h2 {
-    font-size: 18px;
-    margin-bottom: 8px;
+    h2 {
+        font-size: 18px;
+        margin-bottom: 8px;
 }
 
+/* Mobile layout adjustments */
 @media (max-width: 768px) {
     #instructionsContainer {
         flex-direction: column;
@@ -562,7 +542,7 @@ h2 {
     #instructionsBox,
     #colorInstructionsBox,
     #buttonBox {
-        width: 90%;
+        width: 90%; /* full width on mobile */
     }
 
     #buttonBox {
@@ -573,6 +553,6 @@ h2 {
     }
 
     #buttonBox button {
-        width: 45%;
+        width: 45%; /* two buttons per row on mobile */
     }
 }
