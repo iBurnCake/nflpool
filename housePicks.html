@@ -5,14 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>House Picks</title>
     <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        /* Profile Picture Styling */
+        .leaderboard-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .leaderboard-user img {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .user-header img {
+            vertical-align: middle;
+            margin-right: 8px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+    </style>
 </head>
 <body>
-    <a href="index.html" id="backToPicksButton" class="button">Back to Picks</a>
-    <div class="house-picks-view">
-        <h1 id="housePicksTitle">House Picks</h1>
-        <div id="housePicksContainer" class="house-picks-container">
+    <!-- Main Container -->
+    <div class="settings-container">
+        <h2>House Picks</h2>
+        <div id="housePicksContainer">
+            <!-- Leaderboard + Picks will be dynamically inserted here -->
         </div>
     </div>
+
+    <!-- Navigation -->
+    <div class="settings-container">
+        <button onclick="window.location.href='index.html'">Back to Home</button>
+    </div>
+
+    <!-- Scripts -->
     <script type="module" src="js/housePicks.js"></script>
 </body>
 </html>
