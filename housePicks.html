@@ -27,14 +27,46 @@
             border-radius: 50%;
             object-fit: cover;
         }
+
+        /* Layout Fix */
+        .house-picks-layout {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .leaderboard-container {
+            flex: 0 0 250px;
+            max-width: 250px;
+            min-width: 200px;
+        }
+
+        .picks-container {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .user-picks-container {
+            flex: 1 1 450px;
+            max-width: 500px;
+        }
     </style>
 </head>
 <body>
     <!-- Main Container -->
     <div class="settings-container">
         <h2>House Picks</h2>
-        <div id="housePicksContainer">
-            <!-- Leaderboard + Picks will be dynamically inserted here -->
+
+        <div class="house-picks-layout">
+            <!-- Leaderboard -->
+            <div id="leaderboardWrapper" class="leaderboard-container"></div>
+
+            <!-- Picks -->
+            <div id="housePicksContainer" class="picks-container">
+                <!-- Picks will be dynamically inserted here -->
+            </div>
         </div>
     </div>
 
