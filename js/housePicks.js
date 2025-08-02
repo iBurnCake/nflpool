@@ -46,7 +46,7 @@ const gameWinners = {
 };
 
 function loadHousePicks() {
-    fetchUserColors((userColors) => {
+    fetchUserData((userDataMap) => {
         const housePicksContainer = document.getElementById('housePicksContainer');
         const week9Ref = ref(db, 'scoreboards/week9');
         const userScores = [];
@@ -64,16 +64,28 @@ function loadHousePicks() {
                         const userName = getUserName(userId);
                         const totalScore = calculateTotalScore(userPicksData);
 
-                        userScores.push({ userId, userName, totalScore });
+                        userScores.push({
+                            userId,
+                            userName,
+                            totalScore,
+                            profilePic: userDataMap[userId]?.profilePic || 'images/NFL LOGOS/nfl-logo.jpg',
+                            usernameColor: userDataMap[userId]?.usernameColor || '#FFD700'
+                        });
                     }
 
                     userScores.sort((a, b) => b.totalScore - a.totalScore);
 
-                    createLeaderboardTable(userScores, housePicksContainer, userColors);
+                    createLeaderboardTable(userScores, housePicksContainer);
 
                     userScores.forEach(user => {
                         const userPicksData = picksData[user.userId];
-                        createUserPicksTable(user.userName, userPicksData, user.totalScore, userColors[user.userId]);
+                        createUserPicksTable(
+                            user.userName,
+                            userPicksData,
+                            user.totalScore,
+                            user.usernameColor,
+                            user.profilePic
+                        );
                     });
                 } else {
                     housePicksContainer.innerHTML = '<p>No picks submitted for Week 15.</p>';
@@ -86,24 +98,25 @@ function loadHousePicks() {
     });
 }
 
-function fetchUserColors(callback) {
+function fetchUserData(callback) {
     const usersRef = ref(db, 'users');
     get(usersRef).then((snapshot) => {
         if (snapshot.exists()) {
             const usersData = snapshot.val();
-            const userColors = {};
+            const userDataMap = {};
             for (const userId in usersData) {
-                if (usersData[userId].usernameColor) {
-                    userColors[userId] = usersData[userId].usernameColor;
-                }
+                userDataMap[userId] = {
+                    usernameColor: usersData[userId].usernameColor || '#FFD700',
+                    profilePic: usersData[userId].profilePic || 'images/NFL LOGOS/nfl-logo.jpg'
+                };
             }
-            callback(userColors);
+            callback(userDataMap);
         } else {
-            console.warn('No users data found for username colors.');
+            console.warn('No users data found.');
             callback({});
         }
     }).catch((error) => {
-        console.error('Error fetching user colors:', error);
+        console.error('Error fetching user data:', error);
         callback({});
     });
 }
@@ -142,7 +155,7 @@ function calculateTotalScore(userPicks) {
     return totalScore;
 }
 
-function createLeaderboardTable(userScores, container, userColors) {
+function createLeaderboardTable(userScores, container) {
     const leaderboardContainer = document.createElement('div');
     leaderboardContainer.classList.add('user-picks-container');
 
@@ -166,7 +179,8 @@ function createLeaderboardTable(userScores, container, userColors) {
             ${userScores.map((user, index) => `
                 <tr>
                     <td>${index + 1}</td>
-                    <td style="color: ${userColors[user.userId] ? userColors[user.userId] : 'inherit'};">
+                    <td style="color: ${user.usernameColor}; display: flex; align-items: center; gap: 8px;">
+                        <img src="${user.profilePic}" alt="${user.userName}" style="width:24px; height:24px; border-radius:50%;">
                         ${user.userName}
                     </td>
                     <td>${user.totalScore}</td>
@@ -180,15 +194,17 @@ function createLeaderboardTable(userScores, container, userColors) {
 }
 
 
-function createUserPicksTable(userName, userPicks, totalScore, userColor) {
+function createUserPicksTable(userName, userPicks, totalScore, userColor, profilePic) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
     userContainer.classList.add('user-picks-container');
 
     const userHeader = document.createElement('h3');
     userHeader.classList.add('user-header');
-    userHeader.textContent = `${userName} - Total Score: ${totalScore}`;
-    userHeader.style.color = userColor || 'inherit';
+    userHeader.innerHTML = `
+        <img src="${profilePic}" alt="${userName}" style="width:32px; height:32px; border-radius:50%; vertical-align:middle; margin-right:8px;">
+        <span style="color: ${userColor};">${userName}</span> - Total Score: ${totalScore}
+    `;
     userContainer.appendChild(userHeader);
 
     const table = document.createElement('table');
