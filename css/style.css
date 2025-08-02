@@ -464,11 +464,33 @@ th {
     background-color: #218838;
 }
 
-/* Profile Picture Styling for Leaderboard and House Picks */
+/* -------------------------
+   HOUSE PICKS LAYOUT FIX
+-------------------------- */
+
+/* Keep leaderboard & user picks separate */
+#leaderboardWrapper, #housePicksContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+/* Leaderboard container */
+.user-picks-container {
+    background-color: #111;
+    border-radius: 8px;
+    padding: 15px;
+    min-width: 280px;
+    max-width: 350px;
+    flex: 1;
+    box-sizing: border-box;
+}
+
+/* Profile picture alignment in leaderboard */
 .leaderboard-user {
     display: flex;
     align-items: center;
-    gap: 8px; /* Space between image and username */
+    gap: 8px;
 }
 
 .leaderboard-user img {
@@ -476,18 +498,49 @@ th {
     height: 24px;
     border-radius: 50%;
     object-fit: cover;
+    flex-shrink: 0;
 }
 
-/* Profile picture next to individual user's header in picks list */
+/* Profile picture alignment in player headers */
+.user-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .user-header img {
-    vertical-align: middle;
-    margin-right: 8px;
     width: 32px;
     height: 32px;
     border-radius: 50%;
     object-fit: cover;
+    flex-shrink: 0;
 }
 
+/* Make tables fit inside their box */
+.user-picks-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.user-picks-table th,
+.user-picks-table td {
+    padding: 6px;
+    text-align: left;
+    word-wrap: break-word;
+}
+
+/* Allow scrolling if table gets too wide */
+.user-picks-container {
+    overflow-x: auto;
+}
+
+/* Fix header spacing */
+.user-header {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #FFD700;
+}
 
 
 /* ---------------------------------------
