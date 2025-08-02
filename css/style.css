@@ -464,6 +464,30 @@ th {
     background-color: #218838;
 }
 
+/* Profile Picture Styling for Leaderboard and House Picks */
+.leaderboard-user {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Space between image and username */
+}
+
+.leaderboard-user img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Profile picture next to individual user's header in picks list */
+.user-header img {
+    vertical-align: middle;
+    margin-right: 8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
 
 
 /* ---------------------------------------
