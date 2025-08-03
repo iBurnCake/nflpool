@@ -155,13 +155,14 @@ function calculateTotalScore(userPicks) {
     return totalScore;
 }
 
-function createLeaderboardTable(userScores, container, userColors) {
+function createLeaderboardTable(userScores, container) {
     const leaderboardContainer = document.createElement('div');
     leaderboardContainer.classList.add('user-picks-container');
 
     const leaderboardHeader = document.createElement('h3');
     leaderboardHeader.classList.add('user-header');
     leaderboardHeader.textContent = 'Leaderboard';
+
     leaderboardContainer.appendChild(leaderboardHeader);
 
     const table = document.createElement('table');
@@ -178,11 +179,9 @@ function createLeaderboardTable(userScores, container, userColors) {
             ${userScores.map((user, index) => `
                 <tr>
                     <td>${index + 1}</td>
-                    <td style="color: ${userColors[user.userId] || 'inherit'};">
-                        <div class="leaderboard-user">
-                            <img src="${user.profilePic}" alt="Profile">
-                            ${user.userName}
-                        </div>
+                    <td style="color: ${user.usernameColor}; display: flex; align-items: center; gap: 8px;">
+                        <img src="${user.profilePic}" alt="${user.userName}" style="width:24px; height:24px; border-radius:50%;">
+                        ${user.userName}
                     </td>
                     <td>${user.totalScore}</td>
                 </tr>
@@ -194,6 +193,7 @@ function createLeaderboardTable(userScores, container, userColors) {
     container.appendChild(leaderboardContainer);
 }
 
+
 function createUserPicksTable(userName, userPicks, totalScore, userColor, profilePic) {
     const housePicksContainer = document.getElementById('housePicksContainer');
     const userContainer = document.createElement('div');
@@ -201,8 +201,10 @@ function createUserPicksTable(userName, userPicks, totalScore, userColor, profil
 
     const userHeader = document.createElement('h3');
     userHeader.classList.add('user-header');
-    userHeader.innerHTML = `<img src="${profilePic}" alt="Profile"> ${userName} - Total Score: ${totalScore}`;
-    userHeader.style.color = userColor || 'inherit';
+    userHeader.innerHTML = `
+        <img src="${profilePic}" alt="${userName}" style="width:32px; height:32px; border-radius:50%; vertical-align:middle; margin-right:8px;">
+        <span style="color: ${userColor};">${userName}</span> - Total Score: ${totalScore}
+    `;
     userContainer.appendChild(userHeader);
 
     const table = document.createElement('table');
@@ -217,14 +219,20 @@ function createUserPicksTable(userName, userPicks, totalScore, userColor, profil
                 <th>Points Earned</th>
             </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+        </tbody>
     `;
 
     const tbody = table.querySelector('tbody');
+
     for (const gameIndex in userPicks) {
         const pickData = userPicks[gameIndex];
         const game = games[gameIndex];
-        if (!game) continue;
+
+        if (!game) {
+            console.warn(`Missing game data for index: ${gameIndex}`);
+            continue;
+        }
 
         const matchup = `${game.homeTeam} (${game.homeRecord}) vs ${game.awayTeam} (${game.awayRecord})`;
         const chosenTeam = pickData.team || 'N/A';
@@ -234,7 +242,9 @@ function createUserPicksTable(userName, userPicks, totalScore, userColor, profil
         const isCorrectPick = gameWinner && chosenTeam === gameWinner;
         const pointsEarned = isCorrectPick ? confidencePoints : 0;
 
-        const resultText = gameWinner ? (isCorrectPick ? 'Win' : 'Loss') : 'N/A';
+        const resultText = gameWinner
+            ? (isCorrectPick ? 'Win' : 'Loss')
+            : 'N/A';
         const resultClass = gameWinner ? (isCorrectPick ? 'correct' : 'incorrect') : 'neutral';
 
         const row = document.createElement('tr');
@@ -245,6 +255,7 @@ function createUserPicksTable(userName, userPicks, totalScore, userColor, profil
             <td class="${resultClass}">${resultText}</td>
             <td>${pointsEarned}</td>
         `;
+
         tbody.appendChild(row);
     }
 
