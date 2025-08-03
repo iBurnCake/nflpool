@@ -25,7 +25,7 @@
     width: 100%;
     max-width: 100%; /* Prevents it from overflowing */
     border-collapse: collapse;
-    table-layout: fixed; /* Forces cells to shrink */
+    table-layout: fixed; /* Forces cells to shrink evenly */
     box-sizing: border-box;
 }
 
@@ -34,12 +34,25 @@
     padding: 10px;
     border: 1px solid #444;
     background-color: #333;
-    color: #FFD700;
-    word-wrap: break-word; /* Wrap text instead of pushing width */
+    color: #FFD700; /* Keep yellow text */
+    word-wrap: break-word; /* Wraps long text instead of stretching */
 }
 
 .user-picks-table th {
     background-color: #444;
+    font-weight: bold;
+    color: #FFD700; /* Headers stay yellow */
+}
+
+/* Keep Result text colored without changing background */
+.user-picks-table td.correct {
+    color: #28a745; /* Green text */
+    background-color: #333; /* Keep same background */
+}
+
+.user-picks-table td.incorrect {
+    color: #dc3545; /* Red text */
+    background-color: #333; /* Keep same background */
 }
 
 /* User Picks Container */
@@ -50,9 +63,15 @@
     width: 500px;
     display: flex;
     flex-direction: column;
-    box-sizing: border-box; /* Ensures padding is included in width */
+    box-sizing: border-box; /* Include padding in width */
 }
 
+/* Leaderboard Header & Scores Stay Yellow */
+.user-header,
+.leaderboard-table th,
+.leaderboard-table td {
+    color: #FFD700;
+}
 /* Back to Home Button */
 #backToHomeButton,
 button.back-to-home {
