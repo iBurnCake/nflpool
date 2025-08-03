@@ -39,19 +39,23 @@
         object-fit: cover;
     }
 
-    /* Layout Fix */
+    /* Layout Fix — removes left gap */
     .house-picks-layout {
         display: flex;
         gap: 20px;
         align-items: flex-start;
+        justify-content: flex-start;
+        width: 100%;
     }
 
+    /* Make leaderboard smaller */
     .leaderboard-container {
-        flex: 0 0 250px;
-        max-width: 250px;
-        min-width: 200px;
+        flex: 0 0 20%;
+        max-width: 300px;
+        min-width: 220px;
     }
 
+    /* Picks take remaining space */
     .picks-container {
         flex: 1;
         display: flex;
@@ -63,6 +67,7 @@
         flex: 1 1 450px;
         max-width: 500px;
     }
+
     .user-header {
         text-align: center;
         width: 100%;
@@ -98,7 +103,7 @@
         box-shadow: 0px 0px 10px rgba(0,0,0,0.6);
     }
 
-</style>
+    </style>
 </head>
 <body>
     <!-- Main Container -->
