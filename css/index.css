@@ -80,3 +80,51 @@ input[type="password"] {
     border: 2px solid #FFD700;
     padding: 20px;
 }
+
+/* --- Bottom Button Styles --- */
+#resetButton {
+    background-color: #FF0000; /* Red for reset */
+}
+#resetButton:hover {
+    background-color: #cc0000; /* Darker red on hover */
+}
+
+#submitButton {
+    background-color: #28a745; /* Green for submit */
+}
+#submitButton:hover {
+    background-color: #1e7e34; /* Darker green on hover */
+}
+
+#viewHousePicksButton {
+    background-color: #3B7EED; /* Blue for viewing */
+}
+#viewHousePicksButton:hover {
+    background-color: #1F5B99; /* Darker blue on hover */
+}
+
+#pastWeeksButton {
+    background-color: #800080; /* Purple for history */
+}
+#pastWeeksButton:hover {
+    background-color: #660066; /* Darker purple on hover */
+}
+
+#logoutButton {
+    background-color: #FF8C00; /* Orange for logout */
+}
+#logoutButton:hover {
+    background-color: #cc7000; /* Darker orange on hover */
+}
+
+/* General Button Styles */
+button {
+    padding: 10px 16px;
+    font-size: 16px;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
