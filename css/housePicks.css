@@ -1,0 +1,61 @@
+/* House Picks Layout */
+#housePicksContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px;
+    padding: 20px;
+}
+
+/* Leaderboard User */
+.leaderboard-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.leaderboard-user img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* User Picks Container */
+.user-picks-container {
+    background-color: #282828;
+    padding: 20px;
+    border-radius: 8px;
+    width: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* User Header */
+.user-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #FFD700;
+    font-weight: bold;
+}
+.user-header img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+/* User Picks Table */
+.user-picks-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.user-picks-table th,
+.user-picks-table td {
+    padding: 10px;
+    border: 1px solid #444;
+    background-color: #333;
+    color: #FFD700;
+}
+.user-picks-table th {
+    background-color: #444;
+}
