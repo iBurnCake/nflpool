@@ -22,7 +22,8 @@ document.addEventListener("DOMContentLoaded", () => {
             loadUserPicks(user.uid);
         } else {
             console.log("No user logged in");
-            document.getElementById('loginSection').style.display = 'block';
+            const loginSection = document.getElementById('loginSection');
+            loginSection.style.display = 'flex';
             document.getElementById('userHomeSection').style.display = 'none';
         }
     });
