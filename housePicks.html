@@ -8,52 +8,64 @@
     <link rel="stylesheet" href="css/housePicks.css">
 
     <style>
-        /* Profile Picture Styling */
-        .leaderboard-user {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .leaderboard-user img {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        .user-header img {
-            vertical-align: middle;
-            margin-right: 8px;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
+    /* Leaderboard username container */
+    .leaderboard-user {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap; /* Keep profile picture + name in one line */
+    }
 
-        /* Layout Fix */
-        .house-picks-layout {
-            display: flex;
-            gap: 20px;
-            align-items: flex-start;
-        }
+    .leaderboard-user img {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
 
-        .leaderboard-container {
-            flex: 0 0 250px;
-            max-width: 250px;
-            min-width: 200px;
-        }
+    .leaderboard-username {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis; /* ... if too long */
+        max-width: 150px; /* Adjust for your table width */
+    }
 
-        .picks-container {
-            flex: 1;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
+    /* User header profile picture */
+    .user-header img {
+        vertical-align: middle;
+        margin-right: 8px;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
 
-        .user-picks-container {
-            flex: 1 1 450px;
-            max-width: 500px;
-        }
-    </style>
+    /* Layout Fix */
+    .house-picks-layout {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+    }
+
+    .leaderboard-container {
+        flex: 0 0 250px;
+        max-width: 250px;
+        min-width: 200px;
+    }
+
+    .picks-container {
+        flex: 1;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .user-picks-container {
+        flex: 1 1 450px;
+        max-width: 500px;
+    }
+</style>
 </head>
 <body>
     <!-- Main Container -->
