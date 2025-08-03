@@ -179,10 +179,12 @@ function createLeaderboardTable(userScores, container) {
             ${userScores.map((user, index) => `
                 <tr>
                     <td>${index + 1}</td>
-                    <td style="color: ${user.usernameColor}; display: flex; align-items: center; gap: 8px;">
-                        <img src="${user.profilePic}" alt="${user.userName}" style="width:24px; height:24px; border-radius:50%;">
-                        ${user.userName}
-                    </td>
+                   <td style="color: ${user.usernameColor};">
+    <div class="leaderboard-user">
+        <img src="${user.profilePic}" alt="${user.userName}">
+        <span class="leaderboard-username">${user.userName}</span>
+    </div>
+</td>
                     <td>${user.totalScore}</td>
                 </tr>
             `).join('')}
