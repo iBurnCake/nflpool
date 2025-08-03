@@ -1,0 +1,82 @@
+/* Login Section */
+#loginSection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+}
+
+.login-container {
+    background-color: #282828;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.7);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+.login-container h2 {
+    color: #FFD700;
+    margin-bottom: 20px;
+}
+
+/* Label and Input Styling */
+label {
+    font-weight: bold;
+    color: #FFD700;
+    display: block;
+    text-align: left;
+    margin-bottom: 5px;
+}
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+    background-color: #1E1E1E;
+    color: #FFFFFF;
+}
+
+/* Top Buttons */
+#topButtonContainer {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+/* Color Picker Box */
+.username-color-box {
+    background-color: #1E1E1E;
+    border: 2px solid #FFD700;
+    margin-bottom: 20px;
+    text-align: center;
+}
+.username-color-box h2 { color: #FFD700; }
+.color-picker-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+#usernameColorPicker {
+    border: none;
+    cursor: pointer;
+}
+#saveColorButton {
+    background-color: #28a745;
+}
+#saveColorButton:hover {
+    background-color: #218838;
+}
+
+/* Profile Picture Picker */
+.profile-picture-box {
+    background-color: #282828;
+    border: 2px solid #FFD700;
+    padding: 20px;
+}
