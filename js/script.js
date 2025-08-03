@@ -45,7 +45,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Logout
     document.getElementById('logoutButton')?.addEventListener("click", () => {
         auth.signOut().then(() => {
-            document.getElementById('loginSection').style.display = 'block';
+            const loginSection = document.getElementById('loginSection');
+            loginSection.style.display = 'flex';
             document.getElementById('userHomeSection').style.display = 'none';
             alert("You have been logged out.");
         }).catch((error) => {
