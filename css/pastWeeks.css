@@ -1,4 +1,3 @@
-/* Past Weeks Layout */
 .past-weeks-view {
     display: flex;
     flex-direction: column;
@@ -17,8 +16,6 @@
     color: #FFD700;
     text-align: center;
 }
-
-/* Past Weeks Table */
 .leaderboard-table {
     width: 100%;
     border-collapse: collapse;
@@ -34,11 +31,9 @@
 .leaderboard-table th {
     background-color: #444;
 }
-
-/* Back to Home Button */
 #backToHomeButton,
 button.back-to-home {
-    background-color: #3B7EED; /* Blue for navigation */
+    background-color: #3B7EED;
     color: white;
     font-weight: bold;
     padding: 10px 16px;
@@ -50,52 +45,38 @@ button.back-to-home {
 }
 #backToHomeButton:hover,
 button.back-to-home:hover {
-    background-color: #1F5B99; /* Darker blue on hover */
+    background-color: #1F5B99;
 }
-
-/* View Current Week Button (if used) */
 #viewCurrentWeekButton {
-    background-color: #28a745; /* Green for going back to current */
+    background-color: #28a745;
 }
 #viewCurrentWeekButton:hover {
-    background-color: #1e7e34; /* Darker green */
+    background-color: #1e7e34;
 }
-
-/* Mobile-first design for iPhone 14 */
 @media (max-width: 430px) {
-    /* Past weeks container */
     .past-weeks-view {
         flex-direction: column;
         align-items: center;
         gap: 15px;
     }
-
-    /* Week section box */
     .week-section {
         width: 95%;
         max-width: 380px;
         padding: 15px;
     }
-
-    /* Table fit */
     .leaderboard-table {
         width: 100%;
         font-size: 12px;
         table-layout: fixed;
     }
-
     .leaderboard-table th,
     .leaderboard-table td {
         padding: 6px;
         word-break: break-word;
     }
-
-    /* Title smaller */
     .week-section h2 {
         font-size: 18px;
     }
-
-    /* Buttons full width */
     button {
         width: 100%;
         font-size: 14px;
