@@ -75,7 +75,7 @@ function loadHousePicks() {
 
                     userScores.sort((a, b) => b.totalScore - a.totalScore);
 
-                    createLeaderboardTable(userScores);
+                    createLeaderboardTable(userScores, housePicksContainer);
 
                     userScores.forEach(user => {
                         const userPicksData = picksData[user.userId];
@@ -155,9 +155,7 @@ function calculateTotalScore(userPicks) {
     return totalScore;
 }
 
-function createLeaderboardTable(userScores) {
-    const leaderboardWrapper = document.getElementById('leaderboardWrapper');
-    leaderboardWrapper.innerHTML = ''; // Clear it first
+function createLeaderboardTable(userScores, container) {
     const leaderboardContainer = document.createElement('div');
     leaderboardContainer.classList.add('user-picks-container');
 
@@ -181,12 +179,12 @@ function createLeaderboardTable(userScores) {
             ${userScores.map((user, index) => `
                 <tr>
                     <td>${index + 1}</td>
-                    <td style="color: ${user.usernameColor};">
-                        <div class="leaderboard-user">
-                            <img src="${user.profilePic}" alt="${user.userName}">
-                            <span class="leaderboard-username">${user.userName}</span>
-                        </div>
-                    </td>
+                   <td style="color: ${user.usernameColor};">
+    <div class="leaderboard-user">
+        <img src="${user.profilePic}" alt="${user.userName}">
+        <span class="leaderboard-username">${user.userName}</span>
+    </div>
+</td>
                     <td>${user.totalScore}</td>
                 </tr>
             `).join('')}
@@ -194,7 +192,7 @@ function createLeaderboardTable(userScores) {
     `;
 
     leaderboardContainer.appendChild(table);
-    leaderboardWrapper.appendChild(leaderboardContainer); // <- CORRECT!
+    container.appendChild(leaderboardContainer);
 }
 
 
