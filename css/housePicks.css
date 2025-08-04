@@ -90,34 +90,61 @@ button.back-to-home:hover {
     background-color: #1F5B99; /* Darker blue on hover */
 }
 
-@media (max-width: 768px) {
-    /* Stack layout */
-    .house-picks-layout {
-        flex-direction: column;
-    }
-
-    .leaderboard-container,
-    .picks-container,
-    .user-picks-container {
-        width: 100%;
-        max-width: 100%;
-    }
-
-    /* Table adjustments */
-    .user-picks-table {
-        width: 100%;
-        table-layout: fixed;
-        font-size: 12px;
-    }
-    .user-picks-table th, .user-picks-table td {
-        padding: 6px;
-        word-break: break-word;
-    }
-
+/* Mobile-first design for iPhone 14 */
+@media (max-width: 430px) {
     /* Title box */
     .house-picks-title {
         font-size: 20px;
         padding: 8px 15px;
+        text-align: center;
+        width: fit-content;
+        margin: 0 auto 15px;
+    }
+
+    /* Layout: stack leaderboard & picks */
+    .house-picks-layout {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    /* Leaderboard container */
+    .leaderboard-container {
+        width: 95%;
+        max-width: 380px;
+    }
+
+    /* Picks container */
+    .picks-container {
+        width: 95%;
+        max-width: 380px;
+        justify-content: center;
+    }
+
+    /* User picks box */
+    .user-picks-container {
+        width: 100%;
+        max-width: 380px;
+        padding: 15px;
+    }
+
+    /* Tables fit container */
+    .user-picks-table {
+        width: 100%;
+        font-size: 12px;
+        table-layout: fixed;
+    }
+
+    .user-picks-table th,
+    .user-picks-table td {
+        padding: 6px;
+        word-break: break-word;
+    }
+
+    /* Buttons full width */
+    button {
+        width: 100%;
+        font-size: 14px;
+        padding: 10px;
     }
 }
-
