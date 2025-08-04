@@ -1,23 +1,18 @@
 import { auth, db, signInWithPopup, GoogleAuthProvider, ref, set, get, child, update, onAuthStateChanged } from './firebaseConfig.js';
 
 document.addEventListener("DOMContentLoaded", () => {
-
-    // Handle login state changes
     onAuthStateChanged(auth, (user) => {
         if (user) {
             console.log("User logged in:", user.email);
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('userHomeSection').style.display = 'block';
 
-            // Display mapped username
             const displayName = getNameByEmail(user.email);
             document.getElementById('usernameDisplay').textContent = displayName;
 
-            // Load saved username color & profile picture
             loadUsernameColor(user.uid);
             loadProfilePic(user.uid);
 
-            // Show games & saved picks
             displayGames();
             loadUserPicks(user.uid);
         } else {
@@ -28,7 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Google login button
     document.getElementById('googleLoginButton')?.addEventListener("click", () => {
         const provider = new GoogleAuthProvider();
         signInWithPopup(auth, provider)
@@ -42,7 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     });
 
-    // Logout
     document.getElementById('logoutButton')?.addEventListener("click", () => {
         auth.signOut().then(() => {
             const loginSection = document.getElementById('loginSection');
@@ -55,7 +48,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Buttons
     document.getElementById('resetButton')?.addEventListener("click", resetPicks);
     document.getElementById('submitButton')?.addEventListener("click", submitPicks);
     document.getElementById('pastWeeksButton')?.addEventListener("click", () => {
@@ -76,7 +68,6 @@ function handleSuccessfulLogin(user) {
     loadUserPicks(user.uid);
 }
 
-// Email → Display Name
 const emailToNameMap = {
     "devonstankis3@gmail.com": "De Von",
     "kyrakafel@gmail.com": "Kyra Kafel",
@@ -97,7 +88,6 @@ function getNameByEmail(email) {
     return emailToNameMap[email] || email;
 }
 
-// ✅ Save profile pic (doesn't overwrite usernameColor)
 function saveProfilePic(userId, picUrl) {
     const userRef = ref(db, 'users/' + userId);
     update(userRef, { profilePic: picUrl })
@@ -109,7 +99,6 @@ function saveProfilePic(userId, picUrl) {
         });
 }
 
-// ✅ Highlight the saved profile picture
 function highlightSavedProfilePic(picUrl) {
     document.querySelectorAll(".profile-pic-option img").forEach(img => {
         if (img.src.includes(picUrl.split("/").pop())) {
@@ -118,7 +107,6 @@ function highlightSavedProfilePic(picUrl) {
     });
 }
 
-// ✅ Load profile pic
 function loadProfilePic(userId) {
     const userRef = ref(db, 'users/' + userId + '/profilePic');
     get(userRef)
@@ -134,11 +122,6 @@ function loadProfilePic(userId) {
         });
 }
 
-// =======================
-// NFL Logo Grid + Profile Pic Save
-// =======================
-
-// List of NFL logo filenames
 const teams = [
     "arizona-cardinals-logo.png",
     "atlanta-falcons-logo.png",
@@ -176,11 +159,9 @@ const teams = [
     "washington-redskins-logo.png"
 ];
 
-// DOM references
 const logoSelection = document.getElementById("logoSelection");
 const profilePicPreview = document.getElementById("profilePicPreview");
 
-// Create clickable logos
 teams.forEach(team => {
     const div = document.createElement("div");
     div.classList.add("profile-pic-option");
@@ -192,7 +173,6 @@ teams.forEach(team => {
     div.appendChild(img);
     logoSelection.appendChild(div);
 
-    // Logo click event
     div.addEventListener("click", () => {
         if (auth.currentUser) {
             profilePicPreview.src = img.src;
@@ -205,9 +185,6 @@ teams.forEach(team => {
     });
 });
 
-// =======================
-// Username color save/load
-// =======================
 function loadUsernameColor(userId) {
     const colorRef = ref(db, `users/${userId}/usernameColor`);
     const usernameDisplay = document.getElementById("usernameDisplay");
@@ -238,9 +215,6 @@ function loadUsernameColor(userId) {
     });
 }
 
-// =======================
-// Game data + picks logic
-// =======================
 const games = [
     { homeTeam: 'Eagles', awayTeam: 'Cowboys', homeRecord: '0-0', awayRecord: '0-0' },
     { homeTeam: 'Chargers', awayTeam: 'Chiefs', homeRecord: '0-0', awayRecord: '0-0' },
@@ -263,7 +237,6 @@ const games = [
 let userPicks = {};
 let usedPoints = new Set();
 
-// Display games in table
 function displayGames() {
     const tableBody = document.getElementById('gamesTable').getElementsByTagName('tbody')[0];
     tableBody.innerHTML = '';
