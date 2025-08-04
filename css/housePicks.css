@@ -1,4 +1,3 @@
-/* House Picks Layout */
 #housePicksContainer {
     display: flex;
     flex-wrap: wrap;
@@ -6,8 +5,6 @@
     gap: 40px;
     padding: 20px;
 }
-
-/* Leaderboard User */
 .leaderboard-user {
     display: flex;
     align-items: center;
@@ -19,43 +16,34 @@
     border-radius: 50%;
     object-fit: cover;
 }
-
-/* User Picks Table */
 .user-picks-table {
     width: 100%;
-    max-width: 100%; /* Prevents it from overflowing */
+    max-width: 100%;
     border-collapse: collapse;
-    table-layout: fixed; /* Forces cells to shrink evenly */
+    table-layout: fixed;
     box-sizing: border-box;
 }
-
 .user-picks-table th,
 .user-picks-table td {
     padding: 10px;
     border: 1px solid #444;
     background-color: #333;
-    color: #FFD700; /* Keep yellow text */
-    word-wrap: break-word; /* Wraps long text instead of stretching */
+    color: #FFD700;
+    word-wrap: break-word;
 }
-
 .user-picks-table th {
     background-color: #444;
     font-weight: bold;
-    color: #FFD700; /* Headers stay yellow */
+    color: #FFD700;
 }
-
-/* Keep Result text colored without changing background */
 .user-picks-table td.correct {
-    color: #28a745; /* Green text */
-    background-color: #333; /* Keep same background */
+    color: #28a745;
+    background-color: #333;
 }
-
 .user-picks-table td.incorrect {
-    color: #dc3545; /* Red text */
-    background-color: #333; /* Keep same background */
+    color: #dc3545;
+    background-color: #333;
 }
-
-/* User Picks Container */
 .user-picks-container {
     background-color: #282828;
     padding: 20px;
@@ -63,19 +51,16 @@
     width: 500px;
     display: flex;
     flex-direction: column;
-    box-sizing: border-box; /* Include padding in width */
+    box-sizing: border-box;
 }
-
-/* Leaderboard Header & Scores Stay Yellow */
 .user-header,
 .leaderboard-table th,
 .leaderboard-table td {
     color: #FFD700;
 }
-/* Back to Home Button */
 #backToHomeButton,
 button.back-to-home {
-    background-color: #3B7EED; /* Blue for navigation */
+    background-color: #3B7EED;
     color: white;
     font-weight: bold;
     padding: 10px 16px;
@@ -87,12 +72,9 @@ button.back-to-home {
 }
 #backToHomeButton:hover,
 button.back-to-home:hover {
-    background-color: #1F5B99; /* Darker blue on hover */
+    background-color: #1F5B99;
 }
-
-/* Mobile-first design for iPhone 14 */
 @media (max-width: 430px) {
-    /* Title box */
     .house-picks-title {
         font-size: 20px;
         padding: 8px 15px;
@@ -100,48 +82,35 @@ button.back-to-home:hover {
         width: fit-content;
         margin: 0 auto 15px;
     }
-
-    /* Layout: stack leaderboard & picks */
     .house-picks-layout {
         flex-direction: column;
         align-items: center;
         gap: 15px;
     }
-
-    /* Leaderboard container */
     .leaderboard-container {
         width: 95%;
         max-width: 380px;
     }
-
-    /* Picks container */
     .picks-container {
         width: 95%;
         max-width: 380px;
         justify-content: center;
     }
-
-    /* User picks box */
     .user-picks-container {
         width: 100%;
         max-width: 380px;
         padding: 15px;
     }
-
-    /* Tables fit container */
     .user-picks-table {
         width: 100%;
         font-size: 12px;
         table-layout: fixed;
     }
-
     .user-picks-table th,
     .user-picks-table td {
         padding: 6px;
         word-break: break-word;
     }
-
-    /* Buttons full width */
     button {
         width: 100%;
         font-size: 14px;
