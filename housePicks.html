@@ -8,12 +8,11 @@
     <link rel="stylesheet" href="css/housePicks.css">
 
     <style>
-    /* Leaderboard username container */
     .leaderboard-user {
         display: flex;
         align-items: center;
         gap: 6px;
-        white-space: nowrap; /* Keep profile picture + name in one line */
+        white-space: nowrap; 
     }
 
     .leaderboard-user img {
@@ -26,10 +25,9 @@
 
     .leaderboard-username {
         white-space: nowrap;
-        text-overflow: ellipsis; /* ... if too long */
+        text-overflow: ellipsis;
     }
 
-    /* User header profile picture */
     .user-header img {
         vertical-align: middle;
         margin-right: 8px;
@@ -39,7 +37,6 @@
         object-fit: cover;
     }
 
-    /* Layout Fix — removes left gap */
     .house-picks-layout {
         display: flex;
         gap: 20px;
@@ -48,14 +45,12 @@
         width: 100%;
     }
 
-    /* Make leaderboard smaller */
     .leaderboard-container {
         flex: 0 0 20%;
         max-width: 300px;
         min-width: 220px;
     }
 
-    /* Picks take remaining space */
     .picks-container {
         flex: 1;
         display: flex;
@@ -73,19 +68,16 @@
         width: 100%;
     }
 
-    /* Center all text in leaderboard table */
     .user-picks-table th,
     .user-picks-table td {
         text-align: center;
         vertical-align: middle;
     }
 
-    /* Center align user cell contents including picture + name */
     .leaderboard-user {
         justify-content: center;
     }
 
-    /* Centered Title Box for House Picks */
     .house-picks-title {
         display: inline-block;
         padding: 10px 25px;
@@ -106,27 +98,17 @@
     </style>
 </head>
 <body>
-    <!-- Main Container -->
     <div class="settings-container">
         <div class="house-picks-title">House Picks</div>
-
         <div class="house-picks-layout">
-            <!-- Leaderboard -->
             <div id="leaderboardWrapper" class="leaderboard-container"></div>
-
-            <!-- Picks -->
             <div id="housePicksContainer" class="picks-container">
-                <!-- Picks will be dynamically inserted here -->
             </div>
         </div>
     </div>
-
-    <!-- Navigation -->
     <div class="settings-container">
         <button onclick="window.location.href='index.html'">Back to Home</button>
     </div>
-
-    <!-- Scripts -->
     <script type="module" src="js/housePicks.js"></script>
 </body>
 </html>
