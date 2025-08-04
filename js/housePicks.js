@@ -155,7 +155,7 @@ function calculateTotalScore(userPicks) {
     return totalScore;
 }
 
-function createLeaderboardTable(userScores, container) {
+function createLeaderboardTable(userScores) {
     const leaderboardWrapper = document.getElementById('leaderboardWrapper');
     leaderboardWrapper.innerHTML = ''; // Clear it first
     const leaderboardContainer = document.createElement('div');
@@ -181,12 +181,12 @@ function createLeaderboardTable(userScores, container) {
             ${userScores.map((user, index) => `
                 <tr>
                     <td>${index + 1}</td>
-                   <td style="color: ${user.usernameColor};">
-    <div class="leaderboard-user">
-        <img src="${user.profilePic}" alt="${user.userName}">
-        <span class="leaderboard-username">${user.userName}</span>
-    </div>
-</td>
+                    <td style="color: ${user.usernameColor};">
+                        <div class="leaderboard-user">
+                            <img src="${user.profilePic}" alt="${user.userName}">
+                            <span class="leaderboard-username">${user.userName}</span>
+                        </div>
+                    </td>
                     <td>${user.totalScore}</td>
                 </tr>
             `).join('')}
@@ -194,7 +194,7 @@ function createLeaderboardTable(userScores, container) {
     `;
 
     leaderboardContainer.appendChild(table);
-    container.appendChild(leaderboardContainer);
+    leaderboardWrapper.appendChild(leaderboardContainer); // <- CORRECT!
 }
 
 
