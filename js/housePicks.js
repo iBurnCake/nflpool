@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("DOMContentLoaded event fired");
     loadHousePicks();
 });
-// week 1 games
+
 const games = [
     { homeTeam: 'Eagles', awayTeam: 'Cowboys', homeRecord: '0-0', awayRecord: '0-0' },
     { homeTeam: 'Chargers', awayTeam: 'Chiefs', homeRecord: '0-0', awayRecord: '0-0' },
@@ -27,22 +27,22 @@ const games = [
 
 
 const gameWinners = {
-    0: 'Eagles', // Eagles or Cowboys
-    1: 'Chiefs', // Chargers or Chiefs
-    2: 'Colts', // Colts or Dolphins
-    3: 'Jets', // Jets or Steelers
-    4: 'Jaguars', // Jaguars or Panthers
-    5: 'Saints', // Saints or Cardinals
-    6: 'Giants', // Commanders or Giants
-    7: 'Buccaneers', // Falcons or Buccaneers
-    8: 'Browns', // Browns or Bengals
-    9: 'Raiders', // Patriots or Raiders
-    10: 'Seahawks', // Seahawks or 49ers
-    11: 'Broncos', // Broncos or Titans
-    12: 'Packers', // Packers or Lions
-    13: 'Rams', // Rams or Texans
-    14: 'Ravens', // Bills or Ravens
-    15: 'Vikings'  // Bears or Vikings
+    0: '', // Eagles or Cowboys
+    1: '', // Chargers or Chiefs
+    2: '', // Colts or Dolphins
+    3: '', // Jets or Steelers
+    4: '', // Jaguars or Panthers
+    5: '', // Saints or Cardinals
+    6: '', // Commanders or Giants
+    7: '', // Falcons or Buccaneers
+    8: '', // Browns or Bengals
+    9: '', // Patriots or Raiders
+    10: '', // Seahawks or 49ers
+    11: '', // Broncos or Titans
+    12: '', // Packers or Lions
+    13: '', // Rams or Texans
+    14: '', // Bills or Ravens
+    15: ''  // Bears or Vikings
 };
 
 function loadHousePicks() {
