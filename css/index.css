@@ -129,40 +129,54 @@ button {
     transition: background-color 0.3s ease;
 }
 
-@media (max-width: 768px) {
-    /* Table adjustments */
-    #gamesTable {
-        width: 100%;
-        font-size: 12px;
-        table-layout: fixed;
-    }
-
-    #gamesTable th, #gamesTable td {
-        padding: 6px;
-        word-break: break-word;
-    }
-
-    /* Stack pick buttons */
-    #gamesTable td:nth-child(2) {
+/* Mobile-first design for iPhone 14 */
+@media (max-width: 430px) {
+    /* Keep login section centered */
+    #loginSection {
         display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-    #gamesTable td:nth-child(2) button {
-        width: 100%;
-    }
-
-    /* Confidence dropdown full width */
-    #gamesTable select {
-        width: 100%;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 0;
     }
 
-    /* Top buttons stack */
-    #topButtonContainer {
-        flex-direction: column;
-        width: 100%;
+    .login-container {
+        width: 95%;
+        max-width: 360px;
+        padding: 20px;
+        border-radius: 8px;
     }
-    #topButtonContainer button {
+
+    .login-container h2 {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+
+    /* Inputs */
+    input[type="text"],
+    input[type="password"] {
+        font-size: 14px;
+        padding: 10px;
+        margin-bottom: 12px;
+    }
+
+    /* Buttons full width */
+    button {
         width: 100%;
+        padding: 10px;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    /* Profile picture selection grid */
+    #logoSelection {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+    }
+
+    #logoSelection img {
+        width: 100%;
+        height: auto;
     }
 }
