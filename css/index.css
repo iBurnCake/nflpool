@@ -128,3 +128,41 @@ button {
     font-weight: bold;
     transition: background-color 0.3s ease;
 }
+
+@media (max-width: 768px) {
+    /* Table adjustments */
+    #gamesTable {
+        width: 100%;
+        font-size: 12px;
+        table-layout: fixed;
+    }
+
+    #gamesTable th, #gamesTable td {
+        padding: 6px;
+        word-break: break-word;
+    }
+
+    /* Stack pick buttons */
+    #gamesTable td:nth-child(2) {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    #gamesTable td:nth-child(2) button {
+        width: 100%;
+    }
+
+    /* Confidence dropdown full width */
+    #gamesTable select {
+        width: 100%;
+    }
+
+    /* Top buttons stack */
+    #topButtonContainer {
+        flex-direction: column;
+        width: 100%;
+    }
+    #topButtonContainer button {
+        width: 100%;
+    }
+}
