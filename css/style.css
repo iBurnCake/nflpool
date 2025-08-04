@@ -83,6 +83,24 @@ th {
     margin-left: 10px;
 }
 
+/* Selected Pick Button */
+.selected {
+    background-color: #28a745 !important; /* Green */
+    color: #fff !important;
+}
+
+/* Correct Pick Result */
+.correct {
+    background-color: #28a745 !important;
+    color: #fff !important;
+}
+
+/* Incorrect Pick Result */
+.incorrect {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+}
+
 /* Responsive Rules */
 @media (max-width: 1024px) {
     body { font-size: 15px; padding: 0 4vw; }
