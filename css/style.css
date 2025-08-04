@@ -90,15 +90,46 @@ th {
 }
 
 
-/* Responsive Rules */
-@media (max-width: 1024px) {
-    body { font-size: 15px; padding: 0 4vw; }
-    th, td { padding: 8px 3px; font-size: 14px; }
-}
+/* =========================
+   📱 Mobile-Friendly Styles
+   ========================= */
 @media (max-width: 768px) {
-    body { font-size: 16px; padding: 10px; }
-}
-@media (max-width: 375px) {
-    body { font-size: 12px; padding: 0 2vw; }
-    th, td { padding: 4px 2px; font-size: 11px; }
+    body {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    /* General table styling for mobile */
+    table {
+        width: 100%;
+        font-size: 12px;
+        border-spacing: 0;
+        table-layout: fixed; /* Prevents overflow */
+    }
+
+    th, td {
+        padding: 6px;
+        word-break: break-word;
+    }
+
+    /* Buttons */
+    button {
+        font-size: 14px;
+        padding: 8px;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    /* Login container */
+    .login-container {
+        width: 95%;
+        max-width: 300px;
+        padding: 20px;
+    }
+
+    /* Title box */
+    .house-picks-title {
+        font-size: 20px;
+        padding: 8px 15px;
+    }
 }
