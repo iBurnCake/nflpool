@@ -61,27 +61,44 @@ button.back-to-home:hover {
     background-color: #1e7e34; /* Darker green */
 }
 
-@media (max-width: 768px) {
-    /* Stack layout */
+/* Mobile-first design for iPhone 14 */
+@media (max-width: 430px) {
+    /* Past weeks container */
     .past-weeks-view {
         flex-direction: column;
+        align-items: center;
         gap: 15px;
     }
 
+    /* Week section box */
     .week-section {
-        width: 100%;
-        max-width: 100%;
+        width: 95%;
+        max-width: 380px;
+        padding: 15px;
     }
 
-    /* Table adjustments */
+    /* Table fit */
     .leaderboard-table {
         width: 100%;
         font-size: 12px;
         table-layout: fixed;
     }
-    .leaderboard-table th, .leaderboard-table td {
+
+    .leaderboard-table th,
+    .leaderboard-table td {
         padding: 6px;
         word-break: break-word;
     }
-}
 
+    /* Title smaller */
+    .week-section h2 {
+        font-size: 18px;
+    }
+
+    /* Buttons full width */
+    button {
+        width: 100%;
+        font-size: 14px;
+        padding: 10px;
+    }
+}
