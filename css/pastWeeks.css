@@ -60,3 +60,28 @@ button.back-to-home:hover {
 #viewCurrentWeekButton:hover {
     background-color: #1e7e34; /* Darker green */
 }
+
+@media (max-width: 768px) {
+    /* Stack layout */
+    .past-weeks-view {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .week-section {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    /* Table adjustments */
+    .leaderboard-table {
+        width: 100%;
+        font-size: 12px;
+        table-layout: fixed;
+    }
+    .leaderboard-table th, .leaderboard-table td {
+        padding: 6px;
+        word-break: break-word;
+    }
+}
+
