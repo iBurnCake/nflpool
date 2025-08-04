@@ -89,3 +89,35 @@ button.back-to-home {
 button.back-to-home:hover {
     background-color: #1F5B99; /* Darker blue on hover */
 }
+
+@media (max-width: 768px) {
+    /* Stack layout */
+    .house-picks-layout {
+        flex-direction: column;
+    }
+
+    .leaderboard-container,
+    .picks-container,
+    .user-picks-container {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    /* Table adjustments */
+    .user-picks-table {
+        width: 100%;
+        table-layout: fixed;
+        font-size: 12px;
+    }
+    .user-picks-table th, .user-picks-table td {
+        padding: 6px;
+        word-break: break-word;
+    }
+
+    /* Title box */
+    .house-picks-title {
+        font-size: 20px;
+        padding: 8px 15px;
+    }
+}
+
