@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/index.css">
     <style>
-        /* NFL Logo Selection Grid */
         .profile-pic-selection {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
@@ -37,8 +36,6 @@
         .profile-pic-option.selected {
             border: 3px solid #00BFFF;
         }
-
-        /* NFL Theme Containers */
         .settings-container {
             background-color: #333;
             color: #fff;
@@ -55,8 +52,6 @@
             font-size: 1.5em;
             color: #FFD700;
         }
-
-        /* Username Color Box */
         .username-color-box {
             background-color: #1E1E1E;
             border: 2px solid #FFD700;
@@ -99,23 +94,16 @@
     </style>
 </head>
 <body>
-    <!-- Login Section -->
     <div id="loginSection">
         <div class="login-container">
             <h2>2025 NFL Confidence Pool</h2>
             <button type="button" id="googleLoginButton">Login with Google</button>
         </div>
     </div>
-
-<!-- User Home Section -->
 <div id="userHomeSection" style="display: none;">
-
-    <!-- Welcome Message -->
     <div class="settings-container">
         <h2>Welcome, <span id="usernameDisplay"></span></h2>
     </div>
-
-    <!-- Username Color Picker Section -->
     <div class="settings-container username-color-box">
         <h2>Change Username Color</h2>
         <div class="color-picker-wrapper">
@@ -124,19 +112,14 @@
             <button id="saveColorButton">Save</button>
         </div>
     </div>
-
-    <!-- Profile Picture Selection -->
     <div class="settings-container">
         <h2>Select Your NFL Team Logo</h2>
         <div id="profilePicContainer">
             <img id="profilePicPreview" src="images/NFL LOGOS/nfl-logo.jpg" alt="Default NFL Logo">
         </div>
         <div class="profile-pic-selection" id="logoSelection">
-            <!-- Logos will be added dynamically via JS -->
         </div>
     </div>
-
-    <!-- Game Picks Table -->
     <div class="settings-container">
         <table id="gamesTable" style="width: 100%;">
             <thead>
@@ -149,8 +132,6 @@
             <tbody></tbody>
         </table>
     </div>
-
-    <!-- Buttons -->
     <div class="settings-container">
         <button id="resetButton">Reset Picks</button>
         <button id="submitButton">Submit Picks</button>
