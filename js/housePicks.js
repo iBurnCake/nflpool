@@ -75,7 +75,7 @@ function loadHousePicks() {
 
                     userScores.sort((a, b) => b.totalScore - a.totalScore);
 
-                    createLeaderboardTable(userScores, housePicksContainer);
+                    createLeaderboardTable(userScores);
 
                     userScores.forEach(user => {
                         const userPicksData = picksData[user.userId];
@@ -156,6 +156,8 @@ function calculateTotalScore(userPicks) {
 }
 
 function createLeaderboardTable(userScores, container) {
+    const leaderboardWrapper = document.getElementById('leaderboardWrapper');
+    leaderboardWrapper.innerHTML = ''; // Clear it first
     const leaderboardContainer = document.createElement('div');
     leaderboardContainer.classList.add('user-picks-container');
 
