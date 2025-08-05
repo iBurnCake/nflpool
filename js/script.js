@@ -81,6 +81,7 @@ const emailToNameMap = {
     "williammathis2004@gmail.com": "William Mathis",
     "angelakant007@gmail.com": "Angela Kant",
     "luke.romano2004@gmail.com": "Luke Romano",
+    "Nkier27@gmail.com": "Nick Kier",
 };
 
 function getNameByEmail(email) {
