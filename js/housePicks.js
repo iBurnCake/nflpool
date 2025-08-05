@@ -134,7 +134,8 @@ function getUserName(userId) {
         'FIKVjOy8P7UTUGqq2WvjkARZPIE2': 'Tommy Kant',
         'FFIWPuZYzYRI2ibmVbVHDIq1mjj2': 'De Von ',
         'i6s97ZqeN1YCM39Sjqh65VablvA3': 'Kyra Kafel ',
-        '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant'
+        '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant',
+        'gsQAQttBoEOSu4v1qVVqmHxAqsO2': 'Nick Kier',
     };
     return userMap[userId] || `User ${userId}`;
 }
