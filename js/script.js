@@ -156,7 +156,8 @@ const teams = [
     "tampa-bay-buccaneers-logo.png",
     "tennessee-titans-logo.png",
     "washington-commanders-logo.png",
-    "washington-redskins-logo.png"
+    "washington-redskins-logo.png",
+    "xqc-logo.png"
 ];
 
 const logoSelection = document.getElementById("logoSelection");
