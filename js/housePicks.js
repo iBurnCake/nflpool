@@ -42,7 +42,7 @@ const gameWinners = {
     12: 'Jets', // Packers or Jets
     13: 'Broncos', // 49ers or Broncos
     14: '', // Bears or Dolphins
-    15: ''  // Chargers or Saints
+    15: 'Chargers'  // Chargers or Saints
 };
 
 function loadHousePicks() {
