@@ -1,216 +1,312 @@
 // js/moneyPool.js
-// Money Pool page logic: login gate, week label, load allowlist, render members' boards.
-// This version is self-contained and will render simple cards with each member's picks.
-// If you later expose a shared renderer (e.g., loadHousePicks(allowUids)), see the hook below.
+// Money Pool page — matches your existing structure & styling and filters to paid members.
 
-// OPTIONAL: if you create a shared renderer later, uncomment this and the call in renderMoneyPool()
-// import { loadHousePicks } from './housePicks.js';
-
-import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
+import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js'; // :contentReference[oaicite:3]{index=3}
 
 /* -------------------------
-   Week ID (keep consistent)
+   CONFIG (aligns with your current DB)
 -------------------------- */
-function getCurrentWeekId() {
-  const d = new Date();
-  const year = d.getFullYear();
-  const firstJan = new Date(year, 0, 1);
-  const days = Math.floor((d - firstJan) / 86400000);
-  const week = Math.floor((days + firstJan.getDay() + 6) / 7) + 1;
-  return `${year}-W${String(week).padStart(2, '0')}`;
+const WEEK_KEY = 'week9'; // change when you roll weeks, or we can auto-calc later
+
+/* -------------------------
+   DOM helpers (compatible with your IDs)
+-------------------------- */
+function containerEl() {
+  // Prefer your house picks container; fallback to mp-container if you kept it
+  return document.getElementById('housePicksContainer') || document.getElementById('mp-container');
 }
-
-/* -------------------------
-   UI helpers
--------------------------- */
 function setWeekLabel() {
   const el = document.getElementById('mp-week');
-  if (el) el.textContent = `— ${getCurrentWeekId()}`;
+  if (el) el.textContent = `— ${WEEK_KEY}`;
 }
-
 function setStatus(text) {
   const s = document.getElementById('mp-status');
-  if (!s) return;
-  s.textContent = text || '';
+  if (s) s.textContent = text || '';
 }
-
 function clearContainer() {
-  const container = document.getElementById('mp-container');
-  if (container) container.innerHTML = '';
-}
-
-function appendToContainer(node) {
-  const container = document.getElementById('mp-container');
-  if (container) container.appendChild(node);
+  const c = containerEl();
+  if (c) c.innerHTML = '';
 }
 
 /* -------------------------
-   Data helpers
+   Data helpers (mirror your housePicks.js patterns)
 -------------------------- */
 
-// Try common picks locations in order; return first that exists.
-// Adjust or add paths to match your database layout if needed.
-const PICKS_PATHS = [
-  (weekId, uid) => `picks/${weekId}/${uid}`,
-  (weekId, uid) => `userPicks/${uid}/${weekId}`,
-  (weekId, uid) => `picks/${uid}/${weekId}`,
-];
+// Load the allowlist for Money Pool members
+async function loadAllowlist(weekKey) {
+  const snap = await get(ref(db, `subscriberPools/${weekKey}/members`));
+  if (!snap.exists()) return new Set();
+  return new Set(Object.keys(snap.val()));
+}
 
-async function fetchFirstExistingPath(weekId, uid) {
-  for (const pathBuilder of PICKS_PATHS) {
-    const path = pathBuilder(weekId, uid);
-    const snap = await get(ref(db, path));
-    if (snap.exists()) {
-      return { path, data: snap.val() };
+// Pull basic user profile color & pic from your users path
+async function fetchUserDataMap() {
+  const usersRef = ref(db, 'users');
+  const snapshot = await get(usersRef);
+  const map = {};
+  if (snapshot.exists()) {
+    const usersData = snapshot.val();
+    for (const uid in usersData) {
+      map[uid] = {
+        usernameColor: usersData[uid].usernameColor || '#FFD700',
+        profilePic: usersData[uid].profilePic || 'images/NFL LOGOS/nfl-logo.jpg',
+      };
     }
   }
-  return { path: null, data: null };
+  return map;
 }
 
-// Optional profile lookup if you store profile info.
-// Looks in: profiles/{uid} and users/{uid}/profile
-async function fetchUserProfile(uid) {
-  const candidates = [
-    `profiles/${uid}`,
-    `users/${uid}/profile`,
-  ];
-  for (const p of candidates) {
-    const snap = await get(ref(db, p));
-    if (snap.exists()) return snap.val();
-  }
-  return null;
-}
-
-/* -------------------------
-   Rendering
--------------------------- */
-
-function makeCard({ displayName, uid, profilePicUrl, usernameColor, picks, picksPath }) {
-  const card = document.createElement('div');
-  card.className = 'mp-card';
-
-  const header = document.createElement('div');
-  header.style.display = 'flex';
-  header.style.alignItems = 'center';
-  header.style.gap = '10px';
-  header.style.marginBottom = '8px';
-
-  const avatar = document.createElement('img');
-  avatar.src = profilePicUrl || 'images/NFL LOGOS/nfl-logo.jpg';
-  avatar.alt = displayName || uid;
-  avatar.style.width = '36px';
-  avatar.style.height = '36px';
-  avatar.style.borderRadius = '50%';
-  avatar.style.border = '2px solid #FFD700';
-  avatar.style.objectFit = 'cover';
-
-  const title = document.createElement('h3');
-  title.textContent = displayName || uid;
-  title.style.margin = 0;
-  if (usernameColor) title.style.color = usernameColor;
-
-  header.appendChild(avatar);
-  header.appendChild(title);
-
-  const body = document.createElement('div');
-
-  if (picks) {
-    // If you want fancier board UI, replace this with your existing board renderer.
-    const pre = document.createElement('pre');
-    pre.textContent = JSON.stringify(picks, null, 2);
-    pre.style.whiteSpace = 'pre-wrap';
-    pre.style.fontSize = '0.95rem';
-    pre.style.opacity = '0.95';
-
-    const small = document.createElement('div');
-    small.textContent = picksPath ? `Source: ${picksPath}` : '';
-    small.style.fontSize = '0.75rem';
-    small.style.opacity = '0.7';
-    small.style.marginTop = '6px';
-
-    body.appendChild(pre);
-    if (picksPath) body.appendChild(small);
-  } else {
-    const p = document.createElement('p');
-    p.textContent = 'No picks submitted yet.';
-    body.appendChild(p);
-  }
-
-  card.appendChild(header);
-  card.appendChild(body);
-  return card;
+// Your hard-coded name map (copied to keep output identical to House Picks) :contentReference[oaicite:4]{index=4}
+function getUserName(userId) {
+  const userMap = {
+    'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
+    '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan',
+    'zZ8DblY3KQgPP9bthG87l7DNAux2': 'Ryan Sanders',
+    'krvPcOneIcYrzc2GfIHXfsvbrD23': 'William Mathis',
+    '67khUuKYmhXxRumUjMpyoDbnq0s2': 'Thomas Romano',
+    'JIdq2bYVCZgdAeC0y6P69puNQz43': 'Tony Romano',
+    '9PyTK0SHv7YKv7AYw5OV29dwH5q2': 'Emily Rossini',
+    'ORxFtuY13VfaUqc2ckcfw084Lxq1': 'Aunt Vicki',
+    'FIKVjOy8P7UTUGqq2WvjkARZPIE2': 'Tommy Kant',
+    'FFIWPuZYzYRI2ibmVbVHDIq1mjj2': 'De Von ',
+    'i6s97ZqeN1YCM39Sjqh65VablvA3': 'Kyra Kafel ',
+    '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant',
+    'gsQAQttBoEOSu4v1qVVqmHxAqsO2': 'Nick Kier',
+  };
+  return userMap[userId] || `User ${userId}`;
 }
 
 /* -------------------------
-   Main page flow
+   Game data + scoring (copied to match your House Picks UI)
 -------------------------- */
+// Keep in sync with your housePicks.js so totals match exactly. :contentReference[oaicite:5]{index=5}
+const games = [
+  { homeTeam: 'Ravens', awayTeam: 'Colts', homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Eagles', awayTeam: 'Bengals', homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Seahawks', awayTeam: 'Raiders', homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Falcons', awayTeam: 'Lions', homeRecord: '0-0', awayRecord: '0-1' },
+  { homeTeam: 'Panthers', awayTeam: 'Browns', homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Patriots', awayTeam: 'Commanders', homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Bills', awayTeam: 'Giants', homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Vikings', awayTeam: 'Texans', homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Jaguars', awayTeam: 'Steelers', homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Rams', awayTeam: 'Cowboys', homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Buccaneers', awayTeam: 'Titans', homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Cardinals', awayTeam: 'Chiefs', homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Packers', awayTeam: 'Jets', homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: '49ers', awayTeam: 'Broncos', homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Bears', awayTeam: 'Dolphins', homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Chargers', awayTeam: 'Saints', homeRecord: '1-0', awayRecord: '0-0' }
+];
+const gameWinners = {
+  0: 'Ravens', 1: 'Eagles', 2: '',
+  3: 'Lions', 4: 'Browns', 5: 'Patriots',
+  6: 'Giants', 7: 'Vikings', 8: 'Steelers',
+  9: 'Rams', 10: 'Buccaneers', 11: 'Cardinals',
+  12: 'Jets', 13: 'Broncos', 14: '',
+  15: 'Chargers'
+};
 
-async function loadAllowlist(weekId) {
-  const mSnap = await get(ref(db, `subscriberPools/${weekId}/members`));
-  if (!mSnap.exists()) return new Set();
-  return new Set(Object.keys(mSnap.val()));
+// Same scoring math as House Picks. :contentReference[oaicite:6]{index=6}
+function calculateTotalScore(userPicks) {
+  let total = 0;
+  for (const gameIndex in userPicks) {
+    const pick = userPicks[gameIndex];
+    if (!pick) continue;
+    const chosen = pick.team;
+    const pts = pick.points || 0;
+    const winner = gameWinners[gameIndex];
+    if (chosen === winner) total += pts;
+  }
+  return total;
 }
 
+/* -------------------------
+   Render (identical look to House Picks)
+-------------------------- */
+function createLeaderboardTable(userScores, container) {
+  const leaderboardContainer = document.createElement('div');
+  leaderboardContainer.classList.add('user-picks-container');
+
+  const header = document.createElement('h3');
+  header.classList.add('user-header');
+  header.textContent = 'Leaderboard';
+  leaderboardContainer.appendChild(header);
+
+  const table = document.createElement('table');
+  table.classList.add('user-picks-table');
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th>User</th>
+        <th>Total Score</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${userScores.map((u, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td style="color:${u.usernameColor};">
+            <div class="leaderboard-user">
+              <img src="${u.profilePic}" alt="${u.userName}">
+              <span class="leaderboard-username">${u.userName}</span>
+            </div>
+          </td>
+          <td>${u.totalScore}</td>
+        </tr>
+      `).join('')}
+    </tbody>
+  `;
+  leaderboardContainer.appendChild(table);
+  container.appendChild(leaderboardContainer);
+}
+
+function createUserPicksTable(userName, userPicks, totalScore, userColor, profilePic) {
+  const c = containerEl();
+  const userContainer = document.createElement('div');
+  userContainer.classList.add('user-picks-container');
+
+  const userHeader = document.createElement('h3');
+  userHeader.classList.add('user-header');
+  userHeader.innerHTML = `
+    <img src="${profilePic}" alt="${userName}" style="width:32px; height:32px; border-radius:50%; vertical-align:middle; margin-right:8px;">
+    <span style="color:${userColor};">${userName}</span> - Total Score: ${totalScore}
+  `;
+  userContainer.appendChild(userHeader);
+
+  const table = document.createElement('table');
+  table.classList.add('user-picks-table');
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Matchup</th>
+        <th>Pick</th>
+        <th>Confidence Points</th>
+        <th>Result</th>
+        <th>Points Earned</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  `;
+  const tbody = table.querySelector('tbody');
+
+  for (const gameIndex in userPicks) {
+    const pickData = userPicks[gameIndex];
+    const game = games[gameIndex];
+    if (!game) continue;
+
+    const matchup = `${game.homeTeam} (${game.homeRecord}) vs ${game.awayTeam} (${game.awayRecord})`;
+    const chosenTeam = pickData.team || 'N/A';
+    const confidencePoints = pickData.points || 0;
+
+    const winner = gameWinners[gameIndex];
+    const isCorrect = winner && chosenTeam === winner;
+    const pointsEarned = isCorrect ? confidencePoints : 0;
+
+    const resultText = winner ? (isCorrect ? 'Win' : 'Loss') : 'N/A';
+    const resultClass = winner ? (isCorrect ? 'correct' : 'incorrect') : 'neutral';
+
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${matchup}</td>
+      <td>${chosenTeam}</td>
+      <td>${confidencePoints}</td>
+      <td class="${resultClass}">${resultText}</td>
+      <td>${pointsEarned}</td>
+    `;
+    tbody.appendChild(row);
+  }
+
+  const totalRow = document.createElement('tr');
+  totalRow.innerHTML = `
+    <td colspan="3" style="font-weight:bold; text-align:right;">Total Score:</td>
+    <td colspan="2">${totalScore}</td>
+  `;
+  tbody.appendChild(totalRow);
+
+  userContainer.appendChild(table);
+  c.appendChild(userContainer);
+}
+
+/* -------------------------
+   Main flow (filter to allowlist)
+-------------------------- */
 async function renderMoneyPool() {
   setStatus('Loading…');
   clearContainer();
 
-  const weekId = getCurrentWeekId();
-
-  // 1) Get allowlist
-  const allowUids = await loadAllowlist(weekId);
-
+  // 1) Load allowlist
+  const allowUids = await loadAllowlist(WEEK_KEY);
   if (!allowUids || allowUids.size === 0) {
     setStatus('No subscribers yet for this week.');
     return;
   }
 
-  // If you later unify with a shared renderer, you can replace everything below with:
-  // await loadHousePicks(allowUids); setStatus(''); return;
+  // 2) Load base picks from your existing path
+  const weekRef = ref(db, `scoreboards/${WEEK_KEY}`); // :contentReference[oaicite:7]{index=7}
+  const snap = await get(weekRef);
 
-  // 2) For each member, attempt to fetch their profile and their picks
-  const tasks = [];
-  allowUids.forEach((uid) => {
-    tasks.push((async () => {
-      // Profile (optional)
-      const profile = await fetchUserProfile(uid);
-      const displayName =
-        (profile && (profile.displayName || profile.name || profile.username)) || uid;
-      const profilePicUrl =
-        profile && (profile.profilePicUrl || profile.avatarUrl || profile.photoURL);
-      const usernameColor = profile && profile.usernameColor;
+  const c = containerEl();
+  if (!snap.exists()) {
+    setStatus('No picks submitted for this week.');
+    return;
+  }
 
-      // Picks
-      const { path: picksPath, data: picks } = await fetchFirstExistingPath(weekId, uid);
+  const picksData = snap.val();
 
-      // Render
-      const card = makeCard({
-        displayName, uid, profilePicUrl, usernameColor, picks, picksPath,
-      });
-      appendToContainer(card);
-    })());
+  // 3) Build user profile map (colors, pics)
+  const userDataMap = await fetchUserDataMap();
+
+  // 4) Filter to paid members & score
+  const userScores = [];
+  const filteredUserIds = Object.keys(picksData).filter(uid => allowUids.has(uid));
+
+  filteredUserIds.forEach(uid => {
+    const userPicks = picksData[uid];
+    const userName = getUserName(uid);
+    const totalScore = calculateTotalScore(userPicks);
+
+    userScores.push({
+      userId: uid,
+      userName,
+      totalScore,
+      profilePic: userDataMap[uid]?.profilePic || 'images/NFL LOGOS/nfl-logo.jpg',
+      usernameColor: userDataMap[uid]?.usernameColor || '#FFD700'
+    });
   });
 
-  await Promise.all(tasks);
+  if (userScores.length === 0) {
+    setStatus('No subscribers have submitted picks yet.');
+    return;
+  }
+
+  // 5) Sort + render leaderboard & each user's table
+  userScores.sort((a, b) => b.totalScore - a.totalScore);
+
+  c.innerHTML = ''; // ensure clean slate
+  createLeaderboardTable(userScores, c);
+  userScores.forEach(user => {
+    const userPicks = picksData[user.userId];
+    createUserPicksTable(user.userName, userPicks, user.totalScore, user.usernameColor, user.profilePic);
+  });
+
   setStatus('');
 }
 
 /* -------------------------
-   Auth gate + boot
+   Auth gate
 -------------------------- */
-
 document.addEventListener('DOMContentLoaded', () => {
   setWeekLabel();
   setStatus('Loading…');
 
   onAuthStateChanged(auth, (user) => {
     if (!user) {
-      // not signed in — go back to home/login
       window.location.href = 'index.html';
       return;
     }
-    // user is signed in; render page
-    renderMoneyPool().catch((err) => {
+    renderMoneyPool().catch(err => {
       console.error('Money Pool render error:', err);
       setStatus('Something went wrong loading the Money Pool.');
     });
