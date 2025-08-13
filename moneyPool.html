@@ -23,11 +23,18 @@
   </header>
 
   <main class="mp-main">
-    <section id="mp-status" class="mp-status">Loading…</section>
+  <h1 class="house-picks-title">Money Pool <span id="mp-week"></span></h1>
 
-    <!-- Where the filtered boards will render (after we wire Firebase) -->
-    <section id="mp-container" class="mp-container" aria-live="polite"></section>
-  </main>
+  <div class="mp-actions" style="justify-content:center; margin-bottom:10px;">
+    <a href="index.html" class="btn back-to-home">Back to Picks</a>
+    <a href="housePicks.html" class="btn back-to-home">View House Picks</a>
+  </div>
+
+  <section id="mp-status" class="mp-status"></section>
+
+  <!-- IMPORTANT: same id House Picks uses -->
+  <div id="housePicksContainer"></div>
+</main>
 
   <!-- Page script (create this next). No Firebase wiring yet. -->
   <script type="module" src="js/moneyPool.js"></script>
