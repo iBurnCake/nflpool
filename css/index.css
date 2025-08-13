@@ -88,6 +88,12 @@ input[type="password"] {
 #viewHousePicksButton:hover {
     background-color: #1F5B99;
 }
+#moneyPoolBtn {
+    background-color: #17A2B8;
+}
+#moneyPoolBtn:hover {
+    background-color: #11707f;
+}
 #pastWeeksButton {
     background-color: #800080;
 }
