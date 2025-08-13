@@ -1,6 +1,4 @@
-/* css/moneyPool.css */
-
-/* Header layout */
+/* === Money Pool page header / shell === */
 .mp-header {
     display: flex;
     align-items: center;
@@ -8,59 +6,19 @@
     gap: 12px;
     padding: 16px 20px;
 }
-
 .mp-header h1 {
     font-size: 1.6rem;
     color: #FFD700;
     line-height: 1.2;
 }
-
 .mp-actions {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
 }
-
-/* Main content area */
-.mp-main {
-    width: min(1100px, 95vw);
-    margin: 0 auto;
-    padding: 12px 20px 32px;
-}
-
-/* Status message */
-.mp-status {
-    margin: 8px 0 16px;
-    font-weight: bold;
-    opacity: 0.9;
-}
-
-/* Container for the member boards */
-.mp-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 14px;
-}
-
-/* Card style for each member */
-.mp-card {
-    background: rgba(0,0,0,0.45);
-    border: 2px solid #FFD700;
-    border-radius: 12px;
-    padding: 14px;
-    backdrop-filter: blur(2px);
-}
-
-.mp-card h3 {
-    font-size: 1.05rem;
-    color: #FFD700;
-    margin-bottom: 8px;
-}
-
-/* Buttons inside actions */
 .mp-actions .btn {
-    padding: 8px 14px;
-    font-size: 15px;
+    padding: 10px 16px;
+    font-size: 16px;
     border-radius: 4px;
     text-decoration: none;
     font-weight: bold;
@@ -68,8 +26,101 @@
     background-color: #3B7EED;
     transition: background-color 0.3s ease;
 }
+.mp-actions .btn:hover { background-color: #1F5B99; }
 
-.mp-actions .btn:hover {
+.mp-main {
+    width: min(1100px, 95vw);
+    margin: 0 auto;
+    padding: 12px 20px 32px;
+}
+.mp-status { margin: 8px 0 16px; font-weight: bold; opacity: 0.9; }
+
+/* === Reuse the House Picks visual language === */
+/* Container the JS writes into (matches House Picks) */
+#housePicksContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px;
+    padding: 20px;
+}
+
+/* Leaderboard row user (avatar + name) */
+.leaderboard-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.leaderboard-user img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Tables for picks + leaderboard */
+.user-picks-table {
+    width: 100%;
+    max-width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    box-sizing: border-box;
+}
+.user-picks-table th,
+.user-picks-table td {
+    padding: 10px;
+    border: 1px solid #444;
+    background-color: #333;
+    color: #FFD700;
+    word-wrap: break-word;
+}
+.user-picks-table th {
+    background-color: #444;
+    font-weight: bold;
+    color: #FFD700;
+}
+.user-picks-table td.correct {
+    color: #28a745;
+    background-color: #333;
+}
+.user-picks-table td.incorrect {
+    color: #dc3545;
+    background-color: #333;
+}
+
+/* Card/container per user (same width + padding) */
+.user-picks-container {
+    background-color: #282828;
+    padding: 20px;
+    border-radius: 8px;
+    width: 500px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+/* Headings + leaderboard table colors */
+.user-header,
+.leaderboard-table th,
+.leaderboard-table td {
+    color: #FFD700;
+}
+
+/* Back buttons (if used on this page) */
+#backToHomeButton,
+button.back-to-home {
+    background-color: #3B7EED;
+    color: white;
+    font-weight: bold;
+    padding: 10px 16px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+#backToHomeButton:hover,
+button.back-to-home:hover {
     background-color: #1F5B99;
 }
 
@@ -77,21 +128,55 @@
 .hidden { display: none !important; }
 .center { text-align: center; }
 
-/* Mobile adjustments */
+/* === Mobile tweaks (match House Picks) === */
 @media (max-width: 430px) {
     .mp-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
     }
+    .mp-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+    .mp-actions .btn { width: auto; }
 
-    .mp-actions {
-        width: 100%;
-        justify-content: flex-start;
-        flex-wrap: wrap;
+    .house-picks-title {
+        font-size: 20px;
+        padding: 8px 15px;
+        text-align: center;
+        width: fit-content;
+        margin: 0 auto 15px;
     }
-
-    .mp-actions .btn {
-        width: auto;
+    .house-picks-layout {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+    .leaderboard-container {
+        width: 95%;
+        max-width: 380px;
+    }
+    .picks-container {
+        width: 95%;
+        max-width: 380px;
+        justify-content: center;
+    }
+    .user-picks-container {
+        width: 100%;
+        max-width: 380px;
+        padding: 15px;
+    }
+    .user-picks-table {
+        width: 100%;
+        font-size: 12px;
+        table-layout: fixed;
+    }
+    .user-picks-table th,
+    .user-picks-table td {
+        padding: 6px;
+        word-break: break-word;
+    }
+    button {
+        width: 100%;
+        font-size: 14px;
+        padding: 10px;
     }
 }
