@@ -12,9 +12,11 @@
     line-height: 1.2;
 }
 .mp-actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;     /* NEW */
+  margin-bottom: 10px;         /* NEW */
 }
 .mp-actions .btn {
     padding: 10px 16px;
