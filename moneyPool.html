@@ -14,29 +14,19 @@
   <link rel="stylesheet" href="css/moneyPool.css" />
 </head>
 <body>
-  <header class="mp-header">
-    <h1>Money Pool <span id="mp-week"></span></h1>
-    <div class="mp-actions">
-      <a href="index.html" class="btn" id="backToPicksBtn">Back to Picks</a>
-      <a href="housePicks.html" class="btn" id="toHousePicksBtn">View House Picks</a>
-    </div>
-  </header>
-
   <main class="mp-main">
-  <h1 class="house-picks-title">Money Pool <span id="mp-week"></span></h1>
+    <h1 class="house-picks-title">Money Pool <span id="mp-week"></span></h1>
 
-  <div class="mp-actions" style="justify-content:center; margin-bottom:10px;">
-    <a href="index.html" class="btn back-to-home">Back to Picks</a>
-    <a href="housePicks.html" class="btn back-to-home">View House Picks</a>
-  </div>
+    <div class="mp-actions" style="justify-content:center; margin-bottom:10px;">
+      <a href="index.html" class="btn back-to-home">Back to Picks</a>
+      <a href="housePicks.html" class="btn back-to-home">View House Picks</a>
+    </div>
 
-  <section id="mp-status" class="mp-status"></section>
+    <section id="mp-status" class="mp-status"></section>
+    <div id="housePicksContainer"></div>
+  </main>
 
-  <!-- IMPORTANT: same id House Picks uses -->
-  <div id="housePicksContainer"></div>
-</main>
-
-  <!-- Page script (create this next). No Firebase wiring yet. -->
   <script type="module" src="js/moneyPool.js"></script>
 </body>
+
 </html>
