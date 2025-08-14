@@ -1,18 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Past Weeks</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/pastWeeks.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Past Weeks</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/pastWeeks.css" />
 </head>
 <body>
-    <a href="index.html" id="backButton">Back to Picks</a>
-    <div class="past-weeks-view">
-        <h1 id="pastWeeksTitle">Past Weeks</h1>
-        <div id="pastWeeksContainer" class="past-weeks-container"></div>
-    </div>
-    <script src="js/pastWeeks.js"></script>
-</body>
+    <main class="pw-main">
+        <!-- Title Card -->
+        <div class="pw-titlebox">
+          <h1 class="pw-title">Past Weeks</h1>
+      
+          <div class="pw-actions">
+            <button id="backToPicksBtn" class="btn back-to-home">Back to Picks</button>
+          </div>
+      
+          <h2 id="pw-subtitle" class="pw-subtitle">Pre-Season Week 3</h2>
+        </div>
+      
+        <div id="pw-status" style="text-align:center;"></div>
+        <div id="pastWeeksContainer"></div>
+      </main>
+      
+      <script type="module" src="js/pastWeeks.js"></script>
+      <script>
+        document.getElementById('backToPicksBtn')
+          .addEventListener('click', () => (window.location.href = 'index.html'));
+      </script>      
+  </body>
+  
 </html>
