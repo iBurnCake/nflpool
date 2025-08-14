@@ -226,24 +226,26 @@ import {
   /* -----------------------------
      Games + picks
   ------------------------------ */
-  const games = [
-    { homeTeam: 'Ravens', awayTeam: 'Colts', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Eagles', awayTeam: 'Bengals', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Seahawks', awayTeam: 'Raiders', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Falcons', awayTeam: 'Lions', homeRecord: '0-0', awayRecord: '0-1' },
-    { homeTeam: 'Panthers', awayTeam: 'Browns', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Patriots', awayTeam: 'Commanders', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Bills', awayTeam: 'Giants', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Vikings', awayTeam: 'Texans', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Jaguars', awayTeam: 'Steelers', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Rams', awayTeam: 'Cowboys', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Buccaneers', awayTeam: 'Titans', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Cardinals', awayTeam: 'Chiefs', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Packers', awayTeam: 'Jets', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: '49ers', awayTeam: 'Broncos', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Bears', awayTeam: 'Dolphins', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Chargers', awayTeam: 'Saints', homeRecord: '1-0', awayRecord: '0-0' }
-  ];
+// Week 1 matchups
+const games = [
+  { homeTeam: 'Cowboys',    awayTeam: 'Eagles',     homeRecord: '0-0', awayRecord: '0-0' }, // Thu
+  { homeTeam: 'Chiefs',     awayTeam: 'Chargers',   homeRecord: '0-0', awayRecord: '0-0' }, // Fri
+  { homeTeam: 'Dolphins',   awayTeam: 'Colts',      homeRecord: '0-0', awayRecord: '0-0' }, // Sun 1:00
+  { homeTeam: 'Steelers',   awayTeam: 'Jets',       homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Panthers',   awayTeam: 'Jaguars',    homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Cardinals',  awayTeam: 'Saints',     homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Giants',     awayTeam: 'Commanders', homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Buccaneers', awayTeam: 'Falcons',    homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Bengals',    awayTeam: 'Browns',     homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Raiders',    awayTeam: 'Patriots',   homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: '49ers',      awayTeam: 'Seahawks',   homeRecord: '0-0', awayRecord: '0-0' }, // 4:05
+  { homeTeam: 'Titans',     awayTeam: 'Broncos',    homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Lions',      awayTeam: 'Packers',    homeRecord: '0-0', awayRecord: '0-0' }, // 4:25
+  { homeTeam: 'Texans',     awayTeam: 'Rams',       homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Ravens',     awayTeam: 'Bills',      homeRecord: '0-0', awayRecord: '0-0' }, // SNF
+  { homeTeam: 'Vikings',    awayTeam: 'Bears',      homeRecord: '0-0', awayRecord: '0-0' }  // MNF
+];
+
   
   let userPicks = {};
   let usedPoints = new Set();
