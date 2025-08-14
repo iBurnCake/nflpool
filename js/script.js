@@ -1,390 +1,273 @@
-import {
-  auth, db, signInWithPopup, GoogleAuthProvider,
-  ref, set, get, child, update, onAuthStateChanged
-} from './firebaseConfig.js';
 
-/* -------------------------
-   Week helpers (single source of truth)
--------------------------- */
-let CURRENT_WEEK_KEY = null;
-let CURRENT_WEEK_LABEL = null;
+import { db, ref, get } from './firebaseConfig.js';
 
-async function ensureWeekKeyAndLabel() {
-  if (!CURRENT_WEEK_KEY) {
-    try {
-      const wkSnap = await get(ref(db, 'settings/currentWeek'));
-      CURRENT_WEEK_KEY = wkSnap.exists() ? String(wkSnap.val()) : 'week9';
-    } catch (e) {
-      console.warn('settings/currentWeek read failed, defaulting to week9', e);
-      CURRENT_WEEK_KEY = 'week9';
-    }
-  }
-  if (!CURRENT_WEEK_LABEL) {
-    try {
-      const lblSnap = await get(ref(db, 'settings/currentWeekLabel'));
-      CURRENT_WEEK_LABEL = lblSnap.exists() ? String(lblSnap.val()) : CURRENT_WEEK_KEY;
-    } catch {
-      CURRENT_WEEK_LABEL = CURRENT_WEEK_KEY;
-    }
-  }
-  return { weekKey: CURRENT_WEEK_KEY, weekLabel: CURRENT_WEEK_LABEL };
-}
-
-/* -------------------------
-   Auth + boot
--------------------------- */
-document.addEventListener("DOMContentLoaded", () => {
-  onAuthStateChanged(auth, async (user) => {
-    await ensureWeekKeyAndLabel();
-
-    if (user) {
-      console.log("User logged in:", user.email);
-      document.getElementById('loginSection').style.display = 'none';
-      document.getElementById('userHomeSection').style.display = 'block';
-
-      const displayName = getNameByEmail(user.email);
-      document.getElementById('usernameDisplay').textContent = displayName;
-
-      loadUsernameColor(user.uid);
-      loadProfilePic(user.uid);
-
-      displayGames();
-      loadUserPicks(user.uid);
-    } else {
-      console.log("No user logged in");
-      const loginSection = document.getElementById('loginSection');
-      loginSection.style.display = 'flex';
-      document.getElementById('userHomeSection').style.display = 'none';
-    }
-  });
-
-  document.getElementById('googleLoginButton')?.addEventListener("click", () => {
-    const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        console.log("Google login successful:", result.user.email);
-        handleSuccessfulLogin(result.user);
-      })
-      .catch((error) => {
-        console.error("Google login error:", error);
-        alert("Google login failed. Please try again.");
-      });
-  });
-
-  document.getElementById('logoutButton')?.addEventListener("click", () => {
-    auth.signOut().then(() => {
-      const loginSection = document.getElementById('loginSection');
-      loginSection.style.display = 'flex';
-      document.getElementById('userHomeSection').style.display = 'none';
-      alert("You have been logged out.");
-    }).catch((error) => {
-      console.error("Logout error:", error.message);
-      alert("Error logging out. Please try again.");
-    });
-  });
-
-  document.getElementById('resetButton')?.addEventListener("click", resetPicks);
-  document.getElementById('submitButton')?.addEventListener("click", submitPicks);
-  document.getElementById('pastWeeksButton')?.addEventListener("click", () => {
-    window.location.href = 'pastWeeks.html';
-  });
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOMContentLoaded event fired");
+    loadHousePicks();
 });
 
-function handleSuccessfulLogin(user) {
-  document.getElementById('loginSection').style.display = 'none';
-  document.getElementById('userHomeSection').style.display = 'block';
-
-  const displayName = getNameByEmail(user.email);
-  document.getElementById('usernameDisplay').textContent = displayName;
-
-  loadUsernameColor(user.uid);
-  loadProfilePic(user.uid);
-  displayGames();
-  loadUserPicks(user.uid);
-}
-
-/* -------------------------
-   User names
--------------------------- */
-const emailToNameMap = {
-  "devonstankis3@gmail.com": "De Von",
-  "kyrakafel@gmail.com": "Kyra Kafel",
-  "tom.kant21@gmail.com": "Tommy Kant",
-  "vickiocf@gmail.com": "Aunt Vicki",
-  "erossini02@gmail.com": "Emily Rossini",
-  "tony.romano222@gmail.com": "Tony Romano",
-  "thomasromano19707@gmail.com": "Thomas Romano",
-  "ckeegan437@gmail.com": "Charles Keegan",
-  "rainhail85@gmail.com": "Ryan Sanders",
-  "williammathis2004@gmail.com": "William Mathis",
-  "angelakant007@gmail.com": "Angela Kant",
-  "luke.romano2004@gmail.com": "Luke Romano",
-  "Nkier27@gmail.com": "Nick Kier",
-};
-function getNameByEmail(email) { return emailToNameMap[email] || email; }
-
-/* -------------------------
-   Profile pic + color
--------------------------- */
-function saveProfilePic(userId, picUrl) {
-  const userRef = ref(db, 'users/' + userId);
-  update(userRef, { profilePic: picUrl })
-    .then(() => console.log("Profile picture saved:", picUrl))
-    .catch((error) => console.error("Error saving profile picture:", error));
-}
-
-function highlightSavedProfilePic(picUrl) {
-  document.querySelectorAll(".profile-pic-option img").forEach(img => {
-    if (img.src.includes(picUrl.split("/").pop())) {
-      img.parentElement.classList.add("selected");
-    }
-  });
-}
-
-function loadProfilePic(userId) {
-  const userRef = ref(db, 'users/' + userId + '/profilePic');
-  get(userRef)
-    .then((snapshot) => {
-      if (snapshot.exists()) {
-        const picUrl = snapshot.val();
-        profilePicPreview.src = picUrl;
-        highlightSavedProfilePic(picUrl);
-      }
-    })
-    .catch((error) => console.error("Error loading profile picture:", error));
-}
-
-const teams = [
-  "arizona-cardinals-logo.png","atlanta-falcons-logo.png","baltimore-ravens-logo.png",
-  "buffalo-bills-logo.png","carolina-panthers-logo.png","chicago-bears-logo.png",
-  "cincinnati-bengals-logo.png","cleveland-browns-logo.png","dallas-cowboys-logo.png",
-  "denver-broncos-logo.png","detroit-lions-logo.png","green-bay-packers-logo.png",
-  "houston-texans-logo.png","indianapolis-colts-logo.png","jacksonville-jaguars-logo.png",
-  "kansas-city-chiefs-logo.png","la-rams-logo.png","los-angeles-chargers-logo.png",
-  "los-angeles-rams-logo.png","miami-dolphins-logo.png","minnesota-vikings-logo.png",
-  "new-england-patriots-logo.png","new-orleans-saints-logo.png","new-york-giants-logo.png",
-  "new-york-jets-logo.png","oakland-raiders-logo.png","philadelphia-eagles-logo.png",
-  "pittsburgh-steelers-logo.png","san-francisco-49ers-logo.png","seattle-seahawks-logo.png",
-  "tampa-bay-buccaneers-logo.png","tennessee-titans-logo.png","washington-commanders-logo.png",
-  "washington-redskins-logo.png","xqc-logo.png"
-];
-
-const logoSelection = document.getElementById("logoSelection");
-const profilePicPreview = document.getElementById("profilePicPreview");
-
-teams.forEach(team => {
-  const div = document.createElement("div");
-  div.classList.add("profile-pic-option");
-
-  const img = document.createElement("img");
-  img.src = `images/NFL LOGOS/${team}`;
-  img.alt = team;
-
-  div.appendChild(img);
-  logoSelection.appendChild(div);
-
-  div.addEventListener("click", () => {
-    if (auth.currentUser) {
-      profilePicPreview.src = img.src;
-      saveProfilePic(auth.currentUser.uid, img.src);
-      document.querySelectorAll(".profile-pic-option").forEach(opt => opt.classList.remove("selected"));
-      div.classList.add("selected");
-    } else {
-      alert("You must be logged in to set a profile picture.");
-    }
-  });
-});
-
-function loadUsernameColor(userId) {
-  const colorRef = ref(db, `users/${userId}/usernameColor`);
-  const usernameDisplay = document.getElementById("usernameDisplay");
-
-  get(colorRef).then(snapshot => {
-    if (snapshot.exists()) {
-      const color = snapshot.val();
-      usernameDisplay.style.color = color;
-    }
-  }).catch(error => console.error("Error loading username color:", error));
-
-  const saveButton = document.getElementById("saveColorButton");
-  const colorPicker = document.getElementById("usernameColorPicker");
-
-  saveButton.addEventListener("click", () => {
-    const selectedColor = colorPicker.value;
-    set(colorRef, selectedColor)
-      .then(() => {
-        usernameDisplay.style.color = selectedColor;
-        alert("Username color saved successfully!");
-      })
-      .catch(error => {
-        console.error("Error saving username color:", error);
-        alert("Failed to save username color. Please try again.");
-      });
-  });
-}
-
-/* -------------------------
-   Games + picks
--------------------------- */
 const games = [
-  { homeTeam: 'Ravens', awayTeam: 'Colts', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Eagles', awayTeam: 'Bengals', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Seahawks', awayTeam: 'Raiders', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Falcons', awayTeam: 'Lions', homeRecord: '0-0', awayRecord: '0-1' },
-  { homeTeam: 'Panthers', awayTeam: 'Browns', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Patriots', awayTeam: 'Commanders', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Bills', awayTeam: 'Giants', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Vikings', awayTeam: 'Texans', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Jaguars', awayTeam: 'Steelers', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Rams', awayTeam: 'Cowboys', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Buccaneers', awayTeam: 'Titans', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Cardinals', awayTeam: 'Chiefs', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Packers', awayTeam: 'Jets', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: '49ers', awayTeam: 'Broncos', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Bears', awayTeam: 'Dolphins', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Chargers', awayTeam: 'Saints', homeRecord: '1-0', awayRecord: '0-0' }
+    { homeTeam: 'Ravens', awayTeam: 'Colts', homeRecord: '0-0', awayRecord: '0-0' },
+    { homeTeam: 'Eagles', awayTeam: 'Bengals', homeRecord: '0-0', awayRecord: '0-0' },
+    { homeTeam: 'Seahawks', awayTeam: 'Raiders', homeRecord: '0-0', awayRecord: '0-0' },
+    { homeTeam: 'Falcons', awayTeam: 'Lions', homeRecord: '0-0', awayRecord: '0-1' },
+    { homeTeam: 'Panthers', awayTeam: 'Browns', homeRecord: '0-0', awayRecord: '0-0' },
+    { homeTeam: 'Patriots', awayTeam: 'Commanders', homeRecord: '0-0', awayRecord: '0-0' },
+    { homeTeam: 'Bills', awayTeam: 'Giants', homeRecord: '0-0', awayRecord: '0-0' },
+    { homeTeam: 'Vikings', awayTeam: 'Texans', homeRecord: '0-0', awayRecord: '0-0' },
+    { homeTeam: 'Jaguars', awayTeam: 'Steelers', homeRecord: '0-0', awayRecord: '0-0' },
+    { homeTeam: 'Rams', awayTeam: 'Cowboys', homeRecord: '0-0', awayRecord: '0-0' },
+    { homeTeam: 'Buccaneers', awayTeam: 'Titans', homeRecord: '0-0', awayRecord: '0-0' },
+    { homeTeam: 'Cardinals', awayTeam: 'Chiefs', homeRecord: '0-0', awayRecord: '0-0' },
+    { homeTeam: 'Packers', awayTeam: 'Jets', homeRecord: '0-0', awayRecord: '0-0' },
+    { homeTeam: '49ers', awayTeam: 'Broncos', homeRecord: '0-0', awayRecord: '0-0' },
+    { homeTeam: 'Bears', awayTeam: 'Dolphins', homeRecord: '0-0', awayRecord: '0-0' },
+    { homeTeam: 'Chargers', awayTeam: 'Saints', homeRecord: '1-0', awayRecord: '0-0' }
 ];
 
-let userPicks = {};
-let usedPoints = new Set();
 
-function displayGames() {
-  const tableBody = document.getElementById('gamesTable').getElementsByTagName('tbody')[0];
-  tableBody.innerHTML = '';
-
-  games.forEach((game, index) => {
-    const row = tableBody.insertRow();
-    row.innerHTML = `
-      <td>${game.homeTeam} (${game.homeRecord}) vs ${game.awayTeam} (${game.awayRecord})</td>
-      <td>
-        <button id="home-${index}" onclick="selectPick(${index}, 'home')">${game.homeTeam}</button>
-        <button id="away-${index}" onclick="selectPick(${index}, 'away')">${game.awayTeam}</button>
-      </td>
-      <td>
-        <select id="confidence${index}" onchange="assignConfidence(${index})" required></select>
-        <span id="confidenceDisplay${index}" class="confidence-display"></span>
-      </td>
-    `;
-    updateConfidenceDropdown(index);
-  });
-}
-
-function updateConfidenceDropdown(gameIndex) {
-  const dropdown = document.getElementById(`confidence${gameIndex}`);
-  dropdown.innerHTML = '<option value="">Select</option>';
-
-  for (let i = 1; i <= 16; i++) {
-    if (!usedPoints.has(i)) {
-      const option = document.createElement("option");
-      option.value = i;
-      option.text = i;
-      dropdown.appendChild(option);
-    }
-  }
-}
-
-window.selectPick = function (gameIndex, team) {
-  userPicks[gameIndex] = userPicks[gameIndex] || {};
-  userPicks[gameIndex].team = team === 'home' ? games[gameIndex].homeTeam : games[gameIndex].awayTeam;
-
-  const homeButton = document.getElementById(`home-${gameIndex}`);
-  const awayButton = document.getElementById(`away-${gameIndex}`);
-
-  if (team === 'home') {
-    homeButton.classList.add("selected");
-    awayButton.classList.remove("selected");
-  } else {
-    awayButton.classList.add("selected");
-    homeButton.classList.remove("selected");
-  }
-
-  saveUserPicks(auth.currentUser.uid);
+const gameWinners = {
+    0: 'Ravens', // Ravens or Colts
+    1: 'Eagles', // Eagles or Bengals
+    2: '', // Seahawks or Raiders
+    3: 'Lions', // Falcons or Lions
+    4: 'Browns', // Panthers or Browns
+    5: 'Patriots', // Patriots or Commanders
+    6: 'Giants', // Bills or Giants
+    7: 'Vikings', // Vikings or Texans
+    8: 'Steelers', // Jaguars or Steelers
+    9: 'Rams', // Rams or Cowboys
+    10: 'Buccaneers', // Buccaneers or Titans
+    11: 'Cardinals', // Cardinals or Chiefs
+    12: 'Jets', // Packers or Jets
+    13: 'Broncos', // 49ers or Broncos
+    14: '', // Bears or Dolphins
+    15: 'Chargers'  // Chargers or Saints
 };
 
-window.assignConfidence = function (gameIndex) {
-  const confidenceSelect = document.getElementById(`confidence${gameIndex}`);
-  const points = parseInt(confidenceSelect.value);
-  const confidenceDisplay = document.getElementById(`confidenceDisplay${gameIndex}`);
+function loadHousePicks() {
+    fetchUserData((userDataMap) => {
+        const housePicksContainer = document.getElementById('housePicksContainer');
+        const week9Ref = ref(db, 'scoreboards/week9');
+        const userScores = [];
 
-  if (userPicks[gameIndex]?.points) {
-    usedPoints.delete(userPicks[gameIndex].points);
-  }
+        get(week9Ref)
+            .then(snapshot => {
+                if (snapshot.exists()) {
+                    const picksData = snapshot.val();
+                    housePicksContainer.innerHTML = '';
 
-  if (points >= 1 && points <= 16 && !usedPoints.has(points)) {
-    userPicks[gameIndex] = userPicks[gameIndex] || {};
-    userPicks[gameIndex].points = points;
-    usedPoints.add(points);
+                    console.log("Picks data loaded:", picksData);
 
-    confidenceDisplay.textContent = points;
+                    for (const userId in picksData) {
+                        const userPicksData = picksData[userId];
+                        const userName = getUserName(userId);
+                        const totalScore = calculateTotalScore(userPicksData);
 
-    saveUserPicks(auth.currentUser.uid);
-    games.forEach((_, i) => updateConfidenceDropdown(i));
-  } else {
-    confidenceSelect.value = "";
-    confidenceDisplay.textContent = "";
-  }
-};
+                        userScores.push({
+                            userId,
+                            userName,
+                            totalScore,
+                            profilePic: userDataMap[userId]?.profilePic || 'images/NFL LOGOS/nfl-logo.jpg',
+                            usernameColor: userDataMap[userId]?.usernameColor || '#FFD700'
+                        });
+                    }
 
-/* -------------------------
-   Save / Load using dynamic week key
--------------------------- */
-async function saveUserPicks(userId) {
-  const { weekKey } = await ensureWeekKeyAndLabel();
-  return set(ref(db, `scoreboards/${weekKey}/${userId}`), userPicks)
-    .then(() => console.log(`Picks saved for ${weekKey}`))
-    .catch(error => console.error("Error saving picks:", error));
-}
+                    userScores.sort((a, b) => b.totalScore - a.totalScore);
 
-async function loadUserPicks(userId) {
-  const { weekKey } = await ensureWeekKeyAndLabel();
-  try {
-    const snapshot = await get(child(ref(db), `scoreboards/${weekKey}/${userId}`));
-    if (snapshot.exists()) {
-      userPicks = snapshot.val();
-      displayUserPicks(userPicks);
-    }
-  } catch (error) {
-    console.error("Error loading picks:", error);
-  }
-}
+                    createLeaderboardTable(userScores, housePicksContainer);
 
-function displayUserPicks(picks) {
-  for (const gameIndex in picks) {
-    const pick = picks[gameIndex];
-    const game = games[gameIndex];
-    if (!game) continue;
-
-    if (pick.team === game.homeTeam) {
-      document.getElementById(`home-${gameIndex}`).classList.add("selected");
-    } else if (pick.team === game.awayTeam) {
-      document.getElementById(`away-${gameIndex}`).classList.add("selected");
-    }
-
-    if (pick.points) {
-      usedPoints.add(pick.points);
-      document.getElementById(`confidence${gameIndex}`).value = pick.points;
-      document.getElementById(`confidenceDisplay${gameIndex}`).textContent = pick.points;
-    }
-  }
-  games.forEach((_, i) => updateConfidenceDropdown(i));
-}
-
-window.resetPicks = function () {
-  userPicks = {};
-  usedPoints.clear();
-  displayGames();
-  saveUserPicks(auth.currentUser.uid);
-};
-
-window.submitPicks = async function () {
-  const { weekKey } = await ensureWeekKeyAndLabel();
-  set(ref(db, `scoreboards/${weekKey}/${auth.currentUser.uid}`), userPicks)
-    .then(() => {
-      alert("Picks submitted successfully!");
-      window.location.href = "housePicks.html";
-    })
-    .catch(error => {
-      console.error("Error submitting picks:", error.message);
-      alert("Error submitting picks. Please try again.");
+                    userScores.forEach(user => {
+                        const userPicksData = picksData[user.userId];
+                        createUserPicksTable(
+                            user.userName,
+                            userPicksData,
+                            user.totalScore,
+                            user.usernameColor,
+                            user.profilePic
+                        );
+                    });
+                } else {
+                    housePicksContainer.innerHTML = '<p>No picks submitted for Week 15.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading house picks:', error);
+                housePicksContainer.innerHTML = '<p>Error loading picks. Please try again later.</p>';
+            });
     });
-};
+}
+
+function fetchUserData(callback) {
+    const usersRef = ref(db, 'users');
+    get(usersRef).then((snapshot) => {
+        if (snapshot.exists()) {
+            const usersData = snapshot.val();
+            const userDataMap = {};
+            for (const userId in usersData) {
+                userDataMap[userId] = {
+                    usernameColor: usersData[userId].usernameColor || '#FFD700',
+                    profilePic: usersData[userId].profilePic || 'images/NFL LOGOS/nfl-logo.jpg'
+                };
+            }
+            callback(userDataMap);
+        } else {
+            console.warn('No users data found.');
+            callback({});
+        }
+    }).catch((error) => {
+        console.error('Error fetching user data:', error);
+        callback({});
+    });
+}
+
+function getUserName(userId) {
+    const userMap = {
+        'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
+        '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan',
+        'zZ8DblY3KQgPP9bthG87l7DNAux2': 'Ryan Sanders',
+        'krvPcOneIcYrzc2GfIHXfsvbrD23': 'William Mathis',
+        '67khUuKYmhXxRumUjMpyoDbnq0s2': 'Thomas Romano',
+        'JIdq2bYVCZgdAeC0y6P69puNQz43': 'Tony Romano',
+        '9PyTK0SHv7YKv7AYw5OV29dwH5q2': 'Emily Rossini',
+        'ORxFtuY13VfaUqc2ckcfw084Lxq1': 'Aunt Vicki',
+        'FIKVjOy8P7UTUGqq2WvjkARZPIE2': 'Tommy Kant',
+        'FFIWPuZYzYRI2ibmVbVHDIq1mjj2': 'De Von ',
+        'i6s97ZqeN1YCM39Sjqh65VablvA3': 'Kyra Kafel ',
+        '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant',
+        'gsQAQttBoEOSu4v1qVVqmHxAqsO2': 'Nick Kier',
+    };
+    return userMap[userId] || `User ${userId}`;
+}
+
+function calculateTotalScore(userPicks) {
+    let totalScore = 0;
+    for (const gameIndex in userPicks) {
+        const pickData = userPicks[gameIndex];
+        if (!pickData) continue;
+        const chosenTeam = pickData.team;
+        const confidencePoints = pickData.points || 0;
+        const gameWinner = gameWinners[gameIndex];
+        if (chosenTeam === gameWinner) {
+            totalScore += confidencePoints;
+        }
+    }
+    return totalScore;
+}
+
+function createLeaderboardTable(userScores, container) {
+    const leaderboardContainer = document.createElement('div');
+    leaderboardContainer.classList.add('user-picks-container');
+
+    const leaderboardHeader = document.createElement('h3');
+    leaderboardHeader.classList.add('user-header');
+    leaderboardHeader.textContent = 'Leaderboard';
+
+    leaderboardContainer.appendChild(leaderboardHeader);
+
+    const table = document.createElement('table');
+    table.classList.add('user-picks-table');
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>User</th>
+                <th>Total Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${userScores.map((user, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                   <td style="color: ${user.usernameColor};">
+    <div class="leaderboard-user">
+        <img src="${user.profilePic}" alt="${user.userName}">
+        <span class="leaderboard-username">${user.userName}</span>
+    </div>
+</td>
+                    <td>${user.totalScore}</td>
+                </tr>
+            `).join('')}
+        </tbody>
+    `;
+
+    leaderboardContainer.appendChild(table);
+    container.appendChild(leaderboardContainer);
+}
+
+
+function createUserPicksTable(userName, userPicks, totalScore, userColor, profilePic) {
+    const housePicksContainer = document.getElementById('housePicksContainer');
+    const userContainer = document.createElement('div');
+    userContainer.classList.add('user-picks-container');
+
+    const userHeader = document.createElement('h3');
+    userHeader.classList.add('user-header');
+    userHeader.innerHTML = `
+        <img src="${profilePic}" alt="${userName}" style="width:32px; height:32px; border-radius:50%; vertical-align:middle; margin-right:8px;">
+        <span style="color: ${userColor};">${userName}</span> - Total Score: ${totalScore}
+    `;
+    userContainer.appendChild(userHeader);
+
+    const table = document.createElement('table');
+    table.classList.add('user-picks-table');
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Matchup</th>
+                <th>Pick</th>
+                <th>Confidence Points</th>
+                <th>Result</th>
+                <th>Points Earned</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    `;
+
+    const tbody = table.querySelector('tbody');
+
+    for (const gameIndex in userPicks) {
+        const pickData = userPicks[gameIndex];
+        const game = games[gameIndex];
+
+        if (!game) {
+            console.warn(`Missing game data for index: ${gameIndex}`);
+            continue;
+        }
+
+        const matchup = `${game.homeTeam} (${game.homeRecord}) vs ${game.awayTeam} (${game.awayRecord})`;
+        const chosenTeam = pickData.team || 'N/A';
+        const confidencePoints = pickData.points || 0;
+
+        const gameWinner = gameWinners[gameIndex];
+        const isCorrectPick = gameWinner && chosenTeam === gameWinner;
+        const pointsEarned = isCorrectPick ? confidencePoints : 0;
+
+        const resultText = gameWinner
+            ? (isCorrectPick ? 'Win' : 'Loss')
+            : 'N/A';
+        const resultClass = gameWinner ? (isCorrectPick ? 'correct' : 'incorrect') : 'neutral';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${matchup}</td>
+            <td>${chosenTeam}</td>
+            <td>${confidencePoints}</td>
+            <td class="${resultClass}">${resultText}</td>
+            <td>${pointsEarned}</td>
+        `;
+
+        tbody.appendChild(row);
+    }
+
+    const totalRow = document.createElement('tr');
+    totalRow.innerHTML = `
+        <td colspan="3" style="font-weight: bold; text-align: right;">Total Score:</td>
+        <td colspan="2">${totalScore}</td>
+    `;
+    tbody.appendChild(totalRow);
+
+    userContainer.appendChild(table);
+    housePicksContainer.appendChild(userContainer);
+}
