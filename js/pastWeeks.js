@@ -2,13 +2,25 @@ import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
 
 const winnersByWeek = {
   week9: {
-    0: 'Ravens', 1: 'Eagles', 2: '', 3: 'Lions', 4: 'Browns', 5: 'Patriots',
-    6: 'Giants', 7: 'Vikings', 8: 'Steelers', 9: 'Rams', 10: 'Buccaneers',
-    11: 'Cardinals', 12: 'Jets', 13: 'Broncos', 14: '', 15: 'Chargers'
+    0: '',
+    1: '',
+    2: '',
+    3: '',
+    4: '',
+    5: '',
+    6: '',
+    7: '',
+    8: '',
+    9: '',
+    10: '',
+    11: '',
+    12: '',
+    13: '',
+    14: '',
+    15: ''
   }
 };
 
-/* Optional pretty names */
 function fallbackName(uid) {
   const map = {
     'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
@@ -28,7 +40,6 @@ function fallbackName(uid) {
   return map[uid] || `User ${uid.slice(0, 6)}…`;
 }
 
-/* ---------- boot ---------- */
 document.addEventListener('DOMContentLoaded', () => {
   setStatus('Loading…');
   const container = ensureContainer();
@@ -50,7 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-/* ---------- main ---------- */
 async function loadCurrentLeaderboard() {
   const container = ensureContainer();
 
@@ -96,9 +106,8 @@ async function loadCurrentLeaderboard() {
   `);
 }
 
-/* ---------- data helpers ---------- */
 async function getLatestScoreboard() {
-  const root = await get(ref(db, 'scoreboards'));     // requires auth if your rules do
+  const root = await get(ref(db, 'scoreboards')); 
   if (!root.exists()) return { weekKey: null, picksByUser: null };
 
   const obj = root.val();
@@ -131,7 +140,6 @@ function computeTotal(userPicks, winners) {
   return total;
 }
 
-/* ---------- tiny UI helpers ---------- */
 function ensureContainer() {
   let c = document.getElementById('pastWeeksContainer');
   if (!c) {
