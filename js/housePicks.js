@@ -142,6 +142,16 @@ function calculateTotalScore(userPicks, winners) {
   return total;
 }
 
+async function loadWinnersForWeek(weekKey) {
+  // Prefer the /games child directly
+  const snap = await get(ref(db, `winners/${weekKey}/games`));
+  if (snap.exists()) return snap.val();
+
+  // Fallback if only /winners/<weekKey> exists
+  const all = await get(ref(db, `winners/${weekKey}`));
+  return all.exists() ? (all.val().games ?? {}) : {};
+}
+
 function createLeaderboardTable(userScores, container) {
     const leaderboardContainer = document.createElement('div');
     leaderboardContainer.classList.add('user-picks-container');
