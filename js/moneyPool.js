@@ -1,18 +1,7 @@
-// js/moneyPool.js
-// Money Pool page — matches your existing structure & styling and filters to paid members.
+import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js'; 
 
-import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js'; // :contentReference[oaicite:3]{index=3}
-
-/* -------------------------
-   CONFIG (aligns with your current DB)
--------------------------- */
-const WEEK_KEY = 'week1'; // change when you roll weeks, or we can auto-calc later
-
-/* -------------------------
-   DOM helpers (compatible with your IDs)
--------------------------- */
+const WEEK_KEY = 'week1'; 
 function containerEl() {
-  // Prefer your house picks container; fallback to mp-container if you kept it
   return document.getElementById('housePicksContainer') || document.getElementById('mp-container');
 }
 function setWeekLabel() {
@@ -28,18 +17,12 @@ function clearContainer() {
   if (c) c.innerHTML = '';
 }
 
-/* -------------------------
-   Data helpers (mirror your housePicks.js patterns)
--------------------------- */
-
-// Load the allowlist for Money Pool members
 async function loadAllowlist(weekKey) {
   const snap = await get(ref(db, `subscriberPools/${weekKey}/members`));
   if (!snap.exists()) return new Set();
   return new Set(Object.keys(snap.val()));
 }
 
-// Pull basic user profile color & pic from your users path
 async function fetchUserDataMap() {
   const usersRef = ref(db, 'users');
   const snapshot = await get(usersRef);
@@ -56,7 +39,6 @@ async function fetchUserDataMap() {
   return map;
 }
 
-// Your hard-coded name map (copied to keep output identical to House Picks) :contentReference[oaicite:4]{index=4}
 function getUserName(userId) {
   const userMap = {
     'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
@@ -76,48 +58,43 @@ function getUserName(userId) {
   return userMap[userId] || `User ${userId}`;
 }
 
-/* -------------------------
-   Game data + scoring (copied to match your House Picks UI)
--------------------------- */
-// Keep in sync with your housePicks.js so totals match exactly. :contentReference[oaicite:5]{index=5}
 const games = [
-  { homeTeam: 'Ravens', awayTeam: 'Colts', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Eagles', awayTeam: 'Bengals', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Seahawks', awayTeam: 'Raiders', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Falcons', awayTeam: 'Lions', homeRecord: '0-0', awayRecord: '0-1' },
-  { homeTeam: 'Panthers', awayTeam: 'Browns', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Patriots', awayTeam: 'Commanders', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Bills', awayTeam: 'Giants', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Vikings', awayTeam: 'Texans', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Jaguars', awayTeam: 'Steelers', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Rams', awayTeam: 'Cowboys', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Buccaneers', awayTeam: 'Titans', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Cardinals', awayTeam: 'Chiefs', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Packers', awayTeam: 'Jets', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: '49ers', awayTeam: 'Broncos', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Bears', awayTeam: 'Dolphins', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Chargers', awayTeam: 'Saints', homeRecord: '1-0', awayRecord: '0-0' }
+  { homeTeam: 'Cowboys',   awayTeam: 'Eagles',     homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Chiefs',    awayTeam: 'Chargers',   homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Dolphins',  awayTeam: 'Colts',      homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Steelers',  awayTeam: 'Jets',       homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Panthers',  awayTeam: 'Jaguars',    homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Cardinals', awayTeam: 'Saints',     homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Giants',    awayTeam: 'Commanders', homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Buccaneers',awayTeam: 'Falcons',    homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Bengals',   awayTeam: 'Browns',     homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Raiders',   awayTeam: 'Patriots',   homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: '49ers',     awayTeam: 'Seahawks',   homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Titans',    awayTeam: 'Broncos',    homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Lions',     awayTeam: 'Packers',    homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Texans',    awayTeam: 'Rams',       homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Ravens',    awayTeam: 'Bills',      homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Vikings',   awayTeam: 'Bears',      homeRecord: '0-0', awayRecord: '0-0' },
 ];
 const gameWinners = {
-  0: 'Ravens',
-  1: 'Eagles',
+  0: '',
+  1: '',
   2: '',
-  3: 'Lions', 
-  4: 'Browns',
-  5: 'Patriots',
-  6: 'Giants',
-  7: 'Vikings',
-  8: 'Steelers',
-  9: 'Rams',
-  10: 'Buccaneers',
-  11: 'Cardinals',
-  12: 'Jets', 
-  13: 'Broncos', 
+  3: '', 
+  4: '',
+  5: '',
+  6: '',
+  7: '',
+  8: '',
+  9: '',
+  10: '',
+  11: '',
+  12: '', 
+  13: '', 
   14: '',
   15: ''
 };
 
-// Same scoring math as House Picks. :contentReference[oaicite:6]{index=6}
 function calculateTotalScore(userPicks) {
   let total = 0;
   for (const gameIndex in userPicks) {
@@ -131,9 +108,6 @@ function calculateTotalScore(userPicks) {
   return total;
 }
 
-/* -------------------------
-   Render (identical look to House Picks)
--------------------------- */
 function createLeaderboardTable(userScores, container) {
   const leaderboardContainer = document.createElement('div');
   leaderboardContainer.classList.add('user-picks-container');
@@ -239,22 +213,17 @@ function createUserPicksTable(userName, userPicks, totalScore, userColor, profil
   c.appendChild(userContainer);
 }
 
-/* -------------------------
-   Main flow (filter to allowlist)
--------------------------- */
 async function renderMoneyPool() {
   setStatus('Loading…');
   clearContainer();
 
-  // 1) Load allowlist
   const allowUids = await loadAllowlist(WEEK_KEY);
   if (!allowUids || allowUids.size === 0) {
     setStatus('No subscribers yet for this week.');
     return;
   }
 
-  // 2) Load base picks from your existing path
-  const weekRef = ref(db, `scoreboards/${WEEK_KEY}`); // :contentReference[oaicite:7]{index=7}
+  const weekRef = ref(db, `scoreboards/${WEEK_KEY}`); 
   const snap = await get(weekRef);
 
   const c = containerEl();
@@ -264,11 +233,8 @@ async function renderMoneyPool() {
   }
 
   const picksData = snap.val();
-
-  // 3) Build user profile map (colors, pics)
   const userDataMap = await fetchUserDataMap();
 
-  // 4) Filter to paid members & score
   const userScores = [];
   const filteredUserIds = Object.keys(picksData).filter(uid => allowUids.has(uid));
 
@@ -291,10 +257,9 @@ async function renderMoneyPool() {
     return;
   }
 
-  // 5) Sort + render leaderboard & each user's table
   userScores.sort((a, b) => b.totalScore - a.totalScore);
 
-  c.innerHTML = ''; // ensure clean slate
+  c.innerHTML = ''; 
   createLeaderboardTable(userScores, c);
   userScores.forEach(user => {
     const userPicks = picksData[user.userId];
@@ -304,9 +269,6 @@ async function renderMoneyPool() {
   setStatus('');
 }
 
-/* -------------------------
-   Auth gate
--------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   setWeekLabel();
   setStatus('Loading…');
