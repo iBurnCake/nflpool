@@ -1,6 +1,6 @@
 import {auth, db, signInWithPopup, GoogleAuthProvider, ref, set, get, child, update, onAuthStateChanged} from './firebaseConfig.js';
   
-  let CURRENT_WEEK = 'week9'; 
+  let CURRENT_WEEK = 'week1'; 
   let CURRENT_WEEK_LABEL = '';
   
   async function refreshCurrentWeek() {
