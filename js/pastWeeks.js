@@ -1,7 +1,7 @@
 import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
 
 const winnersByWeek = {
-  week9: {
+  week1: {
     0: '',
     1: '',
     2: '',
