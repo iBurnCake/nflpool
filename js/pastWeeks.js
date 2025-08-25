@@ -1,26 +1,5 @@
 import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
 
-const winnersByWeek = {
-  week1: {
-    0: '',
-    1: '',
-    2: '',
-    3: '',
-    4: '',
-    5: '',
-    6: '',
-    7: '',
-    8: '',
-    9: '',
-    10: '',
-    11: '',
-    12: '',
-    13: '',
-    14: '',
-    15: ''
-  }
-};
-
 function fallbackName(uid) {
   const map = {
     'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
