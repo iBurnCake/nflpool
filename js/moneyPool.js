@@ -6,7 +6,7 @@ import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js'; //
 /* -------------------------
    CONFIG (aligns with your current DB)
 -------------------------- */
-const WEEK_KEY = 'week9'; // change when you roll weeks, or we can auto-calc later
+const WEEK_KEY = 'week1'; // change when you roll weeks, or we can auto-calc later
 
 /* -------------------------
    DOM helpers (compatible with your IDs)
@@ -99,12 +99,22 @@ const games = [
   { homeTeam: 'Chargers', awayTeam: 'Saints', homeRecord: '1-0', awayRecord: '0-0' }
 ];
 const gameWinners = {
-  0: 'Ravens', 1: 'Eagles', 2: '',
-  3: 'Lions', 4: 'Browns', 5: 'Patriots',
-  6: 'Giants', 7: 'Vikings', 8: 'Steelers',
-  9: 'Rams', 10: 'Buccaneers', 11: 'Cardinals',
-  12: 'Jets', 13: 'Broncos', 14: '',
-  15: 'Chargers'
+  0: 'Ravens',
+  1: 'Eagles',
+  2: '',
+  3: 'Lions', 
+  4: 'Browns',
+  5: 'Patriots',
+  6: 'Giants',
+  7: 'Vikings',
+  8: 'Steelers',
+  9: 'Rams',
+  10: 'Buccaneers',
+  11: 'Cardinals',
+  12: 'Jets', 
+  13: 'Broncos', 
+  14: '',
+  15: ''
 };
 
 // Same scoring math as House Picks. :contentReference[oaicite:6]{index=6}
