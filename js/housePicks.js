@@ -28,7 +28,7 @@ const games = [
 function loadHousePicks() {
     fetchUserData((userDataMap) => {
         const housePicksContainer = document.getElementById('housePicksContainer');
-        const week9Ref = ref(db, 'scoreboards/week1');
+        const week1Ref = ref(db, 'scoreboards/week1');
         const userScores = [];
 
         get(week9Ref)
