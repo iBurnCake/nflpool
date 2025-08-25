@@ -1,20 +1,6 @@
-import {
-    auth,
-    db,
-    signInWithPopup,
-    GoogleAuthProvider,
-    ref,
-    set,
-    get,
-    child,
-    update,
-    onAuthStateChanged
-  } from './firebaseConfig.js';
+import {auth, db, signInWithPopup, GoogleAuthProvider, ref, set, get, child, update, onAuthStateChanged} from './firebaseConfig.js';
   
-  /* -----------------------------
-     Week settings (dynamic)
-  ------------------------------ */
-  let CURRENT_WEEK = 'week9'; // safe fallback if /settings is missing
+  let CURRENT_WEEK = 'week9'; 
   let CURRENT_WEEK_LABEL = '';
   
   async function refreshCurrentWeek() {
@@ -29,13 +15,10 @@ import {
     console.log(`[settings] Using week: ${CURRENT_WEEK} (${CURRENT_WEEK_LABEL || 'no label'})`);
   }
   
-  /* -----------------------------
-     Auth + boot
-  ------------------------------ */
   document.addEventListener('DOMContentLoaded', () => {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        await refreshCurrentWeek(); // VERY IMPORTANT → read week before any reads/writes
+        await refreshCurrentWeek();
   
         console.log('User logged in:', user.email);
         document.getElementById('loginSection').style.display = 'none';
@@ -106,9 +89,6 @@ import {
     loadUserPicks(user.uid);
   }
   
-  /* -----------------------------
-     Profile + color
-  ------------------------------ */
   const emailToNameMap = {
     "devonstankis3@gmail.com": "De Von",
     "kyrakafel@gmail.com": "Kyra Kafel",
@@ -154,9 +134,6 @@ import {
       .catch((error) => console.error('Error loading profile picture:', error));
   }
   
-  /* -----------------------------
-     Logos
-  ------------------------------ */
   const teams = [
     "arizona-cardinals-logo.png","atlanta-falcons-logo.png","baltimore-ravens-logo.png","buffalo-bills-logo.png",
     "carolina-panthers-logo.png","chicago-bears-logo.png","cincinnati-bengals-logo.png","cleveland-browns-logo.png",
@@ -193,9 +170,6 @@ import {
     });
   });
   
-  /* -----------------------------
-     Username color
-  ------------------------------ */
   function loadUsernameColor(userId) {
     const colorRef = ref(db, `users/${userId}/usernameColor`);
     const usernameDisplay = document.getElementById('usernameDisplay');
@@ -223,10 +197,6 @@ import {
     });
   }
   
-  /* -----------------------------
-     Games + picks
-  ------------------------------ */
-// Week 1 matchups
 const games = [
   { homeTeam: 'Cowboys',    awayTeam: 'Eagles',     homeRecord: '0-0', awayRecord: '0-0' }, // Thu
   { homeTeam: 'Chiefs',     awayTeam: 'Chargers',   homeRecord: '0-0', awayRecord: '0-0' }, // Fri
@@ -325,9 +295,6 @@ const games = [
     }
   };
   
-  /* -----------------------------
-     DB IO (dynamic week)
-  ------------------------------ */
   function saveUserPicks(userId) {
     const path = `scoreboards/${CURRENT_WEEK}/${userId}`;
     console.log('[save] ->', path);
@@ -383,7 +350,7 @@ const games = [
   
   window.submitPicks = async function () {
     try {
-      await refreshCurrentWeek(); // in case admin flipped week while page was open
+      await refreshCurrentWeek();
       await saveUserPicks(auth.currentUser.uid);
       alert('Picks submitted successfully!');
       window.location.href = 'housePicks.html';
