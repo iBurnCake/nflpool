@@ -77,22 +77,22 @@ const games = [
   { homeTeam: 'Vikings',   awayTeam: 'Bears',      homeRecord: '0-0', awayRecord: '0-0' },
 ];
 const gameWinners = {
-  0: '',
-  1: '',
-  2: '',
-  3: '', 
-  4: '',
-  5: '',
-  6: '',
-  7: '',
-  8: '',
-  9: '',
-  10: '',
-  11: '',
-  12: '', 
-  13: '', 
-  14: '',
-  15: ''
+    0: '', // Cowboys - Eagles
+    1: '', // Chiefs - Chargers
+    2: '', // Dolphins - Colts
+    3: '', // Steelers - Jets
+    4: '', // Panthers - Jaguars
+    5: '', // Cardinals - Saints
+    6: '', // Giants - Commanders
+    7: '', // Buccaneers - Falcons
+    8: '', // Bengals - Browns
+    9: '', // Raiders - Patriots
+    10: '', // 49ers - Seahawks
+    11: '', // Titans - Broncos
+    12: '', // Lions - Packers
+    13: '', // Texans - Rams
+    14: '', // Ravens - Bills
+    15: ''  // Vikings - Bears
 };
 
 function calculateTotalScore(userPicks) {
