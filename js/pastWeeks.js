@@ -1,7 +1,5 @@
-// js/pastWeeks.js
 import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
 
-/* Winners for completed games (add each new week when known) */
 const winnersByWeek = {
   week9: {
     0: 'Ravens', 1: 'Eagles', 2: '', 3: 'Lions', 4: 'Browns', 5: 'Patriots',
