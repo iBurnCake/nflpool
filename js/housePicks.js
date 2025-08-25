@@ -7,48 +7,48 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const games = [
-    { homeTeam: 'Ravens', awayTeam: 'Colts', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Eagles', awayTeam: 'Bengals', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Seahawks', awayTeam: 'Raiders', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Falcons', awayTeam: 'Lions', homeRecord: '0-0', awayRecord: '0-1' },
-    { homeTeam: 'Panthers', awayTeam: 'Browns', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Patriots', awayTeam: 'Commanders', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Bills', awayTeam: 'Giants', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Vikings', awayTeam: 'Texans', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Jaguars', awayTeam: 'Steelers', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Rams', awayTeam: 'Cowboys', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Buccaneers', awayTeam: 'Titans', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Cardinals', awayTeam: 'Chiefs', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Packers', awayTeam: 'Jets', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: '49ers', awayTeam: 'Broncos', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Bears', awayTeam: 'Dolphins', homeRecord: '0-0', awayRecord: '0-0' },
-    { homeTeam: 'Chargers', awayTeam: 'Saints', homeRecord: '1-0', awayRecord: '0-0' }
+  { homeTeam: 'Cowboys',   awayTeam: 'Eagles',     homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Chiefs',    awayTeam: 'Chargers',   homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Dolphins',  awayTeam: 'Colts',      homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Steelers',  awayTeam: 'Jets',       homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Panthers',  awayTeam: 'Jaguars',    homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Cardinals', awayTeam: 'Saints',     homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Giants',    awayTeam: 'Commanders', homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Buccaneers',awayTeam: 'Falcons',    homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Bengals',   awayTeam: 'Browns',     homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Raiders',   awayTeam: 'Patriots',   homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: '49ers',     awayTeam: 'Seahawks',   homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Titans',    awayTeam: 'Broncos',    homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Lions',     awayTeam: 'Packers',    homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Texans',    awayTeam: 'Rams',       homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Ravens',    awayTeam: 'Bills',      homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Vikings',   awayTeam: 'Bears',      homeRecord: '0-0', awayRecord: '0-0' },
 ];
 
 
 const gameWinners = {
-    0: 'Ravens', // Ravens or Colts
-    1: 'Eagles', // Eagles or Bengals
-    2: '', // Seahawks or Raiders
-    3: 'Lions', // Falcons or Lions
-    4: 'Browns', // Panthers or Browns
-    5: 'Patriots', // Patriots or Commanders
-    6: 'Giants', // Bills or Giants
-    7: 'Vikings', // Vikings or Texans
-    8: 'Steelers', // Jaguars or Steelers
-    9: 'Rams', // Rams or Cowboys
-    10: 'Buccaneers', // Buccaneers or Titans
-    11: 'Cardinals', // Cardinals or Chiefs
-    12: 'Jets', // Packers or Jets
-    13: 'Broncos', // 49ers or Broncos
-    14: '', // Bears or Dolphins
-    15: 'Chargers'  // Chargers or Saints
+    0: '', // Cowboys - Eagles
+    1: '', // Chiefs - Chargers
+    2: '', // Dolphins - Colts
+    3: '', // Steelers - Jets
+    4: '', // Panthers - Jaguars
+    5: '', // Cardinals - Saints
+    6: '', // Giants - Commanders
+    7: '', // Buccaneers - Falcons
+    8: '', // Bengals - Browns
+    9: '', // Raiders - Patriots
+    10: '', // 49ers - Seahawks
+    11: '', // Titans - Broncos
+    12: '', // Lions - Packers
+    13: '', // Texans - Rams
+    14: '', // Ravens - Bills
+    15: ''  // Vikings - Bears
 };
 
 function loadHousePicks() {
     fetchUserData((userDataMap) => {
         const housePicksContainer = document.getElementById('housePicksContainer');
-        const week9Ref = ref(db, 'scoreboards/week9');
+        const week9Ref = ref(db, 'scoreboards/week1');
         const userScores = [];
 
         get(week9Ref)
