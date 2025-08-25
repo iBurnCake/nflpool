@@ -120,19 +120,26 @@ function getUserName(userId) {
     return userMap[userId] || `User ${userId}`;
 }
 
-function calculateTotalScore(userPicks) {
-    let totalScore = 0;
-    for (const gameIndex in userPicks) {
-        const pickData = userPicks[gameIndex];
-        if (!pickData) continue;
-        const chosenTeam = pickData.team;
-        const confidencePoints = pickData.points || 0;
-        const gameWinner = gameWinners[gameIndex];
-        if (chosenTeam === gameWinner) {
-            totalScore += confidencePoints;
-        }
-    }
-    return totalScore;
+function calculateTotalScore(userPicks, winners) {
+  if (!userPicks) return 0;
+
+  // If caller passed the whole winners node, use its `games` child.
+  const gamesWinners = winners?.games ?? winners ?? {};
+
+  const norm = s => String(s ?? '').trim().toLowerCase();
+
+  let total = 0;
+  for (const idx of Object.keys(userPicks)) {
+    const pick = userPicks[idx];
+    if (!pick) continue;
+
+    const chosenTeam = norm(pick.team);
+    const pts = Number.parseInt(pick.points ?? 0, 10) || 0;
+
+    const win = norm(gamesWinners[idx]);       // winner for that game index
+    if (win && chosenTeam === win) total += pts;
+  }
+  return total;
 }
 
 function createLeaderboardTable(userScores, container) {
