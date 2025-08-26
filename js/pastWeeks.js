@@ -1,5 +1,20 @@
+// js/pastWeeks.js
 import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
 
+/* ---------- small helpers ---------- */
+const norm = (s) => String(s ?? '').trim().toLowerCase();
+
+function setStatus(text) {
+  const s = document.getElementById('pw-status');
+  if (!s) return;
+  s.textContent = text || '';
+}
+
+function container() {
+  return document.getElementById('pastWeeksContainer');
+}
+
+/* Pretty name and user meta */
 function fallbackName(uid) {
   const map = {
     'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
@@ -19,142 +34,190 @@ function fallbackName(uid) {
   return map[uid] || `User ${uid.slice(0, 6)}…`;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  setStatus('Loading…');
-  const container = ensureContainer();
-
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      setStatus('');
-      container.innerHTML = signInRequiredCard();
-      return;
-    }
-    try {
-      await loadCurrentLeaderboard();
-      setStatus('');
-    } catch (e) {
-      console.error('PastWeeks error:', e?.code, e?.message, e);
-      setStatus('There was an error. Check console for details.');
-      container.innerHTML = errorCard('Error loading data.');
-    }
-  });
-});
-
-async function loadCurrentLeaderboard() {
-  const container = ensureContainer();
-
-  const { weekKey, picksByUser } = await getLatestScoreboard();
-  const weekLabel = document.getElementById('pw-week');
-  if (weekLabel && weekKey) weekLabel.textContent = `— ${weekKey}`;
-
-  if (!picksByUser) {
-    container.innerHTML = cardHTML('Leaderboard', `
-      <tbody><tr><td colspan="3" style="text-align:center;">No data yet</td></tr></tbody>
-    `);
-    return;
-  }
-
-  const usersMeta = await getUsersMeta();
-  const winners = winnersByWeek[weekKey] || {};
-
-  const rows = Object.entries(picksByUser).map(([uid, picks]) => {
-    const total = computeTotal(picks, winners);
-    const m = usersMeta[uid] || {};
-    const name = m.displayName || m.name || m.username || fallbackName(uid);
-    const color = m.usernameColor || '#FFD700';
-    const profile = m.profilePic || 'images/NFL LOGOS/nfl-logo.jpg';
-    return { uid, name, color, profile, total };
-  }).sort((a, b) => b.total - a.total);
-
-  const body = rows.map((u, i) => `
-    <tr>
-      <td>${i + 1}</td>
-      <td>
-        <div class="leaderboard-user">
-          <img src="${u.profile}" alt="${u.name}">
-          <span style="color:${u.color};">${u.name}</span>
-        </div>
-      </td>
-      <td>${u.total}</td>
-    </tr>
-  `).join('');
-
-  container.innerHTML = cardHTML('Leaderboard', `
-    <thead><tr><th>Rank</th><th>User</th><th>Total Score</th></tr></thead>
-    <tbody>${body}</tbody>
-  `);
-}
-
-async function getLatestScoreboard() {
-  const root = await get(ref(db, 'scoreboards')); 
-  if (!root.exists()) return { weekKey: null, picksByUser: null };
-
-  const obj = root.val();
-  let latestKey = null, latestNum = -1;
-  for (const k of Object.keys(obj)) {
-    const m = /^week(\d+)$/i.exec(k);
-    const n = m ? parseInt(m[1], 10) : -1;
-    if (n > latestNum) { latestNum = n; latestKey = k; }
-  }
-  if (!latestKey) latestKey = Object.keys(obj).sort().pop();
-
-  const wk = await get(ref(db, `scoreboards/${latestKey}`));
-  return { weekKey: latestKey, picksByUser: wk.exists() ? wk.val() : null };
-}
-
 async function getUsersMeta() {
-  const s = await get(ref(db, 'users'));
-  return s.exists() ? s.val() : {};
+  const snap = await get(ref(db, 'users'));
+  if (!snap.exists()) return {};
+  return snap.val();
 }
 
-function computeTotal(userPicks, winners) {
+/* winners/<weekKey>/games + optional label */
+async function getWinnersNode(weekKey) {
+  // Try games list
+  const gamesSnap = await get(ref(db, `winners/${weekKey}/games`));
+  const labelSnap = await get(ref(db, `winners/${weekKey}/label`));
+
+  const games = gamesSnap.exists() ? gamesSnap.val() : {};
+  const label = labelSnap.exists() ? labelSnap.val() : null;
+
+  // Fallback to flat structure if needed
+  if (!gamesSnap.exists()) {
+    const whole = await get(ref(db, `winners/${weekKey}`));
+    if (whole.exists()) {
+      const v = whole.val();
+      return { games: v.games ?? {}, label: v.label ?? label ?? null };
+    }
+  }
+  return { games, label };
+}
+
+/* Sum a user's score for a week using winners */
+function computeTotal(picks, winnersGames) {
+  if (!picks) return 0;
   let total = 0;
-  for (const idx in userPicks) {
-    const p = userPicks[idx];
-    const chosen = p?.team;
-    const pts = p?.points || 0;
-    const win = winners[idx];
+  for (const idx of Object.keys(picks)) {
+    const p = picks[idx];
+    const chosen = norm(p?.team);
+    const pts = Number.parseInt(p?.points ?? 0, 10) || 0;
+    const win = norm(winnersGames?.[idx]);
     if (win && chosen === win) total += pts;
   }
   return total;
 }
 
-function ensureContainer() {
-  let c = document.getElementById('pastWeeksContainer');
-  if (!c) {
-    c = document.createElement('div');
-    c.id = 'pastWeeksContainer';
-    document.body.appendChild(c);
-  }
-  return c;
+/* Read all scoreboard weeks and sort newest first */
+async function listWeeks() {
+  const root = await get(ref(db, 'scoreboards'));
+  if (!root.exists()) return [];
+  const keys = Object.keys(root.val());
+
+  // Prefer numeric "weekN" ordering, newest first
+  const withNums = keys.map(k => {
+    const m = /^week(\d+)$/i.exec(k);
+    return { key: k, n: m ? parseInt(m[1], 10) : -1 };
+  });
+  withNums.sort((a, b) => b.n - a.n || a.key.localeCompare(b.key));
+  return withNums.map(x => x.key);
 }
-function setStatus(msg) {
-  let s = document.getElementById('pw-status');
-  if (!s) {
-    s = document.createElement('div');
+
+/* Build one week's leaderboard rows */
+async function buildWeekLeaderboard(weekKey, usersMeta) {
+  const [winnersNode, picksSnap] = await Promise.all([
+    getWinnersNode(weekKey),
+    get(ref(db, `scoreboards/${weekKey}`))
+  ]);
+
+  const winnersGames = winnersNode.games || {};
+  const weekLabel = winnersNode.label || weekKey;
+
+  if (!picksSnap.exists()) {
+    return { weekKey, weekLabel, rows: [], hasWinners: Object.keys(winnersGames).length > 0 };
+  }
+
+  const picksByUser = picksSnap.val();
+  const rows = Object.entries(picksByUser).map(([uid, picks]) => {
+    const total = computeTotal(picks, winnersGames);
+    const meta = usersMeta[uid] || {};
+    return {
+      uid,
+      name: meta.displayName || meta.name || meta.username || fallbackName(uid),
+      color: meta.usernameColor || '#FFD700',
+      profile: meta.profilePic || 'images/NFL LOGOS/nfl-logo.jpg',
+      total
+    };
+  }).sort((a, b) => b.total - a.total);
+
+  return { weekKey, weekLabel, rows, hasWinners: Object.keys(winnersGames).length > 0 };
+}
+
+/* Render one week card */
+function renderWeekCard({ weekLabel, rows, hasWinners }) {
+  const c = container();
+  const card = document.createElement('div');
+  card.className = 'user-picks-container';
+
+  const h = document.createElement('h3');
+  h.className = 'user-header';
+  h.textContent = weekLabel;
+  card.appendChild(h);
+
+  const table = document.createElement('table');
+  table.className = 'user-picks-table';
+
+  if (!hasWinners) {
+    table.innerHTML = `
+      <thead><tr><th>Rank</th><th>User</th><th>Total Score</th></tr></thead>
+      <tbody><tr><td colspan="3" style="text-align:center;">Winners not posted yet</td></tr></tbody>
+    `;
+  } else if (rows.length === 0) {
+    table.innerHTML = `
+      <thead><tr><th>Rank</th><th>User</th><th>Total Score</th></tr></thead>
+      <tbody><tr><td colspan="3" style="text-align:center;">No picks saved</td></tr></tbody>
+    `;
+  } else {
+    const body = rows.map((u, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td>
+          <div class="leaderboard-user">
+            <img src="${u.profile}" alt="${u.name}">
+            <span style="color:${u.color};">${u.name}</span>
+          </div>
+        </td>
+        <td>${u.total}</td>
+      </tr>
+    `).join('');
+
+    table.innerHTML = `
+      <thead><tr><th>Rank</th><th>User</th><th>Total Score</th></tr></thead>
+      <tbody>${body}</tbody>
+    `;
+  }
+
+  card.appendChild(table);
+  c.appendChild(card);
+}
+
+/* Main: render ALL past-week leaderboards (newest first) */
+async function renderPastWeeks() {
+  setStatus('Loading…');
+  const c = container();
+  c.innerHTML = '';
+
+  const [weeks, usersMeta] = await Promise.all([listWeeks(), getUsersMeta()]);
+  if (weeks.length === 0) {
+    setStatus('');
+    c.innerHTML = '<div class="user-picks-container"><h3 class="user-header">No weeks found</h3></div>';
+    return;
+  }
+
+  for (const wk of weeks) {
+    try {
+      const data = await buildWeekLeaderboard(wk, usersMeta);
+      renderWeekCard(data);
+    } catch (e) {
+      console.error('PastWeeks: failed for', wk, e);
+      const errCard = document.createElement('div');
+      errCard.className = 'user-picks-container';
+      errCard.innerHTML = `
+        <h3 class="user-header">${wk}</h3>
+        <table class="user-picks-table">
+          <tbody><tr><td colspan="3" style="text-align:center;">Error loading this week.</td></tr></tbody>
+        </table>`;
+      c.appendChild(errCard);
+    }
+  }
+
+  setStatus('');
+}
+
+/* boot */
+document.addEventListener('DOMContentLoaded', () => {
+  // optional status element
+  if (!document.getElementById('pw-status')) {
+    const s = document.createElement('div');
     s.id = 'pw-status';
     s.style.cssText = 'margin:10px 0;font-weight:600;text-align:center;color:#FFD700;';
-    const main = document.querySelector('.pw-main') || document.body;
-    main.insertBefore(s, main.firstChild?.nextSibling || null);
+    (document.querySelector('.past-weeks-view') || document.body).insertAdjacentElement('afterbegin', s);
   }
-  s.textContent = msg || '';
-}
-function cardHTML(title, tableInner) {
-  return `
-    <div class="user-picks-container">
-      <h3 class="user-header">${title}</h3>
-      <table class="user-picks-table">${tableInner}</table>
-    </div>`;
-}
-function errorCard(text) {
-  return cardHTML('Leaderboard', `<tbody>
-    <tr><td colspan="3" style="text-align:center;color:#FFD700;">${text}</td></tr>
-  </tbody>`);
-}
-function signInRequiredCard() {
-  return cardHTML('Leaderboard', `<tbody>
-    <tr><td colspan="3" style="text-align:center;">
-      Sign-in required. <a href="index.html" style="color:#3B7EED;font-weight:700;">Go to Login</a>
-    </td></tr>
-  </tbody>`);
-}
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      setStatus('Sign in required.');
+      return;
+    }
+    renderPastWeeks().catch(err => {
+      console.error('renderPastWeeks error:', err);
+      setStatus('There was an error loading past weeks.');
+    });
+  });
+});
