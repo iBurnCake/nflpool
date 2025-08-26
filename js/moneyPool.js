@@ -1,12 +1,15 @@
-import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js'; 
+// js/moneyPool.js
+import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
 
-const WEEK_KEY = 'week1'; 
+/* ---------------- small helpers ---------------- */
+const norm = (s) => String(s ?? '').trim().toLowerCase();
+
 function containerEl() {
   return document.getElementById('housePicksContainer') || document.getElementById('mp-container');
 }
-function setWeekLabel() {
+function setWeekLabel(weekKey) {
   const el = document.getElementById('mp-week');
-  if (el) el.textContent = `— ${WEEK_KEY}`;
+  if (el && weekKey) el.textContent = `— ${weekKey}`;
 }
 function setStatus(text) {
   const s = document.getElementById('mp-status');
@@ -17,15 +20,25 @@ function clearContainer() {
   if (c) c.innerHTML = '';
 }
 
+/* Current week from settings */
+async function getCurrentWeekKey() {
+  try {
+    const snap = await get(ref(db, 'settings/currentWeek'));
+    if (snap.exists()) return snap.val(); // e.g., "week1"
+  } catch (_) {}
+  return 'week1';
+}
+
+/* Allowlist for Money Pool */
 async function loadAllowlist(weekKey) {
   const snap = await get(ref(db, `subscriberPools/${weekKey}/members`));
   if (!snap.exists()) return new Set();
   return new Set(Object.keys(snap.val()));
 }
 
+/* Users meta (color, avatar) */
 async function fetchUserDataMap() {
-  const usersRef = ref(db, 'users');
-  const snapshot = await get(usersRef);
+  const snapshot = await get(ref(db, 'users'));
   const map = {};
   if (snapshot.exists()) {
     const usersData = snapshot.val();
@@ -39,25 +52,18 @@ async function fetchUserDataMap() {
   return map;
 }
 
-function getUserName(userId) {
-  const userMap = {
-    'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
-    '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan',
-    'zZ8DblY3KQgPP9bthG87l7DNAux2': 'Ryan Sanders',
-    'krvPcOneIcYrzc2GfIHXfsvbrD23': 'William Mathis',
-    '67khUuKYmhXxRumUjMpyoDbnq0s2': 'Thomas Romano',
-    'JIdq2bYVCZgdAeC0y6P69puNQz43': 'Tony Romano',
-    '9PyTK0SHv7YKv7AYw5OV29dwH5q2': 'Emily Rossini',
-    'ORxFtuY13VfaUqc2ckcfw084Lxq1': 'Aunt Vicki',
-    'FIKVjOy8P7UTUGqq2WvjkARZPIE2': 'Tommy Kant',
-    'FFIWPuZYzYRI2ibmVbVHDIq1mjj2': 'De Von ',
-    'i6s97ZqeN1YCM39Sjqh65VablvA3': 'Kyra Kafel ',
-    '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant',
-    'gsQAQttBoEOSu4v1qVVqmHxAqsO2': 'Nick Kier',
-  };
-  return userMap[userId] || `User ${userId}`;
+/* Winners for this week */
+async function loadWinnersForWeek(weekKey) {
+  // Prefer /winners/<weekKey>/games
+  const snap = await get(ref(db, `winners/${weekKey}/games`));
+  if (snap.exists()) return snap.val();
+
+  // Fallback if only /winners/<weekKey> exists
+  const all = await get(ref(db, `winners/${weekKey}`));
+  return all.exists() ? (all.val().games ?? {}) : {};
 }
 
+/* Display-only list of games (week 1) */
 const games = [
   { homeTeam: 'Cowboys',   awayTeam: 'Eagles',     homeRecord: '0-0', awayRecord: '0-0' },
   { homeTeam: 'Chiefs',    awayTeam: 'Chargers',   homeRecord: '0-0', awayRecord: '0-0' },
@@ -77,37 +83,58 @@ const games = [
   { homeTeam: 'Vikings',   awayTeam: 'Bears',      homeRecord: '0-0', awayRecord: '0-0' },
 ];
 
-function calculateTotalScore(userPicks) {
+/* Map UID -> pretty name */
+function getUserName(userId) {
+  const userMap = {
+    'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
+    '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan',
+    'zZ8DblY3KQgPP9bthG87l7DNAux2': 'Ryan Sanders',
+    'krvPcOneIcYrzc2GfIHXfsvbrD23': 'William Mathis',
+    '67khUuKYmhXxRumUjMpyoDbnq0s2': 'Thomas Romano',
+    'JIdq2bYVCZgdAeC0y6P69puNQz43': 'Tony Romano',
+    '9PyTK0SHv7YKv7AYw5OV29dwH5q2': 'Emily Rossini',
+    'ORxFtuY13VfaUqc2ckcfw084Lxq1': 'Aunt Vicki',
+    'FIKVjOy8P7UTUGqq2WvjkARZPIE2': 'Tommy Kant',
+    'FFIWPuZYzYRI2ibmVbVHDIq1mjj2': 'De Von ',
+    'i6s97ZqeN1YCM39Sjqh65VablvA3': 'Kyra Kafel ',
+    '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant',
+    'gsQAQttBoEOSu4v1qVVqmHxAqsO2': 'Nick Kier',
+  };
+  return userMap[userId] || `User ${userId}`;
+}
+
+/* ---------- Scoring using DB winners ---------- */
+function calculateTotalScore(userPicks, winners) {
+  if (!userPicks) return 0;
+  const winnersMap = winners?.games ?? winners ?? {};
   let total = 0;
-  for (const gameIndex in userPicks) {
-    const pick = userPicks[gameIndex];
-    if (!pick) continue;
-    const chosen = pick.team;
-    const pts = pick.points || 0;
-    const winner = gameWinners[gameIndex];
-    if (chosen === winner) total += pts;
+
+  for (const idx of Object.keys(userPicks)) {
+    const p = userPicks[idx];
+    if (!p) continue;
+    const chosen = norm(p.team);
+    const pts = Number.parseInt(p.points ?? 0, 10) || 0;
+    const win = norm(winnersMap[idx]);
+    if (win && chosen === win) total += pts;
   }
   return total;
 }
 
+/* ---------- Rendering ---------- */
 function createLeaderboardTable(userScores, container) {
-  const leaderboardContainer = document.createElement('div');
-  leaderboardContainer.classList.add('user-picks-container');
+  const box = document.createElement('div');
+  box.classList.add('user-picks-container');
 
   const header = document.createElement('h3');
   header.classList.add('user-header');
   header.textContent = 'Leaderboard';
-  leaderboardContainer.appendChild(header);
+  box.appendChild(header);
 
   const table = document.createElement('table');
   table.classList.add('user-picks-table');
   table.innerHTML = `
     <thead>
-      <tr>
-        <th>Rank</th>
-        <th>User</th>
-        <th>Total Score</th>
-      </tr>
+      <tr><th>Rank</th><th>User</th><th>Total Score</th></tr>
     </thead>
     <tbody>
       ${userScores.map((u, i) => `
@@ -124,11 +151,11 @@ function createLeaderboardTable(userScores, container) {
       `).join('')}
     </tbody>
   `;
-  leaderboardContainer.appendChild(table);
-  container.appendChild(leaderboardContainer);
+  box.appendChild(table);
+  container.appendChild(box);
 }
 
-function createUserPicksTable(userName, userPicks, totalScore, userColor, profilePic) {
+function createUserPicksTable(userName, userPicks, totalScore, userColor, profilePic, winners) {
   const c = containerEl();
   const userContainer = document.createElement('div');
   userContainer.classList.add('user-picks-container');
@@ -136,7 +163,7 @@ function createUserPicksTable(userName, userPicks, totalScore, userColor, profil
   const userHeader = document.createElement('h3');
   userHeader.classList.add('user-header');
   userHeader.innerHTML = `
-    <img src="${profilePic}" alt="${userName}" style="width:32px; height:32px; border-radius:50%; vertical-align:middle; margin-right:8px;">
+    <img src="${profilePic}" alt="${userName}" style="width:32px;height:32px;border-radius:50%;vertical-align:middle;margin-right:8px;">
     <span style="color:${userColor};">${userName}</span> - Total Score: ${totalScore}
   `;
   userContainer.appendChild(userHeader);
@@ -157,6 +184,8 @@ function createUserPicksTable(userName, userPicks, totalScore, userColor, profil
   `;
   const tbody = table.querySelector('tbody');
 
+  const winnersMap = winners?.games ?? winners ?? {};
+
   for (const gameIndex in userPicks) {
     const pickData = userPicks[gameIndex];
     const game = games[gameIndex];
@@ -166,12 +195,12 @@ function createUserPicksTable(userName, userPicks, totalScore, userColor, profil
     const chosenTeam = pickData.team || 'N/A';
     const confidencePoints = pickData.points || 0;
 
-    const winner = gameWinners[gameIndex];
-    const isCorrect = winner && chosenTeam === winner;
+    const w = winnersMap[gameIndex] || '';
+    const isCorrect = w && norm(chosenTeam) === norm(w);
     const pointsEarned = isCorrect ? confidencePoints : 0;
 
-    const resultText = winner ? (isCorrect ? 'Win' : 'Loss') : 'N/A';
-    const resultClass = winner ? (isCorrect ? 'correct' : 'incorrect') : 'neutral';
+    const resultText = w ? (isCorrect ? 'Win' : 'Loss') : '—';
+    const resultClass = w ? (isCorrect ? 'correct' : 'incorrect') : 'neutral';
 
     const row = document.createElement('tr');
     row.innerHTML = `
@@ -186,7 +215,7 @@ function createUserPicksTable(userName, userPicks, totalScore, userColor, profil
 
   const totalRow = document.createElement('tr');
   totalRow.innerHTML = `
-    <td colspan="3" style="font-weight:bold; text-align:right;">Total Score:</td>
+    <td colspan="3" style="font-weight:bold;text-align:right;">Total Score:</td>
     <td colspan="2">${totalScore}</td>
   `;
   tbody.appendChild(totalRow);
@@ -195,74 +224,79 @@ function createUserPicksTable(userName, userPicks, totalScore, userColor, profil
   c.appendChild(userContainer);
 }
 
+/* ---------- Main render ---------- */
 async function renderMoneyPool() {
-  setStatus('Loading…');
-  clearContainer();
+  try {
+    setStatus('Loading…');
+    clearContainer();
 
-  const allowUids = await loadAllowlist(WEEK_KEY);
-  if (!allowUids || allowUids.size === 0) {
-    setStatus('No subscribers yet for this week.');
-    return;
-  }
+    const weekKey = await getCurrentWeekKey();
+    setWeekLabel(weekKey);
 
-  const weekRef = ref(db, `scoreboards/${WEEK_KEY}`); 
-  const snap = await get(weekRef);
+    const [allowUids, winners, picksSnap, userDataMap] = await Promise.all([
+      loadAllowlist(weekKey),
+      loadWinnersForWeek(weekKey),
+      get(ref(db, `scoreboards/${weekKey}`)),
+      fetchUserDataMap(),
+    ]);
 
-  const c = containerEl();
-  if (!snap.exists()) {
-    setStatus('No picks submitted for this week.');
-    return;
-  }
+    if (!allowUids || allowUids.size === 0) {
+      setStatus('No subscribers yet for this week.');
+      return;
+    }
 
-  const picksData = snap.val();
-  const userDataMap = await fetchUserDataMap();
+    if (!picksSnap.exists()) {
+      setStatus('No picks submitted for this week.');
+      return;
+    }
 
-  const userScores = [];
-  const filteredUserIds = Object.keys(picksData).filter(uid => allowUids.has(uid));
+    const c = containerEl();
+    const picksData = picksSnap.val();
 
-  filteredUserIds.forEach(uid => {
-    const userPicks = picksData[uid];
-    const userName = getUserName(uid);
-    const totalScore = calculateTotalScore(userPicks);
+    const userScores = [];
+    const filteredUserIds = Object.keys(picksData).filter(uid => allowUids.has(uid));
 
-    userScores.push({
-      userId: uid,
-      userName,
-      totalScore,
-      profilePic: userDataMap[uid]?.profilePic || 'images/NFL LOGOS/nfl-logo.jpg',
-      usernameColor: userDataMap[uid]?.usernameColor || '#FFD700'
+    filteredUserIds.forEach(uid => {
+      const userPicks = picksData[uid];
+      const totalScore = calculateTotalScore(userPicks, winners);
+      userScores.push({
+        userId: uid,
+        userName: getUserName(uid),
+        totalScore,
+        profilePic: userDataMap[uid]?.profilePic || 'images/NFL LOGOS/nfl-logo.jpg',
+        usernameColor: userDataMap[uid]?.usernameColor || '#FFD700',
+      });
     });
-  });
 
-  if (userScores.length === 0) {
-    setStatus('No subscribers have submitted picks yet.');
-    return;
+    if (userScores.length === 0) {
+      setStatus('No subscribers have submitted picks yet.');
+      return;
+    }
+
+    userScores.sort((a, b) => b.totalScore - a.totalScore);
+
+    c.innerHTML = '';
+    createLeaderboardTable(userScores, c);
+    userScores.forEach(user => {
+      const userPicks = picksData[user.userId];
+      createUserPicksTable(user.userName, userPicks, user.totalScore, user.usernameColor, user.profilePic, winners);
+    });
+
+    setStatus('');
+  } catch (err) {
+    console.error('Money Pool render error:', err);
+    setStatus('Something went wrong loading the Money Pool.');
   }
-
-  userScores.sort((a, b) => b.totalScore - a.totalScore);
-
-  c.innerHTML = ''; 
-  createLeaderboardTable(userScores, c);
-  userScores.forEach(user => {
-    const userPicks = picksData[user.userId];
-    createUserPicksTable(user.userName, userPicks, user.totalScore, user.usernameColor, user.profilePic);
-  });
-
-  setStatus('');
 }
 
+/* ---------- boot ---------- */
 document.addEventListener('DOMContentLoaded', () => {
-  setWeekLabel();
   setStatus('Loading…');
-
   onAuthStateChanged(auth, (user) => {
     if (!user) {
       window.location.href = 'index.html';
       return;
     }
-    renderMoneyPool().catch(err => {
-      console.error('Money Pool render error:', err);
-      setStatus('Something went wrong loading the Money Pool.');
-    });
+    renderMoneyPool();
   });
 });
