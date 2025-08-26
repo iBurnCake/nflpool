@@ -236,7 +236,95 @@
     font-size: clamp(18px, 3.2vw, 24px);
     text-align: center;
   }
-  
+
+/* ===== Fancy header (shared with Past Weeks / House Picks) ===== */
+.hp-hero {
+  width: min(980px, 92vw);
+  margin: 22px auto 8px;
+  padding: 18px 22px;
+  background: rgba(20,20,20,.88);
+  border: 2px solid #FFD700;
+  border-radius: 16px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Title (supports your existing .house-picks-title too) */
+.hp-title,
+.house-picks-title {
+  margin: 0;
+  padding: 0;
+  color: #FFD700;
+  font-weight: 800;
+  line-height: 1.1;
+  text-align: center;
+  text-shadow: 0 2px 0 #000;
+  font-size: clamp(28px, 4.2vw, 48px);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+/* Optional small subtitle (e.g. “Week 1” or “Pre-Season 3”) */
+.hp-subtitle {
+  color: #FFD700;
+  opacity: .95;
+  font-size: clamp(14px, 2vw, 18px);
+  font-weight: 700;
+}
+
+/* Button row */
+.hp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  justify-content: center;
+}
+
+/* Button styles (replace old id-specific button rules) */
+.btn {
+  appearance: none;
+  border: 0;
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform .04s ease, box-shadow .2s ease, background-color .2s ease, border-color .2s ease;
+  box-shadow: 0 3px 10px rgba(0,0,0,.25);
+  text-decoration: none; /* for <a> buttons */
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn:active { transform: translateY(1px); }
+
+/* Primary (blue) */
+.btn-primary {
+  background: #3B7EED;
+  color: #fff;
+}
+.btn-primary:hover { background: #2f6bcb; }
+
+/* Outline gold (pairs with the black box) */
+.btn-outline {
+  background: transparent;
+  color: #FFD700;
+  border: 2px solid #FFD700;
+}
+.btn-outline:hover {
+  background: rgba(255, 215, 0, .08);
+  border-color: #ffdf4d;
+}
+
+@media (max-width: 480px) {
+  .hp-hero { padding: 14px 16px; gap: 10px; }
+  .btn { width: 100%; justify-content: center; }
+}
   /* Slightly tighter tables on large screens so 3 cards breathe */
   @media (min-width: 1280px) {
     .user-picks-table { font-size: 14px; }
