@@ -1,11 +1,9 @@
-// js/housePicks.js
 import { db, ref, get } from './firebaseConfig.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   loadHousePicks().catch(err => console.error('loadHousePicks error:', err));
 });
 
-/* ---- WEEK 1 GAME LIST (for display only) ---- */
 const games = [
   { homeTeam: 'Cowboys',   awayTeam: 'Eagles',     homeRecord: '0-0', awayRecord: '0-0' },
   { homeTeam: 'Chiefs',    awayTeam: 'Chargers',   homeRecord: '0-0', awayRecord: '0-0' },
@@ -25,13 +23,12 @@ const games = [
   { homeTeam: 'Vikings',   awayTeam: 'Bears',      homeRecord: '0-0', awayRecord: '0-0' },
 ];
 
-/* ---------- small helpers ---------- */
 const norm = s => String(s ?? '').trim().toLowerCase();
 
 async function getCurrentWeekKey() {
   try {
     const snap = await get(ref(db, 'settings/currentWeek'));
-    if (snap.exists()) return snap.val(); // e.g., "week1"
+    if (snap.exists()) return snap.val();
   } catch (_) {}
   return 'week1';
 }
@@ -52,11 +49,9 @@ async function fetchUserData() {
 }
 
 async function loadWinnersForWeek(weekKey) {
-  // Prefer /winners/<weekKey>/games
   const snap = await get(ref(db, `winners/${weekKey}/games`));
   if (snap.exists()) return snap.val();
 
-  // Fallback if only /winners/<weekKey> exists
   const all = await get(ref(db, `winners/${weekKey}`));
   return all.exists() ? (all.val().games ?? {}) : {};
 }
@@ -96,7 +91,6 @@ function getUserName(userId) {
   return userMap[userId] || `User ${userId}`;
 }
 
-/* ---------- main loader ---------- */
 async function loadHousePicks() {
   const container = document.getElementById('housePicksContainer');
   container.innerHTML = 'Loading…';
@@ -145,7 +139,6 @@ async function loadHousePicks() {
   });
 }
 
-/* ---------- rendering ---------- */
 function createLeaderboardTable(userScores, container) {
   const box = document.createElement('div');
   box.classList.add('user-picks-container');
