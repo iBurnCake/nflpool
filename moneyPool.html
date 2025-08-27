@@ -6,27 +6,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Money Pool | 2025 NFL Confidence Pool</title>
 
+  <link rel="icon" type="image/png" href="images/NFL LOGOS/nfl-logo.jpg">
+
   <!-- Reuse your site styles -->
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/index.css" />
 
-  <!-- Page-specific styles (create this file next) -->
+  <!-- Page-specific styles -->
   <link rel="stylesheet" href="css/moneyPool.css" />
 </head>
 <body>
   <main class="mp-main">
-    <h1 class="house-picks-title">Money Pool</h1>
+    <h1 class="house-picks-title">
+      Money Pool <span id="mp-week"></span>
+    </h1>
 
     <div class="mp-actions" style="justify-content:center; margin-bottom:10px;">
       <a href="index.html" class="btn back-to-home">Back to Picks</a>
       <a href="housePicks.html" class="btn back-to-home">View House Picks</a>
     </div>
 
-    <section id="mp-status" class="mp-status"></section>
+    <section id="mp-status" class="mp-status" aria-live="polite"></section>
     <div id="housePicksContainer"></div>
   </main>
 
   <script type="module" src="js/moneyPool.js"></script>
 </body>
-
 </html>
