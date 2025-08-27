@@ -1,7 +1,5 @@
-// js/moneyPool.js
 import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
 
-/* ---------------- small helpers ---------------- */
 const norm = (s) => String(s ?? '').trim().toLowerCase();
 
 function containerEl() {
@@ -20,23 +18,20 @@ function clearContainer() {
   if (c) c.innerHTML = '';
 }
 
-/* Current week from settings */
 async function getCurrentWeekKey() {
   try {
     const snap = await get(ref(db, 'settings/currentWeek'));
-    if (snap.exists()) return snap.val(); // e.g., "week1"
+    if (snap.exists()) return snap.val();
   } catch (_) {}
   return 'week1';
 }
 
-/* Allowlist for Money Pool */
 async function loadAllowlist(weekKey) {
   const snap = await get(ref(db, `subscriberPools/${weekKey}/members`));
   if (!snap.exists()) return new Set();
   return new Set(Object.keys(snap.val()));
 }
 
-/* Users meta (color, avatar) */
 async function fetchUserDataMap() {
   const snapshot = await get(ref(db, 'users'));
   const map = {};
@@ -52,18 +47,14 @@ async function fetchUserDataMap() {
   return map;
 }
 
-/* Winners for this week */
 async function loadWinnersForWeek(weekKey) {
-  // Prefer /winners/<weekKey>/games
   const snap = await get(ref(db, `winners/${weekKey}/games`));
   if (snap.exists()) return snap.val();
 
-  // Fallback if only /winners/<weekKey> exists
   const all = await get(ref(db, `winners/${weekKey}`));
   return all.exists() ? (all.val().games ?? {}) : {};
 }
 
-/* Display-only list of games (week 1) */
 const games = [
   { homeTeam: 'Cowboys',   awayTeam: 'Eagles',     homeRecord: '0-0', awayRecord: '0-0' },
   { homeTeam: 'Chiefs',    awayTeam: 'Chargers',   homeRecord: '0-0', awayRecord: '0-0' },
@@ -83,7 +74,6 @@ const games = [
   { homeTeam: 'Vikings',   awayTeam: 'Bears',      homeRecord: '0-0', awayRecord: '0-0' },
 ];
 
-/* Map UID -> pretty name */
 function getUserName(userId) {
   const userMap = {
     'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
@@ -103,7 +93,6 @@ function getUserName(userId) {
   return userMap[userId] || `User ${userId}`;
 }
 
-/* ---------- Scoring using DB winners ---------- */
 function calculateTotalScore(userPicks, winners) {
   if (!userPicks) return 0;
   const winnersMap = winners?.games ?? winners ?? {};
@@ -120,7 +109,6 @@ function calculateTotalScore(userPicks, winners) {
   return total;
 }
 
-/* ---------- Rendering ---------- */
 function createLeaderboardTable(userScores, container) {
   const box = document.createElement('div');
   box.classList.add('user-picks-container');
@@ -224,7 +212,6 @@ function createUserPicksTable(userName, userPicks, totalScore, userColor, profil
   c.appendChild(userContainer);
 }
 
-/* ---------- Main render ---------- */
 async function renderMoneyPool() {
   try {
     setStatus('Loading…');
@@ -289,7 +276,6 @@ async function renderMoneyPool() {
   }
 }
 
-/* ---------- boot ---------- */
 document.addEventListener('DOMContentLoaded', () => {
   setStatus('Loading…');
   onAuthStateChanged(auth, (user) => {
