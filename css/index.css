@@ -117,9 +117,6 @@ button {
     transition: background-color 0.3s ease;
 }
 
-/* Only the picks table dims when locked */
-#gamesTable.locked { opacity: 0.55; }
-
 @media (max-width: 430px) {
     #loginSection {
         display: flex;
