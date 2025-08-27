@@ -4,28 +4,22 @@ let CURRENT_WEEK = 'week1';
 let CURRENT_WEEK_LABEL = '';
 let IS_LOCKED = false;
 
-/* ---------- Lock UI helper ---------- */
 function applyLockUI() {
-  // Disable all pick buttons, selects, and action buttons
-  const controls = [
-    ...document.querySelectorAll('button[id^="home-"]'),
-    ...document.querySelectorAll('button[id^="away-"]'),
-    ...document.querySelectorAll('select[id^="confidence"]'),
-    document.getElementById('submitButton'),
-    document.getElementById('resetButton'),
-  ].filter(Boolean);
+  // Only target picks UI inside the games table
+  const table = document.getElementById('gamesTable');
+  const pickButtons = table ? table.querySelectorAll('button[id^="home-"], button[id^="away-"]') : [];
+  const pickSelects = table ? table.querySelectorAll('select[id^="confidence"]') : [];
+  const submitBtn = document.getElementById('submitButton');
+  const resetBtn  = document.getElementById('resetButton');
 
-  controls.forEach(el => el.disabled = IS_LOCKED);
+  [...pickButtons, ...pickSelects].forEach(el => { if (el) el.disabled = IS_LOCKED; });
+  if (submitBtn) submitBtn.disabled = IS_LOCKED;
+  if (resetBtn)  resetBtn.disabled  = IS_LOCKED;
 
-  // Grey the card/table by reducing interactivity
-  const tableEl = document.getElementById('gamesTable');
-  const shell = tableEl?.closest('.user-picks-container') || document.getElementById('userHomeSection');
-  if (shell) {
-    shell.style.opacity = IS_LOCKED ? '0.55' : '';
-    shell.style.pointerEvents = IS_LOCKED ? 'none' : '';
-  }
+  // Visually dim only the table
+  if (table) table.classList.toggle('locked', IS_LOCKED);
 
-  // Show/hide a banner
+  // Banner (no pointer-events changes anywhere)
   const id = 'lockedBanner';
   const existing = document.getElementById(id);
   if (IS_LOCKED && !existing) {
