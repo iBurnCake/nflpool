@@ -1,7 +1,5 @@
-// js/pastWeeks.js
 import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
 
-/* ---------- small helpers ---------- */
 const norm = (s) => String(s ?? '').trim().toLowerCase();
 
 function setStatus(text) {
@@ -14,7 +12,6 @@ function container() {
   return document.getElementById('pastWeeksContainer');
 }
 
-/* Pretty name and user meta */
 function fallbackName(uid) {
   const map = {
     'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
@@ -40,16 +37,13 @@ async function getUsersMeta() {
   return snap.val();
 }
 
-/* winners/<weekKey>/games + optional label */
 async function getWinnersNode(weekKey) {
-  // Try games list
   const gamesSnap = await get(ref(db, `winners/${weekKey}/games`));
   const labelSnap = await get(ref(db, `winners/${weekKey}/label`));
 
   const games = gamesSnap.exists() ? gamesSnap.val() : {};
   const label = labelSnap.exists() ? labelSnap.val() : null;
 
-  // Fallback to flat structure if needed
   if (!gamesSnap.exists()) {
     const whole = await get(ref(db, `winners/${weekKey}`));
     if (whole.exists()) {
@@ -60,7 +54,6 @@ async function getWinnersNode(weekKey) {
   return { games, label };
 }
 
-/* Sum a user's score for a week using winners */
 function computeTotal(picks, winnersGames) {
   if (!picks) return 0;
   let total = 0;
@@ -74,13 +67,11 @@ function computeTotal(picks, winnersGames) {
   return total;
 }
 
-/* Read all scoreboard weeks and sort newest first */
 async function listWeeks() {
   const root = await get(ref(db, 'scoreboards'));
   if (!root.exists()) return [];
   const keys = Object.keys(root.val());
 
-  // Prefer numeric "weekN" ordering, newest first
   const withNums = keys.map(k => {
     const m = /^week(\d+)$/i.exec(k);
     return { key: k, n: m ? parseInt(m[1], 10) : -1 };
@@ -89,7 +80,6 @@ async function listWeeks() {
   return withNums.map(x => x.key);
 }
 
-/* Build one week's leaderboard rows */
 async function buildWeekLeaderboard(weekKey, usersMeta) {
   const [winnersNode, picksSnap] = await Promise.all([
     getWinnersNode(weekKey),
@@ -119,7 +109,6 @@ async function buildWeekLeaderboard(weekKey, usersMeta) {
   return { weekKey, weekLabel, rows, hasWinners: Object.keys(winnersGames).length > 0 };
 }
 
-/* Render one week card */
 function renderWeekCard({ weekLabel, rows, hasWinners }) {
   const c = container();
   const card = document.createElement('div');
@@ -167,7 +156,6 @@ function renderWeekCard({ weekLabel, rows, hasWinners }) {
   c.appendChild(card);
 }
 
-/* Main: render ALL past-week leaderboards (newest first) */
 async function renderPastWeeks() {
   setStatus('Loading…');
   const c = container();
@@ -200,9 +188,7 @@ async function renderPastWeeks() {
   setStatus('');
 }
 
-/* boot */
 document.addEventListener('DOMContentLoaded', () => {
-  // optional status element
   if (!document.getElementById('pw-status')) {
     const s = document.createElement('div');
     s.id = 'pw-status';
