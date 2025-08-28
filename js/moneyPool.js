@@ -1,10 +1,7 @@
-// js/moneyPool.js
 import { auth, onAuthStateChanged, db, ref, get, update } from './firebaseConfig.js';
 
-/* ===== Admin ===== */
 const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2';
 
-/* ===== Small helpers ===== */
 const norm = (s) => String(s ?? '').trim().toLowerCase();
 function containerEl() {
   return document.getElementById('housePicksContainer') || document.getElementById('mp-container');
@@ -18,7 +15,6 @@ function setWeekLabel(weekKey, weekLabel) {
   if (el) el.textContent = `— ${weekLabel || weekKey}`;
 }
 
-/* ===== Games list (for display only) — Week 1 ===== */
 const games = [
   { homeTeam: 'Cowboys',    awayTeam: 'Eagles',     homeRecord: '0-0', awayRecord: '0-0' }, // Thu
   { homeTeam: 'Chiefs',     awayTeam: 'Chargers',   homeRecord: '0-0', awayRecord: '0-0' }, // Fri
@@ -38,7 +34,6 @@ const games = [
   { homeTeam: 'Vikings',    awayTeam: 'Bears',      homeRecord: '0-0', awayRecord: '0-0' }  // MNF
 ];
 
-/* ===== Settings / data fetch ===== */
 async function getSettings() {
   let weekKey = 'week1';
   let weekLabel = '';
@@ -105,7 +100,6 @@ function prettyName(uid, userDataMap) {
   return meta.displayName || fallbackName(uid);
 }
 
-/* ===== Scoring ===== */
 function calculateTotalScore(userPicks, winnersMap) {
   if (!userPicks) return 0;
   let total = 0;
@@ -120,7 +114,6 @@ function calculateTotalScore(userPicks, winnersMap) {
   return total;
 }
 
-/* ===== Rendering ===== */
 function createLeaderboardTable(userScores, container) {
   const wrap = document.createElement('div');
   wrap.className = 'user-picks-container';
@@ -220,8 +213,6 @@ function createUserPicksTable(userName, userPicks, totalScore, userColor, profil
   c.appendChild(card);
 }
 
-/* ===== Admin helpers (compact) ===== */
-// Load all users -> { uid: { name } }
 async function loadAllUsersMap() {
   const s = await get(ref(db, 'users'));
   const out = {};
@@ -247,7 +238,6 @@ async function loadCurrentMembers(weekKey) {
   return s.exists() ? Object.keys(s.val()).sort() : [];
 }
 
-// Render members list (names only) with Remove buttons
 function renderMembersList(members, allUsers, onRemove) {
   const ul = document.getElementById('mp-members-list');
   if (!ul) return;
@@ -272,7 +262,6 @@ function renderMembersList(members, allUsers, onRemove) {
   });
 }
 
-/* ===== Main Money Pool render ===== */
 async function renderMoneyPool() {
   setStatus('Loading…');
   const container = containerEl();
@@ -331,7 +320,6 @@ async function renderMoneyPool() {
   setStatus('');
 }
 
-/* ===== Boot (admin wiring with compact panel) ===== */
 document.addEventListener('DOMContentLoaded', () => {
   setStatus('Loading…');
 
@@ -341,13 +329,11 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Render Money Pool
     renderMoneyPool().catch(err => {
       console.error('Money Pool render error:', err);
       setStatus('Something went wrong loading the Money Pool.');
     });
 
-    // Admin-only panel
     const panel = document.getElementById('mp-admin');
     if (panel) panel.style.display = (user.uid === ADMIN_UID) ? 'block' : 'none';
     if (user.uid !== ADMIN_UID) return;
@@ -377,10 +363,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const query = String(q || '').trim().toLowerCase();
       if (!query) return null;
 
-      // Exact UID match
       if (allUsersMap[query]) return query;
 
-      // Unique name match
       const matches = Object.entries(allUsersMap)
         .filter(([, v]) => String(v.name || '').toLowerCase().includes(query))
         .map(([uid]) => uid);
@@ -425,7 +409,6 @@ document.addEventListener('DOMContentLoaded', () => {
       await refreshMembersUI();
     });
 
-    // initial load
     refreshMembersUI().catch(console.error);
   });
 });
