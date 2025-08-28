@@ -26,22 +26,33 @@
     </div>
 
     <!-- ADMIN PANEL (only shows for ADMIN_UID in moneyPool.js) -->
-    <section id="mp-admin" class="mp-admin" style="display:none">
-      <h2>Money Pool — Admin</h2>
+    <section id="mp-admin" class="mp-admin" style="display:none;">
+      <h3>Money Pool — Admin</h3>
 
-      <label for="mp-uid-input" style="display:block;margin-bottom:6px;">
-        Add members by UID (comma/space/newline separated):
-      </label>
-      <textarea id="mp-uid-input" rows="4" placeholder="uid1, uid2, uid3"></textarea>
+      <div class="mp-admin-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+        <!-- Current Members (with one-click Remove) -->
+        <div class="mp-col">
+          <h4>Current Members</h4>
+          <ul id="mp-members-list"></ul>
+        </div>
 
-      <div class="mp-admin-actions">
-        <button id="mp-add-btn" class="btn">Add to Allowlist</button>
-        <button id="mp-refresh-members" class="btn btn-secondary">Refresh Members</button>
+        <!-- All Users (with search + one-click Add) -->
+        <div class="mp-col">
+          <h4>All Users</h4>
+          <input
+            id="mp-user-filter"
+            type="text"
+            placeholder="Search name or UID"
+            class="mp-input"
+            style="width:100%;margin-bottom:8px;padding:8px;border-radius:6px;border:1px solid #555;background:#222;color:#FFD700;"
+          />
+          <ul id="mp-all-users-list"></ul>
+        </div>
       </div>
 
-      <div class="mp-admin-members">
-        <h3>Current Members</h3>
-        <ul id="mp-members-list"></ul>
+      <!-- Optional: manual refresh -->
+      <div style="margin-top:10px;">
+        <button id="mp-refresh-members" class="btn">Refresh Lists</button>
       </div>
     </section>
 
