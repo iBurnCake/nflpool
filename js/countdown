@@ -1,4 +1,3 @@
-// js/countdown.js
 import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
 
 const WIDGET_ID = 'lock-countdown-widget';
