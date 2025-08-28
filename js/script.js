@@ -5,7 +5,6 @@ let CURRENT_WEEK_LABEL = '';
 let IS_LOCKED = false;
 
 function applyLockUI() {
-  // Only target picks UI inside the games table
   const table = document.getElementById('gamesTable');
   const pickButtons = table ? table.querySelectorAll('button[id^="home-"], button[id^="away-"]') : [];
   const pickSelects = table ? table.querySelectorAll('select[id^="confidence"]') : [];
@@ -16,10 +15,8 @@ function applyLockUI() {
   if (submitBtn) submitBtn.disabled = IS_LOCKED;
   if (resetBtn)  resetBtn.disabled  = IS_LOCKED;
 
-  // Visually dim only the table
   if (table) table.classList.toggle('locked', IS_LOCKED);
 
-  // Banner (no pointer-events changes anywhere)
   const id = 'lockedBanner';
   const existing = document.getElementById(id);
   if (IS_LOCKED && !existing) {
@@ -34,7 +31,6 @@ function applyLockUI() {
   }
 }
 
-/* ---------- Settings loader (also reads lock) ---------- */
 async function refreshCurrentWeek() {
   try {
     const wkSnap = await get(ref(db, 'settings/currentWeek'));
@@ -73,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       displayGames();
       await loadUserPicks(user.uid);
-      applyLockUI(); // <- reflect lock immediately
+      applyLockUI();
     } else {
       console.log('No user logged in');
       const loginSection = document.getElementById('loginSection');
@@ -129,7 +125,7 @@ async function handleSuccessfulLogin(user) {
   loadProfilePic(user.uid);
   displayGames();
   await loadUserPicks(user.uid);
-  applyLockUI(); // <- reflect lock immediately
+  applyLockUI();
 }
 
 const emailToNameMap = {
@@ -280,8 +276,7 @@ function displayGames() {
       </td>
     `;
     updateConfidenceDropdown(index);
-
-    // If locked, disable just-created controls immediately
+    
     if (IS_LOCKED) {
       const hb = document.getElementById(`home-${index}`);
       const ab = document.getElementById(`away-${index}`);
@@ -352,7 +347,7 @@ window.assignConfidence = function (gameIndex) {
 };
 
 function saveUserPicks(userId) {
-  if (IS_LOCKED) return Promise.resolve(); // no-op when locked
+  if (IS_LOCKED) return Promise.resolve();
   const path = `scoreboards/${CURRENT_WEEK}/${userId}`;
   console.log('[save] ->', path);
   return set(ref(db, path), userPicks)
@@ -410,7 +405,7 @@ window.resetPicks = function () {
 window.submitPicks = async function () {
   if (IS_LOCKED) { alert('Picks are locked for this week.'); return; }
   try {
-    await refreshCurrentWeek(); // refresh in case lock toggled
+    await refreshCurrentWeek();
     if (IS_LOCKED) { applyLockUI(); alert('Picks are locked for this week.'); return; }
 
     await saveUserPicks(auth.currentUser.uid);
