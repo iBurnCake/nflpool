@@ -52,11 +52,8 @@ async function getSettings() {
 }
 
 async function loadWinnersForWeek(weekKey) {
-  // Prefer winners/<weekKey>/games
   const s = await get(ref(db, `winners/${weekKey}/games`));
   if (s.exists()) return s.val();
-
-  // Fallback if only winners/<weekKey> exists (with "games" inside)
   const t = await get(ref(db, `winners/${weekKey}`));
   return t.exists() ? (t.val().games ?? {}) : {};
 }
@@ -77,14 +74,17 @@ async function fetchUserDataMap() {
       map[uid] = {
         usernameColor: users[uid].usernameColor || '#FFD700',
         profilePic: users[uid].profilePic || 'images/NFL LOGOS/nfl-logo.jpg',
+        displayName: users[uid].displayName || users[uid].name || users[uid].username || null,
+        email: users[uid].email || null,
       };
     }
   }
   return map;
 }
 
-function getUserName(userId) {
-  const userMap = {
+function fallbackName(uid) {
+  // Your manual nice-name overrides:
+  const map = {
     'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
     '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan',
     'zZ8DblY3KQgPP9bthG87l7DNAux2': 'Ryan Sanders',
@@ -99,14 +99,17 @@ function getUserName(userId) {
     '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant',
     'gsQAQttBoEOSu4v1qVVqmHxAqsO2': 'Nick Kier',
   };
-  return userMap[userId] || `User ${userId}`;
+  return map[uid] || `User ${uid.slice(0, 6)}…`;
+}
+function prettyName(uid, userDataMap) {
+  const meta = userDataMap[uid] || {};
+  return meta.displayName || fallbackName(uid);
 }
 
 /* ===== Scoring ===== */
 function calculateTotalScore(userPicks, winnersMap) {
   if (!userPicks) return 0;
   let total = 0;
-
   for (const idx of Object.keys(userPicks)) {
     const p = userPicks[idx];
     if (!p) continue;
@@ -218,14 +221,7 @@ function createUserPicksTable(userName, userPicks, totalScore, userColor, profil
   c.appendChild(card);
 }
 
-/* ===== Admin helpers ===== */
-function parseUids(text) {
-  return (text || '')
-    .split(/[\s,;]+/g)
-    .map(s => s.trim())
-    .filter(Boolean);
-}
-
+/* ===== Admin add/remove helpers ===== */
 async function addMembersToWeek(weekKey, uidList) {
   if (!uidList.length) return;
   const updates = {};
@@ -234,20 +230,117 @@ async function addMembersToWeek(weekKey, uidList) {
   });
   await update(ref(db), updates);
 }
-
+async function addOneMember(weekKey, uid) {
+  return update(ref(db), { [`subscriberPools/${weekKey}/members/${uid}`]: true });
+}
+async function removeOneMember(weekKey, uid) {
+  return update(ref(db), { [`subscriberPools/${weekKey}/members/${uid}`]: null });
+}
 async function loadCurrentMembers(weekKey) {
   const s = await get(ref(db, `subscriberPools/${weekKey}/members`));
   const out = [];
   if (s.exists()) {
     const obj = s.val();
-    for (const uid of Object.keys(obj)) {
-      out.push(uid);
-    }
+    for (const uid of Object.keys(obj)) out.push(uid);
   }
   return out.sort();
 }
 
-/* ===== Main render ===== */
+/* ===== Admin panel rendering ===== */
+function renderUserList(listEl, items, { actionLabel, actionClass, actionDataAttr }) {
+  listEl.innerHTML = items.map(u => `
+    <li>
+      <strong>${u.name}</strong>
+      <small style="opacity:.8;">&nbsp;— ${u.uid}</small>
+      <button class="btn ${actionClass}" data-${actionDataAttr}="${u.uid}" style="margin-left:8px;">${actionLabel}</button>
+    </li>
+  `).join('');
+}
+
+async function renderAdminPanel() {
+  const panel = document.getElementById('mp-admin');
+  if (!panel) return;
+
+  const { weekKey } = await getSettings();
+
+  // data
+  const [userDataMap, memberUids] = await Promise.all([
+    fetchUserDataMap(),
+    loadCurrentMembers(weekKey),
+  ]);
+  const memberSet = new Set(memberUids);
+
+  // split all users into "members" and "available"
+  const allUsers = Object.keys(userDataMap).map(uid => ({
+    uid,
+    name: prettyName(uid, userDataMap)
+  })).sort((a, b) => a.name.localeCompare(b.name));
+
+  const currentMembers = allUsers.filter(u => memberSet.has(u.uid));
+  const availableUsers = allUsers.filter(u => !memberSet.has(u.uid));
+
+  // populate lists
+  const membersList = document.getElementById('mp-members-list');
+  const allUsersList = document.getElementById('mp-all-users-list');
+  const filterInput = document.getElementById('mp-user-filter');
+
+  renderUserList(membersList, currentMembers, {
+    actionLabel: 'Remove',
+    actionClass: 'mp-remove',
+    actionDataAttr: 'uid'
+  });
+  renderUserList(allUsersList, availableUsers, {
+    actionLabel: 'Add',
+    actionClass: 'mp-add',
+    actionDataAttr: 'uid'
+  });
+
+  // wire buttons: remove / add
+  membersList.onclick = async (e) => {
+    const btn = e.target.closest('.mp-remove');
+    if (!btn) return;
+    const uid = btn.dataset.uid;
+    try {
+      await removeOneMember(weekKey, uid);
+      await renderAdminPanel();      // refresh lists
+      await renderMoneyPool();       // refresh board
+    } catch (err) {
+      console.error('remove member error:', err);
+      alert('Could not remove member.');
+    }
+  };
+
+  allUsersList.onclick = async (e) => {
+    const btn = e.target.closest('.mp-add');
+    if (!btn) return;
+    const uid = btn.dataset.uid;
+    try {
+      await addOneMember(weekKey, uid);
+      await renderAdminPanel();      // refresh lists
+      await renderMoneyPool();       // refresh board
+    } catch (err) {
+      console.error('add member error:', err);
+      alert('Could not add member.');
+    }
+  };
+
+  // simple filter for All Users
+  if (filterInput) {
+    filterInput.oninput = () => {
+      const q = norm(filterInput.value);
+      const filtered = availableUsers.filter(u =>
+        norm(u.name).includes(q) || norm(u.uid).includes(q)
+      );
+      renderUserList(allUsersList, filtered, {
+        actionLabel: 'Add',
+        actionClass: 'mp-add',
+        actionDataAttr: 'uid'
+      });
+    };
+  }
+}
+
+/* ===== Main Money Pool render ===== */
 async function renderMoneyPool() {
   setStatus('Loading…');
   const container = containerEl();
@@ -256,7 +349,6 @@ async function renderMoneyPool() {
   const { weekKey, weekLabel } = await getSettings();
   setWeekLabel(weekKey, weekLabel);
 
-  // 1) winners & allowlist
   const [winnersMap, allowSet] = await Promise.all([
     loadWinnersForWeek(weekKey),
     loadAllowlist(weekKey),
@@ -267,16 +359,14 @@ async function renderMoneyPool() {
     return;
   }
 
-  // 2) get picks and users data
   const picksSnap = await get(ref(db, `scoreboards/${weekKey}`));
   if (!picksSnap.exists()) {
     setStatus('No picks submitted for this week.');
     return;
   }
   const picksByUser = picksSnap.val();
-  const userDataMap = await fetchUserDataMap();
 
-  // 3) filter users to allowlist + score
+  const userDataMap = await fetchUserDataMap();
   const userScores = [];
   const filteredIds = Object.keys(picksByUser).filter(uid => allowSet.has(uid));
 
@@ -285,10 +375,10 @@ async function renderMoneyPool() {
     const totalScore = calculateTotalScore(userPicks, winnersMap);
     userScores.push({
       userId: uid,
-      userName: getUserName(uid),
+      userName: prettyName(uid, userDataMap),
       totalScore,
-      profilePic: userDataMap[uid]?.profilePic || 'images/NFL LOGOS/nfl-logo.jpg',
-      usernameColor: userDataMap[uid]?.usernameColor || '#FFD700',
+      profilePic: (userDataMap[uid]?.profilePic) || 'images/NFL LOGOS/nfl-logo.jpg',
+      usernameColor: (userDataMap[uid]?.usernameColor) || '#FFD700',
     });
   });
 
@@ -297,7 +387,6 @@ async function renderMoneyPool() {
     return;
   }
 
-  // 4) sort + render
   userScores.sort((a, b) => b.totalScore - a.totalScore);
   container.innerHTML = '';
   createLeaderboardTable(userScores, container);
@@ -316,60 +405,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      // viewers must be logged in to view Money Pool
       window.location.href = 'index.html';
       return;
     }
 
-    // Render page content
+    // Render Money Pool
     renderMoneyPool().catch(err => {
       console.error('Money Pool render error:', err);
       setStatus('Something went wrong loading the Money Pool.');
     });
 
-    // Admin-only panel wiring
+    // Admin-only panel
     const panel = document.getElementById('mp-admin');
     if (panel) panel.style.display = (user.uid === ADMIN_UID) ? 'block' : 'none';
     if (user.uid === ADMIN_UID) {
+      // Render admin lists
+      renderAdminPanel().catch(console.error);
 
-      const textarea = document.getElementById('mp-uid-input');
-      const addBtn = document.getElementById('mp-add-btn');
+      // Optional: Keep your existing “Refresh Members” button if you kept it in HTML
       const refreshBtn = document.getElementById('mp-refresh-members');
-      const membersList = document.getElementById('mp-members-list');
-
-      async function refreshMembersUI() {
-        const { weekKey } = await getSettings();
-        const list = await loadCurrentMembers(weekKey);
-        if (membersList) {
-          membersList.innerHTML = list.length
-            ? list.map(uid => `<li><code>${uid}</code></li>`).join('')
-            : '<li><em>No members yet</em></li>';
-        }
+      if (refreshBtn) {
+        refreshBtn.onclick = () => renderAdminPanel();
       }
-
-      addBtn?.addEventListener('click', async () => {
-        const { weekKey } = await getSettings();
-        const uids = parseUids(textarea?.value || '');
-        if (!uids.length) {
-          alert('Paste one or more UIDs, separated by commas/space/lines.');
-          return;
-        }
-        try {
-          await addMembersToWeek(weekKey, uids);
-          textarea.value = '';
-          await refreshMembersUI();
-          await renderMoneyPool(); // re-render with new members
-          alert('Members added.');
-        } catch (e) {
-          console.error('Add members error:', e);
-          alert('Error adding members. Check console.');
-        }
-      });
-
-      refreshBtn?.addEventListener('click', refreshMembersUI);
-
-      // initial load of members list
-      refreshMembersUI().catch(console.error);
     }
   });
 });
