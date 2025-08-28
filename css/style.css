@@ -73,6 +73,40 @@ th {
     background-color: #28a745 !important;
     color: #fff !important;
 }
+
+/* Countdown widget */
+#lock-countdown-widget {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 9999;
+  pointer-events: none; /* so it doesn't block clicks underneath */
+}
+
+#lock-countdown-widget .cd-box {
+  pointer-events: auto;         /* allow selecting text if needed */
+  display: inline-flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 8px 12px;
+  background: rgba(20, 20, 20, 0.8);
+  border: 2px solid #FFD700;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.35);
+}
+
+#lock-countdown-widget .cd-label {
+  color: #FFD700;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+#lock-countdown-widget .cd-time {
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
 @media (max-width: 768px) {
     body {
         padding: 10px;
