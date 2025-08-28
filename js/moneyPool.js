@@ -329,8 +329,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Admin-only panel wiring
     const panel = document.getElementById('mp-admin');
-    if (user.uid === ADMIN_UID && panel) {
-      panel.style.display = ''; // unhide if you had it hidden by default in CSS
+    if (panel) panel.style.display = (user.uid === ADMIN_UID) ? 'block' : 'none';
+    if (user.uid === ADMIN_UID) {
 
       const textarea = document.getElementById('mp-uid-input');
       const addBtn = document.getElementById('mp-add-btn');
