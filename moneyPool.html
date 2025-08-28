@@ -5,7 +5,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Money Pool | 2025 NFL Confidence Pool</title>
-
   <link rel="icon" type="image/png" href="images/NFL LOGOS/nfl-logo.jpg">
 
   <!-- Reuse your site styles -->
@@ -25,6 +24,26 @@
       <a href="index.html" class="btn back-to-home">Back to Picks</a>
       <a href="housePicks.html" class="btn back-to-home">View House Picks</a>
     </div>
+
+    <!-- ADMIN PANEL (only shows for ADMIN_UID in moneyPool.js) -->
+    <section id="mp-admin" class="mp-admin" style="display:none">
+      <h2>Money Pool — Admin</h2>
+
+      <label for="mp-uid-input" style="display:block;margin-bottom:6px;">
+        Add members by UID (comma/space/newline separated):
+      </label>
+      <textarea id="mp-uid-input" rows="4" placeholder="uid1, uid2, uid3"></textarea>
+
+      <div class="mp-admin-actions">
+        <button id="mp-add-btn" class="btn">Add to Allowlist</button>
+        <button id="mp-refresh-members" class="btn btn-secondary">Refresh Members</button>
+      </div>
+
+      <div class="mp-admin-members">
+        <h3>Current Members</h3>
+        <ul id="mp-members-list"></ul>
+      </div>
+    </section>
 
     <section id="mp-status" class="mp-status" aria-live="polite"></section>
     <div id="housePicksContainer"></div>
