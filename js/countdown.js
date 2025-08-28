@@ -10,7 +10,6 @@ function formatDiff(ms) {
   const h = Math.floor((sec % 86400) / 3600);
   const m = Math.floor((sec % 3600) / 60);
   const s = sec % 60;
-  // e.g., 2d 05:13:07  OR  05:13:07 if < 1 day
   return (d > 0 ? `${d}d ` : '') + `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
 }
 
@@ -51,7 +50,6 @@ async function loadCountdownSettings() {
       targetMs,
     };
   } catch (e) {
-    // If not signed in yet (rules require auth), we’ll just hide silently.
     return null;
   }
 }
@@ -76,14 +74,13 @@ function startTicker(targetMs, label) {
 
 async function boot() {
   const cfg = await loadCountdownSettings();
-  if (!cfg || !cfg.enabled || !cfg.targetMs) return; // nothing to show
+  if (!cfg || !cfg.enabled || !cfg.targetMs) return;
 
   ensureWidget();
   startTicker(cfg.targetMs, cfg.label);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Only render once a user is signed in (since your rules require auth for /settings)
   onAuthStateChanged(auth, (user) => {
     if (user) boot();
   });
