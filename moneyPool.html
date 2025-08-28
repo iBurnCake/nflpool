@@ -26,35 +26,39 @@
     </div>
 
     <!-- ADMIN PANEL (only shows for ADMIN_UID in moneyPool.js) -->
-    <section id="mp-admin" class="mp-admin" style="display:none;">
-      <h3>Money Pool — Admin</h3>
+<section id="mp-admin" class="mp-admin" style="display:none;">
+  <h3>Money Pool — Admin</h3>
 
-      <div class="mp-admin-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
-        <!-- Current Members (with one-click Remove) -->
-        <div class="mp-col">
-          <h4>Current Members</h4>
-          <ul id="mp-members-list"></ul>
-        </div>
+  <div class="mp-admin-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+    <!-- Current Members (name only + Remove) -->
+    <div class="mp-col">
+      <h4>Current Members</h4>
+      <ul id="mp-members-list"></ul>
+    </div>
 
-        <!-- All Users (with search + one-click Add) -->
-        <div class="mp-col">
-          <h4>All Users</h4>
-          <input
-            id="mp-user-filter"
-            type="text"
-            placeholder="Search name or UID"
-            class="mp-input"
-            style="width:100%;margin-bottom:8px;padding:8px;border-radius:6px;border:1px solid #555;background:#222;color:#FFD700;"
-          />
-          <ul id="mp-all-users-list"></ul>
-        </div>
+    <!-- Add Member (search by name or UID) -->
+    <div class="mp-col">
+      <h4>Add Member</h4>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input
+          id="mp-user-filter"
+          type="text"
+          placeholder="Search by name or UID"
+          class="mp-input"
+          style="flex:1;padding:8px;border-radius:6px;border:1px solid #555;background:#222;color:#FFD700;"
+        />
+        <button id="mp-add-from-search" class="btn">Add</button>
       </div>
+      <small style="display:block;margin-top:6px;opacity:.8;">
+        Tip: type the full UID or a unique part of the name, then click <b>Add</b>.
+      </small>
+    </div>
+  </div>
 
-      <!-- Optional: manual refresh -->
-      <div style="margin-top:10px;">
-        <button id="mp-refresh-members" class="btn">Refresh Lists</button>
-      </div>
-    </section>
+  <div style="margin-top:12px;">
+    <button id="mp-refresh-members" class="btn">Refresh Lists</button>
+  </div>
+</section>
 
     <section id="mp-status" class="mp-status" aria-live="polite"></section>
     <div id="housePicksContainer"></div>
