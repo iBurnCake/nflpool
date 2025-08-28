@@ -83,7 +83,6 @@ async function fetchUserDataMap() {
 }
 
 function fallbackName(uid) {
-  // Your manual nice-name overrides:
   const map = {
     'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
     '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan',
@@ -221,15 +220,22 @@ function createUserPicksTable(userName, userPicks, totalScore, userColor, profil
   c.appendChild(card);
 }
 
-/* ===== Admin add/remove helpers ===== */
-async function addMembersToWeek(weekKey, uidList) {
-  if (!uidList.length) return;
-  const updates = {};
-  uidList.forEach(uid => {
-    updates[`subscriberPools/${weekKey}/members/${uid}`] = true;
-  });
-  await update(ref(db), updates);
+/* ===== Admin helpers (compact) ===== */
+// Load all users -> { uid: { name } }
+async function loadAllUsersMap() {
+  const s = await get(ref(db, 'users'));
+  const out = {};
+  if (s.exists()) {
+    const obj = s.val();
+    for (const uid of Object.keys(obj)) {
+      const u = obj[uid] || {};
+      const name = u.displayName || u.name || u.username || fallbackName(uid);
+      out[uid] = { name };
+    }
+  }
+  return out;
 }
+
 async function addOneMember(weekKey, uid) {
   return update(ref(db), { [`subscriberPools/${weekKey}/members/${uid}`]: true });
 }
@@ -238,106 +244,32 @@ async function removeOneMember(weekKey, uid) {
 }
 async function loadCurrentMembers(weekKey) {
   const s = await get(ref(db, `subscriberPools/${weekKey}/members`));
-  const out = [];
-  if (s.exists()) {
-    const obj = s.val();
-    for (const uid of Object.keys(obj)) out.push(uid);
-  }
-  return out.sort();
+  return s.exists() ? Object.keys(s.val()).sort() : [];
 }
 
-/* ===== Admin panel rendering ===== */
-function renderUserList(listEl, items, { actionLabel, actionClass, actionDataAttr }) {
-  listEl.innerHTML = items.map(u => `
-    <li>
-      <strong>${u.name}</strong>
-      <small style="opacity:.8;">&nbsp;— ${u.uid}</small>
-      <button class="btn ${actionClass}" data-${actionDataAttr}="${u.uid}" style="margin-left:8px;">${actionLabel}</button>
-    </li>
-  `).join('');
-}
-
-async function renderAdminPanel() {
-  const panel = document.getElementById('mp-admin');
-  if (!panel) return;
-
-  const { weekKey } = await getSettings();
-
-  // data
-  const [userDataMap, memberUids] = await Promise.all([
-    fetchUserDataMap(),
-    loadCurrentMembers(weekKey),
-  ]);
-  const memberSet = new Set(memberUids);
-
-  // split all users into "members" and "available"
-  const allUsers = Object.keys(userDataMap).map(uid => ({
-    uid,
-    name: prettyName(uid, userDataMap)
-  })).sort((a, b) => a.name.localeCompare(b.name));
-
-  const currentMembers = allUsers.filter(u => memberSet.has(u.uid));
-  const availableUsers = allUsers.filter(u => !memberSet.has(u.uid));
-
-  // populate lists
-  const membersList = document.getElementById('mp-members-list');
-  const allUsersList = document.getElementById('mp-all-users-list');
-  const filterInput = document.getElementById('mp-user-filter');
-
-  renderUserList(membersList, currentMembers, {
-    actionLabel: 'Remove',
-    actionClass: 'mp-remove',
-    actionDataAttr: 'uid'
-  });
-  renderUserList(allUsersList, availableUsers, {
-    actionLabel: 'Add',
-    actionClass: 'mp-add',
-    actionDataAttr: 'uid'
-  });
-
-  // wire buttons: remove / add
-  membersList.onclick = async (e) => {
-    const btn = e.target.closest('.mp-remove');
-    if (!btn) return;
-    const uid = btn.dataset.uid;
-    try {
-      await removeOneMember(weekKey, uid);
-      await renderAdminPanel();      // refresh lists
-      await renderMoneyPool();       // refresh board
-    } catch (err) {
-      console.error('remove member error:', err);
-      alert('Could not remove member.');
-    }
-  };
-
-  allUsersList.onclick = async (e) => {
-    const btn = e.target.closest('.mp-add');
-    if (!btn) return;
-    const uid = btn.dataset.uid;
-    try {
-      await addOneMember(weekKey, uid);
-      await renderAdminPanel();      // refresh lists
-      await renderMoneyPool();       // refresh board
-    } catch (err) {
-      console.error('add member error:', err);
-      alert('Could not add member.');
-    }
-  };
-
-  // simple filter for All Users
-  if (filterInput) {
-    filterInput.oninput = () => {
-      const q = norm(filterInput.value);
-      const filtered = availableUsers.filter(u =>
-        norm(u.name).includes(q) || norm(u.uid).includes(q)
-      );
-      renderUserList(allUsersList, filtered, {
-        actionLabel: 'Add',
-        actionClass: 'mp-add',
-        actionDataAttr: 'uid'
-      });
-    };
+// Render members list (names only) with Remove buttons
+function renderMembersList(members, allUsers, onRemove) {
+  const ul = document.getElementById('mp-members-list');
+  if (!ul) return;
+  if (!members.length) {
+    ul.innerHTML = '<li><em>No members yet</em></li>';
+    return;
   }
+  ul.innerHTML = members
+    .map(uid => {
+      const display = allUsers?.[uid]?.name || fallbackName(uid);
+      const safeUid = uid.replace(/"/g, '&quot;');
+      return `
+        <li style="display:flex;align-items:center;gap:10px;margin:6px 0;">
+          <span>${display}</span>
+          <button class="btn btn-danger" data-uid="${safeUid}">Remove</button>
+        </li>`;
+    })
+    .join('');
+
+  ul.querySelectorAll('button[data-uid]').forEach(btn => {
+    btn.addEventListener('click', () => onRemove(btn.getAttribute('data-uid')));
+  });
 }
 
 /* ===== Main Money Pool render ===== */
@@ -399,7 +331,7 @@ async function renderMoneyPool() {
   setStatus('');
 }
 
-/* ===== Boot ===== */
+/* ===== Boot (admin wiring with compact panel) ===== */
 document.addEventListener('DOMContentLoaded', () => {
   setStatus('Loading…');
 
@@ -418,15 +350,82 @@ document.addEventListener('DOMContentLoaded', () => {
     // Admin-only panel
     const panel = document.getElementById('mp-admin');
     if (panel) panel.style.display = (user.uid === ADMIN_UID) ? 'block' : 'none';
-    if (user.uid === ADMIN_UID) {
-      // Render admin lists
-      renderAdminPanel().catch(console.error);
+    if (user.uid !== ADMIN_UID) return;
 
-      // Optional: Keep your existing “Refresh Members” button if you kept it in HTML
-      const refreshBtn = document.getElementById('mp-refresh-members');
-      if (refreshBtn) {
-        refreshBtn.onclick = () => renderAdminPanel();
+    const input = document.getElementById('mp-user-filter');
+    const addBtn = document.getElementById('mp-add-from-search');
+    const refreshBtn = document.getElementById('mp-refresh-members');
+
+    let allUsersMap = await loadAllUsersMap();
+
+    async function refreshMembersUI() {
+      const { weekKey } = await getSettings();
+      const members = await loadCurrentMembers(weekKey);
+      renderMembersList(members, allUsersMap, async (uid) => {
+        try {
+          await removeOneMember(weekKey, uid);
+          await refreshMembersUI();
+          await renderMoneyPool();
+        } catch (e) {
+          console.error('Remove member error:', e);
+          alert('Error removing member. Check console.');
+        }
+      });
+    }
+
+    function findUidByQuery(q) {
+      const query = String(q || '').trim().toLowerCase();
+      if (!query) return null;
+
+      // Exact UID match
+      if (allUsersMap[query]) return query;
+
+      // Unique name match
+      const matches = Object.entries(allUsersMap)
+        .filter(([, v]) => String(v.name || '').toLowerCase().includes(query))
+        .map(([uid]) => uid);
+
+      if (matches.length === 1) return matches[0];
+      if (matches.length === 0) return null;
+
+      alert(
+        `Multiple matches:\n\n${
+          matches.map(uid => `${allUsersMap[uid].name} — ${uid}`).join('\n')
+        }\n\nPlease refine your search.`
+      );
+      return null;
+    }
+
+    async function addFromSearch() {
+      const { weekKey } = await getSettings();
+      const q = input?.value || '';
+      const uid = findUidByQuery(q);
+
+      if (!uid) {
+        alert('No exact UID or unique name match found.');
+        return;
+      }
+      try {
+        await addOneMember(weekKey, uid);
+        input.value = '';
+        await refreshMembersUI();
+        await renderMoneyPool();
+      } catch (e) {
+        console.error('Add member error:', e);
+        alert('Error adding member. Check console.');
       }
     }
+
+    addBtn?.addEventListener('click', addFromSearch);
+    input?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') addFromSearch();
+    });
+    refreshBtn?.addEventListener('click', async () => {
+      allUsersMap = await loadAllUsersMap();
+      await refreshMembersUI();
+    });
+
+    // initial load
+    refreshMembersUI().catch(console.error);
   });
 });
