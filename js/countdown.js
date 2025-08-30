@@ -34,7 +34,6 @@ async function loadCountdownSettings() {
     const snap = await get(ref(db, 'settings/countdown'));
     if (!snap.exists()) return null;
     const v = snap.val() || {};
-    // prefer ISO if present, else epoch millis
     let targetMs = null;
     if (v.targetISO) {
       const t = Date.parse(v.targetISO);
