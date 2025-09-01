@@ -31,6 +31,55 @@ function applyLockUI() {
   }
 }
 
+/* ---- Save status + toast helpers ---- */
+let _savePill;
+function ensureSavePill() {
+  if (_savePill) return _savePill;
+  _savePill = document.createElement('div');
+  _savePill.className = 'save-status-pill';
+  _savePill.setAttribute('aria-live', 'polite');
+  _savePill.textContent = 'Saved';
+  document.body.appendChild(_savePill);
+  return _savePill;
+}
+
+let _saveStateTimer;
+function setSaveStatus(state) {
+  const pill = ensureSavePill();
+  clearTimeout(_saveStateTimer);
+
+  if (state === 'saving') {
+    pill.textContent = 'Saving…';
+    pill.classList.remove('error');
+    pill.classList.add('show');
+  } else if (state === 'saved') {
+    pill.textContent = 'Saved ✓';
+    pill.classList.remove('error');
+    pill.classList.add('show');
+    _saveStateTimer = setTimeout(() => pill.classList.remove('show'), 1200);
+  } else if (state === 'error') {
+    pill.textContent = 'Save failed';
+    pill.classList.add('error', 'show');
+    _saveStateTimer = setTimeout(() => pill.classList.remove('show'), 2000);
+  }
+}
+
+let _toast, _toastTimer;
+function showToast(message, { error = false } = {}) {
+  if (!_toast) {
+    _toast = document.createElement('div');
+    _toast.className = 'toast';
+    _toast.setAttribute('role', 'status');
+    _toast.setAttribute('aria-live', 'polite');
+    document.body.appendChild(_toast);
+  }
+  clearTimeout(_toastTimer);
+  _toast.textContent = message;
+  _toast.classList.toggle('error', !!error);
+  _toast.classList.add('show');
+  _toastTimer = setTimeout(() => _toast.classList.remove('show'), 1600);
+}
+
 async function refreshCurrentWeek() {
   try {
     const wkSnap = await get(ref(db, 'settings/currentWeek'));
