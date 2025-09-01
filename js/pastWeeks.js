@@ -27,6 +27,7 @@ function fallbackName(uid) {
     'i6s97ZqeN1YCM39Sjqh65VablvA3': 'Kyra Kafel ',
     '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant',
     'gsQAQttBoEOSu4v1qVVqmHxAqsO2': 'Nick Kier',
+    'VnBOWzUZh7UAon6NJ6ICX1kVlEE2': 'Connor Moore',
   };
   return map[uid] || `User ${uid.slice(0, 6)}…`;
 }
