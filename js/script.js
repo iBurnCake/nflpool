@@ -31,7 +31,6 @@ function applyLockUI() {
   }
 }
 
-/* ---- Save status + toast helpers ---- */
 let _savePill;
 function ensureSavePill() {
   if (_savePill) return _savePill;
