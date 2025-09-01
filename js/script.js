@@ -397,12 +397,19 @@ window.assignConfidence = function (gameIndex) {
 };
 
 function saveUserPicks(userId) {
-  if (IS_LOCKED) return Promise.resolve();
   const path = `scoreboards/${CURRENT_WEEK}/${userId}`;
   console.log('[save] ->', path);
+  setSaveStatus('saving');
   return set(ref(db, path), userPicks)
-    .then(() => console.log('Picks saved successfully!'))
-    .catch((error) => console.error('Error saving picks:', error));
+    .then(() => {
+      console.log('Picks saved successfully!');
+      setSaveStatus('saved');
+    })
+    .catch((error) => {
+      console.error('Error saving picks:', error);
+      setSaveStatus('error');
+      showToast('Save failed', { error: true });
+    });
 }
 
 function loadUserPicks(userId) {
@@ -453,16 +460,12 @@ window.resetPicks = function () {
 };
 
 window.submitPicks = async function () {
-  if (IS_LOCKED) { alert('Picks are locked for this week.'); return; }
   try {
     await refreshCurrentWeek();
-    if (IS_LOCKED) { applyLockUI(); alert('Picks are locked for this week.'); return; }
-
     await saveUserPicks(auth.currentUser.uid);
-    alert('Picks submitted successfully!');
-    window.location.href = 'housePicks.html';
+    showToast('Your picks are saved ✓');
   } catch (error) {
-    console.error('Error submitting picks:', error.message);
-    alert('Error submitting picks. Please try again.');
+    console.error('Error submitting picks:', error);
+    showToast('Save failed', { error: true });
   }
 };
