@@ -1,143 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>House Picks</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Picks</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/housePicks.css">
 
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/housePicks.css">
-  <link rel="stylesheet" href="css/buttons.css">
-
-  <style>
+    <style>
     .leaderboard-user {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap; 
     }
+
     .leaderboard-user img {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      object-fit: cover;
-      flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
     }
+
     .leaderboard-username {
-      white-space: nowrap;
-      text-overflow: ellipsis;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
 
     .user-header img {
-      vertical-align: middle;
-      margin-right: 8px;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      object-fit: cover;
+        vertical-align: middle;
+        margin-right: 8px;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
     }
 
     .house-picks-layout {
-      display: flex;
-      gap: 20px;
-      align-items: flex-start;
-      justify-content: flex-start;
-      width: 100%;
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+        justify-content: flex-start;
+        width: 100%;
     }
 
     .leaderboard-container {
-      flex: 0 0 20%;
-      max-width: 300px;
-      min-width: 220px;
+        flex: 0 0 20%;
+        max-width: 300px;
+        min-width: 220px;
     }
 
     .picks-container {
-      flex: 1;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
+        flex: 1;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
     }
 
     .user-picks-container {
-      flex: 1 1 450px;
-      max-width: 500px;
+        flex: 1 1 450px;
+        max-width: 500px;
     }
 
     .user-header {
-      text-align: center;
-      width: 100%;
+        text-align: center;
+        width: 100%;
     }
 
     .user-picks-table th,
     .user-picks-table td {
-      text-align: center;
-      vertical-align: middle;
+        text-align: center;
+        vertical-align: middle;
     }
 
-    .leaderboard-user { justify-content: center; }
+    .leaderboard-user {
+        justify-content: center;
+    }
 
     .house-picks-title {
-      display: inline-block;
-      padding: 10px 25px;
-      background-color: rgba(40, 40, 40, 0.9);
-      border: 2px solid #FFD700;
-      border-radius: 8px;
-      font-size: 28px;
-      font-weight: bold;
-      color: #FFD700;
-      text-align: center;
-      margin: 0 auto 12px auto;
-      position: relative;
-      left: 50%;
-      transform: translateX(-50%);
-      box-shadow: 0px 0px 10px rgba(0,0,0,0.6);
+        display: inline-block;
+        padding: 10px 25px;
+        background-color: rgba(40, 40, 40, 0.9);
+        border: 2px solid #FFD700;
+        border-radius: 8px;
+        font-size: 28px;
+        font-weight: bold;
+        color: #FFD700;
+        text-align: center;
+        margin: 0 auto 20px auto;
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+        box-shadow: 0px 0px 10px rgba(0,0,0,0.6);
     }
 
-    /* Small action bar spacing */
-    .hp-actions {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 18px;
-    }
-  </style>
+    </style>
 </head>
 <body>
-  <div class="settings-container">
-    <div class="house-picks-title">House Picks</div>
-
-    <!-- Buttons: authed users see "Back to Picks" + "Money Pool"; guests see "Back to Login" -->
-    <div class="hp-actions">
-      <!-- Authed-only -->
-      <a href="index.html" class="btn back-to-home authed-only" style="display:none;">Back to Picks</a>
-      <a href="moneyPool.html" class="btn back-to-home authed-only" style="display:none;">Money Pool</a>
-      <!-- Guest-only -->
-      <a href="index.html" class="btn back-to-home guest-only">Back to Login</a>
+    <div class="settings-container">
+        <div class="house-picks-title">House Picks</div>
+        <div class="house-picks-layout">
+            <div id="leaderboardWrapper" class="leaderboard-container"></div>
+            <div id="housePicksContainer" class="picks-container">
+            </div>
+        </div>
     </div>
-
-    <div class="house-picks-layout">
-      <div id="leaderboardWrapper" class="leaderboard-container"></div>
-      <div id="housePicksContainer" class="picks-container"></div>
+    <div class="settings-container">
+        <button onclick="window.location.href='index.html'">Back to Home</button>
     </div>
-  </div>
-
-  <script type="module">
-    // Toggle buttons based on auth state
-    import { auth, onAuthStateChanged } from './js/firebaseConfig.js';
-
-    const showAuthed = (isAuthed) => {
-      document.querySelectorAll('.authed-only').forEach(el => el.style.display = isAuthed ? '' : 'none');
-      document.querySelectorAll('.guest-only').forEach(el => el.style.display = isAuthed ? 'none' : '');
-    };
-
-    // default to guest view until auth resolves
-    showAuthed(false);
-
-    onAuthStateChanged(auth, (user) => {
-      showAuthed(!!user);
-    });
-  </script>
-
-  <script type="module" src="js/housePicks.js"></script>
+    <script type="module" src="js/housePicks.js"></script>
 </body>
 </html>
