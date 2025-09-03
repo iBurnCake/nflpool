@@ -206,6 +206,8 @@ async function handleSuccessfulLogin(user) {
   displayGames();
   await loadUserPicks(user.uid);
   applyLockUI();
+
+  updatePoolTotalCard();
 }
 
 const emailToNameMap = {
