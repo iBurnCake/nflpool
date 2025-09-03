@@ -117,6 +117,49 @@ button {
     transition: background-color 0.3s ease;
 }
 
+/* Fixed right-side Money Pool card */
+.pool-total-card{
+  position: fixed;
+  top: 110px;          /* move up/down to taste */
+  right: 20px;         /* distance from right edge */
+  width: 240px;
+
+  background: #333;
+  border: 2px solid #FFD700;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.35);
+  padding: 14px 16px;
+  z-index: 900;        /* above page chrome but below modals */
+}
+
+.pool-total-title{
+  color: #FFD700;
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.pool-total-amt{
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
+}
+
+.pool-total-sub{
+  margin-top: 6px;
+  color: #bbb;
+  font-size: 13px;
+}
+
+/* On small screens, let it flow with the content */
+@media (max-width: 900px){
+  .pool-total-card{
+    position: static;
+    width: auto;
+    margin: 16px auto;
+  }
+}
 .save-status-pill {
   position: fixed;
   top: 12px;
