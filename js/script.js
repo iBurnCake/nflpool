@@ -100,6 +100,38 @@ async function refreshCurrentWeek() {
   console.log(`[settings] week=${CURRENT_WEEK} (${CURRENT_WEEK_LABEL || 'no label'}), locked=${IS_LOCKED}`);
 }
 
+function formatUSD(n) {
+  try {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+  } catch {
+    return `$${Math.round(n)}`;
+  }
+}
+
+async function getPoolMemberCount() {
+  // requires auth per your rules; called only when logged-in
+  try {
+    const snap = await get(ref(db, `subscriberPools/${CURRENT_WEEK}/members`));
+    if (!snap.exists()) return 0;
+    const obj = snap.val();
+    return Object.keys(obj).length;
+  } catch (e) {
+    console.warn('getPoolMemberCount error:', e);
+    return 0;
+  }
+}
+
+async function updatePoolTotalCard() {
+  const amtEl = document.getElementById('poolTotalAmount');
+  const cntEl = document.getElementById('poolMemberCount');
+  if (!amtEl || !cntEl) return; // card not on this page
+
+  const count = await getPoolMemberCount();
+  const total = count * 5; // $5 per member
+  cntEl.textContent = String(count);
+  amtEl.textContent = formatUSD(total);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   onAuthStateChanged(auth, async (user) => {
     if (user) {
