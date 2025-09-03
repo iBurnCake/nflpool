@@ -101,8 +101,10 @@ async function refreshCurrentWeek() {
   console.log(`[settings] week=${CURRENT_WEEK} (${CURRENT_WEEK_LABEL || 'no label'}), locked=${IS_LOCKED}`);
 }
 
-let _poolMembersRef = null;
-let _poolMembersCb  = null;
+// ==== Money Pool Total (simple, fixed path) ====
+const MEMBERS_PATH = 'subscriberPools/week1/members';
+let _membersRef = null;
+let _membersCb  = null;
 
 function formatUSD(n) {
   try {
@@ -111,55 +113,44 @@ function formatUSD(n) {
 }
 
 function attachPoolMembersListener() {
-  // Detach any previous listener
-  if (_poolMembersRef && _poolMembersCb) {
-    try { off(_poolMembersRef, 'value', _poolMembersCb); } catch (_) {}
+  // Clean up old listener if we had one
+  if (_membersRef && _membersCb) {
+    try { off(_membersRef, 'value', _membersCb); } catch (_) {}
   }
 
-  _poolMembersRef = ref(db, `subscriberPools/${CURRENT_WEEK}/members`);
-  _poolMembersCb  = (snap) => {
+  _membersRef = ref(db, MEMBERS_PATH);
+  _membersCb  = (snap) => {
     const obj = snap.exists() ? (snap.val() || {}) : {};
-    // Count truthy entries to be safe for {uid:true} or {uid:{...}}
-    const count = Object.keys(obj).filter(k => obj[k]).length;
+    // count truthy values (works for {uid: true} or {uid: {…}})
+    const count = Object.values(obj).filter(Boolean).length;
     const total = count * POOL_DOLLARS_PER_MEMBER;
 
     const el = document.getElementById('poolTotalAmount');
     if (el) el.textContent = formatUSD(total);
   };
 
-  onValue(_poolMembersRef, _poolMembersCb);
+  onValue(_membersRef, _membersCb);
 }
 
 function detachPoolMembersListener() {
-  if (_poolMembersRef && _poolMembersCb) {
-    try { off(_poolMembersRef, 'value', _poolMembersCb); } catch (_) {}
+  if (_membersRef && _membersCb) {
+    try { off(_membersRef, 'value', _membersCb); } catch (_) {}
   }
-  _poolMembersRef = null;
-  _poolMembersCb  = null;
+  _membersRef = null;
+  _membersCb  = null;
 }
 
-async function updatePoolTotalCard() {
-  const amtEl = document.getElementById('poolTotalAmount');
-  if (!amtEl) return;
-
+// Optional one-shot fetch (nice to call once after login)
+async function updatePoolTotalCardOnce() {
+  const el = document.getElementById('poolTotalAmount');
+  if (!el) return;
   try {
-    // make sure CURRENT_WEEK is loaded
-    if (!CURRENT_WEEK) await refreshCurrentWeek();
-
-    const snap = await get(ref(db, `subscriberPools/${CURRENT_WEEK}/members`));
-    let count = 0;
-
-    if (snap.exists()) {
-      const obj = snap.val() || {};
-      // count any truthy entries; works for {uid:true} or {uid:{...}}
-      count = Object.keys(obj).filter(k => obj[k]).length;
-    }
-
-    const total = count * POOL_DOLLARS_PER_MEMBER;
-    amtEl.textContent = formatUSD(total);
-  } catch (e) {
-    console.warn('updatePoolTotalCard failed:', e);
-    amtEl.textContent = '$0';
+    const snap = await get(ref(db, MEMBERS_PATH));
+    const obj = snap.exists() ? (snap.val() || {}) : {};
+    const count = Object.values(obj).filter(Boolean).length;
+    el.textContent = formatUSD(count * POOL_DOLLARS_PER_MEMBER);
+  } catch {
+    el.textContent = '$0';
   }
 }
 
