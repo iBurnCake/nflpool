@@ -1,4 +1,4 @@
-import {auth, db, signInWithPopup, GoogleAuthProvider, ref, set, get, child, update, onAuthStateChanged} from './firebaseConfig.js';
+import {auth, db, signInWithPopup, GoogleAuthProvider, ref, set, get, child, update, onAuthStateChanged, onValue, off} from './firebaseConfig.js';
 
 let CURRENT_WEEK = 'week1';
 let CURRENT_WEEK_LABEL = '';
