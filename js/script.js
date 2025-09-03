@@ -109,13 +109,6 @@ function formatUSD(n) {
   }
 }
 
-function formatUSD(n) {
-  try {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
-  } catch {
-    return `$${Math.round(n)}`;
-  }
-}
 
 async function updatePoolTotalCard() {
   const amtEl = document.getElementById('poolTotalAmount');
