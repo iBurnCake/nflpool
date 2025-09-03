@@ -101,14 +101,42 @@ async function refreshCurrentWeek() {
   console.log(`[settings] week=${CURRENT_WEEK} (${CURRENT_WEEK_LABEL || 'no label'}), locked=${IS_LOCKED}`);
 }
 
+let _poolMembersRef = null;
+let _poolMembersCb  = null;
+
 function formatUSD(n) {
   try {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
-  } catch {
-    return `$${Math.round(n)}`;
-  }
+  } catch { return `$${Math.round(n)}`; }
 }
 
+function attachPoolMembersListener() {
+  // Detach any previous listener
+  if (_poolMembersRef && _poolMembersCb) {
+    try { off(_poolMembersRef, 'value', _poolMembersCb); } catch (_) {}
+  }
+
+  _poolMembersRef = ref(db, `subscriberPools/${CURRENT_WEEK}/members`);
+  _poolMembersCb  = (snap) => {
+    const obj = snap.exists() ? (snap.val() || {}) : {};
+    // Count truthy entries to be safe for {uid:true} or {uid:{...}}
+    const count = Object.keys(obj).filter(k => obj[k]).length;
+    const total = count * POOL_DOLLARS_PER_MEMBER;
+
+    const el = document.getElementById('poolTotalAmount');
+    if (el) el.textContent = formatUSD(total);
+  };
+
+  onValue(_poolMembersRef, _poolMembersCb);
+}
+
+function detachPoolMembersListener() {
+  if (_poolMembersRef && _poolMembersCb) {
+    try { off(_poolMembersRef, 'value', _poolMembersCb); } catch (_) {}
+  }
+  _poolMembersRef = null;
+  _poolMembersCb  = null;
+}
 
 async function updatePoolTotalCard() {
   const amtEl = document.getElementById('poolTotalAmount');
@@ -155,6 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
       applyLockUI();
     } else {
       console.log('No user logged in');
+      detachPoolMembersListener(); 
       const loginSection = document.getElementById('loginSection');
       loginSection.style.display = 'flex';
       document.getElementById('userHomeSection').style.display = 'none';
@@ -178,6 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
     auth
       .signOut()
       .then(() => {
+        detachPoolMembersListener();  
         const loginSection = document.getElementById('loginSection');
         loginSection.style.display = 'flex';
         document.getElementById('userHomeSection').style.display = 'none';
@@ -210,6 +240,7 @@ async function handleSuccessfulLogin(user) {
   await loadUserPicks(user.uid);
   applyLockUI();
 
+  attachPoolMembersListener();
   updatePoolTotalCard();
 }
 
