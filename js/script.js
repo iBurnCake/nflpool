@@ -232,7 +232,7 @@ async function handleSuccessfulLogin(user) {
   applyLockUI();
 
   attachPoolMembersListener();
-  updatePoolTotalCard();
+  updatePoolTotalCardOnce();
 }
 
 const emailToNameMap = {
