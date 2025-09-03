@@ -3,6 +3,7 @@ import {auth, db, signInWithPopup, GoogleAuthProvider, ref, set, get, child, upd
 let CURRENT_WEEK = 'week1';
 let CURRENT_WEEK_LABEL = '';
 let IS_LOCKED = false;
+const POOL_DOLLARS_PER_MEMBER = 5;
 
 function applyLockUI() {
   const table = document.getElementById('gamesTable');
@@ -108,16 +109,36 @@ function formatUSD(n) {
   }
 }
 
-async function getPoolMemberCount() {
-  // requires auth per your rules; called only when logged-in
+function formatUSD(n) {
   try {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+  } catch {
+    return `$${Math.round(n)}`;
+  }
+}
+
+async function updatePoolTotalCard() {
+  const amtEl = document.getElementById('poolTotalAmount');
+  if (!amtEl) return;
+
+  try {
+    // make sure CURRENT_WEEK is loaded
+    if (!CURRENT_WEEK) await refreshCurrentWeek();
+
     const snap = await get(ref(db, `subscriberPools/${CURRENT_WEEK}/members`));
-    if (!snap.exists()) return 0;
-    const obj = snap.val();
-    return Object.keys(obj).length;
+    let count = 0;
+
+    if (snap.exists()) {
+      const obj = snap.val() || {};
+      // count any truthy entries; works for {uid:true} or {uid:{...}}
+      count = Object.keys(obj).filter(k => obj[k]).length;
+    }
+
+    const total = count * POOL_DOLLARS_PER_MEMBER;
+    amtEl.textContent = formatUSD(total);
   } catch (e) {
-    console.warn('getPoolMemberCount error:', e);
-    return 0;
+    console.warn('updatePoolTotalCard failed:', e);
+    amtEl.textContent = '$0';
   }
 }
 
