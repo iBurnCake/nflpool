@@ -135,17 +135,6 @@ async function updatePoolTotalCard() {
   }
 }
 
-async function updatePoolTotalCard() {
-  const amtEl = document.getElementById('poolTotalAmount');
-  const cntEl = document.getElementById('poolMemberCount');
-  if (!amtEl || !cntEl) return; // card not on this page
-
-  const count = await getPoolMemberCount();
-  const total = count * 5; // $5 per member
-  cntEl.textContent = String(count);
-  amtEl.textContent = formatUSD(total);
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   onAuthStateChanged(auth, async (user) => {
     if (user) {
