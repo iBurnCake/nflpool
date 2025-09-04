@@ -1,20 +1,23 @@
 import {
   auth,
-  db,
   signInWithPopup,
   GoogleAuthProvider,
-  ref,
-  set,
-  get,
-  child,
   onAuthStateChanged
 } from './firebaseConfig.js';
 
-import { CURRENT_WEEK, IS_LOCKED, refreshCurrentWeek } from './settings.js';
-import { applyLockUI, setSaveStatus, showToast } from './ui.js';
+import { refreshCurrentWeek } from './settings.js';
+import { applyLockUI, showToast, setSaveStatus } from './ui.js';
 import { attachPoolMembersListener, detachPoolMembersListener, updatePoolTotalCardOnce } from './poolTotal.js';
 import { getNameByEmail, loadUsernameColor, loadProfilePic } from './profiles.js';
 import { renderTeamLogoPicker } from './teams.js';
+import {
+  displayGames,
+  loadUserPicks,
+  resetPicks,
+  submitPicks,
+  selectPick,
+  assignConfidence
+} from './picks.js';
 
 // ---------------------- AUTH WIRING ----------------------
 document.addEventListener('DOMContentLoaded', () => {
@@ -80,7 +83,7 @@ async function handleSuccessfulLogin(user) {
 
   // Games / picks
   displayGames();
-  await loadUserPicks(auth.currentUser.uid);
+  await loadUserPicks(user.uid);
   applyLockUI();
 
   // Money pool
@@ -88,186 +91,7 @@ async function handleSuccessfulLogin(user) {
   updatePoolTotalCardOnce();
 }
 
-// ---------------------- GAMES + PICKS (stay here for now) ----------------------
-const games = [
-  { homeTeam: 'Cowboys',  awayTeam: 'Eagles',   homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Chiefs',   awayTeam: 'Chargers', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Dolphins', awayTeam: 'Colts',    homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Steelers', awayTeam: 'Jets',     homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Panthers', awayTeam: 'Jaguars',  homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Cardinals',awayTeam: 'Saints',   homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Giants',   awayTeam: 'Commanders',homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Buccaneers',awayTeam: 'Falcons', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Bengals',  awayTeam: 'Browns',   homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Raiders',  awayTeam: 'Patriots', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: '49ers',    awayTeam: 'Seahawks', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Titans',   awayTeam: 'Broncos',  homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Lions',    awayTeam: 'Packers',  homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Texans',   awayTeam: 'Rams',     homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Ravens',   awayTeam: 'Bills',    homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Vikings',  awayTeam: 'Bears',    homeRecord: '0-0', awayRecord: '0-0' }
-];
-
-let userPicks = {};
-let usedPoints = new Set();
-
-function displayGames() {
-  const tableBody = document.getElementById('gamesTable').getElementsByTagName('tbody')[0];
-  tableBody.innerHTML = '';
-
-  games.forEach((game, index) => {
-    const row = tableBody.insertRow();
-    row.innerHTML = `
-      <td>${game.homeTeam} (${game.homeRecord}) vs ${game.awayTeam} (${game.awayRecord})</td>
-      <td>
-        <button id="home-${index}" onclick="selectPick(${index}, 'home')">${game.homeTeam}</button>
-        <button id="away-${index}" onclick="selectPick(${index}, 'away')">${game.awayTeam}</button>
-      </td>
-      <td>
-        <select id="confidence${index}" onchange="assignConfidence(${index})" required></select>
-        <span id="confidenceDisplay${index}" class="confidence-display"></span>
-      </td>
-    `;
-    updateConfidenceDropdown(index);
-
-    if (IS_LOCKED) {
-      const hb = document.getElementById(`home-${index}`);
-      const ab = document.getElementById(`away-${index}`);
-      const sel = document.getElementById(`confidence${index}`);
-      if (hb) hb.disabled = true;
-      if (ab) ab.disabled = true;
-      if (sel) sel.disabled = true;
-    }
-  });
-}
-
-function updateConfidenceDropdown(gameIndex) {
-  const dropdown = document.getElementById(`confidence${gameIndex}`);
-  dropdown.innerHTML = '<option value="">Select</option>';
-  for (let i = 1; i <= 16; i++) {
-    if (!usedPoints.has(i)) {
-      const option = document.createElement('option');
-      option.value = i;
-      option.text = i;
-      dropdown.appendChild(option);
-    }
-  }
-}
-
-function selectPick(gameIndex, team) {
-  if (IS_LOCKED) { alert('Picks are locked for this week.'); return; }
-
-  userPicks[gameIndex] = userPicks[gameIndex] || {};
-  userPicks[gameIndex].team = (team === 'home') ? games[gameIndex].homeTeam : games[gameIndex].awayTeam;
-
-  const homeButton = document.getElementById(`home-${gameIndex}`);
-  const awayButton = document.getElementById(`away-${gameIndex}`);
-  if (team === 'home') {
-    homeButton.classList.add('selected');
-    awayButton.classList.remove('selected');
-  } else {
-    awayButton.classList.add('selected');
-    homeButton.classList.remove('selected');
-  }
-
-  if (auth.currentUser) saveUserPicks(auth.currentUser.uid);
-}
-
-function assignConfidence(gameIndex) {
-  if (IS_LOCKED) { alert('Picks are locked for this week.'); return; }
-
-  const confidenceSelect = document.getElementById(`confidence${gameIndex}`);
-  const points = parseInt(confidenceSelect.value);
-  const confidenceDisplay = document.getElementById(`confidenceDisplay${gameIndex}`);
-
-  if (userPicks[gameIndex]?.points) {
-    usedPoints.delete(userPicks[gameIndex].points);
-  }
-
-  if (points >= 1 && points <= 16 && !usedPoints.has(points)) {
-    userPicks[gameIndex] = userPicks[gameIndex] || {};
-    userPicks[gameIndex].points = points;
-    usedPoints.add(points);
-    confidenceDisplay.textContent = points;
-
-    if (auth.currentUser) saveUserPicks(auth.currentUser.uid);
-    games.forEach((_, i) => updateConfidenceDropdown(i));
-  } else {
-    confidenceSelect.value = '';
-    confidenceDisplay.textContent = '';
-  }
-}
-
-function saveUserPicks(userId) {
-  const path = `scoreboards/${CURRENT_WEEK}/${userId}`;
-  setSaveStatus('saving');
-  return set(ref(db, path), userPicks)
-    .then(() => setSaveStatus('saved'))
-    .catch((error) => {
-      console.error('Error saving picks:', error);
-      setSaveStatus('error');
-      showToast('Save failed', { error: true });
-    });
-}
-
-function loadUserPicks(userId) {
-  const path = `scoreboards/${CURRENT_WEEK}/${userId}`;
-  return get(child(ref(db), path))
-    .then((snapshot) => {
-      if (snapshot.exists()) {
-        userPicks = snapshot.val();
-        displayUserPicks(userPicks);
-      } else {
-        userPicks = {};
-        usedPoints.clear();
-        games.forEach((_, i) => updateConfidenceDropdown(i));
-      }
-    })
-    .catch((error) => console.error('Error loading picks:', error));
-}
-
-function displayUserPicks(picks) {
-  for (const gameIndex in picks) {
-    const pick = picks[gameIndex];
-    const game = games[gameIndex];
-    if (!game) continue;
-
-    if (pick.team === game.homeTeam) {
-      document.getElementById(`home-${gameIndex}`).classList.add('selected');
-    } else if (pick.team === game.awayTeam) {
-      document.getElementById(`away-${gameIndex}`).classList.add('selected');
-    }
-
-    if (pick.points) {
-      usedPoints.add(pick.points);
-      document.getElementById(`confidence${gameIndex}`).value = pick.points;
-      document.getElementById(`confidenceDisplay${gameIndex}`).textContent = pick.points;
-    }
-  }
-  games.forEach((_, i) => updateConfidenceDropdown(i));
-}
-
-function resetPicks() {
-  if (IS_LOCKED) { alert('Picks are locked for this week.'); return; }
-  userPicks = {};
-  usedPoints.clear();
-  displayGames();
-  if (auth.currentUser) saveUserPicks(auth.currentUser.uid);
-  applyLockUI();
-}
-
-async function submitPicks() {
-  try {
-    await refreshCurrentWeek();
-    if (auth.currentUser) await saveUserPicks(auth.currentUser.uid);
-    showToast('Your picks are saved ✓');
-  } catch (error) {
-    console.error('Error submitting picks:', error);
-    showToast('Save failed', { error: true });
-  }
-}
-
-// expose for inline onclick handlers generated in displayGames()
+// expose handlers for inline onclicks created in displayGames()
 window.selectPick = selectPick;
 window.assignConfidence = assignConfidence;
 // optional: expose these too
