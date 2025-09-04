@@ -150,7 +150,7 @@ async function updatePoolTotalCardOnce() {
     const count = Object.values(obj).filter(Boolean).length;
     el.textContent = formatUSD(count * POOL_DOLLARS_PER_MEMBER);
   } catch {
-    el.textContent = '$0';
+    el.textContent = '$40';
   }
 }
 
