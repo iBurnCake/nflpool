@@ -1,9 +1,9 @@
 // js/picks.js
 import { auth, db, ref, set, get, child } from './firebaseConfig.js';
 import { CURRENT_WEEK, IS_LOCKED, refreshCurrentWeek } from './settings.js';
-import { setSaveStatus, showToast } from './ui.js';
+import { applyLockUI, setSaveStatus, showToast } from './ui.js';
 
-// --- Week's games (can later move to schedule.js if you want) ---
+// ----- games list -----
 const games = [
   { homeTeam: 'Cowboys',  awayTeam: 'Eagles',   homeRecord: '0-0', awayRecord: '0-0' },
   { homeTeam: 'Chiefs',   awayTeam: 'Chargers', homeRecord: '0-0', awayRecord: '0-0' },
@@ -26,15 +26,14 @@ const games = [
 let userPicks = {};
 let usedPoints = new Set();
 
-// ---------- Rendering ----------
+// ----- render table -----
 export function displayGames() {
-  const tableBody = document.getElementById('gamesTable')?.getElementsByTagName('tbody')[0];
-  if (!tableBody) return;
-
-  tableBody.innerHTML = '';
+  const tbody = document.getElementById('gamesTable')?.querySelector('tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
 
   games.forEach((game, index) => {
-    const row = tableBody.insertRow();
+    const row = tbody.insertRow();
     row.innerHTML = `
       <td>${game.homeTeam} (${game.homeRecord}) vs ${game.awayTeam} (${game.awayRecord})</td>
       <td>
@@ -56,21 +55,20 @@ export function displayGames() {
   });
 }
 
-function updateConfidenceDropdown(gameIndex) {
+export function updateConfidenceDropdown(gameIndex) {
   const dropdown = document.getElementById(`confidence${gameIndex}`);
   if (!dropdown) return;
   dropdown.innerHTML = '<option value="">Select</option>';
   for (let i = 1; i <= 16; i++) {
     if (!usedPoints.has(i)) {
-      const option = document.createElement('option');
-      option.value = i;
-      option.text = i;
-      dropdown.appendChild(option);
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = i;
+      dropdown.appendChild(opt);
     }
   }
 }
 
-// ---------- Interactions ----------
 export function selectPick(gameIndex, team) {
   if (IS_LOCKED) { alert('Picks are locked for this week.'); return; }
 
@@ -93,28 +91,28 @@ export function selectPick(gameIndex, team) {
 export function assignConfidence(gameIndex) {
   if (IS_LOCKED) { alert('Picks are locked for this week.'); return; }
 
-  const confidenceSelect = document.getElementById(`confidence${gameIndex}`);
-  const confidenceDisplay = document.getElementById(`confidenceDisplay${gameIndex}`);
-  const points = parseInt(confidenceSelect?.value ?? '', 10);
+  const select = document.getElementById(`confidence${gameIndex}`);
+  const display = document.getElementById(`confidenceDisplay${gameIndex}`);
+  if (!select || !display) return;
 
+  const points = parseInt(select.value);
   if (userPicks[gameIndex]?.points) usedPoints.delete(userPicks[gameIndex].points);
 
   if (points >= 1 && points <= 16 && !usedPoints.has(points)) {
     userPicks[gameIndex] = userPicks[gameIndex] || {};
     userPicks[gameIndex].points = points;
     usedPoints.add(points);
-    if (confidenceDisplay) confidenceDisplay.textContent = String(points);
+    display.textContent = String(points);
 
     if (auth.currentUser) saveUserPicks(auth.currentUser.uid);
     games.forEach((_, i) => updateConfidenceDropdown(i));
   } else {
-    if (confidenceSelect) confidenceSelect.value = '';
-    if (confidenceDisplay) confidenceDisplay.textContent = '';
+    select.value = '';
+    display.textContent = '';
   }
 }
 
-// ---------- Persistence ----------
-function saveUserPicks(userId) {
+export function saveUserPicks(userId) {
   const path = `scoreboards/${CURRENT_WEEK}/${userId}`;
   setSaveStatus('saving');
   return set(ref(db, path), userPicks)
@@ -129,9 +127,9 @@ function saveUserPicks(userId) {
 export function loadUserPicks(userId) {
   const path = `scoreboards/${CURRENT_WEEK}/${userId}`;
   return get(child(ref(db), path))
-    .then((snapshot) => {
-      if (snapshot.exists()) {
-        userPicks = snapshot.val() || {};
+    .then((snap) => {
+      if (snap.exists()) {
+        userPicks = snap.val() || {};
         displayUserPicks(userPicks);
       } else {
         userPicks = {};
@@ -142,7 +140,7 @@ export function loadUserPicks(userId) {
     .catch((error) => console.error('Error loading picks:', error));
 }
 
-function displayUserPicks(picks) {
+export function displayUserPicks(picks) {
   for (const gameIndex in picks) {
     const pick = picks[gameIndex];
     const game = games[gameIndex];
@@ -165,13 +163,13 @@ function displayUserPicks(picks) {
   games.forEach((_, i) => updateConfidenceDropdown(i));
 }
 
-// ---------- Buttons ----------
-export async function resetPicks() {
+export function resetPicks() {
   if (IS_LOCKED) { alert('Picks are locked for this week.'); return; }
   userPicks = {};
   usedPoints.clear();
   displayGames();
-  if (auth.currentUser) await saveUserPicks(auth.currentUser.uid);
+  if (auth.currentUser) saveUserPicks(auth.currentUser.uid);
+  applyLockUI();
 }
 
 export async function submitPicks() {
@@ -179,8 +177,8 @@ export async function submitPicks() {
     await refreshCurrentWeek();
     if (auth.currentUser) await saveUserPicks(auth.currentUser.uid);
     showToast('Your picks are saved ✓');
-  } catch (error) {
-    console.error('Error submitting picks:', error);
+  } catch (e) {
+    console.error('Error submitting picks:', e);
     showToast('Save failed', { error: true });
   }
 }
