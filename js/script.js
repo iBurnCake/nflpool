@@ -80,7 +80,7 @@ async function handleSuccessfulLogin(user) {
 
   // Games / picks
   displayGames();
-  await loadUserPicks(user.uid);
+  await loadUserPicks(auth.currentUser.uid);
   applyLockUI();
 
   // Money pool
@@ -154,7 +154,7 @@ function updateConfidenceDropdown(gameIndex) {
   }
 }
 
-window.selectPick = function (gameIndex, team) {
+function selectPick(gameIndex, team) {
   if (IS_LOCKED) { alert('Picks are locked for this week.'); return; }
 
   userPicks[gameIndex] = userPicks[gameIndex] || {};
@@ -170,10 +170,10 @@ window.selectPick = function (gameIndex, team) {
     homeButton.classList.remove('selected');
   }
 
-  saveUserPicks(auth.currentUser.uid);
-};
+  if (auth.currentUser) saveUserPicks(auth.currentUser.uid);
+}
 
-window.assignConfidence = function (gameIndex) {
+function assignConfidence(gameIndex) {
   if (IS_LOCKED) { alert('Picks are locked for this week.'); return; }
 
   const confidenceSelect = document.getElementById(`confidence${gameIndex}`);
@@ -190,23 +190,19 @@ window.assignConfidence = function (gameIndex) {
     usedPoints.add(points);
     confidenceDisplay.textContent = points;
 
-    saveUserPicks(auth.currentUser.uid);
+    if (auth.currentUser) saveUserPicks(auth.currentUser.uid);
     games.forEach((_, i) => updateConfidenceDropdown(i));
   } else {
     confidenceSelect.value = '';
     confidenceDisplay.textContent = '';
   }
-};
+}
 
 function saveUserPicks(userId) {
   const path = `scoreboards/${CURRENT_WEEK}/${userId}`;
-  console.log('[save] ->', path);
   setSaveStatus('saving');
   return set(ref(db, path), userPicks)
-    .then(() => {
-      console.log('Picks saved successfully!');
-      setSaveStatus('saved');
-    })
+    .then(() => setSaveStatus('saved'))
     .catch((error) => {
       console.error('Error saving picks:', error);
       setSaveStatus('error');
@@ -216,7 +212,6 @@ function saveUserPicks(userId) {
 
 function loadUserPicks(userId) {
   const path = `scoreboards/${CURRENT_WEEK}/${userId}`;
-  console.log('[load] <-', path);
   return get(child(ref(db), path))
     .then((snapshot) => {
       if (snapshot.exists()) {
@@ -252,22 +247,29 @@ function displayUserPicks(picks) {
   games.forEach((_, i) => updateConfidenceDropdown(i));
 }
 
-window.resetPicks = function () {
+function resetPicks() {
   if (IS_LOCKED) { alert('Picks are locked for this week.'); return; }
   userPicks = {};
   usedPoints.clear();
   displayGames();
-  saveUserPicks(auth.currentUser.uid);
+  if (auth.currentUser) saveUserPicks(auth.currentUser.uid);
   applyLockUI();
-};
+}
 
-window.submitPicks = async function () {
+async function submitPicks() {
   try {
     await refreshCurrentWeek();
-    await saveUserPicks(auth.currentUser.uid);
+    if (auth.currentUser) await saveUserPicks(auth.currentUser.uid);
     showToast('Your picks are saved ✓');
   } catch (error) {
     console.error('Error submitting picks:', error);
     showToast('Save failed', { error: true });
   }
-};
+}
+
+// expose for inline onclick handlers generated in displayGames()
+window.selectPick = selectPick;
+window.assignConfidence = assignConfidence;
+// optional: expose these too
+window.resetPicks = resetPicks;
+window.submitPicks = submitPicks;
