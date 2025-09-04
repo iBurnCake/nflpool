@@ -1,25 +1,12 @@
-import {
-  auth,
-  signInWithPopup,
-  GoogleAuthProvider,
-  onAuthStateChanged
-} from './firebaseConfig.js';
+import { auth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from './firebaseConfig.js';
 
 import { refreshCurrentWeek } from './settings.js';
 import { applyLockUI, showToast, setSaveStatus } from './ui.js';
 import { attachPoolMembersListener, detachPoolMembersListener, updatePoolTotalCardOnce } from './poolTotal.js';
 import { getNameByEmail, loadUsernameColor, loadProfilePic } from './profiles.js';
 import { renderTeamLogoPicker } from './teams.js';
-import {
-  displayGames,
-  loadUserPicks,
-  resetPicks,
-  submitPicks,
-  selectPick,
-  assignConfidence
-} from './picks.js';
+import { displayGames, loadUserPicks, resetPicks, submitPicks, selectPick, assignConfidence } from './picks.js';
 
-// ---------------------- AUTH WIRING ----------------------
 document.addEventListener('DOMContentLoaded', () => {
   onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -72,28 +59,22 @@ async function handleSuccessfulLogin(user) {
   document.getElementById('loginSection').style.display = 'none';
   document.getElementById('userHomeSection').style.display = 'block';
 
-  // Profiles
   const displayName = getNameByEmail(user.email);
   document.getElementById('usernameDisplay').textContent = displayName;
   loadUsernameColor(user.uid);
 
-  // Teams/logo picker
   renderTeamLogoPicker({ containerId: 'logoSelection', previewId: 'profilePicPreview' });
-  loadProfilePic(user.uid); // highlights saved logo & sets preview
+  loadProfilePic(user.uid); 
 
-  // Games / picks
   displayGames();
   await loadUserPicks(user.uid);
   applyLockUI();
 
-  // Money pool
   attachPoolMembersListener();
   updatePoolTotalCardOnce();
 }
 
-// expose handlers for inline onclicks created in displayGames()
 window.selectPick = selectPick;
 window.assignConfidence = assignConfidence;
-// optional: expose these too
 window.resetPicks = resetPicks;
 window.submitPicks = submitPicks;
