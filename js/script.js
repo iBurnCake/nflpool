@@ -1,4 +1,3 @@
-// js/script.js
 import {
   auth,
   db,
