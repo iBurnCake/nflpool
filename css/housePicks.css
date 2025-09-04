@@ -1,16 +1,12 @@
-/* === House Picks — match Money Pool styling === */
-
-/* Page shell: same width/centering as Money Pool */
 .house-picks-layout {
   width: min(1400px, 95vw);
   margin: 0 auto;
   display: flex;
-  flex-direction: column;   /* leaderboard above cards */
+  flex-direction: column;
   align-items: center;
   gap: 20px;
 }
 
-/* Title pill (same as Money Pool) */
 .house-picks-title {
   display: block;
   margin: 12px 0 14px;
@@ -23,25 +19,22 @@
   text-align: center;
 }
 
-/* Leaderboard centered with readable width */
 #leaderboardWrapper {
   width: 100%;
   max-width: 1000px;
   margin: 0 auto;
 }
 
-/* Picks grid — 3 across on wide screens, 2 on medium, 1 on small */
 #housePicksContainer {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
   gap: 24px;
   align-items: start;
   padding: 20px;
-  max-width: 1400px;   /* matches layout width */
+  max-width: 1400px;
   margin: 0 auto;
 }
 
-/* User cards (let grid control width) */
 .user-picks-container {
   background-color: #282828;
   padding: 20px;
@@ -53,7 +46,6 @@
   max-width: 100%;
 }
 
-/* Leaderboard row user (avatar + name) */
 .leaderboard-user {
   display: flex;
   align-items: center;
@@ -66,7 +58,6 @@
   object-fit: cover;
 }
 
-/* Tables for picks + leaderboard */
 .user-picks-table {
   width: 100%;
   max-width: 100%;
@@ -96,14 +87,12 @@
   background-color: #333;
 }
 
-/* Headings + leaderboard table colors */
 .user-header,
 .leaderboard-table th,
 .leaderboard-table td {
   color: #FFD700;
 }
 
-/* Back button style (matches Money Pool buttons) */
 #backToHomeButton,
 button.back-to-home {
   background-color: #3B7EED;
@@ -121,14 +110,12 @@ button.back-to-home:hover {
   background-color: #1F5B99;
 }
 
-/* Slightly tighter tables on large screens so 3 cards breathe */
 @media (min-width: 1280px) {
   .user-picks-table { font-size: 14px; }
   .user-picks-table th,
   .user-picks-table td { padding: 8px; }
 }
 
-/* === Mobile tweaks (match Money Pool) === */
 @media (max-width: 430px) {
   .house-picks-title {
     font-size: 20px;
@@ -138,13 +125,11 @@ button.back-to-home:hover {
     margin: 0 auto 15px;
   }
 
-  /* Leaderboard card width on phones */
   #leaderboardWrapper {
     width: 95%;
     max-width: 380px;
   }
 
-  /* Picks: force single column */
   #housePicksContainer {
     grid-template-columns: 1fr;
     gap: 15px;
