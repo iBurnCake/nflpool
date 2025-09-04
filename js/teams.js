@@ -1,7 +1,8 @@
+// teams.js
 import { auth } from './firebaseConfig.js';
 import { saveProfilePic } from './profiles.js';
 
-const TEAM_LOGOS = [
+const TEAMS = [
   "arizona-cardinals-logo.png","atlanta-falcons-logo.png","baltimore-ravens-logo.png","buffalo-bills-logo.png",
   "carolina-panthers-logo.png","chicago-bears-logo.png","cincinnati-bengals-logo.png","cleveland-browns-logo.png",
   "dallas-cowboys-logo.png","denver-broncos-logo.png","detroit-lions-logo.png","green-bay-packers-logo.png",
@@ -13,38 +14,31 @@ const TEAM_LOGOS = [
   "washington-commanders-logo.png","washington-redskins-logo.png","xqc-logo.png"
 ];
 
-export function renderTeamLogoPicker({ containerId = 'logoSelection', previewId = 'profilePicPreview' } = {}) {
-  const logoSelection = document.getElementById(containerId);
-  const profilePicPreview = document.getElementById(previewId);
-  if (!logoSelection) return;
+export function renderTeamLogoPicker({ containerId, previewId }) {
+  const container = document.getElementById(containerId);
+  const preview   = document.getElementById(previewId);
+  if (!container) return;
 
-  logoSelection.innerHTML = '';
-  TEAM_LOGOS.forEach((team) => {
+  container.innerHTML = '';
+  TEAMS.forEach((file) => {
     const div = document.createElement('div');
-    div.classList.add('profile-pic-option');
-
+    div.className = 'profile-pic-option';
     const img = document.createElement('img');
-    img.src = `images/NFL LOGOS/${team}`;
-    img.alt = team;
-
+    img.src = `images/NFL LOGOS/${file}`;
+    img.alt = file;
     div.appendChild(img);
-    logoSelection.appendChild(div);
+    container.appendChild(div);
 
-    div.addEventListener('click', async () => {
+    div.onclick = () => {
       if (!auth.currentUser) {
         alert('You must be logged in to set a profile picture.');
         return;
       }
-      if (profilePicPreview) profilePicPreview.src = img.src;
-
-      try {
-        await saveProfilePic(auth.currentUser.uid, img.src);
-        document.querySelectorAll('.profile-pic-option').forEach((opt) => opt.classList.remove('selected'));
-        div.classList.add('selected');
-      } catch (e) {
-        console.error('Error saving profile picture:', e);
-        alert('Failed to save profile picture. Please try again.');
-      }
-    });
+      if (preview) preview.src = img.src;
+      document.querySelectorAll('.profile-pic-option').forEach(el => el.classList.remove('selected'));
+      div.classList.add('selected');
+      saveProfilePic(auth.currentUser.uid, img.src)
+        .catch((e) => console.error('Error saving profile picture:', e));
+    };
   });
 }
