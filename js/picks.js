@@ -1,9 +1,7 @@
-// js/picks.js
 import { auth, db, ref, set, get, child } from './firebaseConfig.js';
 import { CURRENT_WEEK, IS_LOCKED, refreshCurrentWeek } from './settings.js';
 import { applyLockUI, setSaveStatus, showToast } from './ui.js';
 
-// ----- games list -----
 const games = [
   { homeTeam: 'Cowboys',  awayTeam: 'Eagles',   homeRecord: '0-0', awayRecord: '0-0' },
   { homeTeam: 'Chiefs',   awayTeam: 'Chargers', homeRecord: '0-0', awayRecord: '0-0' },
@@ -26,7 +24,6 @@ const games = [
 let userPicks = {};
 let usedPoints = new Set();
 
-// ----- render table -----
 export function displayGames() {
   const tbody = document.getElementById('gamesTable')?.querySelector('tbody');
   if (!tbody) return;
