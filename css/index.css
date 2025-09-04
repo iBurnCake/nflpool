@@ -117,10 +117,9 @@ button {
     transition: background-color 0.3s ease;
 }
 
-/* Money Pool total card (right/top) */
 #poolTotalCard {
   position: fixed;
-  top: 16px;            /* <- close to very top; change to 12px/8px if you want tighter */
+  top: 16px;  
   right: 16px;
   z-index: 999;
   background: rgba(40, 40, 40, .95);
