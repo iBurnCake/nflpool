@@ -1,7 +1,5 @@
-// profiles.js
 import { db, ref, get, set, update } from './firebaseConfig.js';
 
-// map for pretty display names
 const emailToNameMap = {
   "devonstankis3@gmail.com": "De Von",
   "kyrakafel@gmail.com": "Kyra Kafel",
@@ -38,7 +36,6 @@ export function loadProfilePic(userId) {
       const preview = document.getElementById('profilePicPreview');
       if (preview) preview.src = picUrl;
 
-      // lightly highlight the saved option if it exists in DOM
       document.querySelectorAll('.profile-pic-option img').forEach((img) => {
         const same = img.src.includes((picUrl || '').split('/').pop());
         img.parentElement.classList.toggle('selected', same);
