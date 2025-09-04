@@ -7,13 +7,14 @@ import {
   set,
   get,
   child,
-  update,
   onAuthStateChanged
 } from './firebaseConfig.js';
 
 import { CURRENT_WEEK, IS_LOCKED, refreshCurrentWeek } from './settings.js';
 import { applyLockUI, setSaveStatus, showToast } from './ui.js';
 import { attachPoolMembersListener, detachPoolMembersListener, updatePoolTotalCardOnce } from './poolTotal.js';
+import { getNameByEmail, loadUsernameColor, loadProfilePic } from './profiles.js';
+import { renderTeamLogoPicker } from './teams.js';
 
 // ---------------------- AUTH WIRING ----------------------
 document.addEventListener('DOMContentLoaded', () => {
@@ -68,149 +69,43 @@ async function handleSuccessfulLogin(user) {
   document.getElementById('loginSection').style.display = 'none';
   document.getElementById('userHomeSection').style.display = 'block';
 
+  // Profiles
   const displayName = getNameByEmail(user.email);
   document.getElementById('usernameDisplay').textContent = displayName;
-
   loadUsernameColor(user.uid);
-  loadProfilePic(user.uid);
 
+  // Teams/logo picker
+  renderTeamLogoPicker({ containerId: 'logoSelection', previewId: 'profilePicPreview' });
+  loadProfilePic(user.uid); // highlights saved logo & sets preview
+
+  // Games / picks
   displayGames();
   await loadUserPicks(user.uid);
   applyLockUI();
 
+  // Money pool
   attachPoolMembersListener();
   updatePoolTotalCardOnce();
 }
 
-// ---------------------- PROFILE STUFF ----------------------
-const emailToNameMap = {
-  "devonstankis3@gmail.com": "De Von",
-  "kyrakafel@gmail.com": "Kyra Kafel",
-  "tom.kant21@gmail.com": "Tommy Kant",
-  "vickiocf@gmail.com": "Aunt Vicki",
-  "erossini02@gmail.com": "Emily Rossini",
-  "tony.romano222@gmail.com": "Tony Romano",
-  "thomasromano19707@gmail.com": "Thomas Romano",
-  "ckeegan437@gmail.com": "Charles Keegan",
-  "rainhail85@gmail.com": "Ryan Sanders",
-  "peachetube@gmail.com": "William Mathis",
-  "angelakant007@gmail.com": "Angela Kant",
-  "luke.romano2004@gmail.com": "Luke Romano",
-  "Nkier27@gmail.com": "Nick Kier",
-  "connor.j.moore0509@gmail.com": "Connor Moore",
-  "fischy1826@gmail.com": "Mel",
-};
-function getNameByEmail(email) { return emailToNameMap[email] || email; }
-
-function saveProfilePic(userId, picUrl) {
-  const userRef = ref(db, 'users/' + userId);
-  update(userRef, { profilePic: picUrl })
-    .then(() => console.log('Profile picture saved:', picUrl))
-    .catch((error) => console.error('Error saving profile picture:', error));
-}
-
-function highlightSavedProfilePic(picUrl) {
-  document.querySelectorAll('.profile-pic-option img').forEach((img) => {
-    if (img.src.includes(picUrl.split('/').pop())) {
-      img.parentElement.classList.add('selected');
-    }
-  });
-}
-
-function loadProfilePic(userId) {
-  const userRef = ref(db, 'users/' + userId + '/profilePic');
-  get(userRef)
-    .then((snapshot) => {
-      if (snapshot.exists()) {
-        const picUrl = snapshot.val();
-        profilePicPreview.src = picUrl;
-        highlightSavedProfilePic(picUrl);
-      }
-    })
-    .catch((error) => console.error('Error loading profile picture:', error));
-}
-
-function loadUsernameColor(userId) {
-  const colorRef = ref(db, `users/${userId}/usernameColor`);
-  const usernameDisplay = document.getElementById('usernameDisplay');
-
-  get(colorRef)
-    .then((snapshot) => {
-      if (snapshot.exists()) usernameDisplay.style.color = snapshot.val();
-    })
-    .catch((error) => console.error('Error loading username color:', error));
-
-  const saveButton = document.getElementById('saveColorButton');
-  const colorPicker = document.getElementById('usernameColorPicker');
-
-  saveButton.addEventListener('click', () => {
-    const selectedColor = colorPicker.value;
-    set(colorRef, selectedColor)
-      .then(() => {
-        usernameDisplay.style.color = selectedColor;
-        alert('Username color saved successfully!');
-      })
-      .catch((error) => {
-        console.error('Error saving username color:', error);
-        alert('Failed to save username color. Please try again.');
-      });
-  });
-}
-
-// ---------------------- GAMES + PICKS ----------------------
-const teams = [
-  "arizona-cardinals-logo.png","atlanta-falcons-logo.png","baltimore-ravens-logo.png","buffalo-bills-logo.png",
-  "carolina-panthers-logo.png","chicago-bears-logo.png","cincinnati-bengals-logo.png","cleveland-browns-logo.png",
-  "dallas-cowboys-logo.png","denver-broncos-logo.png","detroit-lions-logo.png","green-bay-packers-logo.png",
-  "houston-texans-logo.png","indianapolis-colts-logo.png","jacksonville-jaguars-logo.png","kansas-city-chiefs-logo.png",
-  "la-rams-logo.png","los-angeles-chargers-logo.png","los-angeles-rams-logo.png","miami-dolphins-logo.png",
-  "minnesota-vikings-logo.png","new-england-patriots-logo.png","new-orleans-saints-logo.png","new-york-giants-logo.png",
-  "new-york-jets-logo.png","oakland-raiders-logo.png","philadelphia-eagles-logo.png","pittsburgh-steelers-logo.png",
-  "san-francisco-49ers-logo.png","seattle-seahawks-logo.png","tampa-bay-buccaneers-logo.png","tennessee-titans-logo.png",
-  "washington-commanders-logo.png","washington-redskins-logo.png","xqc-logo.png"
-];
-
-const logoSelection = document.getElementById('logoSelection');
-const profilePicPreview = document.getElementById('profilePicPreview');
-
-teams.forEach((team) => {
-  const div = document.createElement('div');
-  div.classList.add('profile-pic-option');
-  const img = document.createElement('img');
-  img.src = `images/NFL LOGOS/${team}`;
-  img.alt = team;
-  div.appendChild(img);
-  logoSelection.appendChild(div);
-
-  div.addEventListener('click', () => {
-    if (auth.currentUser) {
-      profilePicPreview.src = img.src;
-      saveProfilePic(auth.currentUser.uid, img.src);
-      document.querySelectorAll('.profile-pic-option').forEach((opt) => opt.classList.remove('selected'));
-      div.classList.add('selected');
-    } else {
-      alert('You must be logged in to set a profile picture.');
-    }
-  });
-});
-
+// ---------------------- GAMES + PICKS (stay here for now) ----------------------
 const games = [
-  { homeTeam: 'Cowboys', awayTeam: 'Eagles', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Chiefs',  awayTeam: 'Chargers', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Dolphins',awayTeam: 'Colts', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Steelers',awayTeam: 'Jets', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Panthers',awayTeam: 'Jaguars', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Cardinals',awayTeam: 'Saints', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Giants', awayTeam: 'Commanders', homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Cowboys',  awayTeam: 'Eagles',   homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Chiefs',   awayTeam: 'Chargers', homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Dolphins', awayTeam: 'Colts',    homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Steelers', awayTeam: 'Jets',     homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Panthers', awayTeam: 'Jaguars',  homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Cardinals',awayTeam: 'Saints',   homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Giants',   awayTeam: 'Commanders',homeRecord: '0-0', awayRecord: '0-0' },
   { homeTeam: 'Buccaneers',awayTeam: 'Falcons', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Bengals', awayTeam: 'Browns', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Raiders', awayTeam: 'Patriots', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: '49ers',  awayTeam: 'Seahawks', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Titans', awayTeam: 'Broncos', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Lions',  awayTeam: 'Packers', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Texans', awayTeam: 'Rams', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Ravens', awayTeam: 'Bills', homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Vikings',awayTeam: 'Bears', homeRecord: '0-0', awayRecord: '0-0' }
+  { homeTeam: 'Bengals',  awayTeam: 'Browns',   homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Raiders',  awayTeam: 'Patriots', homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: '49ers',    awayTeam: 'Seahawks', homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Titans',   awayTeam: 'Broncos',  homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Lions',    awayTeam: 'Packers',  homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Texans',   awayTeam: 'Rams',     homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Ravens',   awayTeam: 'Bills',    homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Vikings',  awayTeam: 'Bears',    homeRecord: '0-0', awayRecord: '0-0' }
 ];
 
 let userPicks = {};
