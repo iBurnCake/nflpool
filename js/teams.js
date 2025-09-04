@@ -1,4 +1,3 @@
-// teams.js
 import { auth } from './firebaseConfig.js';
 import { saveProfilePic } from './profiles.js';
 
