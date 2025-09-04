@@ -5,7 +5,7 @@ import { applyLockUI, showToast, setSaveStatus } from './ui.js';
 import { attachPoolMembersListener, detachPoolMembersListener, updatePoolTotalCardOnce } from './poolTotal.js';
 import { getNameByEmail, loadUsernameColor, loadProfilePic } from './profiles.js';
 import { renderTeamLogoPicker } from './teams.js';
-import { displayGames, loadUserPicks, resetPicks, submitPicks, selectPick, assignConfidence } from './picks.js';
+import { displayGames, loadUserPicks, resetPicks, submitPicks, selectPick, assignConfidence, attachPickHandlersToWindow } from './picks.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   onAuthStateChanged(auth, async (user) => {
@@ -72,6 +72,7 @@ async function handleSuccessfulLogin(user) {
 
   attachPoolMembersListener();
   updatePoolTotalCardOnce();
+  await loadUserPicks(user.uid);
 }
 
 window.selectPick = selectPick;
