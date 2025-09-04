@@ -1,10 +1,27 @@
-import {auth, db, signInWithPopup, GoogleAuthProvider, ref, set, get, child, update, onAuthStateChanged, onValue, off} from './firebaseConfig.js';
+import {
+  auth,
+  db,
+  signInWithPopup,
+  GoogleAuthProvider,
+  ref,
+  set,
+  get,
+  child,
+  update,
+  onAuthStateChanged,
+  onValue,
+  off
+} from './firebaseConfig.js';
 
 let CURRENT_WEEK = 'week1';
 let CURRENT_WEEK_LABEL = '';
 let IS_LOCKED = false;
-const POOL_DOLLARS_PER_MEMBER = 5;
 
+const POOL_DOLLARS_PER_MEMBER = 5;
+// Fixed path (you said you always want week1 here)
+const MEMBERS_PATH = 'subscriberPools/week1/members';
+
+/* ================= UI LOCK ================= */
 function applyLockUI() {
   const table = document.getElementById('gamesTable');
   const pickButtons = table ? table.querySelectorAll('button[id^="home-"], button[id^="away-"]') : [];
@@ -32,6 +49,7 @@ function applyLockUI() {
   }
 }
 
+/* ================= SAVE PILL / TOAST ================= */
 let _savePill;
 function ensureSavePill() {
   if (_savePill) return _savePill;
@@ -80,6 +98,7 @@ function showToast(message, { error = false } = {}) {
   _toastTimer = setTimeout(() => _toast.classList.remove('show'), 1600);
 }
 
+/* ================= SETTINGS ================= */
 async function refreshCurrentWeek() {
   try {
     const wkSnap = await get(ref(db, 'settings/currentWeek'));
@@ -101,8 +120,7 @@ async function refreshCurrentWeek() {
   console.log(`[settings] week=${CURRENT_WEEK} (${CURRENT_WEEK_LABEL || 'no label'}), locked=${IS_LOCKED}`);
 }
 
-// ==== Money Pool Total (simple, fixed path) ====
-const MEMBERS_PATH = 'subscriberPools/week1/members';
+/* ================= MONEY POOL ================= */
 let _membersRef = null;
 let _membersCb  = null;
 
@@ -113,7 +131,6 @@ function formatUSD(n) {
 }
 
 function attachPoolMembersListener() {
-  // Clean up old listener if we had one
   if (_membersRef && _membersCb) {
     try { off(_membersRef, 'value', _membersCb); } catch (_) {}
   }
@@ -121,8 +138,7 @@ function attachPoolMembersListener() {
   _membersRef = ref(db, MEMBERS_PATH);
   _membersCb  = (snap) => {
     const obj = snap.exists() ? (snap.val() || {}) : {};
-    // count truthy values (works for {uid: true} or {uid: {…}})
-    const count = Object.values(obj).filter(Boolean).length;
+    const count = Object.values(obj).filter(Boolean).length; // works for {uid:true} or {uid:{...}}
     const total = count * POOL_DOLLARS_PER_MEMBER;
 
     const el = document.getElementById('poolTotalAmount');
@@ -140,7 +156,6 @@ function detachPoolMembersListener() {
   _membersCb  = null;
 }
 
-// Optional one-shot fetch (nice to call once after login)
 async function updatePoolTotalCardOnce() {
   const el = document.getElementById('poolTotalAmount');
   if (!el) return;
@@ -154,27 +169,15 @@ async function updatePoolTotalCardOnce() {
   }
 }
 
+/* ================= AUTH BOOTSTRAP ================= */
 document.addEventListener('DOMContentLoaded', () => {
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      await refreshCurrentWeek();
-
-      console.log('User logged in:', user.email);
-      document.getElementById('loginSection').style.display = 'none';
-      document.getElementById('userHomeSection').style.display = 'block';
-
-      const displayName = getNameByEmail(user.email);
-      document.getElementById('usernameDisplay').textContent = displayName;
-
-      loadUsernameColor(user.uid);
-      loadProfilePic(user.uid);
-
-      displayGames();
-      await loadUserPicks(user.uid);
-      applyLockUI();
+      // Use the same setup for persisted sessions & fresh logins
+      await handleSuccessfulLogin(user);
     } else {
       console.log('No user logged in');
-      detachPoolMembersListener(); 
+      detachPoolMembersListener();
       const loginSection = document.getElementById('loginSection');
       loginSection.style.display = 'flex';
       document.getElementById('userHomeSection').style.display = 'none';
@@ -184,10 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('googleLoginButton')?.addEventListener('click', () => {
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
-      .then((result) => {
-        console.log('Google login successful:', result.user.email);
-        handleSuccessfulLogin(result.user);
-      })
+      .then((result) => handleSuccessfulLogin(result.user))
       .catch((error) => {
         console.error('Google login error:', error);
         alert('Google login failed. Please try again.');
@@ -195,10 +195,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('logoutButton')?.addEventListener('click', () => {
-    auth
-      .signOut()
+    auth.signOut()
       .then(() => {
-        detachPoolMembersListener();  
+        detachPoolMembersListener();
         const loginSection = document.getElementById('loginSection');
         loginSection.style.display = 'flex';
         document.getElementById('userHomeSection').style.display = 'none';
@@ -219,6 +218,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function handleSuccessfulLogin(user) {
   await refreshCurrentWeek();
+
+  console.log('User logged in:', user.email);
   document.getElementById('loginSection').style.display = 'none';
   document.getElementById('userHomeSection').style.display = 'block';
 
@@ -227,14 +228,17 @@ async function handleSuccessfulLogin(user) {
 
   loadUsernameColor(user.uid);
   loadProfilePic(user.uid);
+
   displayGames();
   await loadUserPicks(user.uid);
   applyLockUI();
 
+  // Money pool
   attachPoolMembersListener();
   updatePoolTotalCardOnce();
 }
 
+/* ================= PROFILE ================= */
 const emailToNameMap = {
   "devonstankis3@gmail.com": "De Von",
   "kyrakafel@gmail.com": "Kyra Kafel",
@@ -345,10 +349,11 @@ function loadUsernameColor(userId) {
   });
 }
 
+/* ================= GAMES / PICKS ================= */
 const games = [
-  { homeTeam: 'Cowboys',    awayTeam: 'Eagles',     homeRecord: '0-0', awayRecord: '0-0' }, // Thu
-  { homeTeam: 'Chiefs',     awayTeam: 'Chargers',   homeRecord: '0-0', awayRecord: '0-0' }, // Fri
-  { homeTeam: 'Dolphins',   awayTeam: 'Colts',      homeRecord: '0-0', awayRecord: '0-0' }, // Sun 1:00
+  { homeTeam: 'Cowboys',    awayTeam: 'Eagles',     homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Chiefs',     awayTeam: 'Chargers',   homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Dolphins',   awayTeam: 'Colts',      homeRecord: '0-0', awayRecord: '0-0' },
   { homeTeam: 'Steelers',   awayTeam: 'Jets',       homeRecord: '0-0', awayRecord: '0-0' },
   { homeTeam: 'Panthers',   awayTeam: 'Jaguars',    homeRecord: '0-0', awayRecord: '0-0' },
   { homeTeam: 'Cardinals',  awayTeam: 'Saints',     homeRecord: '0-0', awayRecord: '0-0' },
@@ -356,12 +361,12 @@ const games = [
   { homeTeam: 'Buccaneers', awayTeam: 'Falcons',    homeRecord: '0-0', awayRecord: '0-0' },
   { homeTeam: 'Bengals',    awayTeam: 'Browns',     homeRecord: '0-0', awayRecord: '0-0' },
   { homeTeam: 'Raiders',    awayTeam: 'Patriots',   homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: '49ers',      awayTeam: 'Seahawks',   homeRecord: '0-0', awayRecord: '0-0' }, // 4:05
+  { homeTeam: '49ers',      awayTeam: 'Seahawks',   homeRecord: '0-0', awayRecord: '0-0' },
   { homeTeam: 'Titans',     awayTeam: 'Broncos',    homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Lions',      awayTeam: 'Packers',    homeRecord: '0-0', awayRecord: '0-0' }, // 4:25
+  { homeTeam: 'Lions',      awayTeam: 'Packers',    homeRecord: '0-0', awayRecord: '0-0' },
   { homeTeam: 'Texans',     awayTeam: 'Rams',       homeRecord: '0-0', awayRecord: '0-0' },
-  { homeTeam: 'Ravens',     awayTeam: 'Bills',      homeRecord: '0-0', awayRecord: '0-0' }, // SNF
-  { homeTeam: 'Vikings',    awayTeam: 'Bears',      homeRecord: '0-0', awayRecord: '0-0' }  // MNF
+  { homeTeam: 'Ravens',     awayTeam: 'Bills',      homeRecord: '0-0', awayRecord: '0-0' },
+  { homeTeam: 'Vikings',    awayTeam: 'Bears',      homeRecord: '0-0', awayRecord: '0-0' }
 ];
 
 let userPicks = {};
@@ -385,7 +390,7 @@ function displayGames() {
       </td>
     `;
     updateConfidenceDropdown(index);
-    
+
     if (IS_LOCKED) {
       const hb = document.getElementById(`home-${index}`);
       const ab = document.getElementById(`away-${index}`);
@@ -414,8 +419,7 @@ window.selectPick = function (gameIndex, team) {
   if (IS_LOCKED) { alert('Picks are locked for this week.'); return; }
 
   userPicks[gameIndex] = userPicks[gameIndex] || {};
-  userPicks[gameIndex].team =
-    team === 'home' ? games[gameIndex].homeTeam : games[gameIndex].awayTeam;
+  userPicks[gameIndex].team = (team === 'home') ? games[gameIndex].homeTeam : games[gameIndex].awayTeam;
 
   const homeButton = document.getElementById(`home-${gameIndex}`);
   const awayButton = document.getElementById(`away-${gameIndex}`);
