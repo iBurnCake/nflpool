@@ -179,3 +179,10 @@ export async function submitPicks() {
     showToast('Save failed', { error: true });
   }
 }
+
+export function attachPickHandlersToWindow() {
+  window.selectPick = selectPick;
+  window.assignConfidence = assignConfidence;
+  window.resetPicks = resetPicks;
+  window.submitPicks = submitPicks;
+}
