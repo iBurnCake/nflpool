@@ -18,10 +18,8 @@ let CURRENT_WEEK_LABEL = '';
 let IS_LOCKED = false;
 
 const POOL_DOLLARS_PER_MEMBER = 5;
-// Fixed path (you said you always want week1 here)
 const MEMBERS_PATH = 'subscriberPools/week1/members';
 
-/* ================= UI LOCK ================= */
 function applyLockUI() {
   const table = document.getElementById('gamesTable');
   const pickButtons = table ? table.querySelectorAll('button[id^="home-"], button[id^="away-"]') : [];
@@ -49,7 +47,6 @@ function applyLockUI() {
   }
 }
 
-/* ================= SAVE PILL / TOAST ================= */
 let _savePill;
 function ensureSavePill() {
   if (_savePill) return _savePill;
@@ -98,7 +95,6 @@ function showToast(message, { error = false } = {}) {
   _toastTimer = setTimeout(() => _toast.classList.remove('show'), 1600);
 }
 
-/* ================= SETTINGS ================= */
 async function refreshCurrentWeek() {
   try {
     const wkSnap = await get(ref(db, 'settings/currentWeek'));
@@ -120,7 +116,6 @@ async function refreshCurrentWeek() {
   console.log(`[settings] week=${CURRENT_WEEK} (${CURRENT_WEEK_LABEL || 'no label'}), locked=${IS_LOCKED}`);
 }
 
-/* ================= MONEY POOL ================= */
 let _membersRef = null;
 let _membersCb  = null;
 
@@ -138,7 +133,7 @@ function attachPoolMembersListener() {
   _membersRef = ref(db, MEMBERS_PATH);
   _membersCb  = (snap) => {
     const obj = snap.exists() ? (snap.val() || {}) : {};
-    const count = Object.values(obj).filter(Boolean).length; // works for {uid:true} or {uid:{...}}
+    const count = Object.values(obj).filter(Boolean).length;
     const total = count * POOL_DOLLARS_PER_MEMBER;
 
     const el = document.getElementById('poolTotalAmount');
@@ -169,11 +164,9 @@ async function updatePoolTotalCardOnce() {
   }
 }
 
-/* ================= AUTH BOOTSTRAP ================= */
 document.addEventListener('DOMContentLoaded', () => {
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      // Use the same setup for persisted sessions & fresh logins
       await handleSuccessfulLogin(user);
     } else {
       console.log('No user logged in');
@@ -233,12 +226,10 @@ async function handleSuccessfulLogin(user) {
   await loadUserPicks(user.uid);
   applyLockUI();
 
-  // Money pool
   attachPoolMembersListener();
   updatePoolTotalCardOnce();
 }
 
-/* ================= PROFILE ================= */
 const emailToNameMap = {
   "devonstankis3@gmail.com": "De Von",
   "kyrakafel@gmail.com": "Kyra Kafel",
@@ -249,7 +240,7 @@ const emailToNameMap = {
   "thomasromano19707@gmail.com": "Thomas Romano",
   "ckeegan437@gmail.com": "Charles Keegan",
   "rainhail85@gmail.com": "Ryan Sanders",
-  "williammathis2004@gmail.com": "William Mathis",
+  "peachetube@gmail.com": "William Mathis",
   "angelakant007@gmail.com": "Angela Kant",
   "luke.romano2004@gmail.com": "Luke Romano",
   "Nkier27@gmail.com": "Nick Kier",
@@ -349,7 +340,6 @@ function loadUsernameColor(userId) {
   });
 }
 
-/* ================= GAMES / PICKS ================= */
 const games = [
   { homeTeam: 'Cowboys',    awayTeam: 'Eagles',     homeRecord: '0-0', awayRecord: '0-0' },
   { homeTeam: 'Chiefs',     awayTeam: 'Chargers',   homeRecord: '0-0', awayRecord: '0-0' },
