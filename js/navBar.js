@@ -5,6 +5,23 @@ export function renderNavBar({ hostId = 'globalNavBar' } = {}) {
   const host = document.getElementById(hostId);
   if (!host) return;
 
+  // 🔒 Pin the bar to the top and ensure content doesn't slide under it.
+  try {
+    Object.assign(host.style, {
+      position: 'fixed',
+      top: '12px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      zIndex: '1000',
+    });
+
+    // Add body padding-top if it's too small so the bar doesn't cover content.
+    const currentPadTop = parseInt(getComputedStyle(document.body).paddingTop || '0', 10);
+    if (currentPadTop < 70) document.body.style.paddingTop = '76px';
+  } catch (_) {
+    // no-op if getComputedStyle fails for some reason
+  }
+
   const page = detectPage(); // 'index' | 'housePicks' | 'moneyPool' | 'pastWeeks' | 'other'
 
   const btn = (text, href, cls) =>
