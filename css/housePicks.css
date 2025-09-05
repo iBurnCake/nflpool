@@ -154,10 +154,4 @@ button.back-to-home:hover {
     padding: 6px;
     word-break: break-word;
   }
-
-  button {
-    width: 100%;
-    font-size: 14px;
-    padding: 10px;
-  }
 }
