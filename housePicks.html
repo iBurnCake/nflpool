@@ -98,17 +98,22 @@
     </style>
 </head>
 <body>
-    <div class="settings-container">
-        <div class="house-picks-title">House Picks</div>
-        <div class="house-picks-layout">
-            <div id="leaderboardWrapper" class="leaderboard-container"></div>
-            <div id="housePicksContainer" class="picks-container">
-            </div>
-        </div>
+  <!-- Shared top nav (Money Pool / Past Weeks / House Picks / Logout) -->
+  <div id="globalNavBar"></div>
+  <script type="module">
+    import { renderNavBar } from './js/navBar.js';
+    // Secondary variant: no Reset/Submit buttons
+    renderNavBar({ hostId: 'globalNavBar' });
+  </script>
+
+  <div class="settings-container">
+    <div class="house-picks-title">House Picks</div>
+    <div class="house-picks-layout">
+      <div id="leaderboardWrapper" class="leaderboard-container"></div>
+      <div id="housePicksContainer" class="picks-container"></div>
     </div>
-    <div class="settings-container">
-        <button onclick="window.location.href='index.html'">Back to Home</button>
-    </div>
-    <script type="module" src="js/housePicks.js"></script>
+  </div>
+
+  <script type="module" src="js/housePicks.js"></script>
 </body>
 </html>
