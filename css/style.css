@@ -139,10 +139,10 @@ th {
     }
 }
 
-.action-bar {
-  position: sticky;
-  top: 12px;
-  z-index: 50;
+/* ===== Global top action bar (for navBar.js) ===== */
+#globalNavBar { position: sticky; top: 12px; z-index: 1000; }
+
+#globalNavBar .action-bar {
   display: flex;
   gap: 14px;
   padding: 12px 16px;
@@ -150,15 +150,33 @@ th {
   border: 2px solid #ffd700;
   border-radius: 14px;
   align-items: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,.3);
 }
 
-/* Basic button look; adapt to your palette/classes */
-.btn { border: 0; border-radius: 10px; padding: 10px 16px; font-weight: 700; color: #fff; text-decoration: none; display: inline-block; }
-.btn-red    { background:#e11d21; }
-.btn-green  { background:#2ca24d; }
-.btn-blue   { background:#3b6eea; }
-.btn-teal   { background:#1aa4a8; }
-.btn-purple { background:#7b1fa2; }
-.btn-orange { background:#f28c1a; }
-.btn:focus, .btn:hover { filter: brightness(1.05); }
+/* Buttons used by the nav bar */
+#globalNavBar .btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+  display: inline-block;
+  line-height: 1;
+  cursor: pointer;
+}
 
+#globalNavBar .btn-red    { background:#e11d21; }
+#globalNavBar .btn-green  { background:#2ca24d; }
+#globalNavBar .btn-blue   { background:#3b6eea; }
+#globalNavBar .btn-teal   { background:#1aa4a8; }
+#globalNavBar .btn-purple { background:#7b1fa2; }
+#globalNavBar .btn-orange { background:#f28c1a; }
+
+#globalNavBar .btn:hover,
+#globalNavBar .btn:focus { filter: brightness(1.05); }
+
+/* Wrap nicely on small screens */
+@media (max-width: 640px) {
+  #globalNavBar .action-bar { flex-wrap: wrap; }
+}
