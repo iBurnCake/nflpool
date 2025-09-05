@@ -138,3 +138,27 @@ th {
         padding: 8px 15px;
     }
 }
+
+.action-bar {
+  position: sticky;
+  top: 12px;
+  z-index: 50;
+  display: flex;
+  gap: 14px;
+  padding: 12px 16px;
+  background: #2a2a2a;
+  border: 2px solid #ffd700;
+  border-radius: 14px;
+  align-items: center;
+}
+
+/* Basic button look; adapt to your palette/classes */
+.btn { border: 0; border-radius: 10px; padding: 10px 16px; font-weight: 700; color: #fff; text-decoration: none; display: inline-block; }
+.btn-red    { background:#e11d21; }
+.btn-green  { background:#2ca24d; }
+.btn-blue   { background:#3b6eea; }
+.btn-teal   { background:#1aa4a8; }
+.btn-purple { background:#7b1fa2; }
+.btn-orange { background:#f28c1a; }
+.btn:focus, .btn:hover { filter: brightness(1.05); }
+
