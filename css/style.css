@@ -139,28 +139,25 @@ th {
     }
 }
 
-:root { --nav-height: 76px; }
+/* Fixed top nav */
+#globalNavBar { position: relative; z-index: 1000; }
 
-/* Pin the navbar */
-#globalNavBar {
-  position: fixed !important;       /* force it, in case earlier rules win */
+#globalNavBar .action-bar {
+  position: fixed;          /* <- always stays at top */
   top: 12px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
-}
 
-#globalNavBar .action-bar {
   display: flex;
   gap: 14px;
   padding: 12px 16px;
   background: #2a2a2a;
   border: 2px solid #ffd700;
   border-radius: 14px;
-  box-shadow: 0 6px 18px rgba(0,0,0,.35);
 }
 
-/* Buttons */
+/* Buttons used by the nav bar */
 #globalNavBar .btn {
   border: 0;
   border-radius: 10px;
@@ -172,20 +169,19 @@ th {
   line-height: 1;
   cursor: pointer;
 }
+#globalNavBar .btn-red    { background:#e11d21; }
+#globalNavBar .btn-green  { background:#2ca24d; }
 #globalNavBar .btn-blue   { background:#3b6eea; }
 #globalNavBar .btn-teal   { background:#1aa4a8; }
 #globalNavBar .btn-purple { background:#7b1fa2; }
 #globalNavBar .btn-orange { background:#f28c1a; }
-#globalNavBar .btn-green  { background:#2ca24d; }
-#globalNavBar .btn-red    { background:#e11d21; }
-
 #globalNavBar .btn:hover,
 #globalNavBar .btn:focus { filter: brightness(1.05); }
 
-/* Keep content from sliding under the fixed bar */
-body { padding-top: var(--nav-height); }
+/* Give the page some top padding so content isn't hidden under the fixed bar */
+body { padding-top: 84px; }
 
-/* Wrap on small screens */
 @media (max-width: 640px) {
-  #globalNavBar .action-bar { flex-wrap: wrap; }
+  #globalNavBar .action-bar { flex-wrap: wrap; row-gap: 8px; }
+  body { padding-top: 110px; }
 }
