@@ -139,18 +139,17 @@ th {
     }
 }
 
-/* --- Fixed top nav --- */
-:root { --nav-height: 76px; } /* tweak if your bar is taller/shorter */
+:root { --nav-height: 76px; }
 
+/* Pin the navbar */
 #globalNavBar {
-  position: fixed;
+  position: fixed !important;       /* force it, in case earlier rules win */
   top: 12px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
 }
 
-/* The pill container */
 #globalNavBar .action-bar {
   display: flex;
   gap: 14px;
@@ -161,7 +160,7 @@ th {
   box-shadow: 0 6px 18px rgba(0,0,0,.35);
 }
 
-/* Buttons used by the nav bar */
+/* Buttons */
 #globalNavBar .btn {
   border: 0;
   border-radius: 10px;
@@ -173,21 +172,20 @@ th {
   line-height: 1;
   cursor: pointer;
 }
-
-#globalNavBar .btn-red    { background:#e11d21; }
-#globalNavBar .btn-green  { background:#2ca24d; }
 #globalNavBar .btn-blue   { background:#3b6eea; }
 #globalNavBar .btn-teal   { background:#1aa4a8; }
 #globalNavBar .btn-purple { background:#7b1fa2; }
 #globalNavBar .btn-orange { background:#f28c1a; }
+#globalNavBar .btn-green  { background:#2ca24d; }
+#globalNavBar .btn-red    { background:#e11d21; }
 
 #globalNavBar .btn:hover,
 #globalNavBar .btn:focus { filter: brightness(1.05); }
 
-/* Reserve space so content isn't hidden under the fixed bar */
+/* Keep content from sliding under the fixed bar */
 body { padding-top: var(--nav-height); }
 
-/* Wrap nicely on small screens */
+/* Wrap on small screens */
 @media (max-width: 640px) {
   #globalNavBar .action-bar { flex-wrap: wrap; }
 }
