@@ -138,3 +138,28 @@ th {
         padding: 8px 15px;
     }
 }
+
+/* Minimal table-top lock notice */
+.lock-notice {
+  background: transparent;
+  color: #e11d21 !important;
+  font-weight: 700;
+  text-align: center;
+  padding: 6px 8px;
+  border: 0;
+}
+
+
+#drawer-root { display: none !important; }
+
+/* Money pool pill */
+#poolTotalCard { display: none !important; }
+
+/* Common countdown names; keep any that match your DOM */
+#countdown,
+#countdownContainer,
+#picksLockPill,
+.countdown-pill,
+.picks-lock-pill,
+.lockdown-pill,
+.picks-timer { display: none !important; }
