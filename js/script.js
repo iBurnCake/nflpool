@@ -9,7 +9,7 @@ import {
   get
 } from './firebaseConfig.js';
 
-import { refreshCurrentWeek } from './settings.js';
+import { refreshCurrentWeek, CURRENT_WEEK } from './settings.js';
 import { applyLockUI } from './ui.js';
 import {
   attachPoolMembersListener,
@@ -17,8 +17,18 @@ import {
   updatePoolTotalCardOnce
 } from './poolTotal.js';
 import { getNameByEmail, loadUsernameColor } from './profiles.js';
-import { displayGames, loadUserPicks, resetPicks, submitPicks, selectPick, assignConfidence } from './picks.js';
+import {
+  displayGames,
+  loadUserPicks,
+  resetPicks,
+  submitPicks,
+  selectPick,
+  assignConfidence
+} from './picks.js';
 import { normalizeUserDoc } from './normalizeUser.js';
+import { watchAndFinalizeWeek } from './winners.js';
+
+const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2'; // your admin
 
 // --- Auth wiring ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -118,7 +128,10 @@ async function handleSuccessfulLogin(user) {
   await normalizeUserDoc(user.uid);
   await applyProfileCardDecor(user.uid);
 
-  // NOTE: Index page no longer hosts the logo picker, so we do NOT render it here.
+  // Admin: watch winners/<week>/games and auto-finalize leaderboards/wins
+  if (user.uid === ADMIN_UID) {
+    watchAndFinalizeWeek(CURRENT_WEEK);
+  }
 
   // Expose pick handlers globally for inline event usage
   window.selectPick = selectPick;
