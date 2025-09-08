@@ -117,3 +117,101 @@ body  { line-height: 1.4; }
   /* if you later add more buttons, you can reuse:
      .btn-blue{background:#3b6eea;} .btn-teal{background:#1aa4a8;}
      .btn-purple{background:#7b1fa2;} .btn-orange{background:#f28c1a;} */
+
+/* Banner chooser grid */
+.banner-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap:12px;
+  padding:10px;
+}
+.banner-option{
+  height:84px;
+  border:2px solid #FFD700;
+  border-radius:10px;
+  background-size:cover;
+  background-position:center;
+  cursor:pointer;
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+.banner-option:hover{ transform: translateY(-2px); box-shadow:0 8px 16px rgba(0,0,0,.35); }
+.banner-option.selected{ box-shadow:0 0 0 3px #00BFFF inset; }
+
+.team-hero::before{
+  content:"";
+  position:absolute; inset:0;
+  background-image: var(--hero-bg);
+  background-size: cover; background-position: center;
+  filter: blur(10px) brightness(.6);
+  transform: scale(1.1);
+}
+
+/* Hero preview /
+.profile-hero{
+  --hero-bg: url("images/banners/banner01.svg"); / fallback /
+  height: 170px;
+  border: 2px solid #FFD700;
+  border-radius: 12px;
+  background-image: var(--hero-bg);
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 6px 14px rgba(0,0,0,.25);
+  margin: 16px auto;
+  max-width: 900px;
+}
+
+/ Banner grid */
+.banner-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.banner-option{
+  display:block;
+  width:100%;
+  aspect-ratio: 3 / 1.2;
+  background-size: cover;
+  background-position: center;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,.25);
+}
+.banner-option:hover{ filter: brightness(1.05); }
+.banner-option.selected{ border-color:#00BFFF; }
+
+
+.stats-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+.stat{
+  background:#222;
+  border:1px solid #444;
+  border-radius:10px;
+  padding:12px;
+  text-align:center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+.stat-value{
+  font-size:22px;
+  font-weight:800;
+  color:#FFD700;
+  line-height:1.1;
+}
+.stat-label{
+  margin-top:6px;
+  font-size:13px;
+  color:#bbb;
+}
+
+
+@media (max-width:480px){
+  .stats-grid{ grid-template-columns: repeat(2, 1fr); }
+  .stat-value{ font-size:20px; }
+
+}
