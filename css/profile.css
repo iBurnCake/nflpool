@@ -213,5 +213,4 @@ body  { line-height: 1.4; }
 @media (max-width:480px){
   .stats-grid{ grid-template-columns: repeat(2, 1fr); }
   .stat-value{ font-size:20px; }
-
 }
