@@ -235,13 +235,6 @@ button {
   justify-content: flex-end;
 }
 
-/* Optional: make the inside background feel unified */
-.picks-card {
-  /* already inherits .settings-container border & bg */
-  /* tweak padding if you want slightly tighter spacing: */
-  /* padding-bottom: 14px; */
-}
-
 /* Reuse your existing button look (if you have .btn classes) */
 .btn { border: 0; border-radius: 10px; padding: 10px 16px; font-weight: 700; color: #fff; cursor: pointer; }
 .btn-red { background:#e11d21; }
