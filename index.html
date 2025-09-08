@@ -211,25 +211,25 @@
 
   <script type="module" src="js/script.js"></script>
 
-  <!-- Drawer init -->
-  <script type="module">
-    import { initDrawer } from './js/drawer.js';
-    import { auth } from './js/firebaseConfig.js';
+  <!-- Drawer init (single block) -->
+<script type="module">
+  import  mountDrawer  from './js/drawer.js';
+  import { auth } from './js/firebaseConfig.js';
 
-    initDrawer({
-      onLogout: () => auth.signOut().then(() => {
+  mountDrawer({
+    onLogout: async () => {
+      try {
+        await auth.signOut();
         alert('You have been logged out.');
         location.href = 'index.html';
-      }).catch((e) => {
+      } catch (e) {
         console.error('Logout error:', e);
         alert('Error logging out. Please try again.');
-      })
-    });
-  </script>
-  <script type="module">
-    import { mountDrawer } from './js/drawer.js';
-    mountDrawer();
-  </script>
+      }
+    }
+  });
+</script>
+  
 
   <!-- Optional tiny sync -->
   <script>
