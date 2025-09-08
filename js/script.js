@@ -1,12 +1,26 @@
-import { auth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
+// js/script.js
+import {
+  auth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  db,
+  ref,
+  get
+} from './firebaseConfig.js';
 
 import { refreshCurrentWeek } from './settings.js';
 import { applyLockUI } from './ui.js';
-import { attachPoolMembersListener, detachPoolMembersListener, updatePoolTotalCardOnce } from './poolTotal.js';
-import { getNameByEmail, loadUsernameColor, loadProfilePic } from './profiles.js';
-import { renderTeamLogoPicker } from './teams.js';
+import {
+  attachPoolMembersListener,
+  detachPoolMembersListener,
+  updatePoolTotalCardOnce
+} from './poolTotal.js';
+import { getNameByEmail, loadUsernameColor } from './profiles.js';
 import { displayGames, loadUserPicks, resetPicks, submitPicks, selectPick, assignConfidence } from './picks.js';
+import { normalizeUserDoc } from './normalizeUser.js';
 
+// --- Auth wiring ---
 document.addEventListener('DOMContentLoaded', () => {
   onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -20,8 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (homeSection) homeSection.style.display = 'none';
     }
   });
-
-  
 
   document.getElementById('googleLoginButton')?.addEventListener('click', () => {
     const provider = new GoogleAuthProvider();
@@ -56,6 +68,37 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+// --- Decorate the Profile card (hero bg, avatar, name color) ---
+async function applyProfileCardDecor(uid) {
+  try {
+    const snap = await get(ref(db, `users/${uid}`));
+    if (!snap.exists()) return;
+
+    const { profileBanner, profilePic, usernameColor } = snap.val() || {};
+
+    // Profile card hero: first card's hero in the dashboard grid
+    const hero = document.querySelector('#dashboardCards .card:first-child .card-hero');
+    if (hero && profileBanner) {
+      hero.style.backgroundImage = `url("${profileBanner}")`;
+    }
+
+    // Avatar on the card
+    const img = document.getElementById('dashProfilePic');
+    if (img) {
+      img.src = profilePic || 'images/NFL LOGOS/nfl-logo.jpg';
+    }
+
+    // Name color on the card
+    const name = document.getElementById('dashDisplayName');
+    if (name && usernameColor) {
+      name.style.color = usernameColor;
+    }
+  } catch (e) {
+    console.warn('applyProfileCardDecor error:', e);
+  }
+}
+
+// --- Main login success flow ---
 async function handleSuccessfulLogin(user) {
   await refreshCurrentWeek();
 
@@ -65,38 +108,30 @@ async function handleSuccessfulLogin(user) {
   if (loginSection) loginSection.style.display = 'none';
   if (homeSection) homeSection.style.display = 'block';
 
+  // Welcome name
   const displayName = getNameByEmail(user.email);
   const nameEl = document.getElementById('usernameDisplay');
   if (nameEl) nameEl.textContent = displayName;
+
+  // Username color + normalize doc + decorate profile card
   loadUsernameColor(user.uid);
+  await normalizeUserDoc(user.uid);
+  await applyProfileCardDecor(user.uid);
 
-  await setDashboardProfilePic(user.uid);
+  // NOTE: Index page no longer hosts the logo picker, so we do NOT render it here.
 
-  renderTeamLogoPicker({ containerId: 'logoSelection', previewId: 'profilePicPreview' });
-  loadProfilePic(user.uid);
-
+  // Expose pick handlers globally for inline event usage
   window.selectPick = selectPick;
   window.assignConfidence = assignConfidence;
   window.resetPicks = resetPicks;
   window.submitPicks = submitPicks;
-  
+
+  // Load picks UI
   displayGames();
   await loadUserPicks(user.uid);
   applyLockUI();
 
+  // Pool totals
   attachPoolMembersListener();
   updatePoolTotalCardOnce();
 }
-
-async function setDashboardProfilePic(uid) {
-  try {
-    const path = 'users/' + uid + '/profilePic';
-    const snap = await get(ref(db, path));
-    const url = snap.exists() ? snap.val() : 'images/NFL LOGOS/nfl-logo.jpg';
-    const img = document.getElementById('dashProfilePic');
-    if (img) img.src = url;
-  } catch (e) {
-    console.warn('setDashboardProfilePic error:', e);
-  }
-}
-

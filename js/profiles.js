@@ -29,36 +29,21 @@ export function saveProfilePic(userId, picUrl) {
 }
 
 export function loadProfilePic(userId) {
-  const userRef = ref(db, `users/${userId}/profilePic`);
-  return get(userRef)
-    .then((snap) => {
-      const fallback = 'images/NFL%20LOGOS/nfl-logo.jpg'; // space-safe fallback
-      const picUrl = (snap.exists() && snap.val()) ? snap.val() : fallback;
+  const userRef = ref(db, 'users/' + userId + '/profilePic');
+  return get(userRef).then((snap) => {
+    if (!snap.exists()) return;
+    const picUrl = snap.val();
 
-      // Profile preview (if present on the page)
-      const preview = document.getElementById('profilePicPreview');
-      if (preview) preview.src = picUrl;
+    const preview = document.getElementById('profilePicPreview');
+    if (preview) preview.src = picUrl;
 
-      // Dashboard card image (always try to set this)
-      const dash = document.getElementById('dashProfilePic');
-      if (dash) dash.src = picUrl;
-
-      // Keep your “selected” state in the grid (if present)
-      document.querySelectorAll('.profile-pic-option img').forEach((img) => {
-        const same = img.src.includes((picUrl || '').split('/').pop());
-        if (img.parentElement) {
-          img.parentElement.classList.toggle('selected', !!same);
-        }
-      });
-    })
-    .catch(() => {
-      // Hard fallback
-      const fallback = 'images/NFL%20LOGOS/nfl-logo.jpg';
-      const preview = document.getElementById('profilePicPreview');
-      if (preview) preview.src = fallback;
-      const dash = document.getElementById('dashProfilePic');
-      if (dash) dash.src = fallback;
+    document.querySelectorAll('.profile-pic-option img').forEach((img) => {
+      const same = img.src.includes((picUrl || '').split('/').pop());
+      if (img.parentElement) {
+        img.parentElement.classList.toggle('selected', same);
+      }
     });
+  });
 }
 
 /**
