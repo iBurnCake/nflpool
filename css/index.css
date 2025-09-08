@@ -129,23 +129,21 @@ button {
   box-shadow: 0 4px 12px rgba(0,0,0,.35);
   color: #fff;
 }
-
 #poolTotalCard .pool-title {
   font-weight: 800;
   color: #FFD700;
   margin-bottom: 4px;
 }
-
 #poolTotalCard .pool-amount {
   font-size: 28px;
   font-weight: 900;
   line-height: 1.1;
 }
-
 @media (max-width: 640px) {
   #poolTotalCard { top: 10px; right: 10px; padding: 10px 12px; }
   #poolTotalCard .pool-amount { font-size: 24px; }
 }
+
 .save-status-pill {
   position: fixed;
   top: 12px;
@@ -186,44 +184,66 @@ button {
 .toast.show { opacity: 1; transform: translate(-50%, -4px); }
 .toast.error { color: #fff; border-color: #dc3545; }
 
-
 @media (max-width: 430px) {
-    #loginSection {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        padding: 0;
-    }
-    .login-container {
-        width: 95%;
-        max-width: 360px;
-        padding: 20px;
-        border-radius: 8px;
-    }
-    .login-container h2 {
-        font-size: 20px;
-        margin-bottom: 15px;
-    }
-    input[type="text"],
-    input[type="password"] {
-        font-size: 14px;
-        padding: 10px;
-        margin-bottom: 12px;
-    }
-    button {
-        width: 100%;
-        padding: 10px;
-        font-size: 14px;
-        margin-bottom: 8px;
-    }
-    #logoSelection {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 6px;
-    }
-    #logoSelection img {
-        width: 100%;
-        height: auto;
-    }
+  #loginSection {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 0;
+  }
+  .login-container {
+      width: 95%;
+      max-width: 360px;
+      padding: 20px;
+      border-radius: 8px;
+  }
+  .login-container h2 {
+      font-size: 20px;
+      margin-bottom: 15px;
+  }
+  input[type="text"],
+  input[type="password"] {
+      font-size: 14px;
+      padding: 10px;
+      margin-bottom: 12px;
+  }
+  button {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      margin-bottom: 8px;
+  }
+  #logoSelection {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+  }
+  #logoSelection img {
+      width: 100%;
+      height: auto;
+  }
 }
+
+/* Picks card footer attached to the table (no separator bar) */
+.picks-card .picks-actions {
+  margin-top: 0;       /* was 12px */
+  padding-top: 0;      /* was 12px */
+  border-top: 0;       /* removed the yellow line */
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* Optional: make the inside background feel unified */
+.picks-card {
+  /* already inherits .settings-container border & bg */
+  /* tweak padding if you want slightly tighter spacing: */
+  /* padding-bottom: 14px; */
+}
+
+/* Reuse your existing button look (if you have .btn classes) */
+.btn { border: 0; border-radius: 10px; padding: 10px 16px; font-weight: 700; color: #fff; cursor: pointer; }
+.btn-red { background:#e11d21; }
+.btn-green { background:#2ca24d; }
+.btn:hover, .btn:focus { filter: brightness(1.05); }
