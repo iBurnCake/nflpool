@@ -10,12 +10,8 @@
   <link rel="stylesheet" href="css/index.css">
   <link rel="stylesheet" href="css/profile.css">
 
-  
-  <!-- Optional: if you have a profiles.css, you can keep it; not required -->
-  <!-- <link rel="stylesheet" href="css/profiles.css"> -->
-
   <style>
-    /* Ensure the logo grid matches index.html sizing */
+    /* Match the logo grid sizing from index */
     .profile-pic-selection {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
@@ -41,7 +37,7 @@
     .profile-pic-option:hover { border: 3px solid #FFD700; transform: scale(1.05); }
     .profile-pic-option.selected { border: 3px solid #00BFFF; }
 
-    /* Small round preview like on index */
+    /* Round preview like on index */
     .profile-avatar {
       display: block;
       margin: 10px auto 0;
@@ -50,7 +46,7 @@
       border: 2px solid #FFD700;
     }
 
-    /* Keep containers narrow and consistent with index */
+    /* Containers consistent with index */
     .settings-container {
       background-color: #333;
       color: #fff;
@@ -91,8 +87,8 @@
   </style>
 </head>
 <body>
- <!-- Top mini bar with Back to Home -->
-<div class="profile-topbar">
+  <!-- Top mini bar -->
+  <div class="profile-topbar">
     <a href="index.html" class="btn btn-green">← Back to Home</a>
   </div>
 
@@ -104,12 +100,15 @@
 
   <!-- Profile content -->
   <main id="profileSection" style="display:none;">
-    <div class="settings-container" style="max-width: 900px;">
+    <!-- Hero banner preview (updated when a banner is picked) -->
+    <div id="profileHero" class="profile-hero"></div>
+
+    <div class="settings-container">
       <h2>Profile • <span id="usernameDisplay"></span></h2>
       <img id="profilePicPreview" class="profile-avatar" src="images/NFL LOGOS/nfl-logo.jpg" alt="Current logo">
     </div>
 
-    <div class="settings-container username-color-box" style="max-width: 900px;">
+    <div class="settings-container username-color-box">
       <h2>Change Username Color</h2>
       <div class="color-picker-wrapper">
         <label for="usernameColorPicker">Select Color:</label>
@@ -119,56 +118,40 @@
       <p class="help-text">This color is used for your display name across the site.</p>
     </div>
 
-    <div class="settings-container" style="max-width: 900px;">
+    <div class="settings-container">
       <h2>Select Your NFL Team Logo</h2>
       <div id="logoSelection" class="profile-pic-selection"></div>
     </div>
+
+    <div class="settings-container">
+      <h2>Choose Your Profile Banner</h2>
+      <div id="bannerSelection" class="banner-grid"></div>
+    </div>
   </main>
 
-  <!-- Scripts -->
-  <script type="module">
-    import {
-      auth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged
-    } from './js/firebaseConfig.js';
-    import { getNameByEmail, loadUsernameColor, loadProfilePic } from './js/profiles.js';
-    import { renderTeamLogoPicker } from './js/teams.js';
+  <div class="settings-container" id="myStats">
+  <h2>My Stats</h2>
+  <div class="stats-grid">
+    <div class="stat">
+      <div class="stat-value" id="statNet">$0</div>
+      <div class="stat-label">Net</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="statTotalWon">$0</div>
+      <div class="stat-label">Total Won</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="statTotalStaked">$0</div>
+      <div class="stat-label">Total Staked</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="statWeeksWon">—</div>
+      <div class="stat-label">Weeks Won</div>
+    </div>
+  </div>
+</div>
 
-    document.addEventListener('DOMContentLoaded', () => {
-      onAuthStateChanged(auth, async (user) => {
-        const login = document.getElementById('loginSection');
-        const prof  = document.getElementById('profileSection');
-
-        if (user) {
-          login.style.display = 'none';
-          prof.style.display  = 'block';
-
-          // Name
-          const displayName = getNameByEmail(user.email);
-          document.getElementById('usernameDisplay').textContent = displayName;
-
-          // Color control (profiles.js wires the save button)
-          loadUsernameColor(user.uid);
-
-          // Logo grid + current logo preview
-          renderTeamLogoPicker({
-            containerId: 'logoSelection',
-            previewId: 'profilePicPreview'
-          });
-          loadProfilePic(user.uid);
-        } else {
-          login.style.display = 'flex';
-          prof.style.display  = 'none';
-        }
-      });
-
-      document.getElementById('googleLoginButton')?.addEventListener('click', () => {
-        const provider = new GoogleAuthProvider();
-        signInWithPopup(auth, provider).catch((err) => {
-          console.error('Google login error:', err);
-          alert('Google login failed. Please try again.');
-        });
-      });
-    });
-  </script>
+  <!-- One module: handles login gate + color/logo + banner picker -->
+  <script type="module" src="js/profilePage.js"></script>
 </body>
 </html>
