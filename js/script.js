@@ -1,4 +1,4 @@
-import { auth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from './firebaseConfig.js';
+import { auth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
 
 import { refreshCurrentWeek } from './settings.js';
 import { applyLockUI } from './ui.js';
@@ -20,6 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (homeSection) homeSection.style.display = 'none';
     }
   });
+
+  
 
   document.getElementById('googleLoginButton')?.addEventListener('click', () => {
     const provider = new GoogleAuthProvider();
@@ -68,6 +70,8 @@ async function handleSuccessfulLogin(user) {
   if (nameEl) nameEl.textContent = displayName;
   loadUsernameColor(user.uid);
 
+  await setDashboardProfilePic(user.uid);
+
   renderTeamLogoPicker({ containerId: 'logoSelection', previewId: 'profilePicPreview' });
   loadProfilePic(user.uid);
 
@@ -83,3 +87,16 @@ async function handleSuccessfulLogin(user) {
   attachPoolMembersListener();
   updatePoolTotalCardOnce();
 }
+
+async function setDashboardProfilePic(uid) {
+  try {
+    const path = 'users/' + uid + '/profilePic';
+    const snap = await get(ref(db, path));
+    const url = snap.exists() ? snap.val() : 'images/NFL LOGOS/nfl-logo.jpg';
+    const img = document.getElementById('dashProfilePic');
+    if (img) img.src = url;
+  } catch (e) {
+    console.warn('setDashboardProfilePic error:', e);
+  }
+}
+

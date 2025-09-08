@@ -3,32 +3,53 @@ import { IS_LOCKED } from './settings.js';
 let _savePill, _saveStateTimer;
 let _toast, _toastTimer;
 
+// ui.js
 export function applyLockUI() {
   const table = document.getElementById('gamesTable');
-  const pickButtons = table ? table.querySelectorAll('button[id^="home-"], button[id^="away-"]') : [];
-  const pickSelects = table ? table.querySelectorAll('select[id^="confidence"]') : [];
   const submitBtn = document.getElementById('submitButton');
   const resetBtn  = document.getElementById('resetButton');
 
+  // Disable/enable interactive controls
+  const pickButtons = table ? table.querySelectorAll('button[id^="home-"], button[id^="away-"]') : [];
+  const pickSelects = table ? table.querySelectorAll('select[id^="confidence"]') : [];
   [...pickButtons, ...pickSelects].forEach(el => { if (el) el.disabled = IS_LOCKED; });
   if (submitBtn) submitBtn.disabled = IS_LOCKED;
   if (resetBtn)  resetBtn.disabled  = IS_LOCKED;
 
-  if (table) table.classList.toggle('locked', IS_LOCKED);
+  if (table) {
+    table.classList.toggle('locked', IS_LOCKED);
 
-  const id = 'lockedBanner';
-  const existing = document.getElementById(id);
-  if (IS_LOCKED && !existing) {
-    const banner = document.createElement('div');
-    banner.id = id;
-    banner.textContent = 'Picks are locked for this week.';
-    banner.style.cssText =
-      'margin:10px 0;padding:10px 14px;border:2px solid #FFD700;color:#FFD700;background:#222;border-radius:10px;text-align:center;font-weight:700;';
-    const container = document.getElementById('userHomeSection') || document.body;
-    container.insertBefore(banner, container.firstChild);
-  } else if (!IS_LOCKED && existing) {
-    existing.remove();
+    // Insert/remove a single-row notice at the TOP of the thead
+    const thead = table.querySelector('thead');
+    if (thead) {
+      let noticeRow = thead.querySelector('#lockNoticeRow');
+
+      if (IS_LOCKED) {
+        if (!noticeRow) {
+          noticeRow = document.createElement('tr');
+          noticeRow.id = 'lockNoticeRow';
+
+          // Span across however many columns your header has (fallback to 3)
+          const headerRow = thead.querySelector('tr');
+          const colSpan = headerRow ? headerRow.children.length : 3;
+
+          const th = document.createElement('th');
+          th.colSpan = colSpan;
+          th.className = 'lock-notice';
+          th.textContent = 'Picks are locked for this week.';
+          noticeRow.appendChild(th);
+
+          thead.insertBefore(noticeRow, thead.firstChild);
+        }
+      } else if (noticeRow) {
+        noticeRow.remove();
+      }
+    }
   }
+
+  // If the old floating banner still exists, remove it
+  const oldBanner = document.getElementById('lockedBanner');
+  if (oldBanner) oldBanner.remove();
 }
 
 function ensureSavePill() {

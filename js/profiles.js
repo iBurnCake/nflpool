@@ -1,3 +1,4 @@
+// profiles.js
 import { db, ref, get, set, update } from './firebaseConfig.js';
 
 const emailToNameMap = {
@@ -29,42 +30,63 @@ export function saveProfilePic(userId, picUrl) {
 
 export function loadProfilePic(userId) {
   const userRef = ref(db, 'users/' + userId + '/profilePic');
-  return get(userRef)
-    .then((snap) => {
-      if (!snap.exists()) return;
-      const picUrl = snap.val();
-      const preview = document.getElementById('profilePicPreview');
-      if (preview) preview.src = picUrl;
+  return get(userRef).then((snap) => {
+    if (!snap.exists()) return;
+    const picUrl = snap.val();
 
-      document.querySelectorAll('.profile-pic-option img').forEach((img) => {
-        const same = img.src.includes((picUrl || '').split('/').pop());
+    const preview = document.getElementById('profilePicPreview');
+    if (preview) preview.src = picUrl;
+
+    document.querySelectorAll('.profile-pic-option img').forEach((img) => {
+      const same = img.src.includes((picUrl || '').split('/').pop());
+      if (img.parentElement) {
         img.parentElement.classList.toggle('selected', same);
-      });
+      }
     });
+  });
 }
 
-export function loadUsernameColor(userId) {
+/**
+ * Loads the user's saved username color and:
+ * - Applies it to #usernameDisplay
+ * - Sets it as the value of #usernameColorPicker (so the swatch shows the saved color)
+ * - Saves updates when #saveColorButton is clicked
+ */
+export function loadUsernameColor(userId, defaultColor = '#FFD700') {
   const colorRef = ref(db, `users/${userId}/usernameColor`);
   const usernameDisplay = document.getElementById('usernameDisplay');
-
-  get(colorRef).then((snapshot) => {
-    if (snapshot.exists() && usernameDisplay) {
-      usernameDisplay.style.color = snapshot.val();
-    }
-  });
-
-  const saveButton = document.getElementById('saveColorButton');
   const colorPicker = document.getElementById('usernameColorPicker');
+  const saveButton = document.getElementById('saveColorButton');
 
+  const applyColorToUI = (hex) => {
+    if (usernameDisplay) usernameDisplay.style.color = hex;
+    if (colorPicker) colorPicker.value = hex; // keep the swatch in sync
+  };
+
+  // Load saved color and reflect it in UI (fallback to gold if none)
+  get(colorRef)
+    .then((snapshot) => {
+      const savedHex = snapshot.exists() ? String(snapshot.val()) : defaultColor;
+      applyColorToUI(savedHex);
+    })
+    .catch((e) => {
+      console.error('Error loading username color:', e);
+      applyColorToUI(defaultColor);
+    });
+
+  // Save on click
   if (saveButton && colorPicker) {
     saveButton.onclick = () => {
-      const selectedColor = colorPicker.value;
+      const selectedColor = colorPicker.value || defaultColor; // "#rrggbb"
       set(colorRef, selectedColor)
         .then(() => {
-          if (usernameDisplay) usernameDisplay.style.color = selectedColor;
+          applyColorToUI(selectedColor);
           alert('Username color saved successfully!');
         })
-        .catch(() => alert('Failed to save username color. Please try again.'));
+        .catch((e) => {
+          console.error('Error saving username color:', e);
+          alert('Failed to save username color. Please try again.');
+        });
     };
   }
 }
