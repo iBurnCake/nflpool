@@ -6,7 +6,7 @@ import {
 
 import { getNameByEmail, loadUsernameColor, loadProfilePic } from './profiles.js';
 import { renderTeamLogoPicker } from './teams.js';
-import { BANNERS } from './banners.js'; // list of banner data-URIs/URLs
+import { BANNERS } from './banners.js';
 
 // ---------- Helpers ----------
 function getProfileRoot() {
@@ -59,11 +59,9 @@ async function showProfile(user) {
   hide(document.getElementById('loginSection'));
   show(getProfileRoot());
 
-  // Friendly display name
+  // Friendly display name (safe to persist)
   const displayName = getNameByEmail(user.email);
   setText('usernameDisplay', displayName);
-
-  // Persist friendly name for Members page (safe here; user defined)
   try {
     await update(ref(db, `users/${user.uid}`), { displayName });
   } catch (e) {
@@ -72,7 +70,7 @@ async function showProfile(user) {
 
   // Username color + logo preview
   loadUsernameColor(user.uid);
-  loadProfilePic(user.uid); // sets #profilePicPreview automatically
+  loadProfilePic(user.uid);
 
   // Team logo picker grid
   renderTeamLogoPicker({ containerId: 'logoSelection', previewId: 'profilePicPreview' });
@@ -80,8 +78,8 @@ async function showProfile(user) {
   // Banner picker
   await renderBannerPicker(user);
 
-  // Stats (compute fallbacks from pools + winners if missing)
-  await loadUserStats(user.uid);
+  // Stats (READ-ONLY: compute from DB, do NOT write)
+  await renderUserStats(user.uid);
 }
 
 // ---------- Banner picker (stores both URL and ID) ----------
@@ -102,12 +100,10 @@ async function renderBannerPicker(user) {
     savedId  = idSnap.exists()  ? idSnap.val()  : null;
   } catch {}
 
-  // Which tile to mark as selected?
   let selectedIndex = Number.isInteger(savedId) && savedId >= 0 && savedId < BANNERS.length
     ? savedId
     : matchBannerIndex(savedUrl);
 
-  // Build grid
   root.innerHTML = '';
   BANNERS.forEach((url, i) => {
     const tile = document.createElement('button');
@@ -118,33 +114,26 @@ async function renderBannerPicker(user) {
     if (i === selectedIndex) tile.classList.add('selected');
 
     tile.addEventListener('click', async () => {
-      // UI select
       [...root.children].forEach(c => c.classList.remove('selected'));
       tile.classList.add('selected');
-
-      // Save BOTH: stable id + url
       try {
         await update(ref(db, `users/${user.uid}`), {
           profileBanner: url,
           profileBannerId: i,
         });
       } catch {}
-
-      // Live hero preview (if your CSS uses --hero-bg)
       if (hero) hero.style.setProperty('--hero-bg', `url("${url}")`);
     });
 
     root.appendChild(tile);
   });
 
-  // Apply hero bg on load (use whichever we have)
   const initialUrl = (selectedIndex != null && selectedIndex >= 0) ? BANNERS[selectedIndex] : savedUrl;
   if (initialUrl && hero) {
     hero.style.setProperty('--hero-bg', `url("${initialUrl}")`);
   }
 }
 
-// Try to match a saved URL to a current index (helps when you had only URLs before)
 function matchBannerIndex(url) {
   if (!url) return -1;
   const norm = normalize(url);
@@ -162,17 +151,15 @@ function normalize(u) {
   }
 }
 
-// ---------- Stakes helper ----------
+// ---------- READ-ONLY stats rendering ----------
 const POOL_ENTRY_DOLLARS = 5;
 
 async function calcTotalStakedFromPools(uid) {
   try {
     const snap = await get(ref(db, 'subscriberPools'));
     if (!snap.exists()) return 0;
-
     const pools = snap.val() || {};
     let total = 0;
-
     for (const weekNode of Object.values(pools)) {
       const members = weekNode && weekNode.members ? weekNode.members : null;
       if (members && typeof members === 'object' && members[uid]) {
@@ -186,19 +173,18 @@ async function calcTotalStakedFromPools(uid) {
   }
 }
 
-// ---------- Winners backfill helpers ----------
 async function fetchWinnersRoot() {
   const snap = await get(ref(db, 'winners'));
   return snap.exists() ? (snap.val() || {}) : {};
 }
 
-/** For a single user, compute fallback totalWon and weeksWon from /winners. */
-function computeBackfillFromWinners(winnersRoot, uid) {
+/** Only count weeks where winners were finalized (awardedStats === true). */
+function computeFromWinnersFinalized(winnersRoot, uid) {
   let totalWon = 0;
   let weeksWon = 0;
 
   for (const node of Object.values(winnersRoot || {})) {
-    if (!node || typeof node !== 'object') continue;
+    if (!node || typeof node !== 'object' || node.awardedStats !== true) continue;
 
     const houseWinners = Array.isArray(node.houseWinners) ? node.houseWinners : [];
     const poolWinners  = Array.isArray(node.moneyPoolWinners) ? node.moneyPoolWinners : [];
@@ -213,45 +199,29 @@ function computeBackfillFromWinners(winnersRoot, uid) {
   return { totalWon, weeksWon };
 }
 
-async function loadUserStats(uid) {
-  // 1) Read existing stats (if any)
+async function renderUserStats(uid) {
+  // Read stored stats (never mutate them here)
   let stats = {};
   try {
     const snap = await get(ref(db, `users/${uid}/stats`));
     if (snap.exists()) stats = snap.val() || {};
   } catch (e) {
-    console.warn('loadUserStats: could not read user stats', e);
+    console.warn('renderUserStats: could not read user stats', e);
   }
 
-  // 2) Compute fallbacks
+  // Compute “display-only” fallbacks (no DB writes)
   const [computedStaked, winnersRoot] = await Promise.all([
     calcTotalStakedFromPools(uid),
     fetchWinnersRoot(),
   ]);
-  const { totalWon: fallbackWon, weeksWon: fallbackWeeks } = computeBackfillFromWinners(winnersRoot, uid);
+  const { totalWon: calcWon, weeksWon: calcWeeks } = computeFromWinnersFinalized(winnersRoot, uid);
 
-  // Prefer explicit DB values if > 0, else use computed/backfill
-  const totalStaked =
-    toNum(stats.totalStaked) > 0 ? toNum(stats.totalStaked) : computedStaked;
+  // Prefer stored values if present; otherwise use computed display values
+  const totalStaked = toNum(stats.totalStaked) > 0 ? toNum(stats.totalStaked) : computedStaked;
+  const totalWon    = toNum(stats.totalWon)   > 0 ? toNum(stats.totalWon)   : calcWon;
+  const weeksWon    = toNum(stats.weeksWon)   > 0 ? toNum(stats.weeksWon)   : calcWeeks;
 
-  const totalWon =
-    toNum(stats.totalWon) > 0 ? toNum(stats.totalWon) : fallbackWon;
-
-  const weeksWon =
-    toNum(stats.weeksWon) > 0 ? toNum(stats.weeksWon) : fallbackWeeks;
-
-  // 3) If DB had 0/missing but we computed > 0, persist them back for convenience
-  const patch = {};
-  if (toNum(stats.totalStaked) === 0 && computedStaked > 0) patch.totalStaked = computedStaked;
-  if (toNum(stats.totalWon)   === 0 && fallbackWon    > 0) patch.totalWon    = fallbackWon;
-  if (toNum(stats.weeksWon)   === 0 && fallbackWeeks  > 0) patch.weeksWon    = fallbackWeeks;
-
-  if (Object.keys(patch).length) {
-    try { await update(ref(db, `users/${uid}/stats`), patch); }
-    catch (e) { console.warn('loadUserStats: could not write back stats', e); }
-  }
-
-  // 4) Update UI
+  // Update UI only
   setText('statWeeksWon', weeksWon || '—');
   setText('statTotalWon', formatUSD(totalWon));
   setText('statTotalStaked', formatUSD(totalStaked));
