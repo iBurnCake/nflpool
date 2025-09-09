@@ -84,32 +84,53 @@
     }
 
     async function fillUI() {
-      // week select
-      const weeks = await listWeeks();
-      const sel = document.getElementById('weekSel');
-      sel.innerHTML = weeks.map(w => `<option value="${w}">${w}</option>`).join('') || '<option value="week1">week1</option>';
+  // week select (unchanged)
+  const weeks = await listWeeks();
+  const sel = document.getElementById('weekSel');
+  sel.innerHTML = weeks.map(w => <option value="${w}">${w}</option>).join('') || '<option value="week1">week1</option>';
 
-      const cur = await get(ref(db, 'settings/currentWeek'));
-      if (cur.exists() && weeks.includes(cur.val())) sel.value = cur.val();
+  const cur = await get(ref(db, 'settings/currentWeek'));
+  if (cur.exists() && weeks.includes(cur.val())) sel.value = cur.val();
 
-      // show week label if present
-      const wk = sel.value;
-      const labelSnap = await get(ref(db, `winners/${wk}/label`));
-      document.getElementById('weekInfo').textContent =
-        labelSnap.exists() ? labelSnap.val() : wk;
+  // show week label if present (unchanged)
+  const wk = sel.value;
+  const labelSnap = await get(ref(db, winners/${wk}/label));
+  document.getElementById('weekInfo').textContent =
+    labelSnap.exists() ? labelSnap.val() : wk;
 
-      // lock info
-      const lockSnap = await get(ref(db, 'settings/picksLocked'));
-      document.getElementById('lockInfo').textContent =
-        lockSnap.exists() ? `picksLocked = ${String(lockSnap.val())}` : 'picksLocked = false';
+  // ---- lock info (now reads settings/lockAllPicks, with legacy fallback) ----
+  let locked = false;
+  try {
+    const lockSnap = await get(ref(db, 'settings/lockAllPicks'));
+    if (lockSnap.exists()) {
+      locked = !!lockSnap.val();
+    } else {
+      // legacy fallback
+      const legacy = await get(ref(db, 'settings/picksLocked'));
+      if (legacy.exists()) locked = !!legacy.val();
     }
+  } catch (e) {
+    console.warn('fillUI lock read error:', e);
+  }
+  document.getElementById('lockInfo').textContent = lockAllPicks = ${locked};
+}
+   // Toggle the global picks lock at /settings/lockAllPicks (and keep legacy in sync)
+async function toggleLock() {
+  try {
+    const lockRef = ref(db, 'settings/lockAllPicks');
+    const snap = await get(lockRef);
+    const current = snap.exists() ? !!snap.val() : false;
+    const next = !current;
 
-    async function toggleLock() {
-      const snap = await get(ref(db, 'settings/picksLocked'));
-      const next = !(snap.exists() ? !!snap.val() : false);
-      await update(ref(db, 'settings'), { picksLocked: next });
-      document.getElementById('lockInfo').textContent = `picksLocked = ${String(next)}`;
-    }
+    // write to the correct key; also mirror to picksLocked for backwards-compat
+    await update(ref(db, 'settings'), { lockAllPicks: next, picksLocked: next });
+
+    document.getElementById('lockInfo').textContent = lockAllPicks = ${next};
+  } catch (e) {
+    console.error('toggleLock error:', e);
+    document.getElementById('lockInfo').textContent = 'lockAllPicks = ? (error)';
+  }
+}
 
     async function saveCurrentWeek() {
       const wk = document.getElementById('weekSel').value;
