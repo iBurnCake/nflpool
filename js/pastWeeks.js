@@ -40,20 +40,44 @@ async function getUsersMeta() {
   return snap.val();
 }
 
+function prettyWeek(key) {
+  const m = /^week(\d+)$/i.exec(key);
+  if (m) return `Week ${Number(m[1])}`;
+  return key.replace(/[_-]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
 async function getWinnersNode(weekKey) {
-  const gamesSnap = await get(ref(db, `winners/${weekKey}/games`));
-  const labelSnap = await get(ref(db, `winners/${weekKey}/label`));
+  // winners label + games
+  const [gamesSnap, labelSnap, cdSnap] = await Promise.all([
+    get(ref(db, `winners/${weekKey}/games`)),
+    get(ref(db, `winners/${weekKey}/label`)),
+    get(ref(db, 'settings/countdown'))  // { currentWeek, currentWeekLabel }
+  ]);
 
-  const games = gamesSnap.exists() ? gamesSnap.val() : {};
-  const label = labelSnap.exists() ? labelSnap.val() : null;
+  let games = gamesSnap.exists() ? (gamesSnap.val() || {}) : {};
+  let label = labelSnap.exists() ? labelSnap.val() : null;
 
+  // If the /games child doesn't exist, peek at the whole node
   if (!gamesSnap.exists()) {
     const whole = await get(ref(db, `winners/${weekKey}`));
     if (whole.exists()) {
-      const v = whole.val();
-      return { games: v.games ?? {}, label: v.label ?? label ?? null };
+      const v = whole.val() || {};
+      games = v.games ?? games;
+      label = v.label ?? label;
     }
   }
+
+  // If no winners label, check settings/countdown for the current week's friendly label
+  if (!label && cdSnap.exists()) {
+    const cd = cdSnap.val() || {};
+    if (String(cd.currentWeek) === String(weekKey) && cd.currentWeekLabel) {
+      label = cd.currentWeekLabel;
+    }
+  }
+
+  // Final fallback: pretty-print the key
+  if (!label) label = prettyWeek(weekKey);
+
   return { games, label };
 }
 
