@@ -187,7 +187,31 @@
           <p>Results & standings.</p>
         </div>
       </a>
+
+         <!-- Members -->
+     <a class="card members-card" href="members.html">
+      <div class="card-hero" style="background-image:url('images/cards/card-members.jpg');"></div>
+      <div class="card-body">
+        <h3>Members</h3>
+        <p>Everyone's Stats</p>
+      <div id="membersPreview" class="members-list"><!-- optional small pills go here --></div>
+    </div>
+   </a>
+
+   <!-- Admin Console — visible only for admin -->
+<a id="adminCard" class="card" href="admin.html" style="display:none;">
+  <div class="card-hero" style="background-image:url('images/cards/card-adminconsole.jpg');"></div>
+  <div class="card-body">
+    <h3>Admin Console</h3>
+    <p>Finalize winners, lock picks, change week.</p>
+  </div>
+</a>
+
+<!-- Make sure this script is included once on the page (after firebaseConfig.js) -->
+<script type="module" src="js/adminGate.js"></script>
     </section>
+
+    
 
     <!-- Connected Picks card (table + actions together) -->
     <div class="settings-container picks-card" id="picksSection">
