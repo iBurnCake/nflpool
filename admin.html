@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Admin Console</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:#eee;background:#121212}
+    .wrap{max-width:760px;margin:40px auto;padding:24px;background:#1e1e1e;border:1px solid #333;border-radius:12px}
+    h1{margin:0 0 14px;color:#FFD700}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0}
+    label{opacity:.9}
+    button{background:#3B7EED;color:#fff;border:0;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer}
+    button:hover{background:#1F5B99}
+    select,input{background:#0f0f0f;color:#fff;border:1px solid #333;border-radius:8px;padding:8px}
+    .pill{display:inline-block;border:1px solid #FFD700;color:#FFD700;border-radius:24px;padding:6px 10px;margin-left:8px}
+    pre{background:#0f0f0f;border:1px solid #333;border-radius:8px;padding:10px;white-space:pre-wrap}
+    a.btn{display:inline-block;background:#444;border:1px solid #666;border-radius:8px;padding:8px 12px;color:#fff;text-decoration:none}
+    a.btn:hover{background:#333}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Admin Console</h1>
+
+    <div id="adminOnly" style="display:none;">
+      <div class="row">
+        <a class="btn" href="index.html">← Back to Home</a>
+        <span id="who" class="pill">Checking auth…</span>
+      </div>
+
+      <h3>Week / Lock</h3>
+      <div class="row">
+        <label>Current week:</label>
+        <select id="weekSel"></select>
+        <button id="saveWeekBtn">Set Current Week</button>
+        <span id="weekInfo" class="pill"></span>
+      </div>
+
+      <div class="row">
+        <label>Global Picks Lock:</label>
+        <button id="toggleLockBtn">Toggle</button>
+        <span id="lockInfo" class="pill"></span>
+      </div>
+
+      <h3>Finalize Winners</h3>
+      <div class="row">
+        <button id="finalizeBtn">Finalize Winners For Selected Week</button>
+      </div>
+
+      <h3>Result</h3>
+      <pre id="out">Waiting…</pre>
+    </div>
+
+    <div id="notAdmin" style="display:none;">
+      <p>You must be signed in as admin to view this page.</p>
+      <a class="btn" href="index.html">Back to Home</a>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, onAuthStateChanged, db, ref, get, update } from './js/firebaseConfig.js';
+    import { finalizeWeekOnce } from './js/winners.js';
+
+    const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2';
+    const out = (m) => document.getElementById('out').textContent = (typeof m === 'string') ? m : JSON.stringify(m, null, 2);
+
+    async function listWeeks() {
+      const opts = new Set();
+      const cur = await get(ref(db, 'settings/currentWeek'));
+      if (cur.exists()) opts.add(cur.val());
+
+      const w = await get(ref(db, 'winners'));
+      if (w.exists()) Object.keys(w.val() || {}).forEach(k => opts.add(k));
+
+      const s = await get(ref(db, 'scoreboards'));
+      if (s.exists()) Object.keys(s.val() || {}).forEach(k => opts.add(k));
+
+      return [...opts].sort((a,b) => {
+        const na = parseInt((/week(\d+)/i.exec(a) || [0,0])[1], 10);
+        const nb = parseInt((/week(\d+)/i.exec(b) || [0,0])[1], 10);
+        return (na - nb) || a.localeCompare(b);
+      });
+    }
+
+    async function fillUI() {
+      // week select
+      const weeks = await listWeeks();
+      const sel = document.getElementById('weekSel');
+      sel.innerHTML = weeks.map(w => `<option value="${w}">${w}</option>`).join('') || '<option value="week1">week1</option>';
+
+      const cur = await get(ref(db, 'settings/currentWeek'));
+      if (cur.exists() && weeks.includes(cur.val())) sel.value = cur.val();
+
+      // show week label if present
+      const wk = sel.value;
+      const labelSnap = await get(ref(db, `winners/${wk}/label`));
+      document.getElementById('weekInfo').textContent =
+        labelSnap.exists() ? labelSnap.val() : wk;
+
+      // lock info
+      const lockSnap = await get(ref(db, 'settings/picksLocked'));
+      document.getElementById('lockInfo').textContent =
+        lockSnap.exists() ? `picksLocked = ${String(lockSnap.val())}` : 'picksLocked = false';
+    }
+
+    async function toggleLock() {
+      const snap = await get(ref(db, 'settings/picksLocked'));
+      const next = !(snap.exists() ? !!snap.val() : false);
+      await update(ref(db, 'settings'), { picksLocked: next });
+      document.getElementById('lockInfo').textContent = `picksLocked = ${String(next)}`;
+    }
+
+    async function saveCurrentWeek() {
+      const wk = document.getElementById('weekSel').value;
+      await update(ref(db, 'settings'), { currentWeek: wk });
+      const labelSnap = await get(ref(db, `winners/${wk}/label`));
+      document.getElementById('weekInfo').textContent =
+        labelSnap.exists() ? labelSnap.val() : wk;
+    }
+
+    async function finalizeNow() {
+      const wk = document.getElementById('weekSel').value;
+      out(`Finalizing ${wk}…`);
+      try {
+        const res = await finalizeWeekOnce(wk);
+        out({ week: wk, ...res });
+      } catch (e) {
+        out(`Error: ${e?.message || e}`);
+      }
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      const adminOnly = document.getElementById('adminOnly');
+      const notAdmin  = document.getElementById('notAdmin');
+      const who = document.getElementById('who');
+
+      if (!user || user.uid !== ADMIN_UID) {
+        adminOnly.style.display = 'none';
+        notAdmin.style.display  = 'block';
+        return;
+      }
+
+      who.textContent = `Signed in as admin (${user.email || user.uid})`;
+      adminOnly.style.display = 'block';
+      notAdmin.style.display  = 'none';
+
+      await fillUI();
+
+      document.getElementById('toggleLockBtn').onclick = toggleLock;
+      document.getElementById('saveWeekBtn').onclick = saveCurrentWeek;
+      document.getElementById('finalizeBtn').onclick = finalizeNow;
+      document.getElementById('weekSel').onchange = fillUI;
+    });
+  </script>
+</body>
+</html>
