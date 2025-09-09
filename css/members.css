@@ -1,0 +1,132 @@
+/* ---------- Top bar & title ---------- */
+.members-topbar {
+  max-width: 1400px;
+  margin: 16px auto 0;
+  padding: 0 16px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.members-title {
+  max-width: 1400px;
+  width: calc(100% - 32px);
+  margin: 16px auto;
+  padding: 16px 18px;
+  border: 2px solid #FFD700;
+  border-radius: 12px;
+  background: #333;
+  box-shadow: 0 4px 12px rgba(0,0,0,.35);
+}
+
+.members-title h1 {
+  margin: 0 0 6px;
+  font-size: 26px;
+  color: #FFD700;
+  line-height: 1.2;
+}
+
+.members-title p {
+  margin: 0;
+  color: #ddd;
+  line-height: 1.35;
+}
+
+/* ---------- Grid (span wide, not stuck at 3 cols) ---------- */
+/* Your HTML uses: <section class="cards-grid member-grid" id="memberGrid"> */
+.cards-grid.member-grid {
+  /* break out of the 1200px max from the dashboard */
+  max-width: none;
+  width: min(1600px, 100%);        /* nice wide layout but still centered */
+  margin: 10px auto 0;
+  padding: 0 16px;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); /* bigger cards */
+  gap: 20px;
+}
+
+/* ---------- Member cards (full-bleed banner, no gold border) ---------- */
+.member-card {
+  background: #222;
+  border: 0;                       /* remove yellow border */
+  border-radius: 12px;
+  overflow: hidden;                 /* so banner + avatar clip cleanly */
+  box-shadow: 0 6px 14px rgba(0,0,0,.25);
+}
+
+/* Full-bleed banner hits the card edges */
+.member-card .card-hero {
+  position: relative;
+  height: 170px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin: 0;                       /* no gap at the top */
+}
+
+/* Centered circular avatar overlapping the banner */
+.member-card .member-avatar {
+  position: absolute;
+  bottom: -34px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: 2px solid #FFD700;       /* keep the gold ring on the avatar */
+  background: #111;
+  object-fit: cover;
+}
+
+/* Comfortable space for stats/text */
+.member-card .card-body {
+  padding: 48px 18px 18px;         /* top padding accounts for the overlap */
+  text-align: center;
+}
+
+.member-card .member-name {
+  margin: 0 0 6px;
+  font-weight: 800;
+  font-size: 20px;                 /* larger for readability */
+  color: #fff;                     /* usernameColor overrides inline from JS */
+  line-height: 1.2;
+}
+
+.member-card .member-stats {
+  margin: 0;
+  color: #ddd;
+  font-size: 15px;                 /* bumped up a bit */
+  line-height: 1.45;
+}
+
+/* ---------- Optional: toolbar & pills (keep if you use them) ---------- */
+.members-toolbar{
+  display:flex; gap:12px; align-items:center; justify-content:space-between;
+  margin: 8px 0 14px;
+}
+.members-toolbar input[type="search"]{
+  flex:1; min-width: 180px; background:#222; color:#fff; border:1px solid #555;
+  border-radius:8px; padding:10px 12px; outline:none;
+}
+.pool-toggle{ display:flex; align-items:center; gap:8px; color:#ddd; }
+
+.member-meta{ display:flex; flex-wrap:wrap; gap:8px; }
+.pill{
+  border-radius:999px; padding:6px 10px; font-weight:700; font-size:12px;
+  background:#333; color:#ddd; border:1px solid #555;
+}
+.pill.win{ background:#1f4d28; color:#b5ffd1; border-color:#2ca24d; }
+.pill.netpos{ background:#1f4d28; color:#b5ffd1; border-color:#2ca24d; }
+.pill.netneg{ background:#4d1f1f; color:#ffd5d5; border-color:#e11d21; }
+.pill.pool{ background:#23364d; color:#cfe6ff; border-color:#3b6eea; }
+
+/* ---------- Mobile tweaks ---------- */
+@media (max-width: 520px){
+  .members-toolbar{ flex-direction:column; align-items:stretch; gap:10px; }
+  .cards-grid.member-grid{
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    gap: 14px;
+  }
+  .member-card .card-hero{ height: 150px; }
+  .member-card .member-name{ font-size: 18px; }
+}
