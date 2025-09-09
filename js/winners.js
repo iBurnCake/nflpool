@@ -1,7 +1,5 @@
 // js/winners.js
-import {
-  db, ref, get, update, onValue, off, auth
-} from './firebaseConfig.js';
+import { db, ref, get, update, auth } from './firebaseConfig.js';
 
 const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2';   // your admin UID
 const ENTRY_FEE = 5;                                  // dollars per pool member
@@ -11,29 +9,23 @@ const toNum = (x) => (typeof x === 'number' ? x : Number(x) || 0);
 const norm  = (s) => String(s ?? '').trim().toLowerCase();
 
 function winnerString(v) {
-  // Support "Ravens" or { winner: "Ravens" } or { team/name: "Ravens" }
-  return (typeof v === 'string')
-    ? v
-    : (v && (v.winner || v.team || v.name));
+  // supports "Ravens" or { winner: "Ravens" } or { team/name: "Ravens" }
+  return (typeof v === 'string') ? v : (v && (v.winner || v.team || v.name));
 }
 
 /**
- * Determine which game indices we expect winners for:
- * 1) Prefer winners/<weekKey>/gameCount (keys 0..count-1)
- * 2) Else infer from scoreboards/<weekKey> (union of picked indices)
- * 3) Else fallback to whatever exists under winners/<weekKey>/games now
+ * Determine expected game keys for a week:
+ * 1) winners/<week>/gameCount -> 0..count-1
+ * 2) else infer from scoreboards/<week> (union of picked indices)
+ * 3) else fallback to whatever exists under winners/<week>/games
  */
 async function getExpectedGameKeys(weekKey, winnersByGame) {
-  // 1) explicit gameCount
   const cntSnap = await get(ref(db, `winners/${weekKey}/gameCount`));
   if (cntSnap.exists()) {
     const count = Number(cntSnap.val()) || 0;
-    if (count > 0) {
-      return new Set(Array.from({ length: count }, (_, i) => String(i)));
-    }
+    if (count > 0) return new Set(Array.from({ length: count }, (_, i) => String(i)));
   }
 
-  // 2) infer from scoreboard picks
   const sbSnap = await get(ref(db, `scoreboards/${weekKey}`));
   if (sbSnap.exists()) {
     const keys = new Set();
@@ -45,7 +37,6 @@ async function getExpectedGameKeys(weekKey, winnersByGame) {
     if (keys.size > 0) return keys;
   }
 
-  // 3) fallback: whatever is present in winnersByGame
   return new Set(Object.keys(winnersByGame || {}));
 }
 
@@ -80,11 +71,9 @@ function scoreUser(picksObj, winnersByGame) {
 
 /* ------------- build leaderboards -------------- */
 async function buildLeaderboards(weekKey, winnersByGame) {
-  // everyone who made picks this week
   const sbSnap = await get(ref(db, `scoreboards/${weekKey}`));
   const scoreboards = sbSnap.exists() ? (sbSnap.val() || {}) : {};
 
-  // money-pool members for the week
   const poolSnap = await get(ref(db, `subscriberPools/${weekKey}/members`));
   const poolMembers = poolSnap.exists() ? (poolSnap.val() || {}) : {};
 
@@ -115,6 +104,11 @@ function maxKeys(map) {
 }
 
 /* ------------- finalize + persist --------------- */
+/**
+ * This is only called by the Admin Console "Finalize" button.
+ * - Writes leaderboards under /winners/<weekKey>
+ * - If ALL expected games have winners, awards weeksWon + money payouts
+ */
 async function computeAndSaveWinners(weekKey) {
   const winSnap = await get(ref(db, `winners/${weekKey}/games`));
   if (!winSnap.exists()) return { ran:false, reason:'no winners yet' };
@@ -125,7 +119,7 @@ async function computeAndSaveWinners(weekKey) {
   const { houseScores, poolScores, houseWinners, poolWinners } =
     await buildLeaderboards(weekKey, winnersByGame);
 
-  // Always persist the current leaderboards/winners (helps UI live-update)
+  // Persist current leaderboards/winners (so UI can read them)
   const patch = {
     [`winners/${weekKey}/houseLeaderboard`]: houseScores,
     [`winners/${weekKey}/moneyPoolLeaderboard`]: poolScores,
@@ -135,39 +129,29 @@ async function computeAndSaveWinners(weekKey) {
   };
   await update(ref(db), patch);
 
-  // Flexible completion check (supports weeks with fewer than 16 games)
+  // Only award when all expected winners are set (supports <16 games)
   const expectedKeys = await getExpectedGameKeys(weekKey, winnersByGame);
   const complete = winnersComplete(winnersByGame, expectedKeys);
 
-  // NEW: only award when week is complete AND global lock is ON
-  const locked = await isGlobalLockOn();
+  if (!complete) {
+    return { ran:true, awarded:false, reason:'winners incomplete' };
+  }
 
-  if (complete && locked) {
+  const { pot, payoutPerWinner, updatedUsers } =
     await awardWeekPayoutsAndWins(weekKey, houseWinners, poolWinners);
-  }
 
-  return { ran:true, complete, locked };
+  return { ran:true, awarded:true, pot, payoutPerWinner, updatedUsers };
 }
 
-/** Check settings/lockAllPicks (fallback to settings/picksLocked) */
-async function isGlobalLockOn() {
-  try {
-    const lockSnap = await get(ref(db, 'settings/lockAllPicks'));
-    if (lockSnap.exists()) return !!lockSnap.val();
-
-    const legacy = await get(ref(db, 'settings/picksLocked'));
-    return legacy.exists() ? !!legacy.val() : false;
-  } catch {
-    return false;
-  }
-}
-
-// --- backfill-aware awarder: grants missing awards even if awardedStats=true ---
+/* -------- award weeksWon + money-pool payout ----- */
+/* Idempotent: per-user award flag prevents double credit. */
 async function awardWeekPayoutsAndWins(weekKey, houseWinners = [], poolWinners = []) {
-  // Admin gate
-  if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return;
+  // Admin gate (must be signed in as admin to award)
+  if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) {
+    return { pot:0, payoutPerWinner:0, updatedUsers:[] };
+  }
 
-  // Compute the pot and per-winner payout (split on ties in the pool)
+  // Pot from subscriberPools
   const membersSnap = await get(ref(db, `subscriberPools/${weekKey}/members`));
   const members = membersSnap.exists() ? (membersSnap.val() || {}) : {};
   const memberCount = Object.values(members).filter(Boolean).length;
@@ -176,75 +160,60 @@ async function awardWeekPayoutsAndWins(weekKey, houseWinners = [], poolWinners =
   const mpCount = poolWinners.length;
   const payoutPerWinner = mpCount > 0 ? Math.floor(pot / mpCount) : 0;
 
-  // We’ll award both house and pool winners a +1 weeksWon (union),
-  // and only pool winners receive the payout to totalWon.
   const allWinners = [...new Set([...houseWinners, ...poolWinners])];
 
-  // Build updates ONLY for winners who are missing the award for this week
   const updates = {};
-  let didAnyUpdate = false;
+  const updatedUsers = [];
 
   for (const uid of allWinners) {
-    // Per-user idempotency: skip if user already has this week's award flag.
+    // skip if this user already got this week's award
     const hasAwardSnap = await get(ref(db, `users/${uid}/awards/${weekKey}`));
     if (hasAwardSnap.exists()) continue;
 
     // weeksWon +1
-    const weeksSnap = await get(ref(db, `users/${uid}/stats/weeksWon`));
-    const curWeeks = weeksSnap.exists() ? (Number(weeksSnap.val()) || 0) : 0;
-    updates[`users/${uid}/stats/weeksWon`] = curWeeks + 1;
+    const wSnap = await get(ref(db, `users/${uid}/stats/weeksWon`));
+    const curW = wSnap.exists() ? toNum(wSnap.val()) : 0;
+    updates[`users/${uid}/stats/weeksWon`] = curW + 1;
 
-    // money pool payout only if they’re in the pool winners list
+    // money pool payout only for pool winners
     if (poolWinners.includes(uid)) {
-      const wonSnap = await get(ref(db, `users/${uid}/stats/totalWon`));
-      const curWon = wonSnap.exists() ? (Number(wonSnap.val()) || 0) : 0;
-      updates[`users/${uid}/stats/totalWon`] = curWon + payoutPerWinner;
+      const tSnap = await get(ref(db, `users/${uid}/stats/totalWon`));
+      const curT = tSnap.exists() ? toNum(tSnap.val()) : 0;
+      updates[`users/${uid}/stats/totalWon`] = curT + payoutPerWinner;
     }
 
-    // mark the per-user award flag
+    // per-user award flag
     updates[`users/${uid}/awards/${weekKey}`] = true;
-
-    didAnyUpdate = true;
+    updatedUsers.push(uid);
   }
 
-  // Always write bookkeeping values; harmless to overwrite
+  // bookkeeping
   updates[`winners/${weekKey}/pot`] = pot;
   updates[`winners/${weekKey}/payoutPerWinner`] = payoutPerWinner;
+  updates[`winners/${weekKey}/awardedStats`] = true; // coarse flag; safe to keep true
 
-  // Keep the coarse flag true to signal “we’ve processed this week”,
-  // but thanks to the per-user check above, re-running is safe.
-  updates[`winners/${weekKey}/awardedStats`] = true;
-
-  if (didAnyUpdate) {
+  if (updatedUsers.length > 0) {
     await update(ref(db), updates);
   } else {
-    // Still persist pot/payout even if no one needed updates
+    // still record pot/payout even if no one needed updates
     await update(ref(db), {
       [`winners/${weekKey}/pot`]: pot,
       [`winners/${weekKey}/payoutPerWinner`]: payoutPerWinner,
-      [`winners/${weekKey}/awardedStats`]: true,
+      [`winners/${weekKey}/awardedStats`]: true
     });
   }
+
+  return { pot, payoutPerWinner, updatedUsers };
 }
 
-/* ------- legacy helper (kept for compat) -------- */
-async function awardWeekWinsOnce() {
-  // No-op now; handled in awardWeekPayoutsAndWins
-  return;
-}
-
-/* -------- live watch / manual finalize ----------- */
-let _unsubscribe;
-export function watchAndFinalizeWeek(weekKey) {
-  if (_unsubscribe) off(ref(db, `winners/${weekKey}/games`), _unsubscribe);
-  const cb = async () => {
-    try { await computeAndSaveWinners(weekKey); }
-    catch (e) { console.warn('computeAndSaveWinners error:', e); }
-  };
-  _unsubscribe = onValue(ref(db, `winners/${weekKey}/games`), cb);
-}
-
+/* -------- manual-only finalize (admin console) --- */
 export async function finalizeWeekOnce(weekKey) {
   try { return await computeAndSaveWinners(weekKey); }
   catch (e) { console.warn('finalizeWeekOnce error:', e); return { ran:false, reason:String(e) }; }
+}
+
+/* -------- disabled live watcher (no-op) ---------- */
+/* Keep export for compatibility; does nothing. */
+export function watchAndFinalizeWeek() {
+  // intentionally no-op: finalize is manual via admin console
 }
