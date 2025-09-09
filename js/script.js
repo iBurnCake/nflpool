@@ -6,7 +6,8 @@ import {
   onAuthStateChanged,
   db,
   ref,
-  get
+  get,
+  update
 } from './firebaseConfig.js';
 
 import { refreshCurrentWeek, CURRENT_WEEK } from './settings.js';
@@ -118,8 +119,14 @@ async function handleSuccessfulLogin(user) {
   if (loginSection) loginSection.style.display = 'none';
   if (homeSection) homeSection.style.display = 'block';
 
-  // Welcome name
+  // Friendly name (and persist it for members page, etc.)
   const displayName = getNameByEmail(user.email);
+  try {
+    await update(ref(db, `users/${user.uid}`), { displayName });
+  } catch (e) {
+    console.warn('Failed to persist displayName:', e);
+  }
+
   const nameEl = document.getElementById('usernameDisplay');
   if (nameEl) nameEl.textContent = displayName;
 
