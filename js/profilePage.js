@@ -1,14 +1,7 @@
 // js/profilePage.js
 import {
-  auth,
-  db,
-  signInWithPopup,
-  GoogleAuthProvider,
-  ref,
-  get,
-  set,
-  update,
-  onAuthStateChanged,
+  auth, db, signInWithPopup, GoogleAuthProvider,
+  ref, get, update, onAuthStateChanged
 } from './firebaseConfig.js';
 
 import { getNameByEmail, loadUsernameColor, loadProfilePic } from './profiles.js';
@@ -27,6 +20,7 @@ function formatUSD(n) {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
   } catch { return `$${Math.round(n || 0)}`; }
 }
+const toNum = (x) => (typeof x === 'number') ? x : Number(x) || 0;
 
 // ---------- Auth wiring ----------
 document.addEventListener('DOMContentLoaded', () => {
@@ -65,9 +59,16 @@ async function showProfile(user) {
   hide(document.getElementById('loginSection'));
   show(getProfileRoot());
 
-  // Name
+  // Friendly display name
   const displayName = getNameByEmail(user.email);
   setText('usernameDisplay', displayName);
+
+  // Persist friendly name for Members page (safe here; user defined)
+  try {
+    await update(ref(db, `users/${user.uid}`), { displayName });
+  } catch (e) {
+    console.warn('Could not persist displayName', e);
+  }
 
   // Username color + logo preview
   loadUsernameColor(user.uid);
@@ -79,7 +80,7 @@ async function showProfile(user) {
   // Banner picker
   await renderBannerPicker(user);
 
-  // Stats (will compute totalStaked from subscriberPools if missing)
+  // Stats (compute fallbacks from pools + winners if missing)
   await loadUserStats(user.uid);
 }
 
@@ -164,20 +165,18 @@ function normalize(u) {
 // ---------- Stakes helper ----------
 const POOL_ENTRY_DOLLARS = 5;
 
-// Replace your existing calcTotalStakedFromPools with this
 async function calcTotalStakedFromPools(uid) {
   try {
     const snap = await get(ref(db, 'subscriberPools'));
     if (!snap.exists()) return 0;
 
     const pools = snap.val() || {};
-    const STAKE = 5;            // dollars per member per week
     let total = 0;
 
-    for (const [weekKey, weekNode] of Object.entries(pools)) {
+    for (const weekNode of Object.values(pools)) {
       const members = weekNode && weekNode.members ? weekNode.members : null;
       if (members && typeof members === 'object' && members[uid]) {
-        total += STAKE;
+        total += POOL_ENTRY_DOLLARS;
       }
     }
     return total;
@@ -187,8 +186,35 @@ async function calcTotalStakedFromPools(uid) {
   }
 }
 
+// ---------- Winners backfill helpers ----------
+async function fetchWinnersRoot() {
+  const snap = await get(ref(db, 'winners'));
+  return snap.exists() ? (snap.val() || {}) : {};
+}
+
+/** For a single user, compute fallback totalWon and weeksWon from /winners. */
+function computeBackfillFromWinners(winnersRoot, uid) {
+  let totalWon = 0;
+  let weeksWon = 0;
+
+  for (const node of Object.values(winnersRoot || {})) {
+    if (!node || typeof node !== 'object') continue;
+
+    const houseWinners = Array.isArray(node.houseWinners) ? node.houseWinners : [];
+    const poolWinners  = Array.isArray(node.moneyPoolWinners) ? node.moneyPoolWinners : [];
+    const payout       = Number(node.payoutPerWinner) || 0;
+
+    const inHouse = houseWinners.includes(uid);
+    const inPool  = poolWinners.includes(uid);
+
+    if (inHouse || inPool) weeksWon += 1;
+    if (inPool) totalWon += payout;
+  }
+  return { totalWon, weeksWon };
+}
+
 async function loadUserStats(uid) {
-  // 1) Get existing stats (if any)
+  // 1) Read existing stats (if any)
   let stats = {};
   try {
     const snap = await get(ref(db, `users/${uid}/stats`));
@@ -197,25 +223,32 @@ async function loadUserStats(uid) {
     console.warn('loadUserStats: could not read user stats', e);
   }
 
-  // 2) Compute staked from subscriberPools via helper
-  const computedStaked = await calcTotalStakedFromPools(uid);
+  // 2) Compute fallbacks
+  const [computedStaked, winnersRoot] = await Promise.all([
+    calcTotalStakedFromPools(uid),
+    fetchWinnersRoot(),
+  ]);
+  const { totalWon: fallbackWon, weeksWon: fallbackWeeks } = computeBackfillFromWinners(winnersRoot, uid);
 
-  // Prefer explicit value in DB if > 0, else use computed
+  // Prefer explicit DB values if > 0, else use computed/backfill
   const totalStaked =
-    Number.isFinite(Number(stats.totalStaked)) && Number(stats.totalStaked) > 0
-      ? Number(stats.totalStaked)
-      : computedStaked;
+    toNum(stats.totalStaked) > 0 ? toNum(stats.totalStaked) : computedStaked;
 
-  const totalWon  = Number(stats.totalWon) || 0;
-  const weeksWon  = Number(stats.weeksWon) ||  0;
+  const totalWon =
+    toNum(stats.totalWon) > 0 ? toNum(stats.totalWon) : fallbackWon;
 
-  // 3) If DB had 0/missing but we computed > 0, persist it back
-  if ((!stats.totalStaked || Number(stats.totalStaked) === 0) && computedStaked > 0) {
-    try {
-      await update(ref(db, `users/${uid}/stats`), { totalStaked: computedStaked });
-    } catch (e) {
-      console.warn('loadUserStats: could not write back totalStaked', e);
-    }
+  const weeksWon =
+    toNum(stats.weeksWon) > 0 ? toNum(stats.weeksWon) : fallbackWeeks;
+
+  // 3) If DB had 0/missing but we computed > 0, persist them back for convenience
+  const patch = {};
+  if (toNum(stats.totalStaked) === 0 && computedStaked > 0) patch.totalStaked = computedStaked;
+  if (toNum(stats.totalWon)   === 0 && fallbackWon    > 0) patch.totalWon    = fallbackWon;
+  if (toNum(stats.weeksWon)   === 0 && fallbackWeeks  > 0) patch.weeksWon    = fallbackWeeks;
+
+  if (Object.keys(patch).length) {
+    try { await update(ref(db, `users/${uid}/stats`), patch); }
+    catch (e) { console.warn('loadUserStats: could not write back stats', e); }
   }
 
   // 4) Update UI
