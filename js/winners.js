@@ -135,16 +135,31 @@ async function computeAndSaveWinners(weekKey) {
   };
   await update(ref(db), patch);
 
-  // Flexible completion check (supports <16 games)
+  // Flexible completion check (supports weeks with fewer than 16 games)
   const expectedKeys = await getExpectedGameKeys(weekKey, winnersByGame);
   const complete = winnersComplete(winnersByGame, expectedKeys);
 
-  // Only award when all expected winners are set — no early payouts
-  if (complete) {
+  // NEW: only award when week is complete AND global lock is ON
+  const locked = await isGlobalLockOn();
+
+  if (complete && locked) {
     await awardWeekPayoutsAndWins(weekKey, houseWinners, poolWinners);
   }
 
-  return { ran:true };
+  return { ran:true, complete, locked };
+}
+
+/** Check settings/lockAllPicks (fallback to settings/picksLocked) */
+async function isGlobalLockOn() {
+  try {
+    const lockSnap = await get(ref(db, 'settings/lockAllPicks'));
+    if (lockSnap.exists()) return !!lockSnap.val();
+
+    const legacy = await get(ref(db, 'settings/picksLocked'));
+    return legacy.exists() ? !!legacy.val() : false;
+  } catch {
+    return false;
+  }
 }
 
 // --- backfill-aware awarder: grants missing awards even if awardedStats=true ---
