@@ -1,4 +1,3 @@
-// js/normalizeUser.js
 import { db, ref, get, update, auth } from './firebaseConfig.js';
 import { getNameByEmail } from './profiles.js';
 
@@ -10,14 +9,12 @@ export async function normalizeUserDoc(uid){
   const v = snap.val() || {};
   const patch = {};
 
-  // --- Seed email & displayName if missing/old ---
   const email = auth.currentUser?.email || v.email || '';
   if (email && v.email !== email) patch.email = email;
 
   const displayName = email ? getNameByEmail(email) : null;
   if (displayName && !v.displayName) patch.displayName = displayName;
 
-  // --- Keep stats numeric ---
   const s = v.stats ?? {};
   const toNum = (x) => (typeof x === 'number' ? x : Number(x) || 0);
   const fixedStats = {
@@ -27,10 +24,10 @@ export async function normalizeUserDoc(uid){
   };
   if (JSON.stringify(s) !== JSON.stringify(fixedStats)) patch.stats = fixedStats;
 
-  // --- Clean empty banner ---
   if (v.profileBanner === '') patch.profileBanner = null;
 
   if (Object.keys(patch).length) {
     await update(uref, patch);
   }
 }
+
