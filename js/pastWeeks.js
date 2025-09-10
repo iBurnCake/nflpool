@@ -57,7 +57,6 @@ async function getWinnersNode(weekKey) {
   let games = gamesSnap.exists() ? (gamesSnap.val() || {}) : {};
   let label = labelSnap.exists() ? labelSnap.val() : null;
 
-  // If the /games child doesn't exist, peek at the whole node
   if (!gamesSnap.exists()) {
     const whole = await get(ref(db, `winners/${weekKey}`));
     if (whole.exists()) {
@@ -67,7 +66,6 @@ async function getWinnersNode(weekKey) {
     }
   }
 
-  // If no winners label, check settings/countdown for the current week's friendly label
   if (!label && cdSnap.exists()) {
     const cd = cdSnap.val() || {};
     if (String(cd.currentWeek) === String(weekKey) && cd.currentWeekLabel) {
@@ -75,7 +73,6 @@ async function getWinnersNode(weekKey) {
     }
   }
 
-  // Final fallback: pretty-print the key
   if (!label) label = prettyWeek(weekKey);
 
   return { games, label };
