@@ -1,4 +1,3 @@
-// js/moneyPool.js
 import { auth, onAuthStateChanged, db, ref, get, update } from './firebaseConfig.js';
 import { showLoader, hideLoader } from './loader.js';
 import { clearBootLoader, setBootMessage } from './boot.js';
@@ -18,15 +17,11 @@ function setWeekLabel(weekKey, weekLabel) {
   if (el) el.textContent = `— ${weekLabel || weekKey}`;
 }
 
-// map any winner shape to a plain string
 const winnerString = (v) =>
   (typeof v === 'string') ? v : (v && (v.winner || v.team || v.name)) || '';
 
 const games = [
-  // Thu
   { homeTeam: 'Packers',   awayTeam: 'Commanders', homeRecord: '1-0', awayRecord: '1-0' },
-
-  // Sun 1:00 ET
   { homeTeam: 'Bengals',   awayTeam: 'Jaguars',    homeRecord: '1-0', awayRecord: '1-0' },
   { homeTeam: 'Cowboys',   awayTeam: 'Giants',     homeRecord: '0-1', awayRecord: '0-1' },
   { homeTeam: 'Lions',     awayTeam: 'Bears',      homeRecord: '0-1', awayRecord: '0-1' },
@@ -36,16 +31,12 @@ const games = [
   { homeTeam: 'Jets',      awayTeam: 'Bills',      homeRecord: '0-1', awayRecord: '1-0' },
   { homeTeam: 'Steelers',  awayTeam: 'Seahawks',   homeRecord: '1-0', awayRecord: '0-1' },
   { homeTeam: 'Ravens',    awayTeam: 'Browns',     homeRecord: '0-1', awayRecord: '0-1' },
-
-  // Sun late window
-  { homeTeam: 'Colts',     awayTeam: 'Broncos',    homeRecord: '1-0', awayRecord: '1-0' }, // 4:05
-  { homeTeam: 'Cardinals', awayTeam: 'Panthers',   homeRecord: '1-0', awayRecord: '0-1' }, // 4:05
-  { homeTeam: 'Chiefs',    awayTeam: 'Eagles',     homeRecord: '0-1', awayRecord: '1-0' }, // 4:25
-  { homeTeam: 'Vikings',   awayTeam: 'Falcons',    homeRecord: '1-0', awayRecord: '0-1' }, // 8:20
-
-  // Mon
-  { homeTeam: 'Texans',    awayTeam: 'Buccaneers', homeRecord: '0-1', awayRecord: '1-0' }, // 7:00
-  { homeTeam: 'Chargers',  awayTeam: 'Raiders',    homeRecord: '1-0', awayRecord: '1-0' }, // 10:00
+  { homeTeam: 'Colts',     awayTeam: 'Broncos',    homeRecord: '1-0', awayRecord: '1-0' }, 
+  { homeTeam: 'Cardinals', awayTeam: 'Panthers',   homeRecord: '1-0', awayRecord: '0-1' }, 
+  { homeTeam: 'Chiefs',    awayTeam: 'Eagles',     homeRecord: '0-1', awayRecord: '1-0' }, 
+  { homeTeam: 'Vikings',   awayTeam: 'Falcons',    homeRecord: '1-0', awayRecord: '0-1' }, 
+  { homeTeam: 'Texans',    awayTeam: 'Buccaneers', homeRecord: '0-1', awayRecord: '1-0' }, 
+  { homeTeam: 'Chargers',  awayTeam: 'Raiders',    homeRecord: '1-0', awayRecord: '1-0' }, 
 ];
 
 async function getSettings() {
@@ -61,7 +52,6 @@ async function getSettings() {
 }
 
 async function loadWinnersForWeek(weekKey) {
-  // Prefer winners/<weekKey>/games, fallback to winners/<weekKey>.games
   const s = await get(ref(db, `winners/${weekKey}/games`));
   let raw = {};
   if (s.exists()) raw = s.val() || {};
@@ -69,7 +59,6 @@ async function loadWinnersForWeek(weekKey) {
     const t = await get(ref(db, `winners/${weekKey}`));
     raw = t.exists() ? (t.val().games ?? {}) : {};
   }
-  // normalize to plain strings
   const out = {};
   for (const [k, v] of Object.entries(raw)) out[k] = winnerString(v);
   return out;
