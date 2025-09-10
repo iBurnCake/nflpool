@@ -97,6 +97,7 @@ function getUserName(userId) {
     'VnBOWzUZh7UAon6NJ6ICX1kVlEE2': 'Connor Moore',
     'pJxZh3lsp9a0MpKVPSHvyIfNTwW2': 'Mel',
     '154NpbRIlUQyKwyDjsuW2k4J5Io2': 'Brayden Trunnell',
+    'PaHlsxdFFMRRbd4YurMdAsfaFhe2': 'Gavin Munoz',
   };
   return userMap[userId] || `User ${userId}`;
 }
