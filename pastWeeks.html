@@ -4,25 +4,57 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Past Weeks</title>
+
+  <!-- No-flash bootloader (before any other CSS/JS) -->
+  <style id="bootCss">
+    html { background:#121212; }
+    html.app-boot body > * { visibility: hidden; }
+    html.app-boot #appBootLoader { visibility: visible; }
+    #appBootLoader {
+      position: fixed; inset: 0; z-index: 9999;
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(12,12,12,.96);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    }
+    #appBootLoader .box { text-align:center; }
+    #appBootLoader .txt { margin-top:10px; font-weight:700; color:#FFD700; }
+    #appBootLoader .spin {
+      width:48px; height:48px; border-radius:50%;
+      border:4px solid #2b2b2b; border-top-color:#FFD700;
+      animation: bootSpin 1s linear infinite; margin:0 auto;
+    }
+    @keyframes bootSpin { to { transform: rotate(360deg); } }
+  </style>
+  <script>document.documentElement.classList.add('app-boot');</script>
+
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/pastWeeks.css" />
 </head>
 <body>
-    <main class="pw-main">
-        <div class="pw-titlebox">
-          <h1 class="pw-title">Past Weeks</h1>
-      
-          <div class="pw-actions">
-            <button id="backToPicksBtn" class="btn back-to-home">Back to Picks</button>      
-        <div id="pw-status" style="text-align:center;"></div>
-        <div id="pastWeeksContainer"></div>
-      </main>
-      
-      <script type="module" src="js/pastWeeks.js"></script>
-      <script>
-        document.getElementById('backToPicksBtn')
-          .addEventListener('click', () => (window.location.href = 'index.html'));
-      </script>      
-  </body>
-  
+  <!-- Boot overlay -->
+  <div id="appBootLoader" role="status" aria-live="polite" aria-busy="true">
+    <div class="box">
+      <div class="spin"></div>
+      <div class="txt" id="appBootMsg">Loading…</div>
+    </div>
+  </div>
+
+  <main class="pw-main">
+    <div class="pw-titlebox">
+      <h1 class="pw-title">Past Weeks</h1>
+      <div class="pw-actions">
+        <button id="backToPicksBtn" class="btn back-to-home">Back to Picks</button>
+      </div>
+    </div>
+
+    <div id="pw-status" style="text-align:center;"></div>
+    <div id="pastWeeksContainer"></div>
+  </main>
+
+  <script type="module" src="js/pastWeeks.js"></script>
+  <script>
+    document.getElementById('backToPicksBtn')
+      .addEventListener('click', () => (window.location.href = 'index.html'));
+  </script>
+</body>
 </html>
