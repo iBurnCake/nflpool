@@ -1,4 +1,3 @@
-// js/pastWeeks.js
 import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
 import { showLoader, hideLoader } from './loader.js';
 import { clearBootLoader, setBootMessage } from './boot.js';
@@ -53,11 +52,10 @@ function prettyWeek(key) {
 }
 
 async function getWinnersNode(weekKey) {
-  // winners label + games
   const [gamesSnap, labelSnap, cdSnap] = await Promise.all([
     get(ref(db, `winners/${weekKey}/games`)),
     get(ref(db, `winners/${weekKey}/label`)),
-    get(ref(db, 'settings/countdown'))  // { currentWeek, currentWeekLabel }
+    get(ref(db, 'settings/countdown')) 
   ]);
 
   let games = gamesSnap.exists() ? (gamesSnap.val() || {}) : {};
@@ -72,7 +70,6 @@ async function getWinnersNode(weekKey) {
     }
   }
 
-  // Try pulling label from settings/countdown if it matches this week
   if (!label && cdSnap.exists()) {
     const cd = cdSnap.val() || {};
     if (String(cd.currentWeek) === String(weekKey) && cd.currentWeekLabel) {
@@ -82,7 +79,6 @@ async function getWinnersNode(weekKey) {
 
   if (!label) label = prettyWeek(weekKey);
 
-  // Normalize winners -> plain strings
   const normGames = {};
   for (const [k, v] of Object.entries(games || {})) {
     normGames[k] = winnerString(v);
