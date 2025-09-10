@@ -70,17 +70,16 @@ th {
     color: #fff !important;
 }
 
-/* Countdown widget */
 #lock-countdown-widget {
   position: fixed;
   top: 12px;
   left: 12px;
   z-index: 9999;
-  pointer-events: none; /* so it doesn't block clicks underneath */
+  pointer-events: none; 
 }
 
 #lock-countdown-widget .cd-box {
-  pointer-events: auto;         /* allow selecting text if needed */
+  pointer-events: auto;     
   display: inline-flex;
   gap: 8px;
   align-items: baseline;
@@ -135,7 +134,6 @@ th {
     }
 }
 
-/* Minimal table-top lock notice */
 .lock-notice {
   background: transparent;
   color: #e11d21 !important;
@@ -148,10 +146,8 @@ th {
 
 #drawer-root { display: none !important; }
 
-/* Money pool pill */
 #poolTotalCard { display: none !important; }
 
-/* Common countdown names; keep any that match your DOM */
 #countdown,
 #countdownContainer,
 #picksLockPill,
