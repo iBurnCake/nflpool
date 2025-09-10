@@ -1,4 +1,3 @@
-// js/profilePage.js
 import {
   auth, db, signInWithPopup, GoogleAuthProvider,
   ref, get, update, onAuthStateChanged
@@ -8,7 +7,6 @@ import { getNameByEmail, loadUsernameColor, loadProfilePic } from './profiles.js
 import { renderTeamLogoPicker } from './teams.js';
 import { BANNERS } from './banners.js';
 
-// ---------- Helpers ----------
 function getProfileRoot() {
   return document.getElementById('profilePage') || document.getElementById('profileSection');
 }
@@ -22,7 +20,6 @@ function formatUSD(n) {
 }
 const toNum = (x) => (typeof x === 'number') ? x : Number(x) || 0;
 
-// ---------- Auth wiring ----------
 document.addEventListener('DOMContentLoaded', () => {
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
@@ -59,7 +56,6 @@ async function showProfile(user) {
   hide(document.getElementById('loginSection'));
   show(getProfileRoot());
 
-  // Friendly display name (safe to persist)
   const displayName = getNameByEmail(user.email);
   setText('usernameDisplay', displayName);
   try {
@@ -68,21 +64,16 @@ async function showProfile(user) {
     console.warn('Could not persist displayName', e);
   }
 
-  // Username color + logo preview
   loadUsernameColor(user.uid);
   loadProfilePic(user.uid);
 
-  // Team logo picker grid
   renderTeamLogoPicker({ containerId: 'logoSelection', previewId: 'profilePicPreview' });
 
-  // Banner picker
   await renderBannerPicker(user);
 
-  // Stats (READ-ONLY: compute from DB, do NOT write)
   await renderUserStats(user.uid);
 }
 
-// ---------- Banner picker (stores both URL and ID) ----------
 async function renderBannerPicker(user) {
   const root = document.getElementById('bannerSelection');
   const hero = document.getElementById('profileHero');
@@ -151,7 +142,6 @@ function normalize(u) {
   }
 }
 
-// ---------- READ-ONLY stats rendering ----------
 const POOL_ENTRY_DOLLARS = 5;
 
 async function calcTotalStakedFromPools(uid) {
@@ -178,7 +168,6 @@ async function fetchWinnersRoot() {
   return snap.exists() ? (snap.val() || {}) : {};
 }
 
-/** Only count weeks where winners were finalized (awardedStats === true). */
 function computeFromWinnersFinalized(winnersRoot, uid) {
   let totalWon = 0;
   let weeksWon = 0;
@@ -200,7 +189,6 @@ function computeFromWinnersFinalized(winnersRoot, uid) {
 }
 
 async function renderUserStats(uid) {
-  // Read stored stats (never mutate them here)
   let stats = {};
   try {
     const snap = await get(ref(db, `users/${uid}/stats`));
@@ -209,21 +197,19 @@ async function renderUserStats(uid) {
     console.warn('renderUserStats: could not read user stats', e);
   }
 
-  // Compute “display-only” fallbacks (no DB writes)
   const [computedStaked, winnersRoot] = await Promise.all([
     calcTotalStakedFromPools(uid),
     fetchWinnersRoot(),
   ]);
   const { totalWon: calcWon, weeksWon: calcWeeks } = computeFromWinnersFinalized(winnersRoot, uid);
 
-  // Prefer stored values if present; otherwise use computed display values
   const totalStaked = toNum(stats.totalStaked) > 0 ? toNum(stats.totalStaked) : computedStaked;
   const totalWon    = toNum(stats.totalWon)   > 0 ? toNum(stats.totalWon)   : calcWon;
   const weeksWon    = toNum(stats.weeksWon)   > 0 ? toNum(stats.weeksWon)   : calcWeeks;
 
-  // Update UI only
   setText('statWeeksWon', weeksWon || '—');
   setText('statTotalWon', formatUSD(totalWon));
   setText('statTotalStaked', formatUSD(totalStaked));
   setText('statNet', formatUSD(totalWon - totalStaked));
 }
+
