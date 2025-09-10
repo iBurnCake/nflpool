@@ -23,7 +23,6 @@ function formatUSD(n) {
 const toNum = (x) => (typeof x === 'number') ? x : Number(x) || 0;
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Start boot/loader immediately
   setBootMessage('Loading profile…');
   showLoader('Loading profile…');
 
@@ -39,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('There was an error loading your profile.');
     } finally {
       hideLoader();
-      clearBootLoader(); // remove .app-boot + boot overlay
+      clearBootLoader(); 
     }
   });
 
@@ -87,7 +86,6 @@ async function showProfile(user) {
   await renderUserStats(user.uid);
 }
 
-// ---------- Banner picker ----------
 async function renderBannerPicker(user) {
   const root = document.getElementById('bannerSelection');
   const hero = document.getElementById('profileHero');
@@ -156,7 +154,6 @@ function normalize(u) {
   }
 }
 
-// ---------- Stats ----------
 const POOL_ENTRY_DOLLARS = 5;
 
 async function calcTotalStakedFromPools(uid) {
@@ -227,3 +224,4 @@ async function renderUserStats(uid) {
   setText('statTotalStaked', formatUSD(totalStaked));
   setText('statNet', formatUSD(totalWon - totalStaked));
 }
+
