@@ -5,9 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>2025 NFL Confidence Pool | Make Your Picks. Compete. Win.</title>
   <meta name="description" content="Jump into the 2025 NFL Confidence Pool! Pick every NFL game, assign confidence points, customize your look, and battle for the top spot each week. Super clean design, instant results, and easy Google login.">
+
+  <!-- No-flash bootloader (before any CSS/JS) -->
+  <style id="bootCss">
+    html { background:#121212; }
+    html.app-boot body > * { visibility: hidden; }
+    html.app-boot #appBootLoader { visibility: visible; }
+    #appBootLoader {
+      position: fixed; inset: 0; z-index: 9999;
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(12,12,12,.96);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    }
+    #appBootLoader .box { text-align:center; }
+    #appBootLoader .txt { margin-top:10px; font-weight:700; color:#FFD700; }
+    #appBootLoader .spin {
+      width:48px; height:48px; border-radius:50%;
+      border:4px solid #2b2b2b; border-top-color:#FFD700;
+      animation: bootSpin 1s linear infinite; margin:0 auto;
+    }
+    @keyframes bootSpin { to { transform: rotate(360deg); } }
+  </style>
+  <script>document.documentElement.classList.add('app-boot');</script>
+
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/index.css">
   <link rel="stylesheet" href="css/drawer.css">
+
   <meta property="og:title" content="2025 NFL Confidence Pool" />
   <meta property="og:description" content="Compete in the NFL pick'em with confidence points, slick design, and easy Google login. Weekly leaderboards and team logos. Join the action!" />
   <meta property="og:image" content="https://1000logos.net/wp-content/uploads/2017/05/NFL-Logo-1.jpg" />
@@ -16,78 +40,38 @@
   <link rel="icon" type="image/png" href="images/NFL LOGOS/nfl-logo.jpg">
 
   <style>
-    .settings-container {
-      background-color: #333;
-      color: #fff;
-      padding: 20px;
-      margin: 20px auto;
-      border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-      text-align: center;
-      max-width: 900px;
-      border: 2px solid #FFD700;
-    }
-    .settings-container h2 {
-      margin-bottom: 15px;
-      font-size: 1.5em;
-      color: #FFD700;
-    }
+    .settings-container { background:#333; color:#fff; padding:20px; margin:20px auto; border-radius:10px; box-shadow:0 4px 6px rgba(0,0,0,.2); text-align:center; max-width:900px; border:2px solid #FFD700; }
+    .settings-container h2 { margin-bottom: 15px; font-size: 1.5em; color: #FFD700; }
 
     #gamesTable { width: 100%; border-collapse: collapse; }
-    #gamesTable thead th {
-      background: #444; color: #FFD700; font-weight: 700;
-      padding: 10px; border: 1px solid #555;
-    }
-    #gamesTable td {
-      padding: 10px; border: 1px solid #444;
-      background: #333; color: #ddd;
-    }
+    #gamesTable thead th { background:#444; color:#FFD700; font-weight:700; padding:10px; border:1px solid #555; }
+    #gamesTable td { padding:10px; border:1px solid #444; background:#333; color:#ddd; }
 
-    .picks-card .picks-actions {
-      margin-top: 12px; padding-top: 12px;
-      border-top: 2px solid #FFD700;
-      display: flex; gap: 10px; justify-content: flex-end;
-    }
+    .picks-card .picks-actions { margin-top:12px; padding-top:12px; border-top:2px solid #FFD700; display:flex; gap:10px; justify-content:flex-end; }
 
-    .cards-grid {
-      max-width: 1200px; margin: 10px auto 0; padding: 0 16px;
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;
-    }
-    .card {
-      display: block; border-radius: 12px; overflow: hidden;
-      border: 2px solid #FFD700; background: #222; text-decoration: none; color: #fff;
-      box-shadow: 0 6px 14px rgba(0,0,0,.25);
-      transition: transform .18s ease, box-shadow .18s ease;
-    }
+    .cards-grid { max-width: 1200px; margin: 10px auto 0; padding: 0 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .card { display:block; border-radius:12px; overflow:hidden; border:2px solid #FFD700; background:#222; text-decoration:none; color:#fff; box-shadow:0 6px 14px rgba(0,0,0,.25); transition: transform .18s ease, box-shadow .18s ease; }
     .card:hover { transform: translateY(-2px); box-shadow: 0 10px 18px rgba(0,0,0,.35); }
-    .card-hero {
-      position: relative;          /* important for overlay badge */
-      height: 110px;
-      background-color: #444;
-      background-size: cover; background-position: center; background-repeat: no-repeat;
-      display:flex; align-items:center; justify-content:center;
-    }
-    .card-hero img {
-      width: 64px; height: 64px; border-radius: 50%;
-      border: 2px solid #FFD700; object-fit: cover; background:#111;
-    }
-    .card-body { padding: 12px 14px 14px; }
-    .card-body h3 { margin: 0 0 6px; color: #FFD700; font-size: 1.1rem; }
-    .card-body p { margin: 0; color: #ddd; line-height: 1.35; }
+    .card-hero { position:relative; height:110px; background:#444 center/cover no-repeat; display:flex; align-items:center; justify-content:center; }
+    .card-hero img { width:64px; height:64px; border-radius:50%; border:2px solid #FFD700; object-fit:cover; background:#111; }
+    .card-body { padding:12px 14px 14px; }
+    .card-body h3 { margin:0 0 6px; color:#FFD700; font-size:1.1rem; }
+    .card-body p { margin:0; color:#ddd; line-height:1.35; }
 
-    /* Money Pool pot badge overlay */
-    .pool-badge {
-      position: absolute; top: 10px; right: 10px;
-      background: rgba(0,0,0,.7);
-      border: 1px solid #FFD700; border-radius: 10px;
-      padding: 6px 10px; color:#FFD700; font-weight: 800;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .pool-badge .label { font-size: 12px; opacity: .9; }
-    .pool-badge .value { font-size: 16px; color: #fff; }
+    .pool-badge { position:absolute; top:10px; right:10px; background:rgba(0,0,0,.7); border:1px solid #FFD700; border-radius:10px; padding:6px 10px; color:#FFD700; font-weight:800; display:flex; align-items:center; gap:8px; }
+    .pool-badge .label { font-size:12px; opacity:.9; }
+    .pool-badge .value { font-size:16px; color:#fff; }
   </style>
 </head>
 <body>
+  <!-- Boot overlay -->
+  <div id="appBootLoader" role="status" aria-live="polite" aria-busy="true">
+    <div class="box">
+      <div class="spin"></div>
+      <div class="txt" id="appBootMsg">Loading…</div>
+    </div>
+  </div>
+
   <div id="loginSection">
     <div class="login-container">
       <h2>2025 NFL Confidence Pool</h2>
@@ -127,11 +111,8 @@
         </div>
       </a>
 
-      <!-- Money Pool card with overlay pot badge target -->
       <a class="card" href="moneyPool.html">
-        <div class="card-hero" id="moneyPoolHero" style="background-image:url('images/cards/card-moneypool.jpg');">
-          <!-- badge will be injected here by moneyPoolPotBadge.js -->
-        </div>
+        <div class="card-hero" id="moneyPoolHero" style="background-image:url('images/cards/card-moneypool.jpg');"></div>
         <div class="card-body">
           <h3>Money Pool</h3>
           <p>Total pot & members.</p>
@@ -160,10 +141,9 @@
         <div class="card-body">
           <h3>Rules & Info</h3>
           <p>How everything works.</p>
-          </div>
+        </div>
       </a>
 
-      <!-- Admin-only card (shown via js/adminGate.js) -->
       <a id="adminCard" class="card" href="admin.html" style="display:none;">
         <div class="card-hero" style="background-image:url('images/cards/card-adminconsole.jpg');"></div>
         <div class="card-body">
@@ -193,7 +173,7 @@
   <!-- main app logic -->
   <script type="module" src="js/script.js"></script>
 
-  <!-- drawer: tolerate no-default-export -->
+  <!-- drawer init -->
   <script type="module">
     import * as Drawer from './js/drawer.js';
     import { auth } from './js/firebaseConfig.js';
@@ -221,7 +201,6 @@
   <!-- Money Pool pot badge overlay -->
   <script type="module">
     import { initMoneyPoolPotBadge } from './js/moneyPoolPotBadge.js';
-    // will create a badge inside #moneyPoolHero and keep it live-updated
     initMoneyPoolPotBadge({ heroId: 'moneyPoolHero' });
   </script>
 
