@@ -1,8 +1,6 @@
-/* Keep page readable, not zoomed */
 :root { font-size: 16px; }
 body  { line-height: 1.4; }
 
-/* Avatar preview above the grid */
 .profile-avatar {
   display: block;
   margin: 6px auto 0;
@@ -14,7 +12,6 @@ body  { line-height: 1.4; }
   background: #111;
 }
 
-/* Matches what you had before on index.html */
 .profile-pic-selection {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
@@ -51,7 +48,6 @@ body  { line-height: 1.4; }
   border: 3px solid #00BFFF;
 }
 
-/* Username color panel */
 .username-color-box {
   background-color: #1E1E1E;
   border: 2px solid #FFD700;
@@ -80,15 +76,13 @@ body  { line-height: 1.4; }
   color: #bbb;
 }
 
-/* Mobile tweaks */
 @media (max-width: 480px) {
   .profile-avatar { width: 76px; height: 76px; }
   .profile-pic-selection { gap: 12px; padding: 16px 8px 8px; }
 }
 
-/* Small sticky bar inside Profile page */
 .profile-topbar{
-    position: fixed;      /* stays visible while scrolling */
+    position: fixed;     
     top: 1px;
     z-index: 950;
     max-width: 900px;
@@ -99,7 +93,6 @@ body  { line-height: 1.4; }
     gap: 12px;
   }
   
-  /* Button styles (skip if you already have global .btn styles) */
   .profile-topbar .btn{
     border: 0;
     border-radius: 10px;
@@ -114,11 +107,7 @@ body  { line-height: 1.4; }
   .profile-topbar .btn:hover{ filter: brightness(1.05); }
   
   .profile-topbar .btn-green{ background:#2ca24d; }
-  /* if you later add more buttons, you can reuse:
-     .btn-blue{background:#3b6eea;} .btn-teal{background:#1aa4a8;}
-     .btn-purple{background:#7b1fa2;} .btn-orange{background:#f28c1a;} */
 
-/* Banner chooser grid */
 .banner-grid{
   display:grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -146,21 +135,6 @@ body  { line-height: 1.4; }
   transform: scale(1.1);
 }
 
-/* Hero preview /
-.profile-hero{
-  --hero-bg: url("images/banners/banner01.svg"); / fallback /
-  height: 170px;
-  border: 2px solid #FFD700;
-  border-radius: 12px;
-  background-image: var(--hero-bg);
-  background-size: cover;
-  background-position: center;
-  box-shadow: 0 6px 14px rgba(0,0,0,.25);
-  margin: 16px auto;
-  max-width: 900px;
-}
-
-/ Banner grid */
 .banner-grid{
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -209,8 +183,8 @@ body  { line-height: 1.4; }
   color:#bbb;
 }
 
-
 @media (max-width:480px){
   .stats-grid{ grid-template-columns: repeat(2, 1fr); }
   .stat-value{ font-size:20px; }
 }
+
