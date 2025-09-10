@@ -1,9 +1,29 @@
-import { db, ref, get } from './firebaseConfig.js';
+// js/housePicks.js
+import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
+import { showLoader, hideLoader } from './loader.js';
+import { clearBootLoader, setBootMessage } from './boot.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  loadHousePicks().catch(err => console.error('loadHousePicks error:', err));
+  showLoader('Loading House Picks…');
+  onAuthStateChanged(auth, async (user) => {
+    try {
+      if (!user) {
+        // Must be signed in to read winners/scoreboards per your rules.
+        window.location.href = 'index.html';
+        return;
+      }
+      await loadHousePicks();
+    } catch (err) {
+      console.error('loadHousePicks error:', err);
+      const c = document.getElementById('housePicksContainer');
+      if (c) c.innerHTML = '<p>Error loading picks. Please try again later.</p>';
+    } finally {
+      hideLoader();
+    }
+  });
 });
 
+/* --- Week 2 games --- */
 const games = [
   // Thu
   { homeTeam: 'Packers',   awayTeam: 'Commanders', homeRecord: '1-0', awayRecord: '1-0' },
@@ -31,12 +51,14 @@ const games = [
 ];
 
 const norm = s => String(s ?? '').trim().toLowerCase();
+const winnerString = (v) =>
+  (typeof v === 'string') ? v : (v && (v.winner || v.team || v.name)) || '';
 
 async function getCurrentWeekKey() {
   try {
     const snap = await get(ref(db, 'settings/currentWeek'));
     if (snap.exists()) return snap.val();
-  } catch (_) {}
+  } catch {}
   return 'week1';
 }
 
@@ -55,17 +77,24 @@ async function fetchUserData() {
   return map;
 }
 
+/** Return a plain { [idx]: "Team" } map, even if DB stores objects. */
 async function loadWinnersForWeek(weekKey) {
+  // Prefer /winners/<weekKey>/games
   const snap = await get(ref(db, `winners/${weekKey}/games`));
-  if (snap.exists()) return snap.val();
-
-  const all = await get(ref(db, `winners/${weekKey}`));
-  return all.exists() ? (all.val().games ?? {}) : {};
+  let raw = {};
+  if (snap.exists()) {
+    raw = snap.val() || {};
+  } else {
+    const all = await get(ref(db, `winners/${weekKey}`));
+    raw = all.exists() ? (all.val().games ?? {}) : {};
+  }
+  const cleaned = {};
+  for (const [k, v] of Object.entries(raw)) cleaned[k] = winnerString(v);
+  return cleaned;
 }
 
-function calculateTotalScore(userPicks, winners) {
+function calculateTotalScore(userPicks, winnersByIdx) {
   if (!userPicks) return 0;
-  const gamesWinners = winners?.games ?? winners ?? {};
   let total = 0;
 
   for (const idx of Object.keys(userPicks)) {
@@ -73,7 +102,7 @@ function calculateTotalScore(userPicks, winners) {
     if (!pick) continue;
     const chosen = norm(pick.team);
     const pts = Number.parseInt(pick.points ?? 0, 10) || 0;
-    const win = norm(gamesWinners[idx]);
+    const win = norm(winnersByIdx[idx]);
     if (win && chosen === win) total += pts;
   }
   return total;
@@ -104,6 +133,7 @@ function getUserName(userId) {
 
 async function loadHousePicks() {
   const container = document.getElementById('housePicksContainer');
+  if (!container) return;
   container.innerHTML = 'Loading…';
 
   const [weekKey, userDataMap] = await Promise.all([
@@ -111,9 +141,9 @@ async function loadHousePicks() {
     fetchUserData(),
   ]);
 
-  const winners = await loadWinnersForWeek(weekKey);
-
+  const winnersByIdx = await loadWinnersForWeek(weekKey);
   const picksSnap = await get(ref(db, `scoreboards/${weekKey}`));
+
   if (!picksSnap.exists()) {
     container.innerHTML = `<p>No picks submitted for ${weekKey}.</p>`;
     return;
@@ -124,7 +154,7 @@ async function loadHousePicks() {
 
   const userScores = [];
   for (const userId in picksData) {
-    const totalScore = calculateTotalScore(picksData[userId], winners);
+    const totalScore = calculateTotalScore(picksData[userId], winnersByIdx);
     userScores.push({
       userId,
       userName: getUserName(userId),
@@ -145,7 +175,7 @@ async function loadHousePicks() {
       u.totalScore,
       u.usernameColor,
       u.profilePic,
-      winners
+      winnersByIdx
     );
   });
 }
@@ -184,7 +214,7 @@ function createLeaderboardTable(userScores, container) {
   container.appendChild(box);
 }
 
-function createUserPicksTable(userName, userPicks, totalScore, userColor, profilePic, winners) {
+function createUserPicksTable(userName, userPicks, totalScore, userColor, profilePic, winnersByIdx) {
   const housePicksContainer = document.getElementById('housePicksContainer');
   const userContainer = document.createElement('div');
   userContainer.classList.add('user-picks-container');
@@ -213,8 +243,6 @@ function createUserPicksTable(userName, userPicks, totalScore, userColor, profil
   `;
   const tbody = table.querySelector('tbody');
 
-  const winnersMap = winners?.games ?? winners ?? {};
-
   for (const gameIndex in userPicks) {
     const pickData = userPicks[gameIndex];
     const game = games[gameIndex];
@@ -224,7 +252,7 @@ function createUserPicksTable(userName, userPicks, totalScore, userColor, profil
     const chosenTeam = pickData.team || 'N/A';
     const confidencePoints = pickData.points || 0;
 
-    const gameWinner = winnersMap[gameIndex] || '';
+    const gameWinner = winnerString(winnersByIdx[gameIndex]) || '';
     const isCorrectPick = gameWinner && norm(chosenTeam) === norm(gameWinner);
     const pointsEarned = isCorrectPick ? confidencePoints : 0;
 
@@ -252,3 +280,5 @@ function createUserPicksTable(userName, userPicks, totalScore, userColor, profil
   userContainer.appendChild(table);
   housePicksContainer.appendChild(userContainer);
 }
+
+clearBootLoader();
