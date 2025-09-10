@@ -1,8 +1,6 @@
-/* ===== Drawer (hamburger) UI — entirely self-contained ===== */
-
 :root {
-    --drawer-z: 10000;         /* master z-index for the drawer stack */
-    --drawer-size: 64px;       /* hamburger button size */
+    --drawer-z: 10000;        
+    --drawer-size: 64px;       
     --drawer-radius: 16px;
     --drawer-gap: 6px;
     --drawer-accent: #ffd700;
@@ -10,16 +8,14 @@
     --drawer-tile: #333;
     --drawer-text: #fff;
   }
-  
-  /* A fixed, top-level mount so transforms in the page don't affect it */
+
   #drawer-root {
     position: fixed;
     inset: 0;
-    pointer-events: none;      /* only children receive clicks */
+    pointer-events: none;
     z-index: var(--drawer-z);
   }
-  
-  /* Hamburger button (top-left, always visible) */
+
   #drawer-root .drawer-toggle {
     position: fixed;
     top: 16px;
@@ -44,7 +40,6 @@
     display: block;
   }
   
-  /* Slide-out panel */
   #drawer-root .drawer {
     position: fixed;
     top: 0;
@@ -62,7 +57,6 @@
   }
   #drawer-root.open .drawer { transform: translateX(0); }
   
-  /* Backdrop */
   #drawer-root .drawer-backdrop {
     position: fixed;
     inset: 0;
@@ -77,7 +71,6 @@
     pointer-events: auto;
   }
   
-  /* Contents */
   #drawer-root .drawer-header {
     display: flex;
     align-items: center;
@@ -117,7 +110,7 @@
     text-align: left;
   }
   
-  /* Optional: on very narrow screens, slightly smaller button */
   @media (max-width: 420px) {
     :root { --drawer-size: 56px; }
   }
+
