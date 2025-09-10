@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Rules & Acknowledgments • NFL Confidence Pool</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/index.css">
+  <style>
+    body { background: #121212; color: #eee; }
+    .wrap { max-width: 960px; margin: 24px auto 40px; padding: 16px; }
+    .title {
+      display:inline-block; padding:10px 18px; border:2px solid #FFD700; border-radius:10px;
+      background:#222; color:#FFD700; font-weight:800; box-shadow:0 2px 6px rgba(0,0,0,.35);
+    }
+    .topbar { display:flex; gap:10px; align-items:center; margin:12px 0 18px; }
+    .btn { background:#3B7EED; color:#fff; font-weight:700; padding:10px 14px; border-radius:8px; border:0; text-decoration:none; }
+    .btn:hover { background:#1F5B99; }
+    .cardish {
+      border:2px solid #FFD700; border-radius:12px; background:#1e1e1e; box-shadow:0 6px 14px rgba(0,0,0,.25);
+      padding:18px; margin:16px 0;
+    }
+    h2, h3 { color:#FFD700; margin:0 0 8px; }
+    ul { margin:8px 0 0 18px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .grid { display:grid; gap:14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+    .note { opacity:.9; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <a class="btn" href="index.html">← Back to Home</a>
+      <span class="title">Rules & Acknowledgments</span>
+    </div>
+
+    <div class="cardish">
+      <h2>Quick Overview</h2>
+      <ul>
+        <li>Each week you pick every NFL game and assign <b>confidence points</b> (1–16 or however many games that week).</li>
+        <li>Correct picks earn the points you placed on that game. Highest total wins.</li>
+        <li>There are two views:
+          <ul>
+            <li><b>House Picks</b> — shows everyone’s weekly scores and details.</li>
+            <li><b>Money Pool</b> — same scoring, but only for people who opted into the pool.</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <div class="grid">
+      <div class="cardish">
+        <h3>Money Pool</h3>
+        <ul>
+          <li>Entry fee: <span id="fee" class="mono">$5</span> per week, per person.</li>
+          <li>The pot = entrants × fee.</li>
+          <li>When the week is finalized, the <b>top score among pool members</b> wins the pot (ties split).</li>
+          <li><b>Owner fee:</b> 5% of the pot is taken for hosting & maintenance before payout.</li>
+          <li>Net shown on profiles = total won − total staked.</li>
+        </ul>
+      </div>
+
+      <div class="cardish">
+        <h3>House Picks</h3>
+        <ul>
+          <li>Everyone’s picks/points are scored here.</li>
+          <li>Top score(s) get a <b>week win</b> badge on their profile.</li>
+          <li>This page is for bragging rights and history; payouts only apply in the Money Pool.</li>
+        </ul>
+      </div>
+
+      <div class="cardish">
+        <h3>Confidence Points</h3>
+        <ul>
+          <li>Use each number once (1 = least confident, highest number = most confident).</li>
+          <li>If the team you picked wins, you earn the points you placed on that game.</li>
+          <li>Weeks can have fewer than 16 games; points scale to the number of games that week.</li>
+        </ul>
+      </div>
+
+      <div class="cardish">
+        <h3>Locking & Fair Play</h3>
+        <ul>
+          <li>Picks can be edited <b>until lock</b>. Once locked, no edits are allowed.</li>
+          <li>Lock is controlled by the admin and happens at/near the first kickoff.</li>
+          <li>Finalizing results is also done by the admin (after all winners are entered).</li>
+        </ul>
+      </div>
+
+      <div class="cardish">
+        <h3>Profile & Members</h3>
+        <ul>
+          <li>Customize your <b>name color</b>, <b>team avatar</b>, and <b>banner</b> on the Profile page.</li>
+          <li><b>Members</b> shows everyone’s weeks won and net totals.</li>
+          <li><b>Past Weeks</b> lists historical leaderboards so you can look back.</li>
+        </ul>
+      </div>
+
+      <div class="cardish">
+        <h3>Costs & Payouts</h3>
+        <ul>
+          <li>Entry: <span class="mono">$5</span> per person, per week (Money Pool only).</li>
+          <li>Owner fee: <span class="mono">5%</span> of the pot (covers hosting, upkeep, and admin work).</li>
+          <li>Payouts are calculated and posted after the admin finalizes the week.</li>
+        </ul>
+        <p class="note">Example: 12 entrants → pot $60 → owner fee $3 → payout pool $57 → if 1 winner, they get $57; if 3 tied, they split $57.</p>
+      </div>
+    </div>
+
+    <div class="cardish">
+      <h3>Acknowledgments</h3>
+      <p>Site built and maintained with a lot of behind-the-scenes work: game setup, scoring, payments, design, and hosting. Thanks for playing and keeping it fun!</p>
+    </div>
+  </div>
+
+  <script>
+    const ENTRY_FEE = 5, OWNER_FEE_PCT = 5;
+    const feeEl = document.getElementById('fee');
+    if (feeEl) feeEl.textContent = `$${ENTRY_FEE}`;
+  </script>
+</body>
+</html>
