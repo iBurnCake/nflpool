@@ -1,6 +1,3 @@
-/* === Past Weeks — match Money Pool look & add week sections === */
-
-/* Page shell (same width as Money Pool) */
 .pw-main {
     width: min(1400px, 95vw);
     margin: 0 auto;
@@ -11,7 +8,6 @@
     gap: 16px;
   }
   
-  /* Title pill */
   .pw-title {
     display: block;
     margin: 12px 0 6px;
@@ -24,7 +20,6 @@
     text-align: center;
   }
   
-  /* Actions (Back, etc.) */
   .pw-actions {
     display: flex;
     gap: 8px;
@@ -47,20 +42,17 @@
   .pw-actions .btn:hover,
   button.back-to-home:hover { background-color: #1F5B99; }
   
-  /* Container that holds all weeks (vertical stack) */
   #pastWeeksContainer {
     width: 100%;
     display: flex;
     flex-direction: column;
     gap: 28px;
   }
-  
-  /* Single week section */
+
   .week-section {
     width: 100%;
   }
   
-  /* Clickable week header (acts like an accordion button) */
   .week-header {
     width: min(1000px, 100%);
     margin: 0 auto;
@@ -79,25 +71,21 @@
   }
   .week-header:hover { filter: brightness(1.07); }
   
-  /* optional caret icon */
   .week-header .caret { opacity: .8; }
   
-  /* The content area for a week (leaderboard + picks grid) */
   .week-content {
     width: 100%;
     margin-top: 10px;
-    display: block;                 /* change to none if you collapse via JS */
+    display: block;          
   }
   
-  /* Leaderboard centered with readable width */
   .week-content .leaderboardWrapper,
   #leaderboardWrapper {
     width: 100%;
     max-width: 1000px;
     margin: 0 auto;
   }
-  
-  /* Picks grid — 3 across on wide screens, 2 on medium, 1 on small */
+
   .week-content .picks-grid,
   .picks-grid {
     display: grid;
@@ -109,7 +97,6 @@
     margin: 0 auto;
   }
   
-  /* User cards (let grid control width) */
   .user-picks-container {
     background-color: #282828;
     padding: 20px;
@@ -121,7 +108,6 @@
     max-width: 100%;
   }
   
-  /* Reuse leaderboard/user row styles */
   .leaderboard-user {
     display: flex;
     align-items: center;
@@ -131,7 +117,6 @@
     width: 24px; height: 24px; border-radius: 50%; object-fit: cover;
   }
   
-  /* Tables */
   .user-picks-table {
     width: 100%;
     max-width: 100%;
@@ -151,13 +136,12 @@
   .user-picks-table td.correct { color: #28a745; background-color: #333; }
   .user-picks-table td.incorrect { color: #dc3545; background-color: #333; }
   
-  /* Headings + leaderboard table colors */
   .user-header,
   .leaderboard-table th,
   .leaderboard-table td { color: #FFD700; }
 
   .pw-subtitle,
-#pw-subtitle {                  /* id fallback just in case */
+#pw-subtitle {               
   display: inline-block;
   margin: 6px 0 14px;
   padding: 12px 20px;
@@ -176,7 +160,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;                      /* space between title, button, subtitle */
+    gap: 10px;                 
     margin: 8px auto 14px;
     padding: 14px 18px;
     background: rgba(28,28,28,0.92);
@@ -187,7 +171,6 @@
     max-width: 95vw;
   }
   
-  /* Make the title text clean inside the card (no separate pill look) */
   .pw-title {
     margin: 0;
     padding: 0;
@@ -201,7 +184,6 @@
     text-align: center;
   }
   
-  /* Subtitle sits inside the same card */
   .pw-subtitle {
     margin: 0;
     padding: 0;
@@ -214,8 +196,7 @@
     opacity: .95;
     text-align: center;
   }
-  
-  /* Action row keeps the button centered */
+
   .pw-actions {
     display: flex;
     gap: 8px;
@@ -229,15 +210,14 @@
     box-shadow: none !important;
     backdrop-filter: none !important;
   
-    padding: 0;              /* no pill padding */
-    margin: 2px 0 4px;       /* light spacing */
-    color: #FFD700;          /* keep gold text */
+    padding: 0;           
+    margin: 2px 0 4px;     
+    color: #FFD700;        
     font-weight: 700;
     font-size: clamp(18px, 3.2vw, 24px);
     text-align: center;
   }
 
-/* ===== Fancy header (shared with Past Weeks / House Picks) ===== */
 .hp-hero {
   width: min(980px, 92vw);
   margin: 22px auto 8px;
@@ -253,7 +233,6 @@
   gap: 12px;
 }
 
-/* Title (supports your existing .house-picks-title too) */
 .hp-title,
 .house-picks-title {
   margin: 0;
@@ -269,7 +248,6 @@
   box-shadow: none;
 }
 
-/* Optional small subtitle (e.g. “Week 1” or “Pre-Season 3”) */
 .hp-subtitle {
   color: #FFD700;
   opacity: .95;
@@ -277,7 +255,6 @@
   font-weight: 700;
 }
 
-/* Button row */
 .hp-actions {
   display: flex;
   flex-wrap: wrap;
@@ -285,7 +262,6 @@
   justify-content: center;
 }
 
-/* Button styles (replace old id-specific button rules) */
 .btn {
   appearance: none;
   border: 0;
@@ -296,21 +272,19 @@
   cursor: pointer;
   transition: transform .04s ease, box-shadow .2s ease, background-color .2s ease, border-color .2s ease;
   box-shadow: 0 3px 10px rgba(0,0,0,.25);
-  text-decoration: none; /* for <a> buttons */
+  text-decoration: none; 
   display: inline-flex;
   align-items: center;
   gap: 8px;
 }
 .btn:active { transform: translateY(1px); }
 
-/* Primary (blue) */
 .btn-primary {
   background: #3B7EED;
   color: #fff;
 }
 .btn-primary:hover { background: #2f6bcb; }
 
-/* Outline gold (pairs with the black box) */
 .btn-outline {
   background: transparent;
   color: #FFD700;
@@ -325,14 +299,12 @@
   .hp-hero { padding: 14px 16px; gap: 10px; }
   .btn { width: 100%; justify-content: center; }
 }
-  /* Slightly tighter tables on large screens so 3 cards breathe */
   @media (min-width: 1280px) {
     .user-picks-table { font-size: 14px; }
     .user-picks-table th,
     .user-picks-table td { padding: 8px; }
   }
   
-  /* === Mobile tweaks (match Money Pool) === */
   @media (max-width: 430px) {
     .pw-title {
       font-size: 20px;
@@ -357,7 +329,7 @@
   
     .week-content .picks-grid,
     .picks-grid {
-      grid-template-columns: 1fr;   /* single column on phones */
+      grid-template-columns: 1fr; 
       gap: 15px;
       padding: 10px 0;
     }
