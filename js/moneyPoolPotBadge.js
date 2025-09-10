@@ -1,4 +1,3 @@
-// js/moneyPoolPotBadge.js
 import { db, ref, get, onValue, off } from './firebaseConfig.js';
 
 const ENTRY_FEE = 5;
@@ -16,7 +15,6 @@ function formatUSD(n) {
 }
 
 function ensureBadge() {
-  // Try find your Money Pool card and its banner
   const card = document.querySelector('#moneyPoolCard, .money-pool-card, a[href*="moneyPool"]');
   const hero = card?.querySelector('.card-hero') || card;
   if (!hero) return null;
@@ -55,7 +53,6 @@ function watchMembers(weekKey) {
 export function initMoneyPoolPotBadge() {
   ensureBadge();
 
-  // watch the current week so the badge switches when you change weeks
   if (weekRef && weekCb) try { off(weekRef, 'value', weekCb); } catch {}
   weekRef = ref(db, 'settings/currentWeek');
   weekCb = (snap) => {
@@ -64,7 +61,6 @@ export function initMoneyPoolPotBadge() {
   };
   onValue(weekRef, weekCb);
 
-  // initial fetch (in case listener races)
   get(weekRef).then(s => watchMembers(s.exists() ? s.val() : 'week1'));
 }
 
