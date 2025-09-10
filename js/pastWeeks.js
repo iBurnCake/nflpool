@@ -1,6 +1,11 @@
+// js/pastWeeks.js
 import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
+import { showLoader, hideLoader } from './loader.js';
+import { clearBootLoader, setBootMessage } from './boot.js';
 
 const norm = (s) => String(s ?? '').trim().toLowerCase();
+const winnerString = (v) =>
+  (typeof v === 'string') ? v : (v && (v.winner || v.team || v.name)) || '';
 
 function setStatus(text) {
   const s = document.getElementById('pw-status');
@@ -67,6 +72,7 @@ async function getWinnersNode(weekKey) {
     }
   }
 
+  // Try pulling label from settings/countdown if it matches this week
   if (!label && cdSnap.exists()) {
     const cd = cdSnap.val() || {};
     if (String(cd.currentWeek) === String(weekKey) && cd.currentWeekLabel) {
@@ -76,7 +82,13 @@ async function getWinnersNode(weekKey) {
 
   if (!label) label = prettyWeek(weekKey);
 
-  return { games, label };
+  // Normalize winners -> plain strings
+  const normGames = {};
+  for (const [k, v] of Object.entries(games || {})) {
+    normGames[k] = winnerString(v);
+  }
+
+  return { games: normGames, label };
 }
 
 function computeTotal(picks, winnersGames) {
@@ -221,14 +233,21 @@ document.addEventListener('DOMContentLoaded', () => {
     (document.querySelector('.past-weeks-view') || document.body).insertAdjacentElement('afterbegin', s);
   }
 
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      setStatus('Sign in required.');
-      return;
-    }
-    renderPastWeeks().catch(err => {
+  onAuthStateChanged(auth, async (user) => {
+    showLoader('Loading past weeks…');
+    try {
+      if (!user) {
+        setStatus('Sign in required.');
+        return;
+      }
+      await renderPastWeeks();
+    } catch (err) {
       console.error('renderPastWeeks error:', err);
       setStatus('There was an error loading past weeks.');
-    });
+    } finally {
+      hideLoader();
+    }
   });
 });
+
+clearBootLoader();
