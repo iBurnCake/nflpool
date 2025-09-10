@@ -1,4 +1,3 @@
-// js/dashboard.js
 import {
     auth,
     db,
@@ -13,12 +12,9 @@ import {
   import { CURRENT_WEEK, IS_LOCKED, refreshCurrentWeek } from './settings.js';
   import { getNameByEmail } from './profiles.js';
   
-  // If you want the pool total on the card without listeners,
-  // we can do a one-shot read here.
   const MEMBERS_PATH = 'subscriberPools/week1/members';
   const POOL_DOLLARS_PER_MEMBER = 5;
   
-  // ---------- Auth wiring ----------
   document.addEventListener('DOMContentLoaded', () => {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -45,34 +41,27 @@ import {
     });
   });
   
-  // ---------- Dashboard render ----------
   async function showDashboard(user) {
     await refreshCurrentWeek();
   
-    // Gate UI
     hideEl('loginSection');
     showEl('dashboardSection', 'block');
   
-    // Lock status pill (header)
     setText('dashLockLabel', IS_LOCKED ? 'Locked' : 'Open');
   
-    // Profile card: name + logo
     const name = getNameByEmail(user.email);
     setText('dashDisplayName', name);
     await setDashboardProfilePic(user.uid);
-  
-    // My Picks card info
+
     setText('dashWeekLabel', extractWeekNumber(CURRENT_WEEK));
     const { pickCount } = await getPickSummary(user.uid);
     setText('dashPickCount', String(pickCount));
     setText('dashPickStatus', IS_LOCKED ? 'Locked' : 'Open');
-  
-    // Money pool (one-shot fetch)
+
     const total = await getPoolTotalOnce();
     setText('dashPoolTotal', formatUSD(total));
   }
-  
-  // ---------- Helpers ----------
+
   function byId(id) {
     return document.getElementById(id);
   }
@@ -90,12 +79,10 @@ import {
   }
   
   function extractWeekNumber(weekKey) {
-    // "week1" -> "1"
     const m = String(weekKey || '').match(/week(\d+)/i);
     return m ? m[1] : String(weekKey || '');
   }
   
-  // Quick summary of the user’s picks this week
   async function getPickSummary(uid) {
     const path = `scoreboards/${CURRENT_WEEK}/${uid}`;
     try {
@@ -110,7 +97,6 @@ import {
     }
   }
   
-  // One-shot money pool total
   async function getPoolTotalOnce() {
     try {
       const snap = await get(ref(db, MEMBERS_PATH));
@@ -134,7 +120,6 @@ import {
     }
   }
   
-  // Set the circular profile image used on the Profile card
   async function setDashboardProfilePic(uid) {
     try {
       const picSnap = await get(ref(db, `users/${uid}/profilePic`));
@@ -146,4 +131,5 @@ import {
     } catch (e) {
       console.warn('setDashboardProfilePic error:', e);
     }
+
   }
