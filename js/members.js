@@ -1,4 +1,3 @@
-// js/members.js
 import {
   auth,
   signInWithPopup,
