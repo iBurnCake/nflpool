@@ -1,8 +1,13 @@
-import { auth, db, signInWithPopup, GoogleAuthProvider, ref, get, update, onAuthStateChanged } from './firebaseConfig.js';
+import {
+  auth, db, signInWithPopup, GoogleAuthProvider,
+  ref, get, update, onAuthStateChanged
+} from './firebaseConfig.js';
 
 import { getNameByEmail, loadUsernameColor, loadProfilePic } from './profiles.js';
 import { renderTeamLogoPicker } from './teams.js';
 import { BANNERS } from './banners.js';
+import { showLoader, hideLoader } from './loader.js';
+import { clearBootLoader, setBootMessage } from './boot.js';
 
 function getProfileRoot() {
   return document.getElementById('profilePage') || document.getElementById('profileSection');
@@ -18,12 +23,24 @@ function formatUSD(n) {
 const toNum = (x) => (typeof x === 'number') ? x : Number(x) || 0;
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Start boot/loader immediately
+  setBootMessage('Loading profile…');
+  showLoader('Loading profile…');
+
   onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      showLogin();
-      return;
+    try {
+      if (!user) {
+        showLogin();
+        return;
+      }
+      await showProfile(user);
+    } catch (e) {
+      console.error('Profile init error:', e);
+      alert('There was an error loading your profile.');
+    } finally {
+      hideLoader();
+      clearBootLoader(); // remove .app-boot + boot overlay
     }
-    await showProfile(user);
   });
 
   document.getElementById('googleLoginButton')?.addEventListener('click', () => {
@@ -67,10 +84,10 @@ async function showProfile(user) {
   renderTeamLogoPicker({ containerId: 'logoSelection', previewId: 'profilePicPreview' });
 
   await renderBannerPicker(user);
-
   await renderUserStats(user.uid);
 }
 
+// ---------- Banner picker ----------
 async function renderBannerPicker(user) {
   const root = document.getElementById('bannerSelection');
   const hero = document.getElementById('profileHero');
@@ -139,6 +156,7 @@ function normalize(u) {
   }
 }
 
+// ---------- Stats ----------
 const POOL_ENTRY_DOLLARS = 5;
 
 async function calcTotalStakedFromPools(uid) {
@@ -209,5 +227,3 @@ async function renderUserStats(uid) {
   setText('statTotalStaked', formatUSD(totalStaked));
   setText('statNet', formatUSD(totalWon - totalStaked));
 }
-
-
