@@ -86,7 +86,6 @@
     }
 
     async function fillUI() {
-      // populate week select
       const weeks = await listWeeks();
       const sel = document.getElementById('weekSel');
       sel.innerHTML = weeks.map(w => `<option value="${w}">${w}</option>`).join('') || '<option value="week1">week1</option>';
@@ -94,12 +93,10 @@
       const cur = await get(ref(db, 'settings/currentWeek'));
       if (cur.exists() && weeks.includes(cur.val())) sel.value = cur.val();
 
-      // label for selected week
       const wk = sel.value;
       const labelSnap = await get(ref(db, `winners/${wk}/label`));
       document.getElementById('weekInfo').textContent = labelSnap.exists() ? labelSnap.val() : wk;
 
-      // lock info (prefers lockAllPicks; falls back to legacy picksLocked)
       let locked = false;
       try {
         const lockSnap = await get(ref(db, 'settings/lockAllPicks'));
@@ -115,7 +112,6 @@
       document.getElementById('lockInfo').textContent = `lockAllPicks = ${locked}`;
     }
 
-    // Toggle the global picks lock at /settings/lockAllPicks (mirror legacy key too)
     async function toggleLock() {
       try {
         const lockRef = ref(db, 'settings/lockAllPicks');
