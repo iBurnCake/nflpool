@@ -1,4 +1,3 @@
-// In-app loader (for later actions). Separate from the boot overlay.
 let overlay = null;
 let msgEl = null;
 let autoHideTimer = null;
