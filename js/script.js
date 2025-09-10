@@ -2,11 +2,16 @@ import { auth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, db, ref,
 
 import { refreshCurrentWeek, CURRENT_WEEK } from './settings.js';
 import { applyLockUI } from './ui.js';
-import { attachPoolMembersListener, detachPoolMembersListener, updatePoolTotalCardOnce } from './poolTotal.js';
 import { getNameByEmail, loadUsernameColor } from './profiles.js';
-import { displayGames, loadUserPicks, resetPicks, submitPicks, selectPick, assignConfidence } from './picks.js';
+import {
+  displayGames,
+  loadUserPicks,
+  resetPicks,
+  submitPicks,
+  selectPick,
+  assignConfidence
+} from './picks.js';
 import { normalizeUserDoc } from './normalizeUser.js';
-import { watchAndFinalizeWeek } from './winners.js';
 
 const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2';
 
@@ -16,7 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
       await handleSuccessfulLogin(user);
     } else {
       console.log('No user logged in');
-      detachPoolMembersListener();
       const loginSection = document.getElementById('loginSection');
       if (loginSection) loginSection.style.display = 'flex';
       const homeSection = document.getElementById('userHomeSection');
@@ -37,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('logoutButton')?.addEventListener('click', () => {
     auth.signOut()
       .then(() => {
-        detachPoolMembersListener();
         const loginSection = document.getElementById('loginSection');
         if (loginSection) loginSection.style.display = 'flex';
         const homeSection = document.getElementById('userHomeSection');
@@ -88,9 +91,9 @@ async function handleSuccessfulLogin(user) {
 
   console.log('User logged in:', user.email);
   const loginSection = document.getElementById('loginSection');
-  const homeSection = document.getElementById('userHomeSection');
+  const homeSection  = document.getElementById('userHomeSection');
   if (loginSection) loginSection.style.display = 'none';
-  if (homeSection) homeSection.style.display = 'block';
+  if (homeSection)  homeSection.style.display  = 'block';
 
   const displayName = getNameByEmail(user.email);
   try {
@@ -106,10 +109,6 @@ async function handleSuccessfulLogin(user) {
   await normalizeUserDoc(user.uid);
   await applyProfileCardDecor(user.uid);
 
-  if (user.uid === ADMIN_UID) {
-    watchAndFinalizeWeek(CURRENT_WEEK);
-  }
-
   window.selectPick = selectPick;
   window.assignConfidence = assignConfidence;
   window.resetPicks = resetPicks;
@@ -117,8 +116,7 @@ async function handleSuccessfulLogin(user) {
 
   displayGames();
   await loadUserPicks(user.uid);
+
   applyLockUI();
 
-  attachPoolMembersListener();
-  updatePoolTotalCardOnce();
 }
