@@ -1,4 +1,3 @@
-// /js/drawer.js
 export function mountDrawer() {
     if (document.getElementById('drawer-root')) return;
   
@@ -20,8 +19,7 @@ export function mountDrawer() {
       <div class="drawer-backdrop" aria-hidden="true"></div>
     `;
     document.body.appendChild(root);
-  
-    // Build links, hiding the current page
+
     const path = location.pathname.toLowerCase();
     const is = (key) =>
       key === 'index'     ? (path.endsWith('/') || path.endsWith('/index.html')) :
@@ -39,7 +37,6 @@ export function mountDrawer() {
   
     document.getElementById('drawerLinks').innerHTML = links;
   
-    // Wire up open/close
     const open  = () => root.classList.add('open');
     const close = () => root.classList.remove('open');
   
@@ -47,8 +44,8 @@ export function mountDrawer() {
     root.querySelector('.drawer-close').addEventListener('click', close);
     root.querySelector('.drawer-backdrop').addEventListener('click', close);
   
-    // Optional: hook your existing logout button logic if needed
     document.getElementById('drawerLogout')?.addEventListener('click', () => {
       document.getElementById('logoutButton')?.click();
     });
+
   }
