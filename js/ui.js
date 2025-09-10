@@ -3,13 +3,11 @@ import { IS_LOCKED } from './settings.js';
 let _savePill, _saveStateTimer;
 let _toast, _toastTimer;
 
-// ui.js
 export function applyLockUI() {
   const table = document.getElementById('gamesTable');
   const submitBtn = document.getElementById('submitButton');
   const resetBtn  = document.getElementById('resetButton');
 
-  // Disable/enable interactive controls
   const pickButtons = table ? table.querySelectorAll('button[id^="home-"], button[id^="away-"]') : [];
   const pickSelects = table ? table.querySelectorAll('select[id^="confidence"]') : [];
   [...pickButtons, ...pickSelects].forEach(el => { if (el) el.disabled = IS_LOCKED; });
@@ -19,7 +17,6 @@ export function applyLockUI() {
   if (table) {
     table.classList.toggle('locked', IS_LOCKED);
 
-    // Insert/remove a single-row notice at the TOP of the thead
     const thead = table.querySelector('thead');
     if (thead) {
       let noticeRow = thead.querySelector('#lockNoticeRow');
@@ -29,7 +26,6 @@ export function applyLockUI() {
           noticeRow = document.createElement('tr');
           noticeRow.id = 'lockNoticeRow';
 
-          // Span across however many columns your header has (fallback to 3)
           const headerRow = thead.querySelector('tr');
           const colSpan = headerRow ? headerRow.children.length : 3;
 
@@ -47,7 +43,6 @@ export function applyLockUI() {
     }
   }
 
-  // If the old floating banner still exists, remove it
   const oldBanner = document.getElementById('lockedBanner');
   if (oldBanner) oldBanner.remove();
 }
