@@ -1,4 +1,7 @@
+// js/moneyPool.js
 import { auth, onAuthStateChanged, db, ref, get, update } from './firebaseConfig.js';
+import { showLoader, hideLoader } from './loader.js';
+import { clearBootLoader, setBootMessage } from './boot.js';
 
 const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2';
 
@@ -14,6 +17,10 @@ function setWeekLabel(weekKey, weekLabel) {
   const el = document.getElementById('mp-week');
   if (el) el.textContent = `— ${weekLabel || weekKey}`;
 }
+
+// map any winner shape to a plain string
+const winnerString = (v) =>
+  (typeof v === 'string') ? v : (v && (v.winner || v.team || v.name)) || '';
 
 const games = [
   // Thu
@@ -54,10 +61,18 @@ async function getSettings() {
 }
 
 async function loadWinnersForWeek(weekKey) {
+  // Prefer winners/<weekKey>/games, fallback to winners/<weekKey>.games
   const s = await get(ref(db, `winners/${weekKey}/games`));
-  if (s.exists()) return s.val();
-  const t = await get(ref(db, `winners/${weekKey}`));
-  return t.exists() ? (t.val().games ?? {}) : {};
+  let raw = {};
+  if (s.exists()) raw = s.val() || {};
+  else {
+    const t = await get(ref(db, `winners/${weekKey}`));
+    raw = t.exists() ? (t.val().games ?? {}) : {};
+  }
+  // normalize to plain strings
+  const out = {};
+  for (const [k, v] of Object.entries(raw)) out[k] = winnerString(v);
+  return out;
 }
 
 async function loadAllowlist(weekKey) {
@@ -335,91 +350,99 @@ document.addEventListener('DOMContentLoaded', () => {
   setStatus('Loading…');
 
   onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = 'index.html';
-      return;
-    }
+    showLoader('Loading Money Pool…');
+    try {
+      if (!user) {
+        hideLoader();
+        window.location.href = 'index.html';
+        return;
+      }
 
-    renderMoneyPool().catch(err => {
-      console.error('Money Pool render error:', err);
-      setStatus('Something went wrong loading the Money Pool.');
-    });
+      await renderMoneyPool().catch(err => {
+        console.error('Money Pool render error:', err);
+        setStatus('Something went wrong loading the Money Pool.');
+      });
 
-    const panel = document.getElementById('mp-admin');
-    if (panel) panel.style.display = (user.uid === ADMIN_UID) ? 'block' : 'none';
-    if (user.uid !== ADMIN_UID) return;
+      const panel = document.getElementById('mp-admin');
+      if (panel) panel.style.display = (user.uid === ADMIN_UID) ? 'block' : 'none';
+      if (user.uid !== ADMIN_UID) return;
 
-    const input = document.getElementById('mp-user-filter');
-    const addBtn = document.getElementById('mp-add-from-search');
-    const refreshBtn = document.getElementById('mp-refresh-members');
+      const input = document.getElementById('mp-user-filter');
+      const addBtn = document.getElementById('mp-add-from-search');
+      const refreshBtn = document.getElementById('mp-refresh-members');
 
-    let allUsersMap = await loadAllUsersMap();
+      let allUsersMap = await loadAllUsersMap();
 
-    async function refreshMembersUI() {
-      const { weekKey } = await getSettings();
-      const members = await loadCurrentMembers(weekKey);
-      renderMembersList(members, allUsersMap, async (uid) => {
+      async function refreshMembersUI() {
+        const { weekKey } = await getSettings();
+        const members = await loadCurrentMembers(weekKey);
+        renderMembersList(members, allUsersMap, async (uid) => {
+          try {
+            await removeOneMember(weekKey, uid);
+            await refreshMembersUI();
+            await renderMoneyPool();
+          } catch (e) {
+            console.error('Remove member error:', e);
+            alert('Error removing member. Check console.');
+          }
+        });
+      }
+
+      function findUidByQuery(q) {
+        const query = String(q || '').trim().toLowerCase();
+        if (!query) return null;
+
+        if (allUsersMap[query]) return query;
+
+        const matches = Object.entries(allUsersMap)
+          .filter(([, v]) => String(v.name || '').toLowerCase().includes(query))
+          .map(([uid]) => uid);
+
+        if (matches.length === 1) return matches[0];
+        if (matches.length === 0) return null;
+
+        alert(
+          `Multiple matches:\n\n${
+            matches.map(uid => `${allUsersMap[uid].name} — ${uid}`).join('\n')
+          }\n\nPlease refine your search.`
+        );
+        return null;
+      }
+
+      async function addFromSearch() {
+        const { weekKey } = await getSettings();
+        const q = input?.value || '';
+        const uid = findUidByQuery(q);
+
+        if (!uid) {
+          alert('No exact UID or unique name match found.');
+          return;
+        }
         try {
-          await removeOneMember(weekKey, uid);
+          await addOneMember(weekKey, uid);
+          input.value = '';
           await refreshMembersUI();
           await renderMoneyPool();
         } catch (e) {
-          console.error('Remove member error:', e);
-          alert('Error removing member. Check console.');
+          console.error('Add member error:', e);
+          alert('Error adding member. Check console.');
         }
+      }
+
+      addBtn?.addEventListener('click', addFromSearch);
+      input?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') addFromSearch();
       });
-    }
-
-    function findUidByQuery(q) {
-      const query = String(q || '').trim().toLowerCase();
-      if (!query) return null;
-
-      if (allUsersMap[query]) return query;
-
-      const matches = Object.entries(allUsersMap)
-        .filter(([, v]) => String(v.name || '').toLowerCase().includes(query))
-        .map(([uid]) => uid);
-
-      if (matches.length === 1) return matches[0];
-      if (matches.length === 0) return null;
-
-      alert(
-        `Multiple matches:\n\n${
-          matches.map(uid => `${allUsersMap[uid].name} — ${uid}`).join('\n')
-        }\n\nPlease refine your search.`
-      );
-      return null;
-    }
-
-    async function addFromSearch() {
-      const { weekKey } = await getSettings();
-      const q = input?.value || '';
-      const uid = findUidByQuery(q);
-
-      if (!uid) {
-        alert('No exact UID or unique name match found.');
-        return;
-      }
-      try {
-        await addOneMember(weekKey, uid);
-        input.value = '';
+      refreshBtn?.addEventListener('click', async () => {
+        allUsersMap = await loadAllUsersMap();
         await refreshMembersUI();
-        await renderMoneyPool();
-      } catch (e) {
-        console.error('Add member error:', e);
-        alert('Error adding member. Check console.');
-      }
+      });
+
+      refreshMembersUI().catch(console.error);
+    } finally {
+      hideLoader();
     }
-
-    addBtn?.addEventListener('click', addFromSearch);
-    input?.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') addFromSearch();
-    });
-    refreshBtn?.addEventListener('click', async () => {
-      allUsersMap = await loadAllUsersMap();
-      await refreshMembersUI();
-    });
-
-    refreshMembersUI().catch(console.error);
   });
 });
+
+clearBootLoader();
