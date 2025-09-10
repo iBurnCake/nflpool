@@ -1,4 +1,15 @@
-import { auth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
+// js/members.js
+import {
+  auth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  db,
+  ref,
+  get
+} from './firebaseConfig.js';
+import { showLoader, hideLoader } from './loader.js';
+import { clearBootLoader, setBootMessage } from './boot.js';
 
 const NAME_MAP = {
   'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
@@ -196,32 +207,36 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   onAuthStateChanged(auth, async (user) => {
-    const login = document.getElementById('loginSection');
-    const main  = document.getElementById('membersSection');
-
-    if (!user) {
-      if (login) login.style.display = 'flex';
-      if (main)  main.style.display  = 'none';
-      const btn = document.getElementById('googleLoginButton');
-      btn?.addEventListener('click', () => {
-        const provider = new GoogleAuthProvider();
-        signInWithPopup(auth, provider).catch((err) => {
-          console.error('Google login error:', err);
-          alert('Google login failed. Please try again.');
-        });
-      });
-      setStatus('Sign in required.');
-      return;
-    }
-
-    if (login) login.style.display = 'none';
-    if (main)  main.style.display  = 'block';
-
+    showLoader('Loading members…');
     try {
+      const login = document.getElementById('loginSection');
+      const main  = document.getElementById('membersSection');
+
+      if (!user) {
+        if (login) login.style.display = 'flex';
+        if (main)  main.style.display  = 'none';
+        const btn = document.getElementById('googleLoginButton');
+        btn?.addEventListener('click', () => {
+          const provider = new GoogleAuthProvider();
+          signInWithPopup(auth, provider).catch((err) => {
+            console.error('Google login error:', err);
+            alert('Google login failed. Please try again.');
+          });
+        });
+        setStatus('Sign in required.');
+        return;
+      }
+
+      if (login) login.style.display = 'none';
+      if (main)  main.style.display  = 'block';
+
       await renderMembers();
     } catch (e) {
       console.error('renderMembers error:', e);
       setStatus('There was an error loading users.');
+    } finally {
+      hideLoader();
+      clearBootLoader();
     }
   });
 });
