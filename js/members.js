@@ -1,4 +1,3 @@
-// js/members.js
 import {
   auth,
   signInWithPopup,
@@ -9,9 +8,6 @@ import {
   get
 } from './firebaseConfig.js';
 
-/* ----------------------------
-   Fallback name overrides
----------------------------- */
 const NAME_MAP = {
   'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
   '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan',
@@ -33,9 +29,6 @@ const NAME_MAP = {
 
 const ENTRY_FEE = 5;
 
-/* ----------------------------
-   Pools helpers (stakes)
----------------------------- */
 async function fetchPools() {
   const snap = await get(ref(db, 'subscriberPools'));
   return snap.exists() ? (snap.val() || {}) : {};
@@ -49,18 +42,11 @@ function stakedFromPools(uid, pools) {
   return total;
 }
 
-/* ----------------------------
-   Winners helpers (backfill)
----------------------------- */
 async function fetchWinnersRoot() {
   const snap = await get(ref(db, 'winners'));
   return snap.exists() ? (snap.val() || {}) : {};
 }
 
-/** Build backfill maps from /winners:
- *  - wonMap[uid] = sum of payoutPerWinner for weeks the uid is in moneyPoolWinners
- *  - weeksMap[uid] = count of weeks user appears in houseWinners ∪ moneyPoolWinners
- */
 function buildBackfillMaps(winnersRoot) {
   const wonMap = Object.create(null);
   const weeksMap = Object.create(null);
@@ -72,12 +58,10 @@ function buildBackfillMaps(winnersRoot) {
     const poolWinners  = Array.isArray(node.moneyPoolWinners) ? node.moneyPoolWinners : [];
     const payout = Number(node.payoutPerWinner) || 0;
 
-    // weeks won (union)
     const union = new Set([...houseWinners, ...poolWinners]);
     for (const uid of union) {
       weeksMap[uid] = (weeksMap[uid] || 0) + 1;
     }
-    // money pool payouts
     for (const uid of poolWinners) {
       wonMap[uid] = (wonMap[uid] || 0) + payout;
     }
@@ -85,9 +69,6 @@ function buildBackfillMaps(winnersRoot) {
   return { wonMap, weeksMap };
 }
 
-/* ----------------------------
-   Small helpers
----------------------------- */
 const $ = (sel) => document.querySelector(sel);
 const grid = () => document.getElementById('memberGrid');
 const setStatus = (t) => { const s = document.getElementById('members-status'); if (s) s.textContent = t || ''; };
@@ -104,16 +85,11 @@ const pickName = (uid, meta) =>
 const FALLBACK_BANNER = 'images/banners/banner01.svg';
 const FALLBACK_AVATAR = 'images/NFL LOGOS/nfl-logo.jpg';
 
-/* ----------------------------
-   Data fetchers
----------------------------- */
 async function getUsersMeta() {
   const snap = await get(ref(db, 'users'));
   return snap.exists() ? (snap.val() || {}) : {};
 }
 
-// Roster of all users who have ever joined the money pool,
-// else fallback to every /users key.
 async function getAllRosterUids() {
   const rosterSnap = await get(ref(db, 'subscriberPools/users'));
   if (rosterSnap.exists()) {
@@ -125,9 +101,6 @@ async function getAllRosterUids() {
   return [];
 }
 
-/* ----------------------------
-   Render
----------------------------- */
 function renderMemberCards(usersMeta, uids, pools, backfill) {
   const { wonMap, weeksMap } = backfill || { wonMap:{}, weeksMap:{} };
 
@@ -142,7 +115,6 @@ function renderMemberCards(usersMeta, uids, pools, backfill) {
     return;
   }
 
-  // Sort by display name
   const sorted = [...uids].sort((a, b) =>
     pickName(a, usersMeta[a] || {}).toLowerCase()
       .localeCompare(pickName(b, usersMeta[b] || {}).toLowerCase())
@@ -165,14 +137,12 @@ function renderMemberCards(usersMeta, uids, pools, backfill) {
     const computedWon    = toNum(wonMap[uid]);
     const computedWeeks  = toNum(weeksMap[uid]);
 
-    // Prefer DB values if they exist; fallback to computed
     const weeksWon    = storedWeeks > 0 ? storedWeeks : computedWeeks;
     const totalWon    = storedWon   > 0 ? storedWon   : computedWon;
     const totalStaked = storedStaked > 0 ? storedStaked : computedStaked;
 
     const net = totalWon - totalStaked;
 
-    // Non-link card that matches dashboard style
     const card = document.createElement('div');
     card.className = 'card member-card';
 
@@ -208,9 +178,6 @@ function renderMemberCards(usersMeta, uids, pools, backfill) {
   }
 }
 
-/* ----------------------------
-   Controller
----------------------------- */
 async function renderMembers() {
   setStatus('Loading…');
   grid().innerHTML = '';
@@ -227,11 +194,7 @@ async function renderMembers() {
   setStatus('');
 }
 
-/* ----------------------------
-   Auth gate & boot
----------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
-  // small status line
   if (!document.getElementById('members-status')) {
     const s = document.createElement('div');
     s.id = 'members-status';
