@@ -8,7 +8,7 @@ body::before {
   position: fixed;
   inset: 0;
   background: url('../images/background.jpg') center/cover no-repeat;
-  filter: brightness(.5) contrast(1); /* gentle, not “dark” */
+  filter: brightness(.5) contrast(1); 
   opacity: 1;
   pointer-events: none;
   z-index: -1;
@@ -314,7 +314,6 @@ th {
 .lockdown-pill,
 .picks-timer { display: none !important; }
 
-/* Loading overlay */
 .app-loader {
     position: fixed;
     inset: 0;
@@ -335,7 +334,7 @@ th {
     width: 54px; height: 54px;
     border-radius: 50%;
     border: 6px solid rgba(255,255,255,.15);
-    border-top-color: #FFD700;           /* gold */
+    border-top-color: #FFD700;     
     animation: spin 0.9s linear infinite;
     margin: 0 auto 12px;
   }
@@ -345,13 +344,3 @@ th {
     letter-spacing: .4px;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Darker backdrops for all loaders (boot + in-app) /
-#appBootLoader,
-.app-loader {
-  / pick one of these /
-  / Nearly opaque: /
-  background: rgba(5, 5, 6, 0.985) !important;
-
-  / or fully opaque (comment the rgba above and use this): /
-  / background: #0b0b0c !important; */
