@@ -1,11 +1,6 @@
-// /js/banners.js
-// Generates 20 distinct SVG banner data-URIs (fast + tiny).
-// Themes include stripes, waves, yard lines, play diagrams, laces, etc.
-
 const enc = (s) => encodeURIComponent(s.trim());
 const uri = (svg) => `data:image/svg+xml;utf8,${enc(svg)}`;
 
-// Helpers
 const svgWrap = (w, h, body) =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${body}</svg>`;
 
@@ -14,7 +9,6 @@ const grad = (id, stops) =>
     stops.map(([o,c])=>`<stop offset="${o}" stop-color="${c}"/>`).join('')
   }</linearGradient></defs>`;
 
-// Patterns
 const stripes = (w,h,colors,angle=35) => {
   const band = 60;
   let g = `<g transform="rotate(${angle} ${w/2} ${h/2})">`;
@@ -67,13 +61,11 @@ const yardLines = (w,h,grassA='#0c4d2c',grassB='#136d3f') => {
 
 const playDiagram = (w,h,bg='#222',route='#ffd700',def='#4cc2ff') => {
   let b=`<rect width="100%" height="100%" fill="${bg}"/>`;
-  // offense circles + routes
   const pts=[[60,180],[120,140],[180,200],[240,120],[300,180],[360,140]];
   pts.forEach(([x,y],i)=>{
     b+=`<circle cx="${x}" cy="${y}" r="10" fill="${route}" opacity=".9"/>`;
     b+=`<path d="M${x} ${y} q 40 -40 80 -10 t 80 0" fill="none" stroke="${route}" stroke-width="4" opacity=".55"/>`;
   });
-  // defense X's
   const xs=[[90,60],[210,80],[330,60],[150,240],[270,240]];
   xs.forEach(([x,y])=>{
     b+=`<g stroke="${def}" stroke-width="6" opacity=".6">
@@ -81,6 +73,7 @@ const playDiagram = (w,h,bg='#222',route='#ffd700',def='#4cc2ff') => {
           <line x1="${x-10}" y1="${y+10}" x2="${x+10}" y2="${y-10}"/>
         </g>`;
   });
+  
   return svgWrap(w,h,b);
 };
 
@@ -125,7 +118,6 @@ const diagLines = (w,h,bg='#1f1f1f',line='#3b7eed') => {
   return svgWrap(w,h,b);
 };
 
-// Build 20
 const W=600,H=280;
 export const BANNERS = [
   uri(stripes(W,H,['#2b2b2b','#3a3a3a','#ffd700','#2b2b2b'])),
@@ -148,4 +140,5 @@ export const BANNERS = [
   uri( stripes(W,H,['#2b2b2b','#2e2e2e','#4de1ff','#2b2b2b'],40) ),
   uri( waves(W,H,[['0%','#6dff6d'],['100%','#1aa4a8']],20,5) ),
   uri( confetti(W,H,'#101010',['#ffd700','#3b7eed','#1aa4a8','#ff4d4d']) )
+
 ];
