@@ -1,114 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>House Picks</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/housePicks.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>House Picks</title>
 
-    <style>
-    .leaderboard-user {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        white-space: nowrap; 
+  <!-- Core styles -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/housePicks.css">
+
+  <!-- Pre-paint boot CSS (prevents flash) -->
+  <style id="bootCss">
+    .app-boot body{visibility:hidden}
+    .app-boot #appBootLoader{
+      position:fixed;inset:0;background:#0d0d0f;
+      display:flex;align-items:center;justify-content:center;z-index:9999
     }
-
-    .leaderboard-user img {
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        object-fit: cover;
-        flex-shrink: 0;
+    .app-boot #appBootLoader .loader-box{
+      display:flex;flex-direction:column;align-items:center;gap:12px;
+      padding:16px 20px;border:1px solid #333;border-radius:12px;
+      background:#141414;box-shadow:0 6px 24px rgba(0,0,0,.5)
     }
-
-    .leaderboard-username {
-        white-space: nowrap;
-        text-overflow: ellipsis;
+    .app-boot #appBootLoader .spinner{
+      width:42px;height:42px;border:3px solid #333;border-top-color:#FFD700;
+      border-radius:50%;animation:spin 1s linear infinite
     }
+    .app-boot #appBootLoader .msg{color:#fff;opacity:.9;font-weight:600}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+  <script>document.documentElement.classList.add('app-boot');</script>
 
-    .user-header img {
-        vertical-align: middle;
-        margin-right: 8px;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        object-fit: cover;
+  <style>
+    .leaderboard-user{
+      display:flex;align-items:center;gap:6px;white-space:nowrap;justify-content:center;
     }
-
-    .house-picks-layout {
-        display: flex;
-        gap: 20px;
-        align-items: flex-start;
-        justify-content: flex-start;
-        width: 100%;
+    .leaderboard-user img{
+      width:24px;height:24px;border-radius:50%;object-fit:cover;flex-shrink:0;
     }
+    .leaderboard-username{white-space:nowrap;text-overflow:ellipsis}
 
-    .leaderboard-container {
-        flex: 0 0 20%;
-        max-width: 300px;
-        min-width: 220px;
+    .user-header img{
+      vertical-align:middle;margin-right:8px;width:32px;height:32px;border-radius:50%;object-fit:cover;
     }
+    .house-picks-layout{display:flex;gap:20px;align-items:flex-start;justify-content:flex-start;width:100%}
+    .leaderboard-container{flex:0 0 20%;max-width:300px;min-width:220px}
+    .picks-container{flex:1;display:flex;flex-wrap:wrap;gap:20px}
+    .user-picks-container{flex:1 1 450px;max-width:500px}
+    .user-header{text-align:center;width:100%}
+    .user-picks-table th,.user-picks-table td{text-align:center;vertical-align:middle}
 
-    .picks-container {
-        flex: 1;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
+    .house-picks-title{
+      display:inline-block;padding:10px 25px;background-color:rgba(40,40,40,.9);
+      border:2px solid #FFD700;border-radius:8px;font-size:28px;font-weight:bold;color:#FFD700;
+      text-align:center;margin:0 auto 20px auto;position:relative;left:50%;transform:translateX(-50%);
+      box-shadow:0 0 10px rgba(0,0,0,.6);
     }
-
-    .user-picks-container {
-        flex: 1 1 450px;
-        max-width: 500px;
-    }
-
-    .user-header {
-        text-align: center;
-        width: 100%;
-    }
-
-    .user-picks-table th,
-    .user-picks-table td {
-        text-align: center;
-        vertical-align: middle;
-    }
-
-    .leaderboard-user {
-        justify-content: center;
-    }
-
-    .house-picks-title {
-        display: inline-block;
-        padding: 10px 25px;
-        background-color: rgba(40, 40, 40, 0.9);
-        border: 2px solid #FFD700;
-        border-radius: 8px;
-        font-size: 28px;
-        font-weight: bold;
-        color: #FFD700;
-        text-align: center;
-        margin: 0 auto 20px auto;
-        position: relative;
-        left: 50%;
-        transform: translateX(-50%);
-        box-shadow: 0px 0px 10px rgba(0,0,0,0.6);
-    }
-
-    </style>
+  </style>
 </head>
 <body>
-    <div class="settings-container">
-        <div class="house-picks-title">House Picks</div>
-        <button onclick="window.location.href='index.html'">Back to Home</button>
-        <div class="settings-container"></div>
-        <div class="house-picks-layout">
-            <div id="leaderboardWrapper" class="leaderboard-container"></div>
-            <div id="housePicksContainer" class="picks-container">
-            </div>
-        </div>
+  <!-- Boot overlay (shows immediately; cleared by boot.js/housePicks.js) -->
+  <div id="appBootLoader" aria-live="polite">
+    <div class="loader-box">
+      <div class="spinner" aria-hidden="true"></div>
+      <div id="appBootMsg" class="msg">Loading…</div>
     </div>
-    
-    <script type="module" src="js/housePicks.js"></script>
+  </div>
+
+  <div class="settings-container">
+    <div class="house-picks-title">House Picks</div>
+    <button onclick="window.location.href='index.html'">Back to Home</button>
+
+    <div class="settings-container"></div>
+
+    <div class="house-picks-layout">
+      <div id="leaderboardWrapper" class="leaderboard-container"></div>
+      <div id="housePicksContainer" class="picks-container"></div>
+    </div>
+  </div>
+
+  <!-- Page logic -->
+  <script type="module" src="js/housePicks.js"></script>
+
+  <!-- Fallback: in case housePicks.js forgets to clear the boot overlay -->
+  <script type="module">
+    import { clearBootLoader } from './js/boot.js';
+    window.addEventListener('load', () => clearBootLoader());
+  </script>
 </body>
 </html>
