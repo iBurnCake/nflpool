@@ -5,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>House Picks</title>
 
-  <!-- Core styles -->
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/housePicks.css">
 
-  <!-- Pre-paint boot CSS (prevents flash) -->
   <style id="bootCss">
     .app-boot body{visibility:hidden}
     .app-boot #appBootLoader{
@@ -58,7 +56,6 @@
   </style>
 </head>
 <body>
-  <!-- Boot overlay (shows immediately; cleared by boot.js/housePicks.js) -->
   <div id="appBootLoader" aria-live="polite">
     <div class="loader-box">
       <div class="spinner" aria-hidden="true"></div>
@@ -78,10 +75,8 @@
     </div>
   </div>
 
-  <!-- Page logic -->
   <script type="module" src="js/housePicks.js"></script>
 
-  <!-- Fallback: in case housePicks.js forgets to clear the boot overlay -->
   <script type="module">
     import { clearBootLoader } from './js/boot.js';
     window.addEventListener('load', () => clearBootLoader());
