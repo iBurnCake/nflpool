@@ -5,6 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Profile • NFL Confidence Pool</title>
 
+  <!-- No-flash bootloader: keep BEFORE any other CSS/JS -->
+  <style id="bootCss">
+    html { background:#121212; }
+    html.app-boot body > * { visibility: hidden; }
+    html.app-boot #appBootLoader { visibility: visible; }
+    #appBootLoader {
+      position: fixed; inset: 0; z-index: 9999;
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(12,12,12,.96);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    }
+    #appBootLoader .box { text-align:center; }
+    #appBootLoader .txt { margin-top:10px; font-weight:700; color:#FFD700; }
+    #appBootLoader .spin {
+      width:48px; height:48px; border-radius:50%;
+      border:4px solid #2b2b2b; border-top-color:#FFD700;
+      animation: bootSpin 1s linear infinite; margin:0 auto;
+    }
+    @keyframes bootSpin { to { transform: rotate(360deg); } }
+  </style>
+  <script>document.documentElement.classList.add('app-boot');</script>
+
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/index.css">
   <link rel="stylesheet" href="css/profile.css">
@@ -18,71 +40,30 @@
       max-width: 700px;
       margin: 0 auto;
     }
-    .profile-pic-option {
-      cursor: pointer;
-      border: 3px solid transparent;
-      border-radius: 50%;
-      padding: 5px;
-      transition: border 0.2s ease, transform 0.2s ease;
-      background-color: #222;
-    }
-    .profile-pic-option img {
-      width: 100%;
-      height: auto;
-      border-radius: 50%;
-      display: block;
-    }
+    .profile-pic-option { cursor: pointer; border: 3px solid transparent; border-radius: 50%; padding: 5px; transition: border .2s ease, transform .2s ease; background:#222; }
+    .profile-pic-option img { width: 100%; height: auto; border-radius: 50%; display: block; }
     .profile-pic-option:hover { border: 3px solid #FFD700; transform: scale(1.05); }
     .profile-pic-option.selected { border: 3px solid #00BFFF; }
+    .profile-avatar { display: block; margin: 10px auto 0; max-width: 100px; border-radius: 50%; border: 2px solid #FFD700; }
 
-    .profile-avatar {
-      display: block;
-      margin: 10px auto 0;
-      max-width: 100px;
-      border-radius: 50%;
-      border: 2px solid #FFD700;
-    }
-
-    .settings-container {
-      background-color: #333;
-      color: #fff;
-      padding: 20px;
-      margin: 20px auto;
-      border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-      text-align: center;
-      max-width: 900px;
-      border: 2px solid #FFD700;
-    }
-    .settings-container h2 {
-      margin-bottom: 15px;
-      font-size: 1.5em;
-      color: #FFD700;
-    }
-    .username-color-box {
-      background-color: #1E1E1E;
-      border: 2px solid #FFD700;
-      margin-bottom: 20px;
-      padding: 15px;
-    }
-    .color-picker-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-    }
-    #saveColorButton {
-      padding: 5px 10px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    #saveColorButton:hover { background-color: #45a049; }
+    .settings-container { background:#333; color:#fff; padding:20px; margin:20px auto; border-radius:10px; box-shadow:0 4px 6px rgba(0,0,0,.2); text-align:center; max-width:900px; border:2px solid #FFD700; }
+    .settings-container h2 { margin-bottom:15px; font-size:1.5em; color:#FFD700; }
+    .username-color-box { background:#1E1E1E; border:2px solid #FFD700; margin-bottom:20px; padding:15px; }
+    .color-picker-wrapper { display:flex; justify-content:center; align-items:center; gap:10px; }
+    #saveColorButton { padding:5px 10px; background:#4CAF50; color:#fff; border:none; border-radius:4px; cursor:pointer; }
+    #saveColorButton:hover { background:#45a049; }
   </style>
 </head>
+
 <body>
+  <!-- Boot overlay FIRST -->
+  <div id="appBootLoader" role="status" aria-live="polite" aria-busy="true">
+    <div class="box">
+      <div class="spin"></div>
+      <div class="txt" id="appBootMsg">Loading…</div>
+    </div>
+  </div>
+
   <div class="profile-topbar">
     <a href="index.html" class="btn btn-green">← Back to Home</a>
   </div>
@@ -122,26 +103,26 @@
   </main>
 
   <div class="settings-container" id="myStats">
-  <h2>My Stats</h2>
-  <div class="stats-grid">
-    <div class="stat">
-      <div class="stat-value" id="statNet">$0</div>
-      <div class="stat-label">Net</div>
-    </div>
-    <div class="stat">
-      <div class="stat-value" id="statTotalWon">$0</div>
-      <div class="stat-label">Total Won</div>
-    </div>
-    <div class="stat">
-      <div class="stat-value" id="statTotalStaked">$0</div>
-      <div class="stat-label">Total Staked</div>
-    </div>
-    <div class="stat">
-      <div class="stat-value" id="statWeeksWon">—</div>
-      <div class="stat-label">Weeks Won</div>
+    <h2>My Stats</h2>
+    <div class="stats-grid">
+      <div class="stat">
+        <div class="stat-value" id="statNet">$0</div>
+        <div class="stat-label">Net</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="statTotalWon">$0</div>
+        <div class="stat-label">Total Won</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="statTotalStaked">$0</div>
+        <div class="stat-label">Total Staked</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="statWeeksWon">—</div>
+        <div class="stat-label">Weeks Won</div>
+      </div>
     </div>
   </div>
-</div>
 
   <script type="module" src="js/profilePage.js"></script>
 </body>
