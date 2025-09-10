@@ -1,37 +1,15 @@
-// js/script.js
-import {
-  auth,
-  signInWithPopup,
-  GoogleAuthProvider,
-  onAuthStateChanged,
-  db,
-  ref,
-  get,
-  update
-} from './firebaseConfig.js';
+import { auth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, db, ref, get, update } from './firebaseConfig.js';
 
 import { refreshCurrentWeek, CURRENT_WEEK } from './settings.js';
 import { applyLockUI } from './ui.js';
-import {
-  attachPoolMembersListener,
-  detachPoolMembersListener,
-  updatePoolTotalCardOnce
-} from './poolTotal.js';
+import { attachPoolMembersListener, detachPoolMembersListener, updatePoolTotalCardOnce } from './poolTotal.js';
 import { getNameByEmail, loadUsernameColor } from './profiles.js';
-import {
-  displayGames,
-  loadUserPicks,
-  resetPicks,
-  submitPicks,
-  selectPick,
-  assignConfidence
-} from './picks.js';
+import { displayGames, loadUserPicks, resetPicks, submitPicks, selectPick, assignConfidence } from './picks.js';
 import { normalizeUserDoc } from './normalizeUser.js';
 import { watchAndFinalizeWeek } from './winners.js';
 
-const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2'; // your admin
+const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2';
 
-// --- Auth wiring ---
 document.addEventListener('DOMContentLoaded', () => {
   onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -79,7 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// --- Decorate the Profile card (hero bg, avatar, name color) ---
 async function applyProfileCardDecor(uid) {
   try {
     const snap = await get(ref(db, `users/${uid}`));
@@ -87,19 +64,16 @@ async function applyProfileCardDecor(uid) {
 
     const { profileBanner, profilePic, usernameColor } = snap.val() || {};
 
-    // Profile card hero: first card's hero in the dashboard grid
     const hero = document.querySelector('#dashboardCards .card:first-child .card-hero');
     if (hero && profileBanner) {
       hero.style.backgroundImage = `url("${profileBanner}")`;
     }
 
-    // Avatar on the card
     const img = document.getElementById('dashProfilePic');
     if (img) {
       img.src = profilePic || 'images/NFL LOGOS/nfl-logo.jpg';
     }
 
-    // Name color on the card
     const name = document.getElementById('dashDisplayName');
     if (name && usernameColor) {
       name.style.color = usernameColor;
@@ -109,7 +83,6 @@ async function applyProfileCardDecor(uid) {
   }
 }
 
-// --- Main login success flow ---
 async function handleSuccessfulLogin(user) {
   await refreshCurrentWeek();
 
@@ -119,7 +92,6 @@ async function handleSuccessfulLogin(user) {
   if (loginSection) loginSection.style.display = 'none';
   if (homeSection) homeSection.style.display = 'block';
 
-  // Friendly name (and persist it for members page, etc.)
   const displayName = getNameByEmail(user.email);
   try {
     await update(ref(db, `users/${user.uid}`), { displayName });
@@ -130,28 +102,23 @@ async function handleSuccessfulLogin(user) {
   const nameEl = document.getElementById('usernameDisplay');
   if (nameEl) nameEl.textContent = displayName;
 
-  // Username color + normalize doc + decorate profile card
   loadUsernameColor(user.uid);
   await normalizeUserDoc(user.uid);
   await applyProfileCardDecor(user.uid);
 
-  // Admin: watch winners/<week>/games and auto-finalize leaderboards/wins
   if (user.uid === ADMIN_UID) {
     watchAndFinalizeWeek(CURRENT_WEEK);
   }
 
-  // Expose pick handlers globally for inline event usage
   window.selectPick = selectPick;
   window.assignConfidence = assignConfidence;
   window.resetPicks = resetPicks;
   window.submitPicks = submitPicks;
 
-  // Load picks UI
   displayGames();
   await loadUserPicks(user.uid);
   applyLockUI();
 
-  // Pool totals
   attachPoolMembersListener();
   updatePoolTotalCardOnce();
 }
