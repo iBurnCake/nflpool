@@ -5,13 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Profile • NFL Confidence Pool</title>
 
-  <!-- Global styles you already use -->
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/index.css">
   <link rel="stylesheet" href="css/profile.css">
 
   <style>
-    /* Match the logo grid sizing from index */
     .profile-pic-selection {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
@@ -37,7 +35,6 @@
     .profile-pic-option:hover { border: 3px solid #FFD700; transform: scale(1.05); }
     .profile-pic-option.selected { border: 3px solid #00BFFF; }
 
-    /* Round preview like on index */
     .profile-avatar {
       display: block;
       margin: 10px auto 0;
@@ -46,7 +43,6 @@
       border: 2px solid #FFD700;
     }
 
-    /* Containers consistent with index */
     .settings-container {
       background-color: #333;
       color: #fff;
@@ -87,20 +83,16 @@
   </style>
 </head>
 <body>
-  <!-- Top mini bar -->
   <div class="profile-topbar">
     <a href="index.html" class="btn btn-green">← Back to Home</a>
   </div>
 
-  <!-- Login gate (hidden once authed) -->
   <div id="loginSection" class="login-container" style="display:none;">
     <h2>Login to manage your profile</h2>
     <button id="googleLoginButton" type="button">Login with Google</button>
   </div>
 
-  <!-- Profile content -->
   <main id="profileSection" style="display:none;">
-    <!-- Hero banner preview (updated when a banner is picked) -->
     <div id="profileHero" class="profile-hero"></div>
 
     <div class="settings-container">
@@ -151,7 +143,6 @@
   </div>
 </div>
 
-  <!-- One module: handles login gate + color/logo + banner picker -->
   <script type="module" src="js/profilePage.js"></script>
 </body>
 </html>
