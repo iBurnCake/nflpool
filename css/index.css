@@ -225,17 +225,15 @@ button {
   }
 }
 
-/* Picks card footer attached to the table (no separator bar) */
 .picks-card .picks-actions {
-  margin-top: 0;       /* was 12px */
-  padding-top: 0;      /* was 12px */
-  border-top: 0;       /* removed the yellow line */
+  margin-top: 0;      
+  padding-top: 0;   
+  border-top: 0;   
   display: flex;
   gap: 10px;
   justify-content: flex-end;
 }
 
-/* Reuse your existing button look (if you have .btn classes) */
 .btn { border: 0; border-radius: 10px; padding: 10px 16px; font-weight: 700; color: #fff; cursor: pointer; }
 .btn-red { background:#e11d21; }
 .btn-green { background:#2ca24d; }
