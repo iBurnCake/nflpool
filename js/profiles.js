@@ -1,4 +1,3 @@
-// profiles.js
 import { db, ref, get, set, update } from './firebaseConfig.js';
 
 const emailToNameMap = {
@@ -46,12 +45,6 @@ export function loadProfilePic(userId) {
   });
 }
 
-/**
- * Loads the user's saved username color and:
- * - Applies it to #usernameDisplay
- * - Sets it as the value of #usernameColorPicker (so the swatch shows the saved color)
- * - Saves updates when #saveColorButton is clicked
- */
 export function loadUsernameColor(userId, defaultColor = '#FFD700') {
   const colorRef = ref(db, `users/${userId}/usernameColor`);
   const usernameDisplay = document.getElementById('usernameDisplay');
@@ -60,10 +53,9 @@ export function loadUsernameColor(userId, defaultColor = '#FFD700') {
 
   const applyColorToUI = (hex) => {
     if (usernameDisplay) usernameDisplay.style.color = hex;
-    if (colorPicker) colorPicker.value = hex; // keep the swatch in sync
+    if (colorPicker) colorPicker.value = hex; 
   };
 
-  // Load saved color and reflect it in UI (fallback to gold if none)
   get(colorRef)
     .then((snapshot) => {
       const savedHex = snapshot.exists() ? String(snapshot.val()) : defaultColor;
@@ -74,10 +66,9 @@ export function loadUsernameColor(userId, defaultColor = '#FFD700') {
       applyColorToUI(defaultColor);
     });
 
-  // Save on click
   if (saveButton && colorPicker) {
     saveButton.onclick = () => {
-      const selectedColor = colorPicker.value || defaultColor; // "#rrggbb"
+      const selectedColor = colorPicker.value || defaultColor; 
       set(colorRef, selectedColor)
         .then(() => {
           applyColorToUI(selectedColor);
