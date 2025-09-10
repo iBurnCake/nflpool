@@ -16,7 +16,6 @@
    <link rel="icon" type="image/png" href="images/NFL LOGOS/nfl-logo.jpg">
 
    <style>
-     /* ---------- Restored gold-outline container ---------- */
      .settings-container {
        background-color: #333;
        color: #fff;
@@ -34,7 +33,6 @@
        color: #FFD700;
      }
 
-     /* Picks table look inside framed box */
      #gamesTable {
        width: 100%;
        border-collapse: collapse;
@@ -53,7 +51,6 @@
        color: #ddd;
      }
 
-     /* Connect buttons to the table inside same card */
      .picks-card .picks-actions {
        margin-top: 12px;
        padding-top: 12px;
@@ -63,7 +60,6 @@
        justify-content: flex-end;
      }
 
-     /* ---------- Card grid and cards ---------- */
      .cards-grid {
        max-width: 1200px;
        margin: 10px auto 0;
@@ -86,7 +82,7 @@
      .card:hover { transform: translateY(-2px); box-shadow: 0 10px 18px rgba(0,0,0,.35); }
      .card-hero {
        height: 110px;
-       background-color: #444; /* image set per-card inline */
+       background-color: #444; 
        background-size: cover;
        background-position: center;
        background-repeat: no-repeat;
@@ -100,7 +96,6 @@
      .card-body h3 { margin: 0 0 6px; color: #FFD700; font-size: 1.1rem; }
      .card-body p { margin: 0; color: #ddd; line-height: 1.35; }
 
-     /* ---------- Right-side Money Pool card ---------- */
      .pool-total-card{
        position: fixed;
        top: 110px;
@@ -133,15 +128,12 @@
       <h2>Welcome, <span id="usernameDisplay"></span></h2>
     </div>
 
-    <!-- Fixed right-side Money Pool Total card -->
     <div id="poolTotalCard">
       <div class="pool-title">Money Pool Total</div>
       <div class="pool-amount" id="poolTotalAmount">$0</div>
     </div>
 
-    <!-- Quick cards row -->
     <section class="cards-grid" id="dashboardCards">
-      <!-- Profile -->
       <a class="card" href="profile.html">
         <div class="card-hero">
           <img id="dashProfilePic" src="images/NFL LOGOS/nfl-logo.jpg" alt="Profile">
@@ -152,7 +144,6 @@
         </div>
       </a>
 
-      <!-- My Picks -->
       <a class="card" href="#picksSection">
         <div class="card-hero" style="background-image:url('images/cards/card-mypicks-v2.jpg');"></div>
         <div class="card-body">
@@ -161,7 +152,6 @@
         </div>
       </a>
 
-      <!-- House Picks -->
       <a class="card" href="housePicks.html">
         <div class="card-hero" style="background-image:url('images/cards/card-housepicks-v2.jpg');"></div>
         <div class="card-body">
@@ -170,7 +160,6 @@
         </div>
       </a>
 
-      <!-- Money Pool -->
       <a class="card" href="moneyPool.html">
         <div class="card-hero" style="background-image:url('images/cards/card-moneypool.jpg');"></div>
         <div class="card-body">
@@ -179,7 +168,6 @@
         </div>
       </a>
 
-      <!-- Past Weeks -->
       <a class="card" href="pastWeeks.html">
         <div class="card-hero" style="background-image:url('images/cards/card-pastweeks-v2.jpg');"></div>
         <div class="card-body">
@@ -188,17 +176,15 @@
         </div>
       </a>
 
-         <!-- Members -->
      <a class="card members-card" href="members.html">
       <div class="card-hero" style="background-image:url('images/cards/card-members.jpg');"></div>
       <div class="card-body">
         <h3>Members</h3>
         <p>Everyone's Stats</p>
-      <div id="membersPreview" class="members-list"><!-- optional small pills go here --></div>
+      <div id="membersPreview" class="members-list"></div>
     </div>
    </a>
 
-   <!-- Admin Console — visible only for admin -->
 <a id="adminCard" class="card" href="admin.html" style="display:none;">
   <div class="card-hero" style="background-image:url('images/cards/card-adminconsole.jpg');"></div>
   <div class="card-body">
@@ -207,13 +193,9 @@
   </div>
 </a>
 
-<!-- Make sure this script is included once on the page (after firebaseConfig.js) -->
 <script type="module" src="js/adminGate.js"></script>
     </section>
 
-    
-
-    <!-- Connected Picks card (table + actions together) -->
     <div class="settings-container picks-card" id="picksSection">
       <table id="gamesTable">
         <thead>
@@ -235,7 +217,6 @@
 
   <script type="module" src="js/script.js"></script>
 
-  <!-- Drawer init (single block) -->
 <script type="module">
   import  mountDrawer  from './js/drawer.js';
   import { auth } from './js/firebaseConfig.js';
@@ -254,13 +235,11 @@
   });
 </script>
   
-
-  <!-- Optional tiny sync -->
   <script>
     (function syncProfileCard(){
       const nameSource = document.getElementById('usernameDisplay');
       const nameTarget = document.getElementById('dashDisplayName');
-      const picSource  = document.getElementById('profilePicPreview'); // may not exist here
+      const picSource  = document.getElementById('profilePicPreview'); 
       const picTarget  = document.getElementById('dashProfilePic');
 
       const apply = () => {
