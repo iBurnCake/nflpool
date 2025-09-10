@@ -12,19 +12,31 @@ import {
   assignConfidence
 } from './picks.js';
 import { normalizeUserDoc } from './normalizeUser.js';
+import { showLoader, hideLoader } from './loader.js';
+import { clearBootLoader, setBootMessage } from './boot.js';
 
 const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2';
 
 document.addEventListener('DOMContentLoaded', () => {
+  setBootMessage('Loading…');
+  showLoader('Loading…');
+
   onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      await handleSuccessfulLogin(user);
-    } else {
-      console.log('No user logged in');
-      const loginSection = document.getElementById('loginSection');
-      if (loginSection) loginSection.style.display = 'flex';
-      const homeSection = document.getElementById('userHomeSection');
-      if (homeSection) homeSection.style.display = 'none';
+    try {
+      if (user) {
+        await handleSuccessfulLogin(user);
+      } else {
+        console.log('No user logged in');
+        const loginSection = document.getElementById('loginSection');
+        if (loginSection) loginSection.style.display = 'flex';
+        const homeSection = document.getElementById('userHomeSection');
+        if (homeSection) homeSection.style.display = 'none';
+      }
+    } catch (e) {
+      console.error('init error:', e);
+    } finally {
+      hideLoader();
+      clearBootLoader();
     }
   });
 
@@ -118,5 +130,4 @@ async function handleSuccessfulLogin(user) {
   await loadUserPicks(user.uid);
 
   applyLockUI();
-
 }
