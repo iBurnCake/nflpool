@@ -5,13 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Members • NFL Confidence Pool</title>
 
-  <!-- Site styles (keep these) -->
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/index.css">
   <link rel="stylesheet" href="css/members.css">
 
   <style>
-    /* ---- Page hero (matches Money Pool/Past Weeks style) ---- */
     .page-hero {
       display: flex; justify-content: center;
       padding: 18px 16px 8px;
@@ -58,16 +56,14 @@
     }
     .btn-primary:hover { background-color: #1F5B99; }
 
-    /* Status line (loading/errors, set by JS) */
     #membersStatus {
       text-align: center;
       color: #FFD700;
       font-weight: 600;
       margin: 8px 0 0;
-      min-height: 22px; /* keeps layout steady */
+      min-height: 22px; 
     }
 
-    /* ---- Cards grid ---- */
     .cards-grid.member-grid{
       max-width: 1200px;
       margin: 14px auto 28px;
@@ -77,7 +73,6 @@
       gap: 18px;
     }
 
-    /* Member card chrome (sits on top of your .card styles) */
     .member-card .card-hero{
       position:relative;
       height:160px;
@@ -99,7 +94,6 @@
     }
     .member-card .member-stats{ margin:0; color:#ddd; line-height:1.45; font-size:15px; }
 
-    /* Login gate styling tweaks (uses your existing .login-container) */
     #loginSection .btn-primary { margin-top: 10px; }
 
     @media (max-width:520px){
@@ -111,7 +105,6 @@
   </style>
 </head>
 <body>
-  <!-- Hero -->
   <div class="page-hero">
     <div class="title-box">
       <h1>Members</h1>
@@ -121,15 +114,12 @@
     </div>
   </div>
 
-  <!-- Status line for loading/errors (set from JS) -->
   <div id="membersStatus" aria-live="polite"></div>
 
-  <!-- Members grid (shown by JS on auth) -->
   <main id="membersSection" hidden>
     <section class="cards-grid member-grid" id="memberGrid"></section>
   </main>
 
-  <!-- Login gate (shown by JS when signed out) -->
   <div id="loginSection" class="login-container" hidden>
     <h2>Login to view members</h2>
     <button id="googleLoginButton" type="button" class="btn-primary">Login with Google</button>
@@ -141,7 +131,6 @@
     </div>
   </noscript>
 
-  <!-- Your members logic -->
   <script type="module" src="js/members.js"></script>
 </body>
 </html>
