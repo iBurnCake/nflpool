@@ -1,24 +1,15 @@
-// js/winners.js
 import { db, ref, get, update, auth } from './firebaseConfig.js';
 
-const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2';   // your admin UID
-const ENTRY_FEE = 5;                                  // dollars per pool member
+const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2';  
+const ENTRY_FEE = 5;                                 
 
-/* ----------------- small utils ----------------- */
 const toNum = (x) => (typeof x === 'number' ? x : Number(x) || 0);
 const norm  = (s) => String(s ?? '').trim().toLowerCase();
 
 function winnerString(v) {
-  // supports "Ravens" or { winner: "Ravens" } or { team/name: "Ravens" }
   return (typeof v === 'string') ? v : (v && (v.winner || v.team || v.name));
 }
 
-/**
- * Determine expected game keys for a week:
- * 1) winners/<week>/gameCount -> 0..count-1
- * 2) else infer from scoreboards/<week> (union of picked indices)
- * 3) else fallback to whatever exists under winners/<week>/games
- */
 async function getExpectedGameKeys(weekKey, winnersByGame) {
   const cntSnap = await get(ref(db, `winners/${weekKey}/gameCount`));
   if (cntSnap.exists()) {
@@ -49,7 +40,6 @@ function winnersComplete(winnersByGame, expectedKeys) {
   return true;
 }
 
-/* ------------ score one user's picks ------------ */
 function scoreUser(picksObj, winnersByGame) {
   if (!picksObj || !winnersByGame) return 0;
   let total = 0;
@@ -69,7 +59,6 @@ function scoreUser(picksObj, winnersByGame) {
   return total;
 }
 
-/* ------------- build leaderboards -------------- */
 async function buildLeaderboards(weekKey, winnersByGame) {
   const sbSnap = await get(ref(db, `scoreboards/${weekKey}`));
   const scoreboards = sbSnap.exists() ? (sbSnap.val() || {}) : {};
@@ -103,12 +92,6 @@ function maxKeys(map) {
   return winners;
 }
 
-/* ------------- finalize + persist --------------- */
-/**
- * This is only called by the Admin Console "Finalize" button.
- * - Writes leaderboards under /winners/<weekKey>
- * - If ALL expected games have winners, awards weeksWon + money payouts
- */
 async function computeAndSaveWinners(weekKey) {
   const winSnap = await get(ref(db, `winners/${weekKey}/games`));
   if (!winSnap.exists()) return { ran:false, reason:'no winners yet' };
@@ -119,7 +102,6 @@ async function computeAndSaveWinners(weekKey) {
   const { houseScores, poolScores, houseWinners, poolWinners } =
     await buildLeaderboards(weekKey, winnersByGame);
 
-  // Persist current leaderboards/winners (so UI can read them)
   const patch = {
     [`winners/${weekKey}/houseLeaderboard`]: houseScores,
     [`winners/${weekKey}/moneyPoolLeaderboard`]: poolScores,
@@ -129,7 +111,6 @@ async function computeAndSaveWinners(weekKey) {
   };
   await update(ref(db), patch);
 
-  // Only award when all expected winners are set (supports <16 games)
   const expectedKeys = await getExpectedGameKeys(weekKey, winnersByGame);
   const complete = winnersComplete(winnersByGame, expectedKeys);
 
@@ -143,15 +124,11 @@ async function computeAndSaveWinners(weekKey) {
   return { ran:true, awarded:true, pot, payoutPerWinner, updatedUsers };
 }
 
-/* -------- award weeksWon + money-pool payout ----- */
-/* Idempotent: per-user award flag prevents double credit. */
 async function awardWeekPayoutsAndWins(weekKey, houseWinners = [], poolWinners = []) {
-  // Admin gate (must be signed in as admin to award)
   if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) {
     return { pot:0, payoutPerWinner:0, updatedUsers:[] };
   }
 
-  // Pot from subscriberPools
   const membersSnap = await get(ref(db, `subscriberPools/${weekKey}/members`));
   const members = membersSnap.exists() ? (membersSnap.val() || {}) : {};
   const memberCount = Object.values(members).filter(Boolean).length;
@@ -166,36 +143,30 @@ async function awardWeekPayoutsAndWins(weekKey, houseWinners = [], poolWinners =
   const updatedUsers = [];
 
   for (const uid of allWinners) {
-    // skip if this user already got this week's award
     const hasAwardSnap = await get(ref(db, `users/${uid}/awards/${weekKey}`));
     if (hasAwardSnap.exists()) continue;
 
-    // weeksWon +1
     const wSnap = await get(ref(db, `users/${uid}/stats/weeksWon`));
     const curW = wSnap.exists() ? toNum(wSnap.val()) : 0;
     updates[`users/${uid}/stats/weeksWon`] = curW + 1;
 
-    // money pool payout only for pool winners
     if (poolWinners.includes(uid)) {
       const tSnap = await get(ref(db, `users/${uid}/stats/totalWon`));
       const curT = tSnap.exists() ? toNum(tSnap.val()) : 0;
       updates[`users/${uid}/stats/totalWon`] = curT + payoutPerWinner;
     }
 
-    // per-user award flag
     updates[`users/${uid}/awards/${weekKey}`] = true;
     updatedUsers.push(uid);
   }
 
-  // bookkeeping
   updates[`winners/${weekKey}/pot`] = pot;
   updates[`winners/${weekKey}/payoutPerWinner`] = payoutPerWinner;
-  updates[`winners/${weekKey}/awardedStats`] = true; // coarse flag; safe to keep true
+  updates[`winners/${weekKey}/awardedStats`] = true;
 
   if (updatedUsers.length > 0) {
     await update(ref(db), updates);
   } else {
-    // still record pot/payout even if no one needed updates
     await update(ref(db), {
       [`winners/${weekKey}/pot`]: pot,
       [`winners/${weekKey}/payoutPerWinner`]: payoutPerWinner,
@@ -206,14 +177,10 @@ async function awardWeekPayoutsAndWins(weekKey, houseWinners = [], poolWinners =
   return { pot, payoutPerWinner, updatedUsers };
 }
 
-/* -------- manual-only finalize (admin console) --- */
 export async function finalizeWeekOnce(weekKey) {
   try { return await computeAndSaveWinners(weekKey); }
   catch (e) { console.warn('finalizeWeekOnce error:', e); return { ran:false, reason:String(e) }; }
 }
 
-/* -------- disabled live watcher (no-op) ---------- */
-/* Keep export for compatibility; does nothing. */
 export function watchAndFinalizeWeek() {
-  // intentionally no-op: finalize is manual via admin console
 }
