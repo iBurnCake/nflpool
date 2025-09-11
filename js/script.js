@@ -1,18 +1,8 @@
-// js/script.js
-import {
-  auth,
-  signInWithPopup,
-  GoogleAuthProvider,
-  onAuthStateChanged,
-  db,
-  ref,
-  get
-} from './firebaseConfig.js';
+import { auth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, db, ref, get, update } from './firebaseConfig.js';
 
 import { refreshCurrentWeek, CURRENT_WEEK } from './settings.js';
 import { applyLockUI } from './ui.js';
-// NOTE: drop getNameByEmail — we no longer map emails to names client-side
-import { loadUsernameColor } from './profiles.js';
+import { getNameByEmail, loadUsernameColor } from './profiles.js';
 import {
   displayGames,
   loadUserPicks,
@@ -27,25 +17,6 @@ import { clearBootLoader, setBootMessage } from './boot.js';
 
 const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2';
 
-// --- helpers -------------------------------------------------------------------
-const shortUid = (uid) => (uid ? `${uid.slice(0, 6)}…${uid.slice(-4)}` : 'Player');
-
-async function fetchDisplayName(uid) {
-  try {
-    const snap = await get(ref(db, `users/${uid}/displayName`));
-    const val = snap.exists() ? String(snap.val() ?? '').trim() : '';
-    return val || null;
-  } catch {
-    return null;
-  }
-}
-
-function setWelcomeName(name) {
-  const nameEl = document.getElementById('usernameDisplay');
-  if (nameEl) nameEl.textContent = name;
-}
-
-// --- boot ----------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
   setBootMessage('Loading…');
   showLoader('Loading…');
@@ -55,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (user) {
         await handleSuccessfulLogin(user);
       } else {
+        console.log('No user logged in');
         const loginSection = document.getElementById('loginSection');
         if (loginSection) loginSection.style.display = 'flex';
         const homeSection = document.getElementById('userHomeSection');
@@ -100,7 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// --- UI polish -----------------------------------------------------------------
 async function applyProfileCardDecor(uid) {
   try {
     const snap = await get(ref(db, `users/${uid}`));
@@ -109,44 +80,52 @@ async function applyProfileCardDecor(uid) {
     const { profileBanner, profilePic, usernameColor } = snap.val() || {};
 
     const hero = document.querySelector('#dashboardCards .card:first-child .card-hero');
-    if (hero && profileBanner) hero.style.backgroundImage = `url("${profileBanner}")`;
+    if (hero && profileBanner) {
+      hero.style.backgroundImage = `url("${profileBanner}")`;
+    }
 
     const img = document.getElementById('dashProfilePic');
-    if (img) img.src = profilePic || 'images/NFL LOGOS/nfl-logo.jpg';
+    if (img) {
+      img.src = profilePic || 'images/NFL LOGOS/nfl-logo.jpg';
+    }
 
     const name = document.getElementById('dashDisplayName');
-    if (name && usernameColor) name.style.color = usernameColor;
+    if (name && usernameColor) {
+      name.style.color = usernameColor;
+    }
   } catch (e) {
     console.warn('applyProfileCardDecor error:', e);
   }
 }
 
-// --- login success flow --------------------------------------------------------
 async function handleSuccessfulLogin(user) {
   await refreshCurrentWeek();
 
+  console.log('User logged in:', user.email);
   const loginSection = document.getElementById('loginSection');
   const homeSection  = document.getElementById('userHomeSection');
   if (loginSection) loginSection.style.display = 'none';
   if (homeSection)  homeSection.style.display  = 'block';
 
-  // Get admin-set displayName; fallback to a neutral label (no email mapping)
-  const adminName = await fetchDisplayName(user.uid);
-  const fallback  = shortUid(user.uid); // or 'New Player'
-  setWelcomeName(adminName || fallback);
+  const displayName = getNameByEmail(user.email);
+  try {
+    await update(ref(db, `users/${user.uid}`), { displayName });
+  } catch (e) {
+    console.warn('Failed to persist displayName:', e);
+  }
 
-  // Color, profile card visuals, and any doc normalization (ensure it DOES NOT write displayName)
+  const nameEl = document.getElementById('usernameDisplay');
+  if (nameEl) nameEl.textContent = displayName;
+
   loadUsernameColor(user.uid);
   await normalizeUserDoc(user.uid);
   await applyProfileCardDecor(user.uid);
 
-  // Expose handlers globally for your existing UI
   window.selectPick = selectPick;
   window.assignConfidence = assignConfidence;
   window.resetPicks = resetPicks;
   window.submitPicks = submitPicks;
 
-  // Build picks table & load user picks
   displayGames();
   await loadUserPicks(user.uid);
 
