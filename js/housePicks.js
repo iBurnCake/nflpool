@@ -96,28 +96,6 @@ function calculateTotalScore(userPicks, winnersByIdx) {
   return total;
 }
 
-function getUserName(userId) {
-  const userMap = {
-    'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
-    '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan',
-    'zZ8DblY3KQgPP9bthG87l7DNAux2': 'Ryan Sanders',
-    'ukGs73HIg6aECkgShM71C8fTcwo1': 'William Mathis',
-    '67khUuKYmhXxRumUjMpyoDbnq0s2': 'Thomas Romano',
-    'JIdq2bYVCZgdAeC0y6P69puNQz43': 'Tony Romano',
-    '9PyTK0SHv7YKv7AYw5OV29dwH5q2': 'Emily Rossini',
-    'ORxFtuY13VfaUqc2ckcfw084Lxq1': 'Aunt Vicki',
-    'FIKVjOy8P7UTUGqq2WvjkARZPIE2': 'Tommy Kant',
-    'FFIWPuZYzYRI2ibmVbVHDIq1mjj2': 'De Von ',
-    'i6s97ZqeN1YCM39Sjqh65VablvA3': 'Kyra Kafel ',
-    '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant',
-    'gsQAQttBoEOSu4v1qVVqmHxAqsO2': 'Nick Kier',
-    'VnBOWzUZh7UAon6NJ6ICX1kVlEE2': 'Connor Moore',
-    'pJxZh3lsp9a0MpKVPSHvyIfNTwW2': 'Mel',
-    '154NpbRIlUQyKwyDjsuW2k4J5Io2': 'Brayden Trunnell',
-    'PaHlsxdFFMRRbd4YurMdAsfaFhe2': 'Gavin Munoz',
-  };
-  return userMap[userId] || `User ${userId}`;
-}
 
 async function loadHousePicks() {
   const container = document.getElementById('housePicksContainer');
