@@ -3,7 +3,7 @@ import {
   ref, get, update, onAuthStateChanged
 } from './firebaseConfig.js';
 
-import { loadUsernameColor, loadProfilePic } from './profiles.js'; // removed getNameByEmail
+import { getNameByEmail, loadUsernameColor, loadProfilePic } from './profiles.js';
 import { renderTeamLogoPicker } from './teams.js';
 import { BANNERS } from './banners.js';
 import { showLoader, hideLoader } from './loader.js';
@@ -22,19 +22,6 @@ function formatUSD(n) {
 }
 const toNum = (x) => (typeof x === 'number') ? x : Number(x) || 0;
 
-// --- display name helpers (admin-controlled) -----------------------------------
-const shortUid = (uid) => (uid ? `${uid.slice(0, 6)}…${uid.slice(-4)}` : 'Player');
-
-async function fetchDisplayName(uid) {
-  try {
-    const snap = await get(ref(db, `users/${uid}/displayName`));
-    const val = snap.exists() ? String(snap.val() ?? '').trim() : '';
-    return val || null;
-  } catch {
-    return null;
-  }
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   setBootMessage('Loading profile…');
   showLoader('Loading profile…');
@@ -51,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('There was an error loading your profile.');
     } finally {
       hideLoader();
-      clearBootLoader();
+      clearBootLoader(); 
     }
   });
 
@@ -82,11 +69,14 @@ async function showProfile(user) {
   hide(document.getElementById('loginSection'));
   show(getProfileRoot());
 
-  // --- display name comes only from DB; never write it from client
-  const adminName = await fetchDisplayName(user.uid);
-  setText('usernameDisplay', adminName || shortUid(user.uid));
+  const displayName = getNameByEmail(user.email);
+  setText('usernameDisplay', displayName);
+  try {
+    await update(ref(db, `users/${user.uid}`), { displayName });
+  } catch (e) {
+    console.warn('Could not persist displayName', e);
+  }
 
-  // User-owned visuals
   loadUsernameColor(user.uid);
   loadProfilePic(user.uid);
 
