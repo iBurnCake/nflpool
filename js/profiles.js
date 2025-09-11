@@ -1,24 +1,5 @@
 import { db, ref, get, set, update } from './firebaseConfig.js';
 
-const emailToNameMap = {
-  "devonstankis3@gmail.com": "De Von",
-  "kyrakafel@gmail.com": "Kyra Kafel",
-  "tom.kant21@gmail.com": "Tommy Kant",
-  "vickiocf@gmail.com": "Aunt Vicki",
-  "erossini02@gmail.com": "Emily Rossini",
-  "tony.romano222@gmail.com": "Tony Romano",
-  "thomasromano19707@gmail.com": "Thomas Romano",
-  "ckeegan437@gmail.com": "Charles Keegan",
-  "rainhail85@gmail.com": "Ryan Sanders",
-  "peachetube@gmail.com": "William Mathis",
-  "angelakant007@gmail.com": "Angela Kant",
-  "luke.romano2004@gmail.com": "Luke Romano",
-  "Nkier27@gmail.com": "Nick Kier",
-  "connor.j.moore0509@gmail.com": "Connor Moore",
-  "fischy1826@gmail.com": "Mel",
-  "gmoneymunoz07@gmail.com": "Gavin Munoz",
-};
-
 export function getNameByEmail(email) {
   return emailToNameMap[email] || email;
 }
