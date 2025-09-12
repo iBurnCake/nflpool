@@ -81,5 +81,12 @@
     import { clearBootLoader } from './js/boot.js';
     window.addEventListener('load', () => clearBootLoader());
   </script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js'); // if your site is in a subfolder, use './sw.js'
+    });
+  }
+</script>
 </body>
 </html>
