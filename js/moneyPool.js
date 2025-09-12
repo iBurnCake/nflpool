@@ -105,7 +105,7 @@ function fallbackName(uid) {
     'gsQAQttBoEOSu4v1qVVqmHxAqsO2': 'Nick Kier',
     'VnBOWzUZh7UAon6NJ6ICX1kVlEE2': 'Connor Moore',
     'pJxZh3lsp9a0MpKVPSHvyIfNTwW2': 'Mel',
-    '154NpbRIlUQyKwyDjsuW2k4J5Io2': 'Brayden Trunnell',
+    'F70T1damAEe1oq53RGYo7QKkaPA2': 'Brayden Trunnell,
     'PaHlsxdFFMRRbd4YurMdAsfaFhe2': 'Gavin Munoz',
   };
   return map[uid] || `User ${uid.slice(0, 6)}…`;
