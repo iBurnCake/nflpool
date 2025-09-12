@@ -113,8 +113,8 @@ function getUserName(userId) {
     'gsQAQttBoEOSu4v1qVVqmHxAqsO2': 'Nick Kier',
     'VnBOWzUZh7UAon6NJ6ICX1kVlEE2': 'Connor Moore',
     'pJxZh3lsp9a0MpKVPSHvyIfNTwW2': 'Mel',
-    '154NpbRIlUQyKwyDjsuW2k4J5Io2': 'Brayden Trunnell',
     'PaHlsxdFFMRRbd4YurMdAsfaFhe2': 'Gavin Munoz',
+    'F70T1damAEe1oq53RGYo7QKkaPA2': 'Brayden Trunnell,
   };
   return userMap[userId] || `User ${userId}`;
 }
