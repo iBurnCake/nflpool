@@ -1,8 +1,4 @@
-import {
-  auth, db, signInWithPopup, GoogleAuthProvider,
-  ref, get, update, onAuthStateChanged
-} from './firebaseConfig.js';
-
+import { auth, db, signInWithPopup, GoogleAuthProvider, ref, get, update, onAuthStateChanged } from './firebaseConfig.js';
 import { getNameByEmail, loadUsernameColor, loadProfilePic } from './profiles.js';
 import { renderTeamLogoPicker } from './teams.js';
 import { BANNERS } from './banners.js';
@@ -224,3 +220,4 @@ async function renderUserStats(uid) {
   setText('statTotalStaked', formatUSD(totalStaked));
   setText('statNet', formatUSD(totalWon - totalStaked));
 }
+
