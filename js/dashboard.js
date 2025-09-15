@@ -1,21 +1,11 @@
-import {
-    auth,
-    db,
-    signInWithPopup,
-    GoogleAuthProvider,
-    ref,
-    get,
-    child,
-    onAuthStateChanged,
-  } from './firebaseConfig.js';
+import { auth, db, signInWithPopup, GoogleAuthProvider, ref, get, child, onAuthStateChanged, } from './firebaseConfig.js';
+import { CURRENT_WEEK, IS_LOCKED, refreshCurrentWeek } from './settings.js';
+import { getNameByEmail } from './profiles.js';
   
-  import { CURRENT_WEEK, IS_LOCKED, refreshCurrentWeek } from './settings.js';
-  import { getNameByEmail } from './profiles.js';
+const MEMBERS_PATH = 'subscriberPools/week1/members';
+const POOL_DOLLARS_PER_MEMBER = 5;
   
-  const MEMBERS_PATH = 'subscriberPools/week1/members';
-  const POOL_DOLLARS_PER_MEMBER = 5;
-  
-  document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         await showDashboard(user);
@@ -133,3 +123,4 @@ import {
     }
 
   }
+
