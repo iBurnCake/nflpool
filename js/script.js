@@ -1,16 +1,8 @@
 import { auth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, db, ref, get, update } from './firebaseConfig.js';
-
 import { refreshCurrentWeek, CURRENT_WEEK } from './settings.js';
 import { applyLockUI } from './ui.js';
 import { getNameByEmail, loadUsernameColor } from './profiles.js';
-import {
-  displayGames,
-  loadUserPicks,
-  resetPicks,
-  submitPicks,
-  selectPick,
-  assignConfidence
-} from './picks.js';
+import { displayGames, loadUserPicks, resetPicks, submitPicks, selectPick, assignConfidence } from './picks.js';
 import { normalizeUserDoc } from './normalizeUser.js';
 import { showLoader, hideLoader } from './loader.js';
 import { clearBootLoader, setBootMessage } from './boot.js';
