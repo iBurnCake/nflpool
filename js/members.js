@@ -1,12 +1,4 @@
-import {
-  auth,
-  signInWithPopup,
-  GoogleAuthProvider,
-  onAuthStateChanged,
-  db,
-  ref,
-  get
-} from './firebaseConfig.js';
+import { auth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
 import { showLoader, hideLoader } from './loader.js';
 import { clearBootLoader, setBootMessage } from './boot.js';
 
