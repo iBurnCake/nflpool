@@ -42,7 +42,6 @@
         <span id="who" class="pill">Checking auth…</span>
       </div>
 
-      <!-- ===== Week / Lock (unchanged) ===== -->
       <h3>Week / Lock</h3>
       <div class="row">
         <label>Current week:</label>
@@ -57,13 +56,23 @@
         <span id="lockInfo" class="pill"></span>
       </div>
 
-      <!-- ===== Finalize (unchanged) ===== -->
       <h3>Finalize Winners</h3>
       <div class="row">
         <button id="finalizeBtn">Finalize Winners For Selected Week</button>
       </div>
 
-      <!-- ===== NEW: Access Requests / Allowlist ===== -->
+      <h3>Money Pool Entry Fee</h3>
+      <div class="row">
+        <button id="chargePoolBtn">Charge $5 to Current Pool Members</button>
+        <span id="chargeInfo" class="pill gray small">Not charged</span>
+      </div>
+      <div class="row small muted">
+        <span>
+          Charges each <code>subscriberPools/&lt;week&gt;/members</code> user: <code>stats.totalStaked += 5</code> and <code>stats.totalWon -= 5</code>.
+          Idempotent via <code>users/&lt;uid&gt;/stakesByWeek/&lt;week&gt;</code>.
+        </span>
+      </div>
+
       <h3>Access Requests</h3>
       <div class="row small muted">
         <span>Approve adds <code>allowlist/&lt;uid&gt;/approved: true</code>. Revoking sets it to <code>false</code>.</span>
@@ -100,14 +109,15 @@
   </div>
 
   <script type="module">
-    import { auth, onAuthStateChanged, db, ref, get, set, update } from './js/firebaseConfig.js';
+    import { auth, onAuthStateChanged, db, ref, get, update } from './js/firebaseConfig.js';
     import { finalizeWeekOnce } from './js/winners.js';
 
     const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2';
+    const ENTRY_FEE = 5;
+
     const out = (m) => document.getElementById('out').textContent =
       (typeof m === 'string') ? m : JSON.stringify(m, null, 2);
 
-    /* ========= Existing functions (unchanged) ========= */
     const toNum = (x) => (typeof x === 'number' ? x : Number(x) || 0);
 
     async function listWeeks() {
@@ -189,7 +199,56 @@
       }
     }
 
-    /* ========= NEW: Access Requests / Allowlist ========= */
+    async function chargePoolEntry() {
+      const wk = document.getElementById('weekSel').value;
+      document.getElementById('chargeInfo').textContent = 'Charging…';
+      out(`Charging $${ENTRY_FEE} to pool members for ${wk}…`);
+
+      const memSnap = await get(ref(db, `subscriberPools/${wk}/members`));
+      if (!memSnap.exists()) {
+        document.getElementById('chargeInfo').textContent = 'No pool members';
+        out('No pool members for this week.');
+        return;
+      }
+      const members = memSnap.val() || {};
+      const uids = Object.entries(members).filter(([,v]) => !!v).map(([uid]) => uid);
+
+      if (uids.length === 0) {
+        document.getElementById('chargeInfo').textContent = 'No pool members';
+        out('No pool members flagged true.');
+        return;
+      }
+
+      const updates = {};
+      const charged = [];
+      const skipped = [];
+
+      for (const uid of uids) {
+        const flagRef = ref(db, `users/${uid}/stakesByWeek/${wk}`);
+        const flag = await get(flagRef);
+        if (flag.exists()) { skipped.push(uid); continue; }
+
+        const stSnap = await get(ref(db, `users/${uid}/stats/totalStaked`));
+        const wonSnap = await get(ref(db, `users/${uid}/stats/totalWon`));
+        const curSt = toNum(stSnap.exists() ? stSnap.val() : 0);
+        const curWon = toNum(wonSnap.exists() ? wonSnap.val() : 0);
+
+        updates[`users/${uid}/stats/totalStaked`] = curSt + ENTRY_FEE;
+        updates[`users/${uid}/stats/totalWon`]   = curWon - ENTRY_FEE;
+        updates[`users/${uid}/stakesByWeek/${wk}`] = ENTRY_FEE;
+
+        charged.push(uid);
+      }
+
+      updates[`winners/${wk}/entryCharges/chargedAt`] = Date.now();
+      updates[`winners/${wk}/entryCharges/chargedUids`] = charged;
+
+      await update(ref(db), updates);
+
+      const msg = `Charged: ${charged.length}, Skipped (already charged): ${skipped.length}`;
+      document.getElementById('chargeInfo').textContent = msg;
+      out({ week: wk, chargedCount: charged.length, skippedCount: skipped.length, charged });
+    }
 
     function row(html){ const tr=document.createElement('tr'); tr.innerHTML=html; return tr; }
 
@@ -203,8 +262,10 @@
         return out('Not authorized.');
       }
       const now = Date.now();
-      await set(ref(db, `allowlist/${uid}`), { approved: true, approvedAt: now, approvedBy: ADMIN_UID });
-      await loadRequests(); // refresh UI
+      await update(ref(db), {
+        [`allowlist/${uid}`]: { approved: true, approvedAt: now, approvedBy: ADMIN_UID }
+      });
+      await loadRequests();
     }
 
     async function revoke(uid) {
@@ -212,7 +273,9 @@
         return out('Not authorized.');
       }
       const now = Date.now();
-      await set(ref(db, `allowlist/${uid}`), { approved: false, approvedAt: now, approvedBy: ADMIN_UID });
+      await update(ref(db), {
+        [`allowlist/${uid}`]: { approved: false, approvedAt: now, approvedBy: ADMIN_UID }
+      });
       await loadRequests();
     }
 
@@ -224,7 +287,6 @@
       const data = snap.exists() ? (snap.val() || {}) : {};
       const entries = Object.entries(data).map(([uid, v]) => ({ uid, ...(v || {}) }));
 
-      // sort newest first
       entries.sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0));
 
       if (entries.length === 0) {
@@ -258,7 +320,6 @@
       rows.forEach(tr => tbody.appendChild(tr));
       document.getElementById('reqCount').textContent = `${entries.length} request${entries.length===1?'':'s'}`;
 
-      // wire actions
       tbody.querySelectorAll('[data-approve]').forEach(btn => {
         btn.addEventListener('click', (e) => approve(e.currentTarget.getAttribute('data-approve')));
       });
@@ -266,8 +327,6 @@
         btn.addEventListener('click', (e) => revoke(e.currentTarget.getAttribute('data-revoke')));
       });
     }
-
-    /* ========= Auth gate & wiring ========= */
 
     onAuthStateChanged(auth, async (user) => {
       const adminOnly = document.getElementById('adminOnly');
@@ -292,6 +351,7 @@
       document.getElementById('finalizeBtn').onclick = finalizeNow;
       document.getElementById('weekSel').onchange = fillUI;
       document.getElementById('refreshRequestsBtn').onclick = loadRequests;
+      document.getElementById('chargePoolBtn').onclick = chargePoolEntry;
     });
   </script>
 
