@@ -1,22 +1,28 @@
+// housePicks.js
 import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
 import { showLoader, hideLoader } from './loader.js';
 import { clearBootLoader, setBootMessage } from './boot.js';
 
+const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2';
+
 document.addEventListener('DOMContentLoaded', () => {
+  setBootMessage('Loading House Picks…');
   showLoader('Loading House Picks…');
+
   onAuthStateChanged(auth, async (user) => {
     try {
       if (!user) {
         window.location.href = 'index.html';
         return;
       }
-      await loadHousePicks();
+      await loadHousePicks(user);
     } catch (err) {
       console.error('loadHousePicks error:', err);
       const c = document.getElementById('housePicksContainer');
       if (c) c.innerHTML = '<p>Error loading picks. Please try again later.</p>';
     } finally {
       hideLoader();
+      clearBootLoader();
     }
   });
 });
@@ -52,6 +58,18 @@ const games = [
 const norm = s => String(s ?? '').trim().toLowerCase();
 const winnerString = (v) =>
   (typeof v === 'string') ? v : (v && (v.winner || v.team || v.name)) || '';
+
+async function canShowHousePicks(user) {
+  // Admin can always view
+  if (user?.uid === ADMIN_UID) return true;
+
+  try {
+    const vis = await get(ref(db, 'settings/showHousePicks'));
+    return vis.exists() && vis.val() === true;
+  } catch {
+    return false;
+  }
+}
 
 async function getCurrentWeekKey() {
   try {
@@ -128,10 +146,20 @@ function getUserName(userId) {
   return userMap[userId] || `User ${userId}`;
 }
 
-async function loadHousePicks() {
+async function loadHousePicks(user) {
   const container = document.getElementById('housePicksContainer');
   if (!container) return;
   container.innerHTML = 'Loading…';
+
+  // Visibility gate (bypass for admin)
+  const visible = await canShowHousePicks(user);
+  if (!visible) {
+    container.innerHTML = `
+      <div class="pill" style="border:1px solid #666;color:#bbb;display:inline-block;padding:8px 12px;border-radius:20px;">
+        Hidden until admin enables House Picks
+      </div>`;
+    return;
+  }
 
   const [weekKey, userDataMap] = await Promise.all([
     getCurrentWeekKey(),
