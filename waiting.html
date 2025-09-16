@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pending Access • NFL Confidence Pool</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body{ display:flex; min-height:100vh; align-items:center; justify-content:center; background:#0d0d0f; }
+    .card{ width:min(560px,92vw); background:#141414; border:1px solid #333; border-radius:14px; padding:22px 20px; color:#fff; text-align:center; }
+    h1{ margin:0 0 8px; color:#FFD700; }
+    .muted{ color:#bbb; }
+    .row{ display:flex; gap:10px; justify-content:center; margin-top:14px; flex-wrap:wrap; }
+    .btn{ padding:10px 14px; border-radius:10px; border:1px solid #333; background:#222; color:#fff; cursor:pointer; font-weight:700; }
+    .btn:hover{ background:#2a2a2a; }
+    .hidden{ display:none; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Request Received</h1>
+    <p class="muted">Your account is pending approval. We’ll unlock access soon.</p>
+    <p id="statusLine" class="muted">Status: <b>checking…</b></p>
+    <div class="row">
+      <button id="refreshBtn" class="btn">Refresh Status</button>
+      <button id="logoutBtn" class="btn">Log out</button>
+      <a class="btn hidden" id="goHomeBtn" href="index.html">Go to Home</a>
+    </div>
+  </main>
+
+  <script type="module" src="js/waiting.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+    }
+  </script>
+</body>
+</html>

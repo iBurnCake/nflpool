@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in • NFL Confidence Pool</title>
+
+  <!-- (optional) reuse your global styles -->
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/index.css" />
+
+  <!-- simple page styling -->
+  <style>
+    body { display:flex; min-height:100vh; align-items:center; justify-content:center; background:#0d0d0f; }
+    .auth-card{
+      width:min(480px, 92vw);
+      background:#141414; border:1px solid #333; border-radius:14px;
+      padding:24px 20px; color:#fff; text-align:center; box-shadow:0 10px 28px rgba(0,0,0,.45);
+    }
+    .auth-card h1{ margin:0 0 6px; color:#FFD700; letter-spacing:.4px; }
+    .auth-card p{ margin:6px 0 16px; color:#ddd; }
+    .btn{ display:inline-flex; gap:8px; align-items:center; justify-content:center;
+      padding:10px 14px; border-radius:10px; border:1px solid #333; background:#222; color:#fff;
+      text-decoration:none; font-weight:700; cursor:pointer;
+    }
+    .btn:hover{ background:#2a2a2a; }
+    .btn-primary{ background:#3B7EED; border-color:#1F5B99; }
+    .btn-primary:hover{ background:#2c62b8; }
+    .btn-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  </style>
+</head>
+<body>
+  <main class="auth-card">
+    <h1>2025 NFL Confidence Pool</h1>
+    <p>Log in if you’re already approved. New here? Request access first.</p>
+
+    <div class="btn-row">
+      <button id="loginBtn" class="btn btn-primary">Login with Google</button>
+      <button id="signupBtn" class="btn">Request Access</button>
+    </div>
+
+    <p id="authMsg" style="margin-top:12px;color:#FFD700;font-weight:700;"></p>
+  </main>
+
+  <script type="module" src="js/login.js"></script>
+  <!-- service worker (optional but fine to keep) -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+    }
+  </script>
+</body>
+</html>
