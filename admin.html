@@ -42,6 +42,7 @@
         <span id="who" class="pill">Checking auth…</span>
       </div>
 
+      <!-- ===== Week / Lock ===== -->
       <h3>Week / Lock</h3>
       <div class="row">
         <label>Current week:</label>
@@ -56,11 +57,13 @@
         <span id="lockInfo" class="pill"></span>
       </div>
 
+      <!-- ===== Finalize Winners ===== -->
       <h3>Finalize Winners</h3>
       <div class="row">
         <button id="finalizeBtn">Finalize Winners For Selected Week</button>
       </div>
 
+      <!-- ===== NEW: Charge Money Pool Entry Fee ===== -->
       <h3>Money Pool Entry Fee</h3>
       <div class="row">
         <button id="chargePoolBtn">Charge $5 to Current Pool Members</button>
@@ -73,6 +76,15 @@
         </span>
       </div>
 
+      <!-- ===== NEW: Picks Visibility Switch ===== -->
+      <h3>Picks Visibility</h3>
+      <div class="row">
+        <label>House Picks visible:</label>
+        <button id="toggleHouseViewBtn">Toggle</button>
+        <span id="houseViewInfo" class="pill"></span>
+      </div>
+
+      <!-- ===== Access Requests / Allowlist ===== -->
       <h3>Access Requests</h3>
       <div class="row small muted">
         <span>Approve adds <code>allowlist/&lt;uid&gt;/approved: true</code>. Revoking sets it to <code>false</code>.</span>
@@ -118,6 +130,7 @@
     const out = (m) => document.getElementById('out').textContent =
       (typeof m === 'string') ? m : JSON.stringify(m, null, 2);
 
+    /* ========= Existing helpers ========= */
     const toNum = (x) => (typeof x === 'number' ? x : Number(x) || 0);
 
     async function listWeeks() {
@@ -199,11 +212,30 @@
       }
     }
 
+    /* ========= NEW: Picks Visibility (House Picks) ========= */
+    async function readBool(path, def=false) {
+      const s = await get(ref(db, path));
+      return s.exists() ? !!s.val() : def;
+    }
+
+    async function fillPicksVisibilityUI() {
+      const house = await readBool('settings/showHousePicks', false);
+      document.getElementById('houseViewInfo').textContent = String(house);
+    }
+
+    async function toggleHouseView() {
+      const cur = await readBool('settings/showHousePicks', false);
+      await update(ref(db, 'settings'), { showHousePicks: !cur });
+      document.getElementById('houseViewInfo').textContent = String(!cur);
+    }
+
+    /* ========= NEW: Charge pool entry fee ========= */
     async function chargePoolEntry() {
       const wk = document.getElementById('weekSel').value;
       document.getElementById('chargeInfo').textContent = 'Charging…';
       out(`Charging $${ENTRY_FEE} to pool members for ${wk}…`);
 
+      // get pool members
       const memSnap = await get(ref(db, `subscriberPools/${wk}/members`));
       if (!memSnap.exists()) {
         document.getElementById('chargeInfo').textContent = 'No pool members';
@@ -224,6 +256,7 @@
       const skipped = [];
 
       for (const uid of uids) {
+        // idempotency: only charge once per week
         const flagRef = ref(db, `users/${uid}/stakesByWeek/${wk}`);
         const flag = await get(flagRef);
         if (flag.exists()) { skipped.push(uid); continue; }
@@ -240,6 +273,7 @@
         charged.push(uid);
       }
 
+      // log the charge operation under winners/<week>/entryCharges
       updates[`winners/${wk}/entryCharges/chargedAt`] = Date.now();
       updates[`winners/${wk}/entryCharges/chargedUids`] = charged;
 
@@ -250,6 +284,7 @@
       out({ week: wk, chargedCount: charged.length, skippedCount: skipped.length, charged });
     }
 
+    /* ========= Access Requests ========= */
     function row(html){ const tr=document.createElement('tr'); tr.innerHTML=html; return tr; }
 
     async function isApproved(uid) {
@@ -328,6 +363,7 @@
       });
     }
 
+    /* ========= Auth gate & wiring ========= */
     onAuthStateChanged(auth, async (user) => {
       const adminOnly = document.getElementById('adminOnly');
       const notAdmin  = document.getElementById('notAdmin');
@@ -345,13 +381,17 @@
 
       await fillUI();
       await loadRequests();
+      await fillPicksVisibilityUI();
 
       document.getElementById('toggleLockBtn').onclick = toggleLock;
       document.getElementById('saveWeekBtn').onclick = saveCurrentWeek;
       document.getElementById('finalizeBtn').onclick = finalizeNow;
       document.getElementById('weekSel').onchange = fillUI;
       document.getElementById('refreshRequestsBtn').onclick = loadRequests;
+
+      // NEW: wire buttons
       document.getElementById('chargePoolBtn').onclick = chargePoolEntry;
+      document.getElementById('toggleHouseViewBtn').onclick = toggleHouseView;
     });
   </script>
 
