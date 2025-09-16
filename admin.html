@@ -8,15 +8,28 @@
     body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:#eee;background:#121212}
     .wrap{max-width:760px;margin:40px auto;padding:24px;background:#1e1e1e;border:1px solid #333;border-radius:12px}
     h1{margin:0 0 14px;color:#FFD700}
+    h3{margin-top:24px}
     .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0}
     label{opacity:.9}
     button{background:#3B7EED;color:#fff;border:0;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer}
     button:hover{background:#1F5B99}
     select,input{background:#0f0f0f;color:#fff;border:1px solid #333;border-radius:8px;padding:8px}
     .pill{display:inline-block;border:1px solid #FFD700;color:#FFD700;border-radius:24px;padding:6px 10px;margin-left:8px}
+    .pill.gray{border-color:#666;color:#bbb}
     pre{background:#0f0f0f;border:1px solid #333;border-radius:8px;padding:10px;white-space:pre-wrap}
     a.btn{display:inline-block;background:#444;border:1px solid #666;border-radius:8px;padding:8px 12px;color:#fff;text-decoration:none}
     a.btn:hover{background:#333}
+    .table{width:100%;border-collapse:separate;border-spacing:0 8px}
+    .table th{font-weight:700;text-align:left;opacity:.9}
+    .table td,.table th{padding:8px 10px;background:#151515;border:1px solid #2a2a2a}
+    .table tr td:first-child,.table tr th:first-child{border-top-left-radius:8px;border-bottom-left-radius:8px}
+    .table tr td:last-child,.table tr th:last-child{border-top-right-radius:8px;border-bottom-right-radius:8px}
+    .muted{opacity:.8}
+    .ok{color:#7EE787}
+    .warn{color:#FFD700}
+    .bad{color:#FF6B6B}
+    .controls{display:flex;gap:8px;flex-wrap:wrap}
+    .small{font-size:.9rem}
   </style>
 </head>
 <body>
@@ -29,6 +42,7 @@
         <span id="who" class="pill">Checking auth…</span>
       </div>
 
+      <!-- ===== Week / Lock (unchanged) ===== -->
       <h3>Week / Lock</h3>
       <div class="row">
         <label>Current week:</label>
@@ -43,10 +57,37 @@
         <span id="lockInfo" class="pill"></span>
       </div>
 
+      <!-- ===== Finalize (unchanged) ===== -->
       <h3>Finalize Winners</h3>
       <div class="row">
         <button id="finalizeBtn">Finalize Winners For Selected Week</button>
       </div>
+
+      <!-- ===== NEW: Access Requests / Allowlist ===== -->
+      <h3>Access Requests</h3>
+      <div class="row small muted">
+        <span>Approve adds <code>allowlist/&lt;uid&gt;/approved: true</code>. Revoking sets it to <code>false</code>.</span>
+      </div>
+      <div class="row">
+        <button id="refreshRequestsBtn">Refresh List</button>
+        <span id="reqCount" class="pill gray">—</span>
+      </div>
+
+      <table class="table" id="reqTable" aria-label="Access Requests">
+        <thead>
+          <tr>
+            <th>Display Name</th>
+            <th>Email</th>
+            <th class="small">UID</th>
+            <th>Status</th>
+            <th>Approved?</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="reqTbody">
+          <tr><td colspan="6" class="muted">Loading…</td></tr>
+        </tbody>
+      </table>
 
       <h3>Result</h3>
       <pre id="out">Waiting…</pre>
@@ -59,12 +100,15 @@
   </div>
 
   <script type="module">
-    import { auth, onAuthStateChanged, db, ref, get, update } from './js/firebaseConfig.js';
+    import { auth, onAuthStateChanged, db, ref, get, set, update } from './js/firebaseConfig.js';
     import { finalizeWeekOnce } from './js/winners.js';
 
     const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2';
     const out = (m) => document.getElementById('out').textContent =
       (typeof m === 'string') ? m : JSON.stringify(m, null, 2);
+
+    /* ========= Existing functions (unchanged) ========= */
+    const toNum = (x) => (typeof x === 'number' ? x : Number(x) || 0);
 
     async function listWeeks() {
       const opts = new Set();
@@ -145,6 +189,86 @@
       }
     }
 
+    /* ========= NEW: Access Requests / Allowlist ========= */
+
+    function row(html){ const tr=document.createElement('tr'); tr.innerHTML=html; return tr; }
+
+    async function isApproved(uid) {
+      const s = await get(ref(db, `allowlist/${uid}/approved`));
+      return s.exists() && s.val() === true;
+    }
+
+    async function approve(uid) {
+      if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) {
+        return out('Not authorized.');
+      }
+      const now = Date.now();
+      await set(ref(db, `allowlist/${uid}`), { approved: true, approvedAt: now, approvedBy: ADMIN_UID });
+      await loadRequests(); // refresh UI
+    }
+
+    async function revoke(uid) {
+      if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) {
+        return out('Not authorized.');
+      }
+      const now = Date.now();
+      await set(ref(db, `allowlist/${uid}`), { approved: false, approvedAt: now, approvedBy: ADMIN_UID });
+      await loadRequests();
+    }
+
+    async function loadRequests() {
+      const tbody = document.getElementById('reqTbody');
+      tbody.innerHTML = '<tr><td colspan="6" class="muted">Loading…</td></tr>';
+
+      const snap = await get(ref(db, 'accessRequests'));
+      const data = snap.exists() ? (snap.val() || {}) : {};
+      const entries = Object.entries(data).map(([uid, v]) => ({ uid, ...(v || {}) }));
+
+      // sort newest first
+      entries.sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+
+      if (entries.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="muted">No requests yet.</td></tr>';
+        document.getElementById('reqCount').textContent = '0 requests';
+        return;
+      }
+
+      const rows = await Promise.all(entries.map(async (e) => {
+        const approved = await isApproved(e.uid);
+        const status = e.status || 'pending';
+        const name   = e.displayName || '—';
+        const email  = e.email || '—';
+        const uid    = e.uid;
+        const approvedCell = approved ? '<span class="ok">Yes</span>' : '<span class="bad">No</span>';
+
+        return row(`
+          <td>${name}</td>
+          <td>${email}</td>
+          <td class="small muted">${uid}</td>
+          <td class="small">${status}</td>
+          <td>${approvedCell}</td>
+          <td class="controls">
+            <button data-approve="${uid}">Approve</button>
+            <button data-revoke="${uid}" style="background:#444">Revoke</button>
+          </td>
+        `);
+      }));
+
+      tbody.innerHTML = '';
+      rows.forEach(tr => tbody.appendChild(tr));
+      document.getElementById('reqCount').textContent = `${entries.length} request${entries.length===1?'':'s'}`;
+
+      // wire actions
+      tbody.querySelectorAll('[data-approve]').forEach(btn => {
+        btn.addEventListener('click', (e) => approve(e.currentTarget.getAttribute('data-approve')));
+      });
+      tbody.querySelectorAll('[data-revoke]').forEach(btn => {
+        btn.addEventListener('click', (e) => revoke(e.currentTarget.getAttribute('data-revoke')));
+      });
+    }
+
+    /* ========= Auth gate & wiring ========= */
+
     onAuthStateChanged(auth, async (user) => {
       const adminOnly = document.getElementById('adminOnly');
       const notAdmin  = document.getElementById('notAdmin');
@@ -161,19 +285,22 @@
       notAdmin.style.display  = 'none';
 
       await fillUI();
+      await loadRequests();
 
       document.getElementById('toggleLockBtn').onclick = toggleLock;
       document.getElementById('saveWeekBtn').onclick = saveCurrentWeek;
       document.getElementById('finalizeBtn').onclick = finalizeNow;
       document.getElementById('weekSel').onchange = fillUI;
+      document.getElementById('refreshRequestsBtn').onclick = loadRequests;
     });
   </script>
+
   <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js');
-    });
-  }
-</script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
+  </script>
 </body>
 </html>
