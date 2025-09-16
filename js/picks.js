@@ -3,22 +3,31 @@ import { CURRENT_WEEK, IS_LOCKED, refreshCurrentWeek } from './settings.js';
 import { applyLockUI, setSaveStatus, showToast } from './ui.js';
 
 const games = [
-  { homeTeam: 'Packers',   awayTeam: 'Commanders', homeRecord: '1-0', awayRecord: '1-0' },
-  { homeTeam: 'Bengals',   awayTeam: 'Jaguars',    homeRecord: '1-0', awayRecord: '1-0' },
-  { homeTeam: 'Cowboys',   awayTeam: 'Giants',     homeRecord: '0-1', awayRecord: '0-1' },
-  { homeTeam: 'Lions',     awayTeam: 'Bears',      homeRecord: '0-1', awayRecord: '0-1' },
-  { homeTeam: 'Titans',    awayTeam: 'Rams',       homeRecord: '0-1', awayRecord: '1-0' },
-  { homeTeam: 'Dolphins',  awayTeam: 'Patriots',   homeRecord: '0-1', awayRecord: '0-1' },
-  { homeTeam: 'Saints',    awayTeam: '49ers',      homeRecord: '0-1', awayRecord: '1-0' },
-  { homeTeam: 'Jets',      awayTeam: 'Bills',      homeRecord: '0-1', awayRecord: '1-0' },
-  { homeTeam: 'Steelers',  awayTeam: 'Seahawks',   homeRecord: '1-0', awayRecord: '0-1' },
-  { homeTeam: 'Ravens',    awayTeam: 'Browns',     homeRecord: '0-1', awayRecord: '0-1' },
-  { homeTeam: 'Colts',     awayTeam: 'Broncos',    homeRecord: '1-0', awayRecord: '1-0' }, 
-  { homeTeam: 'Cardinals', awayTeam: 'Panthers',   homeRecord: '1-0', awayRecord: '0-1' }, 
-  { homeTeam: 'Chiefs',    awayTeam: 'Eagles',     homeRecord: '0-1', awayRecord: '1-0' }, 
-  { homeTeam: 'Vikings',   awayTeam: 'Falcons',    homeRecord: '1-0', awayRecord: '0-1' }, 
-  { homeTeam: 'Texans',    awayTeam: 'Buccaneers', homeRecord: '0-1', awayRecord: '1-0' }, 
-  { homeTeam: 'Chargers',  awayTeam: 'Raiders',    homeRecord: '1-0', awayRecord: '1-0' }, 
+  // Thu
+  { homeTeam: 'Bills',      awayTeam: 'Dolphins',   homeRecord: '2-0', awayRecord: '0-2' },
+
+  // Sun 1:00 ET
+  { homeTeam: 'Vikings',    awayTeam: 'Bengals',    homeRecord: '1-1', awayRecord: '2-0' },
+  { homeTeam: 'Jaguars',    awayTeam: 'Texans',     homeRecord: '1-1', awayRecord: '0-2' },
+  { homeTeam: 'Titans',     awayTeam: 'Colts',      homeRecord: '0-2', awayRecord: '2-0' },
+  { homeTeam: 'Commanders', awayTeam: 'Raiders',    homeRecord: '1-1', awayRecord: '1-1' },
+  { homeTeam: 'Eagles',     awayTeam: 'Rams',       homeRecord: '2-0', awayRecord: '2-0' },
+  { homeTeam: 'Panthers',   awayTeam: 'Falcons',    homeRecord: '0-2', awayRecord: '1-1' },
+  { homeTeam: 'Patriots',   awayTeam: 'Steelers',   homeRecord: '1-1', awayRecord: '1-1' },
+  { homeTeam: 'Browns',     awayTeam: 'Packers',    homeRecord: '0-2', awayRecord: '2-0' },
+  { homeTeam: 'Buccaneers', awayTeam: 'Jets',       homeRecord: '2-0', awayRecord: '0-2' },
+
+  // Sun late
+  { homeTeam: 'Chargers',   awayTeam: 'Broncos',    homeRecord: '2-0', awayRecord: '1-1' }, // 4:05
+  { homeTeam: 'Seahawks',   awayTeam: 'Saints',     homeRecord: '1-1', awayRecord: '0-2' }, // 4:05
+  { homeTeam: 'Bears',      awayTeam: 'Cowboys',    homeRecord: '0-2', awayRecord: '1-1' }, // 4:25
+  { homeTeam: '49ers',      awayTeam: 'Cardinals',  homeRecord: '2-0', awayRecord: '2-0' }, // 4:25
+
+  // SNF
+  { homeTeam: 'Giants',     awayTeam: 'Chiefs',     homeRecord: '0-2', awayRecord: '0-2' },
+
+  // MNF
+  { homeTeam: 'Ravens',     awayTeam: 'Lions',      homeRecord: '1-1', awayRecord: '1-1' },
 ];
 
 let userPicks = {};
