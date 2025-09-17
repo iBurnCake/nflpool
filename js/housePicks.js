@@ -2,6 +2,7 @@
 import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
 import { showLoader, hideLoader } from './loader.js';
 import { clearBootLoader, setBootMessage } from './boot.js';
+import { preloadUserMeta, metaFor, nameFor } from './names.js'; // <-- correct path
 
 const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2';
 
@@ -60,9 +61,7 @@ const winnerString = (v) =>
   (typeof v === 'string') ? v : (v && (v.winner || v.team || v.name)) || '';
 
 async function canShowHousePicks(user) {
-  // Admin can always view
   if (user?.uid === ADMIN_UID) return true;
-
   try {
     const vis = await get(ref(db, 'settings/showHousePicks'));
     return vis.exists() && vis.val() === true;
@@ -79,27 +78,11 @@ async function getCurrentWeekKey() {
   return 'week1';
 }
 
-async function fetchUserData() {
-  const usersRef = ref(db, 'users');
-  const snapshot = await get(usersRef);
-  if (!snapshot.exists()) return {};
-  const users = snapshot.val();
-  const map = {};
-  for (const uid in users) {
-    map[uid] = {
-      usernameColor: users[uid].usernameColor || '#FFD700',
-      profilePic: users[uid].profilePic || 'images/NFL LOGOS/nfl-logo.jpg',
-    };
-  }
-  return map;
-}
-
 async function loadWinnersForWeek(weekKey) {
   const snap = await get(ref(db, `winners/${weekKey}/games`));
   let raw = {};
-  if (snap.exists()) {
-    raw = snap.val() || {};
-  } else {
+  if (snap.exists()) raw = snap.val() || {};
+  else {
     const all = await get(ref(db, `winners/${weekKey}`));
     raw = all.exists() ? (all.val().games ?? {}) : {};
   }
@@ -111,7 +94,6 @@ async function loadWinnersForWeek(weekKey) {
 function calculateTotalScore(userPicks, winnersByIdx) {
   if (!userPicks) return 0;
   let total = 0;
-
   for (const idx of Object.keys(userPicks)) {
     const pick = userPicks[idx];
     if (!pick) continue;
@@ -121,29 +103,6 @@ function calculateTotalScore(userPicks, winnersByIdx) {
     if (win && chosen === win) total += pts;
   }
   return total;
-}
-
-function getUserName(userId) {
-  const userMap = {
-    'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
-    '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan',
-    'zZ8DblY3KQgPP9bthG87l7DNAux2': 'Ryan Sanders',
-    'ukGs73HIg6aECkgShM71C8fTcwo1': 'William Mathis',
-    '67khUuKYmhXxRumUjMpyoDbnq0s2': 'Thomas Romano',
-    'JIdq2bYVCZgdAeC0y6P69puNQz43': 'Tony Romano',
-    '9PyTK0SHv7YKv7AYw5OV29dwH5q2': 'Emily Rossini',
-    'ORxFtuY13VfaUqc2ckcfw084Lxq1': 'Aunt Vicki',
-    'FIKVjOy8P7UTUGqq2WvjkARZPIE2': 'Tommy Kant',
-    'FFIWPuZYzYRI2ibmVbVHDIq1mjj2': 'De Von ',
-    'i6s97ZqeN1YCM39Sjqh65VablvA3': 'Kyra Kafel ',
-    '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant',
-    'gsQAQttBoEOSu4v1qVVqmHxAqsO2': 'Nick Kier',
-    'VnBOWzUZh7UAon6NJ6ICX1kVlEE2': 'Connor Moore',
-    'pJxZh3lsp9a0MpKVPSHvyIfNTwW2': 'Mel',
-    'PaHlsxdFFMRRbd4YurMdAsfaFhe2': 'Gavin Munoz',
-    'F70T1damAEe1oq53RGYo7QKkaPA2': 'Brayden Trunnell',
-  };
-  return userMap[userId] || `User ${userId}`;
 }
 
 async function loadHousePicks(user) {
@@ -161,14 +120,13 @@ async function loadHousePicks(user) {
     return;
   }
 
-  const [weekKey, userDataMap] = await Promise.all([
-    getCurrentWeekKey(),
-    fetchUserData(),
-  ]);
+  // Make sure name/avatars cache is ready before we render
+  await preloadUserMeta();
 
+  const weekKey = await getCurrentWeekKey();
   const winnersByIdx = await loadWinnersForWeek(weekKey);
-  const picksSnap = await get(ref(db, `scoreboards/${weekKey}`));
 
+  const picksSnap = await get(ref(db, `scoreboards/${weekKey}`));
   if (!picksSnap.exists()) {
     container.innerHTML = `<p>No picks submitted for ${weekKey}.</p>`;
     return;
@@ -180,12 +138,13 @@ async function loadHousePicks(user) {
   const userScores = [];
   for (const userId in picksData) {
     const totalScore = calculateTotalScore(picksData[userId], winnersByIdx);
+    const meta = metaFor(userId) || {};
     userScores.push({
       userId,
-      userName: getUserName(userId),
+      userName: meta.displayName || nameFor(userId),                 // names.js fallback pipeline
       totalScore,
-      profilePic: userDataMap[userId]?.profilePic || 'images/NFL LOGOS/nfl-logo.jpg',
-      usernameColor: userDataMap[userId]?.usernameColor || '#FFD700',
+      profilePic: meta.profilePic || 'images/NFL LOGOS/nfl-logo.jpg',
+      usernameColor: meta.usernameColor || '#FFD700',
     });
   }
 
