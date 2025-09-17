@@ -1,3 +1,4 @@
+// moneyPool.js
 import { auth, onAuthStateChanged, db, ref, get, update } from './firebaseConfig.js';
 import { showLoader, hideLoader } from './loader.js';
 import { clearBootLoader, setBootMessage } from './boot.js';
@@ -48,6 +49,25 @@ const games = [
   { homeTeam: 'Ravens',     awayTeam: 'Lions',      homeRecord: '1-1', awayRecord: '1-1' },
 ];
 
+/* ---- Visibility gate (same switch as House Picks, with optional dedicated flag) ---- */
+async function canShowMoneyPoolPicks(user) {
+  if (user?.uid === ADMIN_UID) return true;
+
+  // If you add a dedicated flag, this respects it first:
+  try {
+    const mp = await get(ref(db, 'settings/showMoneyPoolPicks'));
+    if (mp.exists() && mp.val() === true) return true;
+  } catch {}
+
+  // Fallback to the same switch House Picks uses
+  try {
+    const hp = await get(ref(db, 'settings/showHousePicks'));
+    return hp.exists() && hp.val() === true;
+  } catch {
+    return false;
+  }
+}
+
 async function getSettings() {
   let weekKey = 'week1';
   let weekLabel = '';
@@ -76,7 +96,8 @@ async function loadWinnersForWeek(weekKey) {
 async function loadAllowlist(weekKey) {
   const s = await get(ref(db, `subscriberPools/${weekKey}/members`));
   if (!s.exists()) return new Set();
-  return new Set(Object.keys(s.val()));
+  const obj = s.val() || {};
+  return new Set(Object.entries(obj).filter(([, v]) => !!v).map(([uid]) => uid));
 }
 
 async function fetchUserDataMap() {
@@ -259,7 +280,11 @@ async function removeOneMember(weekKey, uid) {
 }
 async function loadCurrentMembers(weekKey) {
   const s = await get(ref(db, `subscriberPools/${weekKey}/members`));
-  return s.exists() ? Object.keys(s.val()).sort() : [];
+  if (!s.exists()) return [];
+  return Object.entries(s.val() || {})
+    .filter(([, v]) => !!v)
+    .map(([uid]) => uid)
+    .sort();
 }
 
 function renderMembersList(members, allUsers, onRemove) {
@@ -356,11 +381,26 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
+      // ---- visibility check for non-admin ----
+      const visible = await canShowMoneyPoolPicks(user);
+      if (!visible) {
+        setStatus('Hidden until admin enables picks visibility.');
+        const c = containerEl();
+        if (c) {
+          c.innerHTML = `
+            <div class="pill" style="border:1px solid #666;color:#bbb;display:inline-block;padding:8px 12px;border-radius:20px;">
+              Hidden until admin enables Money Pool picks
+            </div>`;
+        }
+        return;
+      }
+
       await renderMoneyPool().catch(err => {
         console.error('Money Pool render error:', err);
         setStatus('Something went wrong loading the Money Pool.');
       });
 
+      // ==== Admin membership panel wiring (if present) ====
       const panel = document.getElementById('mp-admin');
       if (panel) panel.style.display = (user.uid === ADMIN_UID) ? 'block' : 'none';
       if (user.uid !== ADMIN_UID) return;
