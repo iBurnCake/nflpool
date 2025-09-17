@@ -1,8 +1,25 @@
-import { auth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, db, ref, get, update } from './firebaseConfig.js';
-import { refreshCurrentWeek, CURRENT_WEEK } from './settings.js';
+// js/script.js
+import {
+  auth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  db,
+  ref,
+  get,
+  update,
+} from './firebaseConfig.js';
+import { refreshCurrentWeek } from './settings.js';
 import { applyLockUI } from './ui.js';
-import { getNameByEmail, loadUsernameColor } from './profiles.js';
-import { displayGames, loadUserPicks, resetPicks, submitPicks, selectPick, assignConfidence } from './picks.js';
+import { getUsername, loadUsernameColor } from './profiles.js'; // ⬅️ changed
+import {
+  displayGames,
+  loadUserPicks,
+  resetPicks,
+  submitPicks,
+  selectPick,
+  assignConfidence,
+} from './picks.js';
 import { normalizeUserDoc } from './normalizeUser.js';
 import { showLoader, hideLoader } from './loader.js';
 import { clearBootLoader, setBootMessage } from './boot.js';
@@ -18,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (user) {
         await handleSuccessfulLogin(user);
       } else {
-        console.log('No user logged in');
         const loginSection = document.getElementById('loginSection');
         if (loginSection) loginSection.style.display = 'flex';
         const homeSection = document.getElementById('userHomeSection');
@@ -77,14 +93,10 @@ async function applyProfileCardDecor(uid) {
     }
 
     const img = document.getElementById('dashProfilePic');
-    if (img) {
-      img.src = profilePic || 'images/NFL LOGOS/nfl-logo.jpg';
-    }
+    if (img) img.src = profilePic || 'images/NFL LOGOS/nfl-logo.jpg';
 
     const name = document.getElementById('dashDisplayName');
-    if (name && usernameColor) {
-      name.style.color = usernameColor;
-    }
+    if (name && usernameColor) name.style.color = usernameColor;
   } catch (e) {
     console.warn('applyProfileCardDecor error:', e);
   }
@@ -93,13 +105,13 @@ async function applyProfileCardDecor(uid) {
 async function handleSuccessfulLogin(user) {
   await refreshCurrentWeek();
 
-  console.log('User logged in:', user.email);
   const loginSection = document.getElementById('loginSection');
   const homeSection  = document.getElementById('userHomeSection');
   if (loginSection) loginSection.style.display = 'none';
   if (homeSection)  homeSection.style.display  = 'block';
 
-  const displayName = getNameByEmail(user.email);
+  // ✅ UID-based display name
+  const displayName = await getUsername(user.uid);
   try {
     await update(ref(db, `users/${user.uid}`), { displayName });
   } catch (e) {
@@ -113,6 +125,7 @@ async function handleSuccessfulLogin(user) {
   await normalizeUserDoc(user.uid);
   await applyProfileCardDecor(user.uid);
 
+  // expose for inline handlers
   window.selectPick = selectPick;
   window.assignConfidence = assignConfidence;
   window.resetPicks = resetPicks;
