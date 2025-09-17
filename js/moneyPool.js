@@ -1,7 +1,10 @@
 // moneyPool.js
 import { auth, onAuthStateChanged, db, ref, get, update } from './firebaseConfig.js';
 import { showLoader, hideLoader } from './loader.js';
-import { clearBootLoader, setBootMessage } from './boot.js';
+import { clearBootLoader } from './boot.js';
+
+// NEW: shared name/meta helpers
+import { preloadUserMeta, metaFor, nameFor } from './names.js';
 
 const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2';
 
@@ -53,13 +56,11 @@ const games = [
 async function canShowMoneyPoolPicks(user) {
   if (user?.uid === ADMIN_UID) return true;
 
-  // If you add a dedicated flag, this respects it first:
   try {
     const mp = await get(ref(db, 'settings/showMoneyPoolPicks'));
     if (mp.exists() && mp.val() === true) return true;
   } catch {}
 
-  // Fallback to the same switch House Picks uses
   try {
     const hp = await get(ref(db, 'settings/showHousePicks'));
     return hp.exists() && hp.val() === true;
@@ -101,6 +102,7 @@ async function loadAllowlist(weekKey) {
 }
 
 async function fetchUserDataMap() {
+  // Still read user color/avatar directly as a fallback source
   const usersRef = ref(db, 'users');
   const snapshot = await get(usersRef);
   const map = {};
@@ -118,31 +120,9 @@ async function fetchUserDataMap() {
   return map;
 }
 
-function fallbackName(uid) {
-  const map = {
-    'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
-    '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan',
-    'zZ8DblY3KQgPP9bthG87l7DNAux2': 'Ryan Sanders',
-    'ukGs73HIg6aECkgShM71C8fTcwo1': 'William Mathis',
-    '67khUuKYmhXxRumUjMpyoDbnq0s2': 'Thomas Romano',
-    'JIdq2bYVCZgdAeC0y6P69puNQz43': 'Tony Romano',
-    '9PyTK0SHv7YKv7AYw5OV29dwH5q2': 'Emily Rossini',
-    'ORxFtuY13VfaUqc2ckcfw084Lxq1': 'Aunt Vicki',
-    'FIKVjOy8P7UTUGqq2WvjkARZPIE2': 'Tommy Kant',
-    'FFIWPuZYzYRI2ibmVbVHDIq1mjj2': 'De Von ',
-    'i6s97ZqeN1YCM39Sjqh65VablvA3': 'Kyra Kafel ',
-    '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant',
-    'gsQAQttBoEOSu4v1qVVqmHxAqsO2': 'Nick Kier',
-    'VnBOWzUZh7UAon6NJ6ICX1kVlEE2': 'Connor Moore',
-    'pJxZh3lsp9a0MpKVPSHvyIfNTwW2': 'Mel',
-    'F70T1damAEe1oq53RGYo7QKkaPA2': 'Brayden Trunnell',
-    'PaHlsxdFFMRRbd4YurMdAsfaFhe2': 'Gavin Munoz',
-  };
-  return map[uid] || `User ${uid.slice(0, 6)}…`;
-}
 function prettyName(uid, userDataMap) {
-  const meta = userDataMap[uid] || {};
-  return meta.displayName || fallbackName(uid);
+  // Prefer names.js (DB -> cache). Fallback to userDataMap or short UID.
+  return nameFor(uid) || userDataMap[uid]?.displayName || `User ${uid.slice(0, 6)}…`;
 }
 
 function calculateTotalScore(userPicks, winnersMap) {
@@ -265,8 +245,8 @@ async function loadAllUsersMap() {
     const obj = s.val();
     for (const uid of Object.keys(obj)) {
       const u = obj[uid] || {};
-      const name = u.displayName || u.name || u.username || fallbackName(uid);
-      out[uid] = { name };
+      const fallback = nameFor(uid) || u.displayName || u.name || u.username || `User ${uid.slice(0,6)}…`;
+      out[uid] = { name: fallback };
     }
   }
   return out;
@@ -296,7 +276,7 @@ function renderMembersList(members, allUsers, onRemove) {
   }
   ul.innerHTML = members
     .map(uid => {
-      const display = allUsers?.[uid]?.name || fallbackName(uid);
+      const display = allUsers?.[uid]?.name || nameFor(uid) || `User ${uid.slice(0,6)}…`;
       const safeUid = uid.replace(/"/g, '&quot;');
       return `
         <li style="display:flex;align-items:center;gap:10px;margin:6px 0;">
@@ -315,6 +295,9 @@ async function renderMoneyPool() {
   setStatus('Loading…');
   const container = containerEl();
   if (container) container.innerHTML = '';
+
+  // Ensure names cache is ready before we render names/avatars/colors
+  await preloadUserMeta();
 
   const { weekKey, weekLabel } = await getSettings();
   setWeekLabel(weekKey, weekLabel);
@@ -343,12 +326,19 @@ async function renderMoneyPool() {
   filteredIds.forEach(uid => {
     const userPicks = picksByUser[uid];
     const totalScore = calculateTotalScore(userPicks, winnersMap);
+
+    // Prefer names.js cache for display meta
+    const nm = metaFor(uid) || {};
+    const displayName = nameFor(uid) || userDataMap[uid]?.displayName || `User ${uid.slice(0,6)}…`;
+    const profilePic  = nm.profilePic || userDataMap[uid]?.profilePic || 'images/NFL LOGOS/nfl-logo.jpg';
+    const usernameColor = nm.usernameColor || userDataMap[uid]?.usernameColor || '#FFD700';
+
     userScores.push({
       userId: uid,
-      userName: prettyName(uid, userDataMap),
+      userName: displayName,
       totalScore,
-      profilePic: (userDataMap[uid]?.profilePic) || 'images/NFL LOGOS/nfl-logo.jpg',
-      usernameColor: (userDataMap[uid]?.usernameColor) || '#FFD700',
+      profilePic,
+      usernameColor,
     });
   });
 
