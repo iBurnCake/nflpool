@@ -1,29 +1,16 @@
-// members.js
-import {
-  auth,
-  signInWithPopup,
-  GoogleAuthProvider,
-  onAuthStateChanged,
-  db,
-  ref,
-  get,
-} from './firebaseConfig.js';
-
+import { auth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
 import { showLoader, hideLoader } from './loader.js';
 import { clearBootLoader } from './boot.js';
-
-// <<< NEW: shared display-name helpers (no hard-coded map) >>>
-import { preloadUserMeta, metaFor, nameFor } from './names.js';
+import { preloadUserMeta, nameFor } from './names.js';
 
 const ENTRY_FEE = 5;
 
-/* ---------------- data helpers ---------------- */
+/* ---------- data helpers ---------- */
 
 async function fetchPools() {
   const snap = await get(ref(db, 'subscriberPools'));
   return snap.exists() ? (snap.val() || {}) : {};
 }
-
 function stakedFromPools(uid, pools) {
   let total = 0;
   for (const weekKey of Object.keys(pools || {})) {
@@ -42,34 +29,32 @@ function buildBackfillMaps(winnersRoot) {
   const wonMap = Object.create(null);
   const weeksMap = Object.create(null);
 
-  for (const [weekKey, node] of Object.entries(winnersRoot || {})) {
+  for (const [, node] of Object.entries(winnersRoot || {})) {
     if (!node || typeof node !== 'object') continue;
 
     const houseWinners = Array.isArray(node.houseWinners) ? node.houseWinners : [];
     const poolWinners  = Array.isArray(node.moneyPoolWinners) ? node.moneyPoolWinners : [];
-    const payout = Number(node.payoutPerWinner) || 0;
+    const payout       = Number(node.payoutPerWinner) || 0;
 
     const union = new Set([...houseWinners, ...poolWinners]);
     for (const uid of union) weeksMap[uid] = (weeksMap[uid] || 0) + 1;
-
     for (const uid of poolWinners) wonMap[uid] = (wonMap[uid] || 0) + payout;
   }
   return { wonMap, weeksMap };
 }
 
-const $ = (sel) => document.querySelector(sel);
+/* ---------- small utils ---------- */
+
 const grid = () => document.getElementById('memberGrid');
 const setStatus = (t) => { const s = document.getElementById('members-status'); if (s) s.textContent = t || ''; };
-const shortUid = (uid) => `${uid.slice(0, 6)}…${uid.slice(-4)}`;
+const shortUid = (uid) => `${uid.slice(0,6)}…${uid.slice(-4)}`;
 const toNum = (x) => (typeof x === 'number') ? x : Number(x) || 0;
+const clamp0 = (n) => Math.max(0, toNum(n));
 const fmtUSD = (n) => {
   try {
     return new Intl.NumberFormat('en-US', { style:'currency', currency:'USD', maximumFractionDigits:0 }).format(Number(n)||0);
   } catch { return `$${Math.round(Number(n)||0)}`; }
 };
-
-// Use names.js everywhere (no hard-coded NAME_MAP)
-const pickName = (uid, meta) => (meta?.displayName || nameFor(uid) || shortUid(uid)).trim();
 
 const FALLBACK_BANNER = 'images/banners/banner01.svg';
 const FALLBACK_AVATAR = 'images/NFL LOGOS/nfl-logo.jpg';
@@ -80,22 +65,21 @@ async function getUsersMeta() {
 }
 
 async function getAllRosterUids() {
-  // Prefer the “roster” node if you have it
   const rosterSnap = await get(ref(db, 'subscriberPools/users'));
   if (rosterSnap.exists()) {
     const obj = rosterSnap.val() || {};
     return Object.keys(obj).filter((uid) => !!obj[uid]);
   }
-  // Fallback to all known users
   const usersSnap = await get(ref(db, 'users'));
   if (usersSnap.exists()) return Object.keys(usersSnap.val() || {});
   return [];
 }
 
-/* ---------------- render ---------------- */
+/* ---------- render ---------- */
 
 function renderMemberCards(usersMeta, uids, pools, backfill) {
   const { wonMap, weeksMap } = backfill || { wonMap:{}, weeksMap:{} };
+
   const container = grid();
   container.innerHTML = '';
 
@@ -108,33 +92,34 @@ function renderMemberCards(usersMeta, uids, pools, backfill) {
   }
 
   const sorted = [...uids].sort((a, b) =>
-    pickName(a, usersMeta[a] || {}).toLowerCase()
-      .localeCompare(pickName(b, usersMeta[b] || {}).toLowerCase())
+    (nameFor(a) || usersMeta[a]?.displayName || shortUid(a)).toLowerCase()
+      .localeCompare((nameFor(b) || usersMeta[b]?.displayName || shortUid(b)).toLowerCase())
   );
 
   for (const uid of sorted) {
     const u = usersMeta[uid] || {};
-    const nm = metaFor(uid) || {}; // from names.js cache
 
     const banner = u.profileBanner || FALLBACK_BANNER;
-    const avatar = u.profilePic || nm.profilePic || FALLBACK_AVATAR;
-    const name   = pickName(uid, { displayName: u.displayName || nm.displayName });
-    const color  = u.usernameColor || nm.usernameColor || '#FFD700';
+    const avatar = u.profilePic    || FALLBACK_AVATAR;
+    const name   = nameFor(uid) || u.displayName || u.name || u.username || shortUid(uid);
+    const color  = u.usernameColor || '#FFD700';
 
-    const stats        = u.stats || {};
-    const storedWeeks  = toNum(stats.weeksWon);
-    const storedWon    = toNum(stats.totalWon);
-    const storedStaked = toNum(stats.totalStaked);
+    // ---- stored vs computed (robust selection) ----
+    const stats = u.stats || {};
+    const storedStaked = clamp0(stats.totalStaked);
+    const storedWon    = clamp0(stats.totalWon);
+    const storedWeeks  = clamp0(stats.weeksWon);
 
-    const computedStaked = stakedFromPools(uid, pools);
-    const computedWon    = toNum(wonMap[uid]);
-    const computedWeeks  = toNum(weeksMap[uid]);
+    const computedStaked = clamp0(stakedFromPools(uid, pools));
+    const computedWon    = clamp0(wonMap[uid]);
+    const computedWeeks  = clamp0(weeksMap[uid]);
 
+    // Prefer stored if positive; otherwise use computed
+    const totalStaked = storedStaked > 0 ? storedStaked : computedStaked;
+    const totalWon    = storedWon    > 0 ? storedWon    : computedWon;
     const weeksWon    = storedWeeks  > 0 ? storedWeeks  : computedWeeks;
-    const totalWon    = storedWon    !== 0 ? storedWon    : computedWon;      // allow negative storedWon
-    const totalStaked = storedStaked !== 0 ? storedStaked : computedStaked;   // allow zero
 
-    const net = totalWon - totalStaked;
+    const net = clamp0(totalWon) - clamp0(totalStaked); // prevent weird negatives from bad data
 
     const card = document.createElement('div');
     card.className = 'card member-card';
@@ -175,7 +160,6 @@ async function renderMembers() {
   setStatus('Loading…');
   grid().innerHTML = '';
 
-  // Make sure the names.js cache is ready (one cheap read)
   await preloadUserMeta();
 
   const [usersMeta, uids, pools, winnersRoot] = await Promise.all([
@@ -190,7 +174,7 @@ async function renderMembers() {
   setStatus('');
 }
 
-/* ---------------- boot ---------------- */
+/* ---------- boot ---------- */
 
 document.addEventListener('DOMContentLoaded', () => {
   if (!document.getElementById('members-status')) {
