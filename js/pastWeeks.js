@@ -1,148 +1,118 @@
+// pastWeeks.js
 import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
 import { showLoader, hideLoader } from './loader.js';
 import { clearBootLoader, setBootMessage } from './boot.js';
 
+setBootMessage('Loading past weeks…');
+
+const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2';
 const norm = (s) => String(s ?? '').trim().toLowerCase();
 const winnerString = (v) =>
   (typeof v === 'string') ? v : (v && (v.winner || v.team || v.name)) || '';
 
+/* ---------------- UI helpers ---------------- */
 function setStatus(text) {
   const s = document.getElementById('pw-status');
-  if (!s) return;
-  s.textContent = text || '';
+  if (s) s.textContent = text || '';
 }
+function container() { return document.getElementById('pastWeeksContainer'); }
 
-function container() {
-  return document.getElementById('pastWeeksContainer');
+/* ---------------- data helpers ---------------- */
+async function safeGet(path) {
+  try { return await get(ref(db, path)); }
+  catch { return null; }
 }
-
-function fallbackName(uid) {
-  const map = {
-    'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2': 'Luke Romano',
-    '7INNhg6p0gVa3KK5nEmJ811Z4sf1': 'Charles Keegan',
-    'zZ8DblY3KQgPP9bthG87l7DNAux2': 'Ryan Sanders',
-    'ukGs73HIg6aECkgShM71C8fTcwo1': 'William Mathis',
-    '67khUuKYmhXxRumUjMpyoDbnq0s2': 'Thomas Romano',
-    'JIdq2bYVCZgdAeC0y6P69puNQz43': 'Tony Romano',
-    '9PyTK0SHv7YKv7AYw5OV29dwH5q2': 'Emily Rossini',
-    'ORxFtuY13VfaUqc2ckcfw084Lxq1': 'Aunt Vicki',
-    'FIKVjOy8P7UTUGqq2WvjkARZPIE2': 'Tommy Kant',
-    'FFIWPuZYzYRI2ibmVbVHDIq1mjj2': 'De Von ',
-    'i6s97ZqeN1YCM39Sjqh65VablvA3': 'Kyra Kafel ',
-    '0A2Cs9yZSRSU3iwnTyNQi3MbQdq2': 'Angela Kant',
-    'gsQAQttBoEOSu4v1qVVqmHxAqsO2': 'Nick Kier',
-    'VnBOWzUZh7UAon6NJ6ICX1kVlEE2': 'Connor Moore',
-    'pJxZh3lsp9a0MpKVPSHvyIfNTwW2': 'Mel',
-    'F70T1damAEe1oq53RGYo7QKkaPA2': 'Brayden Trunnell',
-    'PaHlsxdFFMRRbd4YurMdAsfaFhe2': 'Gavin Munoz',
-  };
-  return map[uid] || `User ${uid.slice(0, 6)}…`;
-}
-
-async function getUsersMeta() {
-  const snap = await get(ref(db, 'users'));
-  if (!snap.exists()) return {};
-  return snap.val();
-}
-
 function prettyWeek(key) {
   const m = /^week(\d+)$/i.exec(key);
-  if (m) return `Week ${Number(m[1])}`;
-  return key.replace(/[_-]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  return m ? `Week ${Number(m[1])}` : key;
+}
+async function getUsersMeta() {
+  const snap = await safeGet('users');
+  return snap && snap.exists() ? (snap.val() || {}) : {};
+}
+
+/**
+ * Only list weeks that have winners posted.
+ * This avoids a root read on /scoreboards for non-admin users
+ * and matches the rules (users may read scoreboards/<wk> when winners exist).
+ */
+async function listWeeks() {
+  const snap = await safeGet('winners');
+  if (!snap || !snap.exists()) return [];
+
+  const winnersRoot = snap.val() || {};
+  const weeks = Object.entries(winnersRoot)
+    .filter(([, v]) => v && v.games && Object.keys(v.games).length > 0)
+    .map(([k]) => k);
+
+  // newest (largest N) first
+  return weeks.sort((a, b) => {
+    const na = parseInt((/^week(\d+)$/i.exec(a) || [0, 0])[1], 10);
+    const nb = parseInt((/^week(\d+)$/i.exec(b) || [0, 0])[1], 10);
+    return (nb - na) || a.localeCompare(b);
+  });
 }
 
 async function getWinnersNode(weekKey) {
-  const [gamesSnap, labelSnap, cdSnap] = await Promise.all([
-    get(ref(db, `winners/${weekKey}/games`)),
-    get(ref(db, `winners/${weekKey}/label`)),
-    get(ref(db, 'settings/countdown')) 
-  ]);
-
-  let games = gamesSnap.exists() ? (gamesSnap.val() || {}) : {};
-  let label = labelSnap.exists() ? labelSnap.val() : null;
-
-  if (!gamesSnap.exists()) {
-    const whole = await get(ref(db, `winners/${weekKey}`));
-    if (whole.exists()) {
-      const v = whole.val() || {};
-      games = v.games ?? games;
-      label = v.label ?? label;
-    }
+  const snap = await safeGet(`winners/${weekKey}`);
+  const node = snap && snap.exists() ? (snap.val() || {}) : {};
+  const games = {};
+  for (const [k, v] of Object.entries(node.games || {})) {
+    games[k] = winnerString(v);
   }
-
-  if (!label && cdSnap.exists()) {
-    const cd = cdSnap.val() || {};
-    if (String(cd.currentWeek) === String(weekKey) && cd.currentWeekLabel) {
-      label = cd.currentWeekLabel;
-    }
-  }
-
-  if (!label) label = prettyWeek(weekKey);
-
-  const normGames = {};
-  for (const [k, v] of Object.entries(games || {})) {
-    normGames[k] = winnerString(v);
-  }
-
-  return { games: normGames, label };
+  return { games, label: node.label || prettyWeek(weekKey) };
 }
 
 function computeTotal(picks, winnersGames) {
   if (!picks) return 0;
   let total = 0;
-  for (const idx of Object.keys(picks)) {
-    const p = picks[idx];
+  for (const [idx, p] of Object.entries(picks)) {
     const chosen = norm(p?.team);
     const pts = Number.parseInt(p?.points ?? 0, 10) || 0;
-    const win = norm(winnersGames?.[idx]);
+    const win = norm(winnersGames[idx]);
     if (win && chosen === win) total += pts;
   }
   return total;
 }
 
-async function listWeeks() {
-  const root = await get(ref(db, 'scoreboards'));
-  if (!root.exists()) return [];
-  const keys = Object.keys(root.val());
-
-  const withNums = keys.map(k => {
-    const m = /^week(\d+)$/i.exec(k);
-    return { key: k, n: m ? parseInt(m[1], 10) : -1 };
-  });
-  withNums.sort((a, b) => b.n - a.n || a.key.localeCompare(b.key));
-  return withNums.map(x => x.key);
-}
-
+/**
+ * Build a leaderboard for a week. Returns null if there are no picks
+ * (so we can skip rendering that week).
+ */
 async function buildWeekLeaderboard(weekKey, usersMeta) {
+  // winners/<wk>/games exists (that’s how we listed the week),
+  // so reading /scoreboards/<wk> is allowed by rules for all users.
   const [winnersNode, picksSnap] = await Promise.all([
     getWinnersNode(weekKey),
-    get(ref(db, `scoreboards/${weekKey}`))
+    safeGet(`scoreboards/${weekKey}`)
   ]);
+
+  if (!picksSnap || !picksSnap.exists()) return null; // no picks → skip
 
   const winnersGames = winnersNode.games || {};
   const weekLabel = winnersNode.label || weekKey;
+  const picksByUser = picksSnap.val() || {};
 
-  if (!picksSnap.exists()) {
-    return { weekKey, weekLabel, rows: [], hasWinners: Object.keys(winnersGames).length > 0 };
-  }
+  // if literally no user has any pick keys, treat as empty
+  const anyPicks = Object.values(picksByUser).some(v => v && Object.keys(v).length);
+  if (!anyPicks) return null;
 
-  const picksByUser = picksSnap.val();
   const rows = Object.entries(picksByUser).map(([uid, picks]) => {
-    const total = computeTotal(picks, winnersGames);
     const meta = usersMeta[uid] || {};
     return {
       uid,
-      name: meta.displayName || meta.name || meta.username || fallbackName(uid),
+      name: meta.displayName || meta.name || meta.username || `User ${uid.slice(0,6)}…`,
       color: meta.usernameColor || '#FFD700',
       profile: meta.profilePic || 'images/NFL LOGOS/nfl-logo.jpg',
-      total
+      total: computeTotal(picks, winnersGames)
     };
   }).sort((a, b) => b.total - a.total);
 
-  return { weekKey, weekLabel, rows, hasWinners: Object.keys(winnersGames).length > 0 };
+  return { weekKey, weekLabel, rows };
 }
 
-function renderWeekCard({ weekLabel, rows, hasWinners }) {
+/* ---------------- render ---------------- */
+function renderWeekCard({ weekLabel, rows }) {
   const c = container();
   const card = document.createElement('div');
   card.className = 'user-picks-container';
@@ -155,35 +125,23 @@ function renderWeekCard({ weekLabel, rows, hasWinners }) {
   const table = document.createElement('table');
   table.className = 'user-picks-table';
 
-  if (!hasWinners) {
-    table.innerHTML = `
-      <thead><tr><th>Rank</th><th>User</th><th>Total Score</th></tr></thead>
-      <tbody><tr><td colspan="3" style="text-align:center;">Winners not posted yet</td></tr></tbody>
-    `;
-  } else if (rows.length === 0) {
-    table.innerHTML = `
-      <thead><tr><th>Rank</th><th>User</th><th>Total Score</th></tr></thead>
-      <tbody><tr><td colspan="3" style="text-align:center;">No picks saved</td></tr></tbody>
-    `;
-  } else {
-    const body = rows.map((u, i) => `
-      <tr>
-        <td>${i + 1}</td>
-        <td>
-          <div class="leaderboard-user">
-            <img src="${u.profile}" alt="${u.name}">
-            <span style="color:${u.color};">${u.name}</span>
-          </div>
-        </td>
-        <td>${u.total}</td>
-      </tr>
-    `).join('');
+  const body = rows.map((u, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>
+        <div class="leaderboard-user">
+          <img src="${u.profile}" alt="${u.name}">
+          <span style="color:${u.color};">${u.name}</span>
+        </div>
+      </td>
+      <td>${u.total}</td>
+    </tr>
+  `).join('');
 
-    table.innerHTML = `
-      <thead><tr><th>Rank</th><th>User</th><th>Total Score</th></tr></thead>
-      <tbody>${body}</tbody>
-    `;
-  }
+  table.innerHTML = `
+    <thead><tr><th>Rank</th><th>User</th><th>Total Score</th></tr></thead>
+    <tbody>${body}</tbody>
+  `;
 
   card.appendChild(table);
   c.appendChild(card);
@@ -194,46 +152,48 @@ async function renderPastWeeks() {
   const c = container();
   c.innerHTML = '';
 
+  // Load weeks by winners and user metadata
   const [weeks, usersMeta] = await Promise.all([listWeeks(), getUsersMeta()]);
+
   if (weeks.length === 0) {
     setStatus('');
-    c.innerHTML = '<div class="user-picks-container"><h3 class="user-header">No weeks found</h3></div>';
+    c.innerHTML = `
+      <div class="user-picks-container">
+        <h3 class="user-header">No completed weeks yet</h3>
+        <table class="user-picks-table">
+          <tbody><tr><td style="text-align:center;">Check back after games finish.</td></tr></tbody>
+        </table>
+      </div>`;
     return;
   }
 
+  let rendered = 0;
   for (const wk of weeks) {
     try {
-      const data = await buildWeekLeaderboard(wk, usersMeta);
-      renderWeekCard(data);
+      const lb = await buildWeekLeaderboard(wk, usersMeta);
+      if (lb && lb.rows.length > 0) {
+        renderWeekCard(lb);
+        rendered++;
+      }
     } catch (e) {
-      console.error('PastWeeks: failed for', wk, e);
-      const errCard = document.createElement('div');
-      errCard.className = 'user-picks-container';
-      errCard.innerHTML = `
-        <h3 class="user-header">${wk}</h3>
-        <table class="user-picks-table">
-          <tbody><tr><td colspan="3" style="text-align:center;">Error loading this week.</td></tr></tbody>
-        </table>`;
-      c.appendChild(errCard);
+      // Keep the page going; skip the problematic week
+      console.warn('PastWeeks: failed for', wk, e);
     }
   }
 
-  setStatus('');
+  setStatus(rendered === 0 ? 'No past results to display yet.' : '');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  if (!document.getElementById('pw-status')) {
-    const s = document.createElement('div');
-    s.id = 'pw-status';
-    s.style.cssText = 'margin:10px 0;font-weight:600;text-align:center;color:#FFD700;';
-    (document.querySelector('.past-weeks-view') || document.body).insertAdjacentElement('afterbegin', s);
-  }
+/* ---------------- boot ---------------- */
+document.getElementById('backToPicksBtn')
+  ?.addEventListener('click', () => (window.location.href = 'index.html'));
 
+document.addEventListener('DOMContentLoaded', () => {
   onAuthStateChanged(auth, async (user) => {
     showLoader('Loading past weeks…');
     try {
       if (!user) {
-        setStatus('Sign in required.');
+        window.location.href = 'login.html';
         return;
       }
       await renderPastWeeks();
@@ -242,8 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setStatus('There was an error loading past weeks.');
     } finally {
       hideLoader();
+      clearBootLoader();
     }
   });
 });
-
-clearBootLoader();
