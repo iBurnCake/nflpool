@@ -6,7 +6,7 @@
   <title>2025 NFL Confidence Pool | Make Your Picks. Compete. Win.</title>
   <meta name="description" content="Jump into the 2025 NFL Confidence Pool! Pick every NFL game, assign confidence points, customize your look, and battle for the top spot each week. Super clean design, instant results, and easy Google login.">
 
-  <!-- Boot loader -->
+  <!-- Boot loader (scoped to this page only) -->
   <style id="bootCss">
     html { background:#121212; }
     html.app-boot body > * { visibility: hidden; }
@@ -101,7 +101,7 @@
         <div class="card-hero" style="background-image:url('images/cards/card-housepicks-v2.jpg');"></div>
         <div class="card-body">
           <h3>House Picks</h3>
-        <p>Leaderboard & everyone’s picks.</p>
+          <p>Leaderboard & everyone’s picks.</p>
         </div>
       </a>
 
@@ -137,8 +137,6 @@
           <p>Finalize winners, lock picks, change week.</p>
         </div>
       </a>
-
-      <script type="module" src="js/adminGate.js"></script>
     </section>
 
     <div class="settings-container picks-card" id="picksSection">
@@ -156,75 +154,58 @@
     </div>
   </div>
 
-  <!-- Auth guard: redirect guests to login.html -->
+  <!-- Minimal auth guard; loads app scripts only after auth -->
   <script type="module">
     import { auth, onAuthStateChanged } from './js/firebaseConfig.js';
-    onAuthStateChanged(auth, (user) => {
+
+    // Small helper to dynamically import modules after auth
+    async function loadAppModules() {
+      // Your main signed-in app logic
+      await import('./js/script.js');
+      // Admin card visibility logic
+      await import('./js/adminGate.js');
+      // Money pool badge
+      const { initMoneyPoolPotBadge } = await import('./js/moneyPoolPotBadge.js');
+      initMoneyPoolPotBadge({ heroId: 'moneyPoolHero' });
+
+      // Drawer + logout wiring (defensive init)
+      try {
+        const Drawer = await import('./js/drawer.js');
+        const onLogout = async () => {
+          try { await auth.signOut(); location.replace('login.html'); }
+          catch (e) { console.error('Logout error:', e); alert('Error logging out.'); }
+        };
+        if (typeof Drawer.default === 'function') {
+          Drawer.default({ onLogout });
+        } else if (typeof Drawer.init === 'function') {
+          Drawer.init({ onLogout });
+        } else if (typeof Drawer.mountDrawer === 'function') {
+          Drawer.mountDrawer({ onLogout });
+        }
+      } catch (e) {
+        console.warn('Drawer init skipped:', e);
+      }
+    }
+
+    onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        // Not signed in → go to the new login page
+        // Not signed in → send to the NEW login flow page
         window.location.replace('login.html');
         return;
       }
+
       // Show the app
       const home = document.getElementById('userHomeSection');
       if (home) home.style.display = 'block';
+
       // Hide boot
-      document.getElementById('appBootLoader').style.display = 'none';
+      const boot = document.getElementById('appBootLoader');
+      if (boot) boot.style.display = 'none';
       document.documentElement.classList.remove('app-boot');
+
+      // Now that we’re definitely authed, load app modules
+      await loadAppModules();
     });
-  </script>
-
-  <!-- Your main signed-in app logic -->
-  <script type="module" src="js/script.js"></script>
-
-  <!-- Drawer + logout wiring -->
-  <script type="module">
-    import * as Drawer from './js/drawer.js';
-    import { auth } from './js/firebaseConfig.js';
-
-    const onLogout = async () => {
-      try {
-        await auth.signOut();
-        location.replace('login.html');
-      } catch (e) {
-        console.error('Logout error:', e);
-        alert('Error logging out. Please try again.');
-      }
-    };
-
-    if (typeof Drawer.default === 'function') {
-      Drawer.default({ onLogout });
-    } else if (typeof Drawer.init === 'function') {
-      Drawer.init({ onLogout });
-    } else if (typeof Drawer.mountDrawer === 'function') {
-      Drawer.mountDrawer({ onLogout });
-    }
-  </script>
-
-  <!-- Money pool badge -->
-  <script type="module">
-    import { initMoneyPoolPotBadge } from './js/moneyPoolPotBadge.js';
-    initMoneyPoolPotBadge({ heroId: 'moneyPoolHero' });
-  </script>
-
-  <!-- Profile card sync (unchanged) -->
-  <script>
-    (function syncProfileCard(){
-      const nameSource = document.getElementById('usernameDisplay');
-      const nameTarget = document.getElementById('dashDisplayName');
-      const picSource  = document.getElementById('profilePicPreview');
-      const picTarget  = document.getElementById('dashProfilePic');
-      const apply = () => {
-        if (nameSource && nameTarget && nameSource.textContent) {
-          nameTarget.textContent = nameSource.textContent;
-        }
-        if (picSource && picTarget && picSource.src) {
-          picTarget.src = picSource.src;
-        }
-      };
-      apply();
-      window.addEventListener('load', apply);
-    })();
   </script>
 
   <!-- Service worker -->
