@@ -1,61 +1,66 @@
+// profiles.js
 import { db, ref, get, set, update } from './firebaseConfig.js';
+import { preloadUserMeta, nameFor } from './names.js';
 
-const emailToNameMap = {
-  "devonstankis3@gmail.com": "De Von",
-  "kyrakafel@gmail.com": "Kyra Kafel",
-  "tom.kant21@gmail.com": "Tommy Kant",
-  "vickiocf@gmail.com": "Aunt Vicki",
-  "erossini02@gmail.com": "Emily Rossini",
-  "tony.romano222@gmail.com": "Tony Romano",
-  "thomasromano19707@gmail.com": "Thomas Romano",
-  "ckeegan437@gmail.com": "Charles Keegan",
-  "rainhail85@gmail.com": "Ryan Sanders",
-  "peachetube@gmail.com": "William Mathis",
-  "angelakant007@gmail.com": "Angela Kant",
-  "luke.romano2004@gmail.com": "Luke Romano",
-  "Nkier27@gmail.com": "Nick Kier",
-  "connor.j.moore0509@gmail.com": "Connor Moore",
-  "fischy1826@gmail.com": "Mel",
-  "gmoneymunoz07@gmail.com": "Gavin Munoz",
-  "brayden.trunnell@gmail.com": "Brayden Trunnell",
-};
+/* ========= Names (UID-based) ========= */
 
-export function getNameByEmail(email) {
-  return emailToNameMap[email] || email;
+/**
+ * Returns a nice display name for the given UID.
+ * Order: users/<uid>.displayName || name || username || short UID
+ */
+export async function getUsername(uid) {
+  await preloadUserMeta();
+  const name = nameFor(uid);
+  if (name) return name;
+
+  // Fallback direct read if not cached for some reason
+  const snap = await get(ref(db, `users/${uid}`));
+  if (!snap.exists()) return `${String(uid).slice(0, 6)}…`;
+  const u = snap.val() || {};
+  return String(u.displayName || u.name || u.username || `${String(uid).slice(0, 6)}…`);
 }
 
-export function saveProfilePic(userId, picUrl) {
-  const userRef = ref(db, 'users/' + userId);
-  return update(userRef, { profilePic: picUrl });
-}
-
-export function loadProfilePic(userId) {
-  const userRef = ref(db, 'users/' + userId + '/profilePic');
-  return get(userRef).then((snap) => {
-    if (!snap.exists()) return;
-    const picUrl = snap.val();
-
-    const preview = document.getElementById('profilePicPreview');
-    if (preview) preview.src = picUrl;
-
-    document.querySelectorAll('.profile-pic-option img').forEach((img) => {
-      const same = img.src.includes((picUrl || '').split('/').pop());
-      if (img.parentElement) {
-        img.parentElement.classList.toggle('selected', same);
-      }
-    });
+/**
+ * Save a user's display name to users/<uid>/displayName.
+ */
+export function saveDisplayName(uid, displayName) {
+  return update(ref(db, `users/${uid}`), {
+    displayName: String(displayName || '').trim(),
   });
 }
 
-export function loadUsernameColor(userId, defaultColor = '#FFD700') {
-  const colorRef = ref(db, `users/${userId}/usernameColor`);
+/* ========= Profile picture ========= */
+
+export function saveProfilePic(uid, picUrl) {
+  return update(ref(db, `users/${uid}`), { profilePic: picUrl });
+}
+
+export async function loadProfilePic(uid) {
+  const snap = await get(ref(db, `users/${uid}/profilePic`));
+  if (!snap.exists()) return;
+
+  const picUrl = snap.val();
+
+  const preview = document.getElementById('profilePicPreview');
+  if (preview) preview.src = picUrl;
+
+  document.querySelectorAll('.profile-pic-option img').forEach((img) => {
+    const same = img.src.includes((picUrl || '').split('/').pop());
+    img.parentElement?.classList.toggle('selected', same);
+  });
+}
+
+/* ========= Username color ========= */
+
+export function loadUsernameColor(uid, defaultColor = '#FFD700') {
+  const colorRef = ref(db, `users/${uid}/usernameColor`);
   const usernameDisplay = document.getElementById('usernameDisplay');
   const colorPicker = document.getElementById('usernameColorPicker');
   const saveButton = document.getElementById('saveColorButton');
 
   const applyColorToUI = (hex) => {
     if (usernameDisplay) usernameDisplay.style.color = hex;
-    if (colorPicker) colorPicker.value = hex; 
+    if (colorPicker) colorPicker.value = hex;
   };
 
   get(colorRef)
@@ -70,7 +75,7 @@ export function loadUsernameColor(userId, defaultColor = '#FFD700') {
 
   if (saveButton && colorPicker) {
     saveButton.onclick = () => {
-      const selectedColor = colorPicker.value || defaultColor; 
+      const selectedColor = colorPicker.value || defaultColor;
       set(colorRef, selectedColor)
         .then(() => {
           applyColorToUI(selectedColor);
