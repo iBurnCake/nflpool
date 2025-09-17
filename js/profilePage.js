@@ -1,5 +1,22 @@
-import { auth, db, signInWithPopup, GoogleAuthProvider, ref, get, update, onAuthStateChanged } from './firebaseConfig.js';
-import { getNameByEmail, loadUsernameColor, loadProfilePic } from './profiles.js';
+// profilePage.js (updated for UID-based names)
+import {
+  auth,
+  db,
+  signInWithPopup,
+  GoogleAuthProvider,
+  ref,
+  get,
+  update,
+  onAuthStateChanged
+} from './firebaseConfig.js';
+
+import {
+  getUsername,        // NEW: UID -> display name
+  saveDisplayName,    // persist displayName under users/<uid>
+  loadUsernameColor,
+  loadProfilePic
+} from './profiles.js';
+
 import { renderTeamLogoPicker } from './teams.js';
 import { BANNERS } from './banners.js';
 import { showLoader, hideLoader } from './loader.js';
@@ -34,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('There was an error loading your profile.');
     } finally {
       hideLoader();
-      clearBootLoader(); 
+      clearBootLoader();
     }
   });
 
@@ -65,17 +82,20 @@ async function showProfile(user) {
   hide(document.getElementById('loginSection'));
   show(getProfileRoot());
 
-  const displayName = getNameByEmail(user.email);
+  // ---- UID-based display name ----
+  const displayName = await getUsername(user.uid);
   setText('usernameDisplay', displayName);
   try {
-    await update(ref(db, `users/${user.uid}`), { displayName });
+    await saveDisplayName(user.uid, displayName);
   } catch (e) {
     console.warn('Could not persist displayName', e);
   }
 
+  // Color + avatar
   loadUsernameColor(user.uid);
   loadProfilePic(user.uid);
 
+  // Team logo picker
   renderTeamLogoPicker({ containerId: 'logoSelection', previewId: 'profilePicPreview' });
 
   await renderBannerPicker(user);
@@ -135,9 +155,9 @@ async function renderBannerPicker(user) {
 
 function matchBannerIndex(url) {
   if (!url) return -1;
-  const norm = normalize(url);
+  const n = normalize(url);
   for (let i = 0; i < BANNERS.length; i++) {
-    if (normalize(BANNERS[i]) === norm) return i;
+    if (normalize(BANNERS[i]) === n) return i;
   }
   return -1;
 }
@@ -220,4 +240,3 @@ async function renderUserStats(uid) {
   setText('statTotalStaked', formatUSD(totalStaked));
   setText('statNet', formatUSD(totalWon - totalStaked));
 }
-
