@@ -5,8 +5,6 @@ import { preloadUserMeta, nameFor } from './names.js';
 
 const ENTRY_FEE = 5;
 
-/* ---------- data helpers ---------- */
-
 async function fetchPools() {
   const snap = await get(ref(db, 'subscriberPools'));
   return snap.exists() ? (snap.val() || {}) : {};
@@ -43,8 +41,6 @@ function buildBackfillMaps(winnersRoot) {
   return { wonMap, weeksMap };
 }
 
-/* ---------- small utils ---------- */
-
 const grid = () => document.getElementById('memberGrid');
 const setStatus = (t) => { const s = document.getElementById('members-status'); if (s) s.textContent = t || ''; };
 const shortUid = (uid) => `${uid.slice(0,6)}…${uid.slice(-4)}`;
@@ -75,8 +71,6 @@ async function getAllRosterUids() {
   return [];
 }
 
-/* ---------- render ---------- */
-
 function renderMemberCards(usersMeta, uids, pools, backfill) {
   const { wonMap, weeksMap } = backfill || { wonMap:{}, weeksMap:{} };
 
@@ -104,7 +98,6 @@ function renderMemberCards(usersMeta, uids, pools, backfill) {
     const name   = nameFor(uid) || u.displayName || u.name || u.username || shortUid(uid);
     const color  = u.usernameColor || '#FFD700';
 
-    // ---- stored vs computed (robust selection) ----
     const stats = u.stats || {};
     const storedStaked = clamp0(stats.totalStaked);
     const storedWon    = clamp0(stats.totalWon);
@@ -114,12 +107,11 @@ function renderMemberCards(usersMeta, uids, pools, backfill) {
     const computedWon    = clamp0(wonMap[uid]);
     const computedWeeks  = clamp0(weeksMap[uid]);
 
-    // Prefer stored if positive; otherwise use computed
     const totalStaked = storedStaked > 0 ? storedStaked : computedStaked;
     const totalWon    = storedWon    > 0 ? storedWon    : computedWon;
     const weeksWon    = storedWeeks  > 0 ? storedWeeks  : computedWeeks;
 
-    const net = clamp0(totalWon) - clamp0(totalStaked); // prevent weird negatives from bad data
+    const net = clamp0(totalWon) - clamp0(totalStaked);
 
     const card = document.createElement('div');
     card.className = 'card member-card';
@@ -173,8 +165,6 @@ async function renderMembers() {
   renderMemberCards(usersMeta, uids, pools, backfill);
   setStatus('');
 }
-
-/* ---------- boot ---------- */
 
 document.addEventListener('DOMContentLoaded', () => {
   if (!document.getElementById('members-status')) {
