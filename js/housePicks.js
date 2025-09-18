@@ -1,268 +1,88 @@
-// housePicks.js
-import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
-import { showLoader, hideLoader } from './loader.js';
-import { clearBootLoader, setBootMessage } from './boot.js';
-import { preloadUserMeta, metaFor, nameFor } from './names.js'; // <-- correct path
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>House Picks</title>
 
-const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2';
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/housePicks.css">
 
-document.addEventListener('DOMContentLoaded', () => {
-  setBootMessage('Loading House Picks…');
-  showLoader('Loading House Picks…');
-
-  onAuthStateChanged(auth, async (user) => {
-    try {
-      if (!user) {
-        window.location.href = 'index.html';
-        return;
-      }
-      await loadHousePicks(user);
-    } catch (err) {
-      console.error('loadHousePicks error:', err);
-      const c = document.getElementById('housePicksContainer');
-      if (c) c.innerHTML = '<p>Error loading picks. Please try again later.</p>';
-    } finally {
-      hideLoader();
-      clearBootLoader();
+  <!-- Boot overlay (keeps background visible; no color flash) -->
+  <style id="bootCss">
+    .app-boot #appBootLoader{
+      position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:9999;
+      background:transparent;
     }
-  });
-});
+    .app-boot #appBootLoader .loader-box{
+      display:flex;flex-direction:column;align-items:center;gap:12px;
+      padding:16px 20px;border:1px solid #333;border-radius:12px;
+      background:#141414;box-shadow:0 6px 24px rgba(0,0,0,.5)
+    }
+    .app-boot #appBootLoader .spinner{
+      width:42px;height:42px;border:3px solid #333;border-top-color:#FFD700;
+      border-radius:50%;animation:spin 1s linear infinite
+    }
+    .app-boot #appBootLoader .msg{color:#fff;opacity:.9;font-weight:600}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+  <script>document.documentElement.classList.add('app-boot');</script>
 
-const games = [
-  // Thu
-  { homeTeam: 'Bills',      awayTeam: 'Dolphins',   homeRecord: '2-0', awayRecord: '0-2' },
+  <!-- Your exact title style -->
+  <style>
+    .house-picks-title{
+      display:inline-block;padding:10px 25px;background-color:rgba(40,40,40,.9);
+      border:2px solid #FFD700;border-radius:8px;font-size:28px;font-weight:bold;color:#FFD700;
+      text-align:center;margin:0 auto 20px auto;position:relative;left:50%;transform:translateX(-50%);
+      box-shadow:0 0 10px rgba(0,0,0,.6);
+    }
 
-  // Sun 1:00 ET
-  { homeTeam: 'Vikings',    awayTeam: 'Bengals',    homeRecord: '1-1', awayRecord: '2-0' },
-  { homeTeam: 'Jaguars',    awayTeam: 'Texans',     homeRecord: '1-1', awayRecord: '0-2' },
-  { homeTeam: 'Titans',     awayTeam: 'Colts',      homeRecord: '0-2', awayRecord: '2-0' },
-  { homeTeam: 'Commanders', awayTeam: 'Raiders',    homeRecord: '1-1', awayRecord: '1-1' },
-  { homeTeam: 'Eagles',     awayTeam: 'Rams',       homeRecord: '2-0', awayRecord: '2-0' },
-  { homeTeam: 'Panthers',   awayTeam: 'Falcons',    homeRecord: '0-2', awayRecord: '1-1' },
-  { homeTeam: 'Patriots',   awayTeam: 'Steelers',   homeRecord: '1-1', awayRecord: '1-1' },
-  { homeTeam: 'Browns',     awayTeam: 'Packers',    homeRecord: '0-2', awayRecord: '2-0' },
-  { homeTeam: 'Buccaneers', awayTeam: 'Jets',       homeRecord: '2-0', awayRecord: '0-2' },
+    /* layout helpers (unchanged) */
+    .house-picks-layout{display:flex;gap:20px;align-items:flex-start;justify-content:flex-start;width:100%;max-width:1200px;margin:0 auto}
+    .leaderboard-container{flex:0 0 20%;max-width:300px;min-width:220px}
+    .picks-container{flex:1;display:flex;flex-wrap:wrap;gap:20px}
+    .user-picks-container{flex:1 1 450px;max-width:500px}
+    .user-header{text-align:center;width:100%}
+    .leaderboard-user{display:flex;align-items:center;gap:6px;white-space:nowrap;justify-content:center;}
+    .leaderboard-user img{width:24px;height:24px;border-radius:50%;object-fit:cover;flex-shrink:0;}
+    .leaderboard-username{white-space:nowrap;text-overflow:ellipsis}
+    .user-picks-table th,.user-picks-table td{text-align:center;vertical-align:middle}
+  </style>
+</head>
+<body>
+  <!-- Loader overlay -->
+  <div id="appBootLoader" aria-live="polite">
+    <div class="loader-box">
+      <div class="spinner" aria-hidden="true"></div>
+      <div id="appBootMsg" class="msg">Loading…</div>
+    </div>
+  </div>
 
-  // Sun late
-  { homeTeam: 'Chargers',   awayTeam: 'Broncos',    homeRecord: '2-0', awayRecord: '1-1' }, // 4:05
-  { homeTeam: 'Seahawks',   awayTeam: 'Saints',     homeRecord: '1-1', awayRecord: '0-2' }, // 4:05
-  { homeTeam: 'Bears',      awayTeam: 'Cowboys',    homeRecord: '0-2', awayRecord: '1-1' }, // 4:25
-  { homeTeam: '49ers',      awayTeam: 'Cardinals',  homeRecord: '2-0', awayRecord: '2-0' }, // 4:25
+  <!-- Header row: back button + centered title using your class -->
+  <div style="max-width:1200px;margin:14px auto 16px;position:relative;">
+    <button onclick="window.location.href='index.html'" style="position:absolute;left:0;top:50%;transform:translateY(-50%);">
+      Back to Home
+    </button>
+    <div class="house-picks-title">House Picks</div>
+  </div>
 
-  // SNF
-  { homeTeam: 'Giants',     awayTeam: 'Chiefs',     homeRecord: '0-2', awayRecord: '0-2' },
+  <!-- Main content -->
+  <div class="house-picks-layout">
+    <div id="leaderboardWrapper" class="leaderboard-container"></div>
+    <div id="housePicksContainer" class="picks-container"></div>
+  </div>
 
-  // MNF
-  { homeTeam: 'Ravens',     awayTeam: 'Lions',      homeRecord: '1-1', awayRecord: '1-1' },
-];
-
-const norm = s => String(s ?? '').trim().toLowerCase();
-const winnerString = (v) =>
-  (typeof v === 'string') ? v : (v && (v.winner || v.team || v.name)) || '';
-
-async function canShowHousePicks(user) {
-  if (user?.uid === ADMIN_UID) return true;
-  try {
-    const vis = await get(ref(db, 'settings/showHousePicks'));
-    return vis.exists() && vis.val() === true;
-  } catch {
-    return false;
-  }
-}
-
-async function getCurrentWeekKey() {
-  try {
-    const snap = await get(ref(db, 'settings/currentWeek'));
-    if (snap.exists()) return snap.val();
-  } catch {}
-  return 'week1';
-}
-
-async function loadWinnersForWeek(weekKey) {
-  const snap = await get(ref(db, `winners/${weekKey}/games`));
-  let raw = {};
-  if (snap.exists()) raw = snap.val() || {};
-  else {
-    const all = await get(ref(db, `winners/${weekKey}`));
-    raw = all.exists() ? (all.val().games ?? {}) : {};
-  }
-  const cleaned = {};
-  for (const [k, v] of Object.entries(raw)) cleaned[k] = winnerString(v);
-  return cleaned;
-}
-
-function calculateTotalScore(userPicks, winnersByIdx) {
-  if (!userPicks) return 0;
-  let total = 0;
-  for (const idx of Object.keys(userPicks)) {
-    const pick = userPicks[idx];
-    if (!pick) continue;
-    const chosen = norm(pick.team);
-    const pts = Number.parseInt(pick.points ?? 0, 10) || 0;
-    const win = norm(winnersByIdx[idx]);
-    if (win && chosen === win) total += pts;
-  }
-  return total;
-}
-
-async function loadHousePicks(user) {
-  const container = document.getElementById('housePicksContainer');
-  if (!container) return;
-  container.innerHTML = 'Loading…';
-
-  // Visibility gate (bypass for admin)
-  const visible = await canShowHousePicks(user);
-  if (!visible) {
-    container.innerHTML = `
-      <div class="pill" style="border:1px solid #666;color:#bbb;display:inline-block;padding:8px 12px;border-radius:20px;">
-        Hidden until admin enables House Picks
-      </div>`;
-    return;
-  }
-
-  // Make sure name/avatars cache is ready before we render
-  await preloadUserMeta();
-
-  const weekKey = await getCurrentWeekKey();
-  const winnersByIdx = await loadWinnersForWeek(weekKey);
-
-  const picksSnap = await get(ref(db, `scoreboards/${weekKey}`));
-  if (!picksSnap.exists()) {
-    container.innerHTML = `<p>No picks submitted for ${weekKey}.</p>`;
-    return;
-  }
-
-  const picksData = picksSnap.val();
-  container.innerHTML = '';
-
-  const userScores = [];
-  for (const userId in picksData) {
-    const totalScore = calculateTotalScore(picksData[userId], winnersByIdx);
-    const meta = metaFor(userId) || {};
-    userScores.push({
-      userId,
-      userName: meta.displayName || nameFor(userId),                 // names.js fallback pipeline
-      totalScore,
-      profilePic: meta.profilePic || 'images/NFL LOGOS/nfl-logo.jpg',
-      usernameColor: meta.usernameColor || '#FFD700',
-    });
-  }
-
-  userScores.sort((a, b) => b.totalScore - a.totalScore);
-
-  createLeaderboardTable(userScores, container);
-
-  userScores.forEach(u => {
-    createUserPicksTable(
-      u.userName,
-      picksData[u.userId],
-      u.totalScore,
-      u.usernameColor,
-      u.profilePic,
-      winnersByIdx
-    );
-  });
-}
-
-function createLeaderboardTable(userScores, container) {
-  const box = document.createElement('div');
-  box.classList.add('user-picks-container');
-
-  const header = document.createElement('h3');
-  header.classList.add('user-header');
-  header.textContent = 'Leaderboard';
-  box.appendChild(header);
-
-  const table = document.createElement('table');
-  table.classList.add('user-picks-table');
-  table.innerHTML = `
-    <thead>
-      <tr><th>Rank</th><th>User</th><th>Total Score</th></tr>
-    </thead>
-    <tbody>
-      ${userScores.map((u, i) => `
-        <tr>
-          <td>${i + 1}</td>
-          <td style="color:${u.usernameColor};">
-            <div class="leaderboard-user">
-              <img src="${u.profilePic}" alt="${u.userName}">
-              <span class="leaderboard-username">${u.userName}</span>
-            </div>
-          </td>
-          <td>${u.totalScore}</td>
-        </tr>
-      `).join('')}
-    </tbody>
-  `;
-  box.appendChild(table);
-  container.appendChild(box);
-}
-
-function createUserPicksTable(userName, userPicks, totalScore, userColor, profilePic, winnersByIdx) {
-  const housePicksContainer = document.getElementById('housePicksContainer');
-  const userContainer = document.createElement('div');
-  userContainer.classList.add('user-picks-container');
-
-  const userHeader = document.createElement('h3');
-  userHeader.classList.add('user-header');
-  userHeader.innerHTML = `
-    <img src="${profilePic}" alt="${userName}" style="width:32px;height:32px;border-radius:50%;vertical-align:middle;margin-right:8px;">
-    <span style="color:${userColor};">${userName}</span> - Total Score: ${totalScore}
-  `;
-  userContainer.appendChild(userHeader);
-
-  const table = document.createElement('table');
-  table.classList.add('user-picks-table');
-  table.innerHTML = `
-    <thead>
-      <tr>
-        <th>Matchup</th>
-        <th>Pick</th>
-        <th>Confidence Points</th>
-        <th>Result</th>
-        <th>Points Earned</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  `;
-  const tbody = table.querySelector('tbody');
-
-  for (const gameIndex in userPicks) {
-    const pickData = userPicks[gameIndex];
-    const game = games[gameIndex];
-    if (!game) continue;
-
-    const matchup = `${game.homeTeam} (${game.homeRecord}) vs ${game.awayTeam} (${game.awayRecord})`;
-    const chosenTeam = pickData.team || 'N/A';
-    const confidencePoints = pickData.points || 0;
-
-    const gameWinner = winnerString(winnersByIdx[gameIndex]) || '';
-    const isCorrectPick = gameWinner && norm(chosenTeam) === norm(gameWinner);
-    const pointsEarned = isCorrectPick ? confidencePoints : 0;
-
-    const resultText = gameWinner ? (isCorrectPick ? 'Win' : 'Loss') : '—';
-    const resultClass = gameWinner ? (isCorrectPick ? 'correct' : 'incorrect') : 'neutral';
-
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${matchup}</td>
-      <td>${chosenTeam}</td>
-      <td>${confidencePoints}</td>
-      <td class="${resultClass}">${resultText}</td>
-      <td>${pointsEarned}</td>
-    `;
-    tbody.appendChild(row);
-  }
-
-  const totalRow = document.createElement('tr');
-  totalRow.innerHTML = `
-    <td colspan="3" style="font-weight:700;text-align:right;">Total Score:</td>
-    <td colspan="2">${totalScore}</td>
-  `;
-  tbody.appendChild(totalRow);
-
-  userContainer.appendChild(table);
-  housePicksContainer.appendChild(userContainer);
-}
-
-clearBootLoader();
+  <script type="module" src="js/housePicks.js"></script>
+  <script type="module">
+    import { clearBootLoader } from './js/boot.js';
+    window.addEventListener('load', () => clearBootLoader());
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
+  </script>
+</body>
+</html>
