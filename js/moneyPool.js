@@ -1,9 +1,7 @@
-// moneyPool.js
 import { auth, onAuthStateChanged, db, ref, get, update } from './firebaseConfig.js';
 import { showLoader, hideLoader } from './loader.js';
 import { clearBootLoader } from './boot.js';
 
-// NEW: shared name/meta helpers
 import { preloadUserMeta, metaFor, nameFor } from './names.js';
 
 const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2';
@@ -52,7 +50,6 @@ const games = [
   { homeTeam: 'Ravens',     awayTeam: 'Lions',      homeRecord: '1-1', awayRecord: '1-1' },
 ];
 
-/* ---- Visibility gate (same switch as House Picks, with optional dedicated flag) ---- */
 async function canShowMoneyPoolPicks(user) {
   if (user?.uid === ADMIN_UID) return true;
 
@@ -102,7 +99,6 @@ async function loadAllowlist(weekKey) {
 }
 
 async function fetchUserDataMap() {
-  // Still read user color/avatar directly as a fallback source
   const usersRef = ref(db, 'users');
   const snapshot = await get(usersRef);
   const map = {};
@@ -121,7 +117,6 @@ async function fetchUserDataMap() {
 }
 
 function prettyName(uid, userDataMap) {
-  // Prefer names.js (DB -> cache). Fallback to userDataMap or short UID.
   return nameFor(uid) || userDataMap[uid]?.displayName || `User ${uid.slice(0, 6)}…`;
 }
 
@@ -296,7 +291,6 @@ async function renderMoneyPool() {
   const container = containerEl();
   if (container) container.innerHTML = '';
 
-  // Ensure names cache is ready before we render names/avatars/colors
   await preloadUserMeta();
 
   const { weekKey, weekLabel } = await getSettings();
@@ -327,7 +321,6 @@ async function renderMoneyPool() {
     const userPicks = picksByUser[uid];
     const totalScore = calculateTotalScore(userPicks, winnersMap);
 
-    // Prefer names.js cache for display meta
     const nm = metaFor(uid) || {};
     const displayName = nameFor(uid) || userDataMap[uid]?.displayName || `User ${uid.slice(0,6)}…`;
     const profilePic  = nm.profilePic || userDataMap[uid]?.profilePic || 'images/NFL LOGOS/nfl-logo.jpg';
@@ -371,7 +364,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // ---- visibility check for non-admin ----
       const visible = await canShowMoneyPoolPicks(user);
       if (!visible) {
         setStatus('Hidden until admin enables picks visibility.');
@@ -390,7 +382,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setStatus('Something went wrong loading the Money Pool.');
       });
 
-      // ==== Admin membership panel wiring (if present) ====
       const panel = document.getElementById('mp-admin');
       if (panel) panel.style.display = (user.uid === ADMIN_UID) ? 'block' : 'none';
       if (user.uid !== ADMIN_UID) return;
