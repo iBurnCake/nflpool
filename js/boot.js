@@ -1,29 +1,16 @@
-// boot.js
 let _cleared = false;
 let _timer = null;
 let _shownAt = Date.now();
 
-/**
- * Optionally set/override the boot message.
- */
 export function setBootMessage(msg) {
   const el = document.getElementById('appBootMsg');
   if (el) el.textContent = String(msg || 'Loading…');
 }
 
-/**
- * Mark the time when the boot overlay became visible.
- * Call this early if you render the overlay later than page start.
- */
 export function markBootVisible() {
   _shownAt = Date.now();
 }
 
-/**
- * Clear the boot overlay after a minimum visible time, with fade-out.
- * Usage: clearBootLoader({ min: 900, fade: 200 })
- * Defaults: min=800ms, fade=200ms
- */
 export function clearBootLoader(opts = {}) {
   if (_cleared || _timer) return;
 
