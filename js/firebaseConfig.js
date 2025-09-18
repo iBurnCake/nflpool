@@ -1,26 +1,6 @@
-// js/firebaseConfig.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import {
-  getAuth,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signInWithRedirect as _signInWithRedirect,
-  getRedirectResult as _getRedirectResult,
-  fetchSignInMethodsForEmail,
-  linkWithCredential,
-} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import {
-  getDatabase,
-  ref,
-  set,
-  get,
-  update,
-  onValue,
-  off,
-  child,
-} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInWithRedirect as _signInWithRedirect, getRedirectResult as _getRedirectResult, fetchSignInMethodsForEmail, linkWithCredential, } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { getDatabase, ref, set, get, update, onValue, off, child, } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCEIIp_7mw1lEJi2ySy8rbYI9zIGz1d2d8",
@@ -37,26 +17,4 @@ const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getDatabase(app);
 
-// Re-export everything you need (with explicit aliases for clarity)
-export {
-  // Auth
-  auth,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
-  _signInWithRedirect as signInWithRedirect,
-  _getRedirectResult as getRedirectResult,
-  fetchSignInMethodsForEmail,
-  linkWithCredential,
-
-  // RTDB
-  db,
-  ref,
-  set,
-  get,
-  update,
-  onValue,
-  off,
-  child,
-};
+export { auth, onAuthStateChanged, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, _signInWithRedirect as signInWithRedirect, _getRedirectResult as getRedirectResult, fetchSignInMethodsForEmail, linkWithCredential, db, ref, set, get, update, onValue, off, child };
