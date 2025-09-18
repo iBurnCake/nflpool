@@ -1,35 +1,22 @@
-// profiles.js
 import { db, ref, get, set, update } from './firebaseConfig.js';
 import { preloadUserMeta, nameFor } from './names.js';
 
-/* ========= Names (UID-based) ========= */
-
-/**
- * Returns a nice display name for the given UID.
- * Order: users/<uid>.displayName || name || username || short UID
- */
 export async function getUsername(uid) {
   await preloadUserMeta();
   const name = nameFor(uid);
   if (name) return name;
 
-  // Fallback direct read if not cached for some reason
   const snap = await get(ref(db, `users/${uid}`));
   if (!snap.exists()) return `${String(uid).slice(0, 6)}…`;
   const u = snap.val() || {};
   return String(u.displayName || u.name || u.username || `${String(uid).slice(0, 6)}…`);
 }
 
-/**
- * Save a user's display name to users/<uid>/displayName.
- */
 export function saveDisplayName(uid, displayName) {
   return update(ref(db, `users/${uid}`), {
     displayName: String(displayName || '').trim(),
   });
 }
-
-/* ========= Profile picture ========= */
 
 export function saveProfilePic(uid, picUrl) {
   return update(ref(db, `users/${uid}`), { profilePic: picUrl });
@@ -49,8 +36,6 @@ export async function loadProfilePic(uid) {
     img.parentElement?.classList.toggle('selected', same);
   });
 }
-
-/* ========= Username color ========= */
 
 export function loadUsernameColor(uid, defaultColor = '#FFD700') {
   const colorRef = ref(db, `users/${uid}/usernameColor`);
