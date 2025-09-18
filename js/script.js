@@ -1,25 +1,8 @@
-// js/script.js
-import {
-  auth,
-  signInWithPopup,
-  GoogleAuthProvider,
-  onAuthStateChanged,
-  db,
-  ref,
-  get,
-  update,
-} from './firebaseConfig.js';
+import { auth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, db, ref, get, update } from './firebaseConfig.js';
 import { refreshCurrentWeek } from './settings.js';
 import { applyLockUI } from './ui.js';
-import { getUsername, loadUsernameColor } from './profiles.js'; // ⬅️ changed
-import {
-  displayGames,
-  loadUserPicks,
-  resetPicks,
-  submitPicks,
-  selectPick,
-  assignConfidence,
-} from './picks.js';
+import { getUsername, loadUsernameColor } from './profiles.js'; 
+import { displayGames, loadUserPicks, resetPicks, submitPicks, selectPick, assignConfidence } from './picks.js';
 import { normalizeUserDoc } from './normalizeUser.js';
 import { showLoader, hideLoader } from './loader.js';
 import { clearBootLoader, setBootMessage } from './boot.js';
@@ -110,7 +93,6 @@ async function handleSuccessfulLogin(user) {
   if (loginSection) loginSection.style.display = 'none';
   if (homeSection)  homeSection.style.display  = 'block';
 
-  // ✅ UID-based display name
   const displayName = await getUsername(user.uid);
   try {
     await update(ref(db, `users/${user.uid}`), { displayName });
@@ -125,7 +107,6 @@ async function handleSuccessfulLogin(user) {
   await normalizeUserDoc(user.uid);
   await applyProfileCardDecor(user.uid);
 
-  // expose for inline handlers
   window.selectPick = selectPick;
   window.assignConfidence = assignConfidence;
   window.resetPicks = resetPicks;
