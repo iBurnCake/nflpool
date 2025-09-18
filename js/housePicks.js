@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>House Picks</title>
 
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/housePicks.css">
+  <!-- Make paths explicitly relative to THIS file -->
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/housePicks.css">
 
   <!-- Boot overlay (keeps background visible; no color flash) -->
   <style id="bootCss">
@@ -72,15 +73,18 @@
     <div id="housePicksContainer" class="picks-container"></div>
   </div>
 
-  <script type="module" src="js/housePicks.js"></script>
+  <!-- Make module paths explicitly relative so they don't resolve to the wrong directory -->
+  <script type="module" src="./js/housePicks.js"></script>
   <script type="module">
     import { clearBootLoader } from './js/boot.js';
     window.addEventListener('load', () => clearBootLoader());
   </script>
+
+  <!-- Register the Service Worker relative to this file (not site root) -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js');
+        navigator.serviceWorker.register('./sw.js');
       });
     }
   </script>
