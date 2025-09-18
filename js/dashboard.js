@@ -1,20 +1,9 @@
-// dashboard.js
-import {
-  auth,
-  db,
-  signInWithPopup,
-  GoogleAuthProvider,
-  ref,
-  get,
-  onAuthStateChanged,
-} from './firebaseConfig.js';
-
+import { auth, db, signInWithPopup, GoogleAuthProvider, ref, get, onAuthStateChanged, } from './firebaseConfig.js';
 import { CURRENT_WEEK, CURRENT_WEEK_LABEL, IS_LOCKED, refreshCurrentWeek } from './settings.js';
-import { preloadUserMeta, nameFor } from './names.js'; // UID-based names fallback to users/<uid> fields
+import { preloadUserMeta, nameFor } from './names.js'; 
 
 const POOL_DOLLARS_PER_MEMBER = 5;
 
-/* ------------- tiny DOM helpers ------------- */
 const byId = (id) => document.getElementById(id);
 const setText = (id, txt) => { const el = byId(id); if (el) el.textContent = txt; };
 const showEl = (id, display='block') => { const el = byId(id); if (el) el.style.display = display; };
@@ -47,33 +36,26 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function showDashboard(user) {
-  // Make sure CURRENT_WEEK / label / lock state are fresh
   await refreshCurrentWeek();
 
   hideEl('loginSection');
   showEl('dashboardSection', 'block');
 
-  // Lock/open label
   setText('dashLockLabel', IS_LOCKED ? 'Locked' : 'Open');
 
-  // Name (UID-based from /users; falls back to short UID)
   await preloadUserMeta();
   const displayName = nameFor(user.uid);
   setText('dashDisplayName', displayName);
 
-  // Profile card image
   await setDashboardProfilePic(user.uid);
 
-  // Week label: prefer settings label if present
   const label = CURRENT_WEEK_LABEL || `Week ${extractWeekNumber(CURRENT_WEEK)}`;
   setText('dashWeekLabel', label);
 
-  // Picks summary
   const { pickCount } = await getPickSummary(user.uid);
   setText('dashPickCount', String(pickCount));
   setText('dashPickStatus', IS_LOCKED ? 'Locked' : 'Open');
 
-  // Money pool total for the current week
   const total = await getPoolTotalOnce(CURRENT_WEEK);
   setText('dashPoolTotal', formatUSD(total));
 }
@@ -129,3 +111,4 @@ async function setDashboardProfilePic(uid) {
     console.warn('setDashboardProfilePic error:', e);
   }
 }
+
