@@ -89,6 +89,18 @@
         <span id="reqCount" class="pill gray">—</span>
       </div>
 
+      <section class="settings-container" id="winnersPanel" style="display:none;">
+  <h2>Set Game Winners <span id="aw-week-label" style="opacity:.8;"></span></h2>
+  <div id="aw-status" style="margin:8px 0;font-weight:700;color:#FFD700;"></div>
+  <div id="aw-games-list" class="table-responsive"></div>
+  <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;">
+    <button id="aw-refresh">Refresh</button>
+    <button id="aw-clear-all" class="btn btn-danger">Clear all winners (this week)</button>
+  </div>
+</section>
+
+<script type="module" src="js/adminWinnersFromHouse.js"></script>
+
       <table class="table" id="reqTable" aria-label="Access Requests">
         <thead>
           <tr>
