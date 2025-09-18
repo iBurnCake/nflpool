@@ -1,22 +1,5 @@
-// profilePage.js (updated for UID-based names)
-import {
-  auth,
-  db,
-  signInWithPopup,
-  GoogleAuthProvider,
-  ref,
-  get,
-  update,
-  onAuthStateChanged
-} from './firebaseConfig.js';
-
-import {
-  getUsername,        // NEW: UID -> display name
-  saveDisplayName,    // persist displayName under users/<uid>
-  loadUsernameColor,
-  loadProfilePic
-} from './profiles.js';
-
+import { auth, db, signInWithPopup, GoogleAuthProvider, ref, get, update, onAuthStateChanged } from './firebaseConfig.js';
+import { getUsername, saveDisplayName, loadUsernameColor, loadProfilePic } from './profiles.js';
 import { renderTeamLogoPicker } from './teams.js';
 import { BANNERS } from './banners.js';
 import { showLoader, hideLoader } from './loader.js';
@@ -82,7 +65,6 @@ async function showProfile(user) {
   hide(document.getElementById('loginSection'));
   show(getProfileRoot());
 
-  // ---- UID-based display name ----
   const displayName = await getUsername(user.uid);
   setText('usernameDisplay', displayName);
   try {
@@ -91,11 +73,9 @@ async function showProfile(user) {
     console.warn('Could not persist displayName', e);
   }
 
-  // Color + avatar
   loadUsernameColor(user.uid);
   loadProfilePic(user.uid);
 
-  // Team logo picker
   renderTeamLogoPicker({ containerId: 'logoSelection', previewId: 'profilePicPreview' });
 
   await renderBannerPicker(user);
@@ -240,3 +220,4 @@ async function renderUserStats(uid) {
   setText('statTotalStaked', formatUSD(totalStaked));
   setText('statNet', formatUSD(totalWon - totalStaked));
 }
+
