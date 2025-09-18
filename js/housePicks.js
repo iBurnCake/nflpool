@@ -1,92 +1,220 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>House Picks</title>
+// housePicks.js
+import { auth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
+import { showLoader, hideLoader } from './loader.js';
+import { clearBootLoader, setBootMessage } from './boot.js';
+import { preloadUserMeta, nameFor } from './names.js';
 
-  <!-- Make paths explicitly relative to THIS file -->
-  <link rel="stylesheet" href="./css/style.css">
-  <link rel="stylesheet" href="./css/housePicks.css">
+const ENTRY_FEE = 5;
 
-  <!-- Boot overlay (keeps background visible; no color flash) -->
-  <style id="bootCss">
-    .app-boot #appBootLoader{
-      position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:9999;
-      background:transparent;
+/* ---------- data helpers ---------- */
+
+async function fetchPools() {
+  const snap = await get(ref(db, 'subscriberPools'));
+  return snap.exists() ? (snap.val() || {}) : {};
+}
+function stakedFromPools(uid, pools) {
+  let total = 0;
+  for (const weekKey of Object.keys(pools || {})) {
+    const mem = pools[weekKey]?.members;
+    if (mem && typeof mem === 'object' && mem[uid]) total += ENTRY_FEE;
+  }
+  return total;
+}
+
+async function fetchWinnersRoot() {
+  const snap = await get(ref(db, 'winners'));
+  return snap.exists() ? (snap.val() || {}) : {};
+}
+
+function buildBackfillMaps(winnersRoot) {
+  const wonMap = Object.create(null);
+  const weeksMap = Object.create(null);
+
+  for (const [weekKey, node] of Object.entries(winnersRoot || {})) {
+    if (!node || typeof node !== 'object') continue;
+
+    const houseWinners = Array.isArray(node.houseWinners) ? node.houseWinners : [];
+    const poolWinners  = Array.isArray(node.moneyPoolWinners) ? node.moneyPoolWinners : [];
+    const payout       = Number(node.payoutPerWinner) || 0;
+
+    const union = new Set([...houseWinners, ...poolWinners]);
+    for (const uid of union) weeksMap[uid] = (weeksMap[uid] || 0) + 1;
+    for (const uid of poolWinners) wonMap[uid] = (wonMap[uid] || 0) + payout;
+  }
+  return { wonMap, weeksMap };
+}
+
+/* ---------- small utils ---------- */
+
+const $ = (sel) => document.querySelector(sel);
+const grid = () => document.getElementById('memberGrid');
+const setStatus = (t) => { const s = document.getElementById('members-status'); if (s) s.textContent = t || ''; };
+const shortUid = (uid) => `${uid.slice(0,6)}…${uid.slice(-4)}`;
+const toNum = (x) => (typeof x === 'number') ? x : Number(x) || 0;
+const fmtUSD = (n) => {
+  try {
+    return new Intl.NumberFormat('en-US', { style:'currency', currency:'USD', maximumFractionDigits:0 }).format(Number(n)||0);
+  } catch { return `$${Math.round(Number(n)||0)}`; }
+};
+
+const FALLBACK_BANNER = 'images/banners/banner01.svg';
+const FALLBACK_AVATAR = 'images/NFL LOGOS/nfl-logo.jpg';
+
+async function getUsersMeta() {
+  const snap = await get(ref(db, 'users'));
+  return snap.exists() ? (snap.val() || {}) : {};
+}
+
+async function getAllRosterUids() {
+  const rosterSnap = await get(ref(db, 'subscriberPools/users'));
+  if (rosterSnap.exists()) {
+    const obj = rosterSnap.val() || {};
+    return Object.keys(obj).filter((uid) => !!obj[uid]);
+  }
+  const usersSnap = await get(ref(db, 'users'));
+  if (usersSnap.exists()) return Object.keys(usersSnap.val() || {});
+  return [];
+}
+
+/* ---------- render ---------- */
+
+function renderMemberCards(usersMeta, uids, pools, backfill) {
+  const { wonMap, weeksMap } = backfill || { wonMap:{}, weeksMap:{} };
+
+  const container = grid();
+  container.innerHTML = '';
+
+  if (!uids.length) {
+    container.innerHTML = `
+      <div class="settings-container" style="grid-column:1/-1;">
+        <p>No users found.</p>
+      </div>`;
+    return;
+  }
+
+  const sorted = [...uids].sort((a, b) =>
+    (nameFor(a) || usersMeta[a]?.displayName || shortUid(a)).toLowerCase()
+      .localeCompare((nameFor(b) || usersMeta[b]?.displayName || shortUid(b)).toLowerCase())
+  );
+
+  for (const uid of sorted) {
+    const u = usersMeta[uid] || {};
+
+    const banner = u.profileBanner || FALLBACK_BANNER;
+    const avatar = u.profilePic    || FALLBACK_AVATAR;
+    const name   = nameFor(uid) || u.displayName || u.name || u.username || shortUid(uid);
+    const color  = u.usernameColor || '#FFD700';
+
+    // ---- stats: PREFER STORED (DB) values; fall back to computed if missing/zero
+    const stats        = u.stats || {};
+    const storedWeeks  = toNum(stats.weeksWon);
+    const storedWon    = toNum(stats.totalWon);
+    const storedStaked = toNum(stats.totalStaked);
+
+    const computedStaked = stakedFromPools(uid, pools);
+    const computedWon    = toNum(wonMap[uid]);
+    const computedWeeks  = toNum(weeksMap[uid]);
+
+    const weeksWon    = storedWeeks  || computedWeeks  || 0;
+    const totalWon    = storedWon    || computedWon    || 0;
+    const totalStaked = storedStaked || computedStaked || 0;
+
+    const net = totalWon - totalStaked;
+
+    const card = document.createElement('div');
+    card.className = 'card member-card';
+
+    const hero = document.createElement('div');
+    hero.className = 'card-hero';
+    hero.style.backgroundImage = `url("${banner}")`;
+
+    const img = document.createElement('img');
+    img.className = 'member-avatar';
+    img.src = avatar;
+    img.alt = `${name} avatar`;
+    hero.appendChild(img);
+
+    const body = document.createElement('div');
+    body.className = 'card-body';
+
+    const h3 = document.createElement('h3');
+    h3.className = 'member-name';
+    h3.textContent = name;
+    h3.style.color = color;
+
+    const p = document.createElement('p');
+    p.className = 'member-stats';
+    p.innerHTML = `Weeks Won: <b>${weeksWon}</b> • Net: <b>${fmtUSD(net)}</b>`;
+
+    body.appendChild(h3);
+    body.appendChild(p);
+
+    card.appendChild(hero);
+    card.appendChild(body);
+
+    container.appendChild(card);
+  }
+}
+
+async function renderMembers() {
+  setStatus('Loading…');
+  grid().innerHTML = '';
+
+  await preloadUserMeta();
+
+  const [usersMeta, uids, pools, winnersRoot] = await Promise.all([
+    getUsersMeta(),
+    getAllRosterUids(),
+    fetchPools(),
+    fetchWinnersRoot(),
+  ]);
+
+  const backfill = buildBackfillMaps(winnersRoot);
+  renderMemberCards(usersMeta, uids, pools, backfill);
+  setStatus('');
+}
+
+/* ---------- boot ---------- */
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (!document.getElementById('members-status')) {
+    const s = document.createElement('div');
+    s.id = 'members-status';
+    s.style.cssText = 'margin:10px 0;font-weight:700;text-align:center;color:#FFD700;';
+    document.body.insertAdjacentElement('afterbegin', s);
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    showLoader('Loading members…');
+    try {
+      const login = document.getElementById('loginSection');
+      const main  = document.getElementById('membersSection');
+
+      if (!user) {
+        if (login) login.style.display = 'flex';
+        if (main)  main.style.display  = 'none';
+        const btn = document.getElementById('googleLoginButton');
+        btn?.addEventListener('click', () => {
+          const provider = new GoogleAuthProvider();
+          signInWithPopup(auth, provider).catch((err) => {
+            console.error('Google login error:', err);
+            alert('Google login failed. Please try again.');
+          });
+        });
+        setStatus('Sign in required.');
+        return;
+      }
+
+      if (login) login.style.display = 'none';
+      if (main)  main.style.display  = 'block';
+
+      await renderMembers();
+    } catch (e) {
+      console.error('renderMembers error:', e);
+      setStatus('There was an error loading users.');
+    } finally {
+      hideLoader();
+      clearBootLoader();
     }
-    .app-boot #appBootLoader .loader-box{
-      display:flex;flex-direction:column;align-items:center;gap:12px;
-      padding:16px 20px;border:1px solid #333;border-radius:12px;
-      background:#141414;box-shadow:0 6px 24px rgba(0,0,0,.5)
-    }
-    .app-boot #appBootLoader .spinner{
-      width:42px;height:42px;border:3px solid #333;border-top-color:#FFD700;
-      border-radius:50%;animation:spin 1s linear infinite
-    }
-    .app-boot #appBootLoader .msg{color:#fff;opacity:.9;font-weight:600}
-    @keyframes spin{to{transform:rotate(360deg)}}
-  </style>
-  <script>document.documentElement.classList.add('app-boot');</script>
-
-  <!-- Your exact title style -->
-  <style>
-    .house-picks-title{
-      display:inline-block;padding:10px 25px;background-color:rgba(40,40,40,.9);
-      border:2px solid #FFD700;border-radius:8px;font-size:28px;font-weight:bold;color:#FFD700;
-      text-align:center;margin:0 auto 20px auto;position:relative;left:50%;transform:translateX(-50%);
-      box-shadow:0 0 10px rgba(0,0,0,.6);
-    }
-
-    /* layout helpers (unchanged) */
-    .house-picks-layout{display:flex;gap:20px;align-items:flex-start;justify-content:flex-start;width:100%;max-width:1200px;margin:0 auto}
-    .leaderboard-container{flex:0 0 20%;max-width:300px;min-width:220px}
-    .picks-container{flex:1;display:flex;flex-wrap:wrap;gap:20px}
-    .user-picks-container{flex:1 1 450px;max-width:500px}
-    .user-header{text-align:center;width:100%}
-    .leaderboard-user{display:flex;align-items:center;gap:6px;white-space:nowrap;justify-content:center;}
-    .leaderboard-user img{width:24px;height:24px;border-radius:50%;object-fit:cover;flex-shrink:0;}
-    .leaderboard-username{white-space:nowrap;text-overflow:ellipsis}
-    .user-picks-table th,.user-picks-table td{text-align:center;vertical-align:middle}
-  </style>
-</head>
-<body>
-  <!-- Loader overlay -->
-  <div id="appBootLoader" aria-live="polite">
-    <div class="loader-box">
-      <div class="spinner" aria-hidden="true"></div>
-      <div id="appBootMsg" class="msg">Loading…</div>
-    </div>
-  </div>
-
-  <!-- Header row: back button + centered title using your class -->
-  <div style="max-width:1200px;margin:14px auto 16px;position:relative;">
-    <button onclick="window.location.href='index.html'" style="position:absolute;left:0;top:50%;transform:translateY(-50%);">
-      Back to Home
-    </button>
-    <div class="house-picks-title">House Picks</div>
-  </div>
-
-  <!-- Main content -->
-  <div class="house-picks-layout">
-    <div id="leaderboardWrapper" class="leaderboard-container"></div>
-    <div id="housePicksContainer" class="picks-container"></div>
-  </div>
-
-  <!-- Make module paths explicitly relative so they don't resolve to the wrong directory -->
-  <script type="module" src="./js/housePicks.js"></script>
-  <script type="module">
-    import { clearBootLoader } from './js/boot.js';
-    window.addEventListener('load', () => clearBootLoader());
-  </script>
-
-  <!-- Register the Service Worker relative to this file (not site root) -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js');
-      });
-    }
-  </script>
-</body>
-</html>
+  });
+});
