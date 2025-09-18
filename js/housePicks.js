@@ -1,8 +1,7 @@
-// housePicks.js
 import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
 import { showLoader, hideLoader } from './loader.js';
 import { clearBootLoader, setBootMessage } from './boot.js';
-import { preloadUserMeta, metaFor, nameFor } from './names.js'; // <-- correct path
+import { preloadUserMeta, metaFor, nameFor } from './names.js'; 
 
 const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2';
 
@@ -110,7 +109,6 @@ async function loadHousePicks(user) {
   if (!container) return;
   container.innerHTML = 'Loading…';
 
-  // Visibility gate (bypass for admin)
   const visible = await canShowHousePicks(user);
   if (!visible) {
     container.innerHTML = `
@@ -120,7 +118,6 @@ async function loadHousePicks(user) {
     return;
   }
 
-  // Make sure name/avatars cache is ready before we render
   await preloadUserMeta();
 
   const weekKey = await getCurrentWeekKey();
@@ -141,7 +138,7 @@ async function loadHousePicks(user) {
     const meta = metaFor(userId) || {};
     userScores.push({
       userId,
-      userName: meta.displayName || nameFor(userId),                 // names.js fallback pipeline
+      userName: meta.displayName || nameFor(userId),                
       totalScore,
       profilePic: meta.profilePic || 'images/NFL LOGOS/nfl-logo.jpg',
       usernameColor: meta.usernameColor || '#FFD700',
