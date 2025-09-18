@@ -1,4 +1,4 @@
-const APP_VERSION = '2025-09-17-04'; // bump now
+const APP_VERSION = '2025-09-17-05'; // bump now
 const CACHE_NAME  = `nflpool-${APP_VERSION}`;
 
 const PRECACHE = [
@@ -8,6 +8,7 @@ const PRECACHE = [
   '/css/index.css',
   '/js/firebaseConfig.js',
   '/js/script.js',
+  '/housePicks.html',
 ];
 
 self.addEventListener('message', (evt) => {
