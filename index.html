@@ -6,7 +6,6 @@
   <title>2025 NFL Confidence Pool | Make Your Picks. Compete. Win.</title>
   <meta name="description" content="Jump into the 2025 NFL Confidence Pool! Pick every NFL game, assign confidence points, customize your look, and battle for the top spot each week. Super clean design, instant results, and easy Google login.">
 
-  <!-- Boot loader -->
   <style id="bootCss">
     html { background:#121212; }
     html.app-boot body > * { visibility: hidden; }
@@ -64,7 +63,6 @@
   </style>
 </head>
 <body>
-  <!-- Boot Loader -->
   <div id="appBootLoader" role="status" aria-live="polite" aria-busy="true">
     <div class="box">
       <div class="spin"></div>
@@ -72,7 +70,6 @@
     </div>
   </div>
 
-  <!-- SIGNED-IN APP ONLY (no login UI here) -->
   <div id="userHomeSection" style="display:none;">
     <div class="settings-container">
       <h2>Welcome, <span id="usernameDisplay"></span></h2>
@@ -164,28 +161,22 @@
     </div>
   </div>
 
-  <!-- Auth guard: redirect guests to login.html -->
   <script type="module">
     import { auth, onAuthStateChanged } from './js/firebaseConfig.js';
     onAuthStateChanged(auth, (user) => {
       if (!user) {
-        // Not signed in → go to the new login page
         window.location.replace('login.html');
         return;
       }
-      // Show the app
       const home = document.getElementById('userHomeSection');
       if (home) home.style.display = 'block';
-      // Hide boot
       document.getElementById('appBootLoader').style.display = 'none';
       document.documentElement.classList.remove('app-boot');
     });
   </script>
 
-  <!-- Your main signed-in app logic -->
   <script type="module" src="js/script.js"></script>
 
-  <!-- Drawer + logout wiring -->
   <script type="module">
     import * as Drawer from './js/drawer.js';
     import { auth } from './js/firebaseConfig.js';
@@ -209,13 +200,11 @@
     }
   </script>
 
-  <!-- Money pool badge -->
   <script type="module">
     import { initMoneyPoolPotBadge } from './js/moneyPoolPotBadge.js';
     initMoneyPoolPotBadge({ heroId: 'moneyPoolHero' });
   </script>
 
-  <!-- Profile card sync (unchanged) -->
   <script>
     (function syncProfileCard(){
       const nameSource = document.getElementById('usernameDisplay');
@@ -235,7 +224,6 @@
     })();
   </script>
 
-  <!-- Service worker -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
