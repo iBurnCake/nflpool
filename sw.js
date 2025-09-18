@@ -1,5 +1,5 @@
 // sw.js
-const APP_VERSION = '2025-09-17-01'; // 🔁 bump on every deploy
+const APP_VERSION = '2025-09-17-02'; // 🔁 bump on every deploy
 const CACHE_NAME  = `nflpool-${APP_VERSION}`;
 
 // Only cache the minimal shell you truly need offline
