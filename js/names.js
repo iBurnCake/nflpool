@@ -1,4 +1,3 @@
-// js/names.js
 import { db, ref, get } from './firebaseConfig.js';
 
 let CACHE = {};
@@ -29,13 +28,12 @@ function pickFirst(...vals) {
   return undefined;
 }
 
-// ----- accessors (root-first, awards as fallback only) -----
 export function nameFor(uid, localMap = {}) {
   const dn = pickFirst(
-    u(uid)?.displayName,         // <-- your structure
+    u(uid)?.displayName,        
     u(uid)?.username,
     u(uid)?.name,
-    u(uid)?.awards?.displayName, // legacy fallback (optional)
+    u(uid)?.awards?.displayName, 
     localMap?.[uid]
   );
   return dn || `User ${String(uid || '').slice(0, 6)}…`;
