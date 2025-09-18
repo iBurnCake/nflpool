@@ -1,4 +1,3 @@
-// pastWeeks.js
 import { auth, onAuthStateChanged, db, ref, get } from './firebaseConfig.js';
 import { showLoader, hideLoader } from './loader.js';
 import { clearBootLoader, setBootMessage } from './boot.js';
@@ -10,14 +9,12 @@ const norm = (s) => String(s ?? '').trim().toLowerCase();
 const winnerString = (v) =>
   (typeof v === 'string') ? v : (v && (v.winner || v.team || v.name)) || '';
 
-/* ---------------- UI helpers ---------------- */
 function setStatus(text) {
   const s = document.getElementById('pw-status');
   if (s) s.textContent = text || '';
 }
 function container() { return document.getElementById('pastWeeksContainer'); }
 
-/* ---------------- data helpers ---------------- */
 async function safeGet(path) {
   try { return await get(ref(db, path)); }
   catch { return null; }
@@ -31,11 +28,6 @@ async function getUsersMeta() {
   return snap && snap.exists() ? (snap.val() || {}) : {};
 }
 
-/**
- * Only list weeks that have winners posted.
- * This avoids a root read on /scoreboards for non-admin users
- * and matches the rules (users may read scoreboards/<wk> when winners exist).
- */
 async function listWeeks() {
   const snap = await safeGet('winners');
   if (!snap || !snap.exists()) return [];
@@ -45,7 +37,6 @@ async function listWeeks() {
     .filter(([, v]) => v && v.games && Object.keys(v.games).length > 0)
     .map(([k]) => k);
 
-  // newest (largest N) first
   return weeks.sort((a, b) => {
     const na = parseInt((/^week(\d+)$/i.exec(a) || [0, 0])[1], 10);
     const nb = parseInt((/^week(\d+)$/i.exec(b) || [0, 0])[1], 10);
@@ -75,25 +66,18 @@ function computeTotal(picks, winnersGames) {
   return total;
 }
 
-/**
- * Build a leaderboard for a week. Returns null if there are no picks
- * (so we can skip rendering that week).
- */
 async function buildWeekLeaderboard(weekKey, usersMeta) {
-  // winners/<wk>/games exists (that’s how we listed the week),
-  // so reading /scoreboards/<wk> is allowed by rules for all users.
   const [winnersNode, picksSnap] = await Promise.all([
     getWinnersNode(weekKey),
     safeGet(`scoreboards/${weekKey}`)
   ]);
 
-  if (!picksSnap || !picksSnap.exists()) return null; // no picks → skip
+  if (!picksSnap || !picksSnap.exists()) return null; 
 
   const winnersGames = winnersNode.games || {};
   const weekLabel = winnersNode.label || weekKey;
   const picksByUser = picksSnap.val() || {};
 
-  // if literally no user has any pick keys, treat as empty
   const anyPicks = Object.values(picksByUser).some(v => v && Object.keys(v).length);
   if (!anyPicks) return null;
 
@@ -111,7 +95,6 @@ async function buildWeekLeaderboard(weekKey, usersMeta) {
   return { weekKey, weekLabel, rows };
 }
 
-/* ---------------- render ---------------- */
 function renderWeekCard({ weekLabel, rows }) {
   const c = container();
   const card = document.createElement('div');
@@ -152,7 +135,6 @@ async function renderPastWeeks() {
   const c = container();
   c.innerHTML = '';
 
-  // Load weeks by winners and user metadata
   const [weeks, usersMeta] = await Promise.all([listWeeks(), getUsersMeta()]);
 
   if (weeks.length === 0) {
@@ -176,7 +158,6 @@ async function renderPastWeeks() {
         rendered++;
       }
     } catch (e) {
-      // Keep the page going; skip the problematic week
       console.warn('PastWeeks: failed for', wk, e);
     }
   }
@@ -184,7 +165,6 @@ async function renderPastWeeks() {
   setStatus(rendered === 0 ? 'No past results to display yet.' : '');
 }
 
-/* ---------------- boot ---------------- */
 document.getElementById('backToPicksBtn')
   ?.addEventListener('click', () => (window.location.href = 'index.html'));
 
