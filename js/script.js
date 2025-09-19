@@ -1,13 +1,15 @@
+// script.js
 import { auth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, db, ref, get, update } from './firebaseConfig.js';
 import { refreshCurrentWeek } from './settings.js';
 import { applyLockUI } from './ui.js';
-import { getUsername, loadUsernameColor } from './profiles.js'; 
+import { getUsername, loadUsernameColor } from './profiles.js';
 import { displayGames, loadUserPicks, resetPicks, submitPicks, selectPick, assignConfidence } from './picks.js';
 import { normalizeUserDoc } from './normalizeUser.js';
 import { showLoader, hideLoader } from './loader.js';
 import { clearBootLoader, setBootMessage } from './boot.js';
+import { ensureAccessRequest } from './ensureAccessRequest.js';
 
-const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2';
+const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2'; // (not used here but fine to keep)
 
 document.addEventListener('DOMContentLoaded', () => {
   setBootMessage('Loading…');
@@ -15,14 +17,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   onAuthStateChanged(auth, async (user) => {
     try {
-      if (user) {
-        await handleSuccessfulLogin(user);
-      } else {
+      if (!user) {
+        // show login UI
         const loginSection = document.getElementById('loginSection');
         if (loginSection) loginSection.style.display = 'flex';
         const homeSection = document.getElementById('userHomeSection');
         if (homeSection) homeSection.style.display = 'none';
+        return;
       }
+
+      // === Approval gate: auto-create request if needed ===
+      const { approved } = await ensureAccessRequest(user);
+      if (!approved) {
+        // send to waiting page; do not initialize the app UI
+        window.location.href = 'request-access.html';
+        return;
+      }
+
+      // Approved → proceed
+      await handleSuccessfulLogin(user);
     } catch (e) {
       console.error('init error:', e);
     } finally {
@@ -31,14 +44,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Google Login button — just sign in; onAuthStateChanged will handle the rest
   document.getElementById('googleLoginButton')?.addEventListener('click', () => {
     const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider)
-      .then((result) => handleSuccessfulLogin(result.user))
-      .catch((error) => {
-        console.error('Google login error:', error);
-        alert('Google login failed. Please try again.');
-      });
+    signInWithPopup(auth, provider).catch((error) => {
+      console.error('Google login error:', error);
+      alert('Google login failed. Please try again.');
+    });
   });
 
   document.getElementById('logoutButton')?.addEventListener('click', () => {
@@ -107,6 +119,7 @@ async function handleSuccessfulLogin(user) {
   await normalizeUserDoc(user.uid);
   await applyProfileCardDecor(user.uid);
 
+  // expose handlers for inline onclicks
   window.selectPick = selectPick;
   window.assignConfidence = assignConfidence;
   window.resetPicks = resetPicks;
