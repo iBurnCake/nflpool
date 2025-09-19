@@ -11,6 +11,8 @@ import { ensureAccessRequest } from './ensureAccessRequest.js';
 
 const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2'; // (not used here but fine to keep)
 
+let _initialized = false; // prevent double-init
+
 document.addEventListener('DOMContentLoaded', () => {
   setBootMessage('Loading…');
   showLoader('Loading…');
@@ -19,22 +21,32 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       if (!user) {
         // show login UI
-        const loginSection = document.getElementById('loginSection');
-        if (loginSection) loginSection.style.display = 'flex';
-        const homeSection = document.getElementById('userHomeSection');
-        if (homeSection) homeSection.style.display = 'none';
+        showLoginUI();
         return;
       }
 
+      // Hide home until we confirm approval to avoid any flicker
+      hideHomeUI();
+
       // === Approval gate: auto-create request if needed ===
-      const { approved } = await ensureAccessRequest(user);
+      let approved = false;
+      try {
+        const res = await ensureAccessRequest(user);
+        approved = !!res?.approved;
+      } catch (e) {
+        console.error('ensureAccessRequest error:', e);
+        approved = false;
+      }
+
       if (!approved) {
         // send to waiting page; do not initialize the app UI
         window.location.href = 'request-access.html';
         return;
       }
 
-      // Approved → proceed
+      // Approved → proceed (guard against double init)
+      if (_initialized) return;
+      _initialized = true;
       await handleSuccessfulLogin(user);
     } catch (e) {
       console.error('init error:', e);
@@ -44,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Google Login button — just sign in; onAuthStateChanged will handle the rest
+  // Google Login button — just sign in; onAuthStateChanged handles the rest
   document.getElementById('googleLoginButton')?.addEventListener('click', () => {
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider).catch((error) => {
@@ -56,10 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('logoutButton')?.addEventListener('click', () => {
     auth.signOut()
       .then(() => {
-        const loginSection = document.getElementById('loginSection');
-        if (loginSection) loginSection.style.display = 'flex';
-        const homeSection = document.getElementById('userHomeSection');
-        if (homeSection) homeSection.style.display = 'none';
+        showLoginUI();
         alert('You have been logged out.');
       })
       .catch((error) => {
@@ -74,6 +83,25 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = 'pastWeeks.html';
   });
 });
+
+function showLoginUI() {
+  const loginSection = document.getElementById('loginSection');
+  const homeSection  = document.getElementById('userHomeSection');
+  if (loginSection) loginSection.style.display = 'flex';
+  if (homeSection)  homeSection.style.display  = 'none';
+}
+
+function showHomeUI() {
+  const loginSection = document.getElementById('loginSection');
+  const homeSection  = document.getElementById('userHomeSection');
+  if (loginSection) loginSection.style.display = 'none';
+  if (homeSection)  homeSection.style.display  = 'block';
+}
+
+function hideHomeUI() {
+  const homeSection  = document.getElementById('userHomeSection');
+  if (homeSection)  homeSection.style.display  = 'none';
+}
 
 async function applyProfileCardDecor(uid) {
   try {
@@ -100,10 +128,7 @@ async function applyProfileCardDecor(uid) {
 async function handleSuccessfulLogin(user) {
   await refreshCurrentWeek();
 
-  const loginSection = document.getElementById('loginSection');
-  const homeSection  = document.getElementById('userHomeSection');
-  if (loginSection) loginSection.style.display = 'none';
-  if (homeSection)  homeSection.style.display  = 'block';
+  showHomeUI();
 
   const displayName = await getUsername(user.uid);
   try {
