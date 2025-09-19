@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!approved) {
         // send to waiting page; do not initialize the app UI
-        window.location.href = 'request-access.html';
+        window.location.href = 'waiting.html';
         return;
       }
 
