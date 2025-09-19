@@ -7,7 +7,7 @@ import { displayGames, loadUserPicks, resetPicks, submitPicks, selectPick, assig
 import { normalizeUserDoc } from './normalizeUser.js';
 import { showLoader, hideLoader } from './loader.js';
 import { clearBootLoader, setBootMessage } from './boot.js';
-import { ensureAccessRequest } from './ensureAccessRequest.js';
+import ensureAccessRequest from './ensureAccessRequest.js';
 
 const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2'; // (not used here but fine to keep)
 
