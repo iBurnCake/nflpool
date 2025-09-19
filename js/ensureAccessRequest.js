@@ -1,54 +1,95 @@
 // ensureAccessRequest.js
-import { db, ref, get, update } from './firebaseConfig.js';
+import { db, ref, get, set, update } from './firebaseConfig.js';
 
 /**
- * Ensures the user has a profile stub and an allowlist request.
+ * Ensure the user:
+ *  1) Has a minimal profile in /users/<uid> (displayName/email)
+ *  2) If not approved, has a pending request recorded in:
+ *       - /allowlist/<uid>/requested
+ *       - /accessRequests/<uid>
+ *
  * Returns:
- *   { approved: true }  -> user can proceed
- *   { approved: false } -> user is gated (we created/refreshed their request)
+ *   { approved: true }                      // user can proceed
+ *   { approved: false, requestCreated: X }  // user gated; X indicates whether we created a new request
  */
-export async function ensureAccessAndGate(user) {
+export default async function ensureAccessRequest(user) {
   const uid = user?.uid;
-  if (!uid) return { approved: false };
+  if (!uid) return { approved: false, requestCreated: false };
 
-  // 1) Seed/patch the user's profile so names aren’t blank anywhere
+  const provider = user.providerData?.[0]?.providerId || 'google';
+  const displayName =
+    user.displayName ||
+    user.providerData?.[0]?.displayName ||
+    user.email ||
+    `User ${uid.slice(0, 6)}…`;
+  const email = user.email || user.providerData?.[0]?.email || null;
+  const now = Date.now();
+
+  // --- 1) Seed/patch user profile so names aren’t blank anywhere ---
   try {
     const uref = ref(db, `users/${uid}`);
     const usnap = await get(uref);
-    const displayName =
-      user.displayName ||
-      user.providerData?.[0]?.displayName ||
-      user.email ||
-      `User ${uid.slice(0, 6)}…`;
-    const email = user.email || user.providerData?.[0]?.email || null;
+    const cur = usnap.exists() ? (usnap.val() || {}) : {};
 
     const patch = {};
-    if (!usnap.exists() || !usnap.val()?.displayName) patch.displayName = displayName;
-    if (email && (!usnap.exists() || !usnap.val()?.email)) patch.email = email;
-    if (Object.keys(patch).length) await update(uref, patch);
+    if (!cur.displayName) patch.displayName = displayName;
+    if (email && !cur.email) patch.email = email;
+
+    if (Object.keys(patch).length) {
+      await update(uref, patch);
+    }
   } catch (e) {
-    console.warn('ensureAccess: profile seed failed', e);
+    console.warn('ensureAccessRequest: profile seed/patch failed', e);
   }
 
-  // 2) Check approval
-  const approvedSnap = await get(ref(db, `allowlist/${uid}/approved`));
-  const approved = approvedSnap.exists() && approvedSnap.val() === true;
-  if (approved) return { approved: true };
-
-  // 3) Create/refresh the request node so it shows up for you to approve
+  // --- 2) Is the user already approved? ---
   try {
-    const reqRef = ref(db, `allowlist/${uid}/requested`);
-    await update(reqRef, {
-      email: user.email || null,
-      displayName:
-        user.displayName ||
-        user.providerData?.[0]?.displayName ||
-        '',
-      requestedAt: Date.now(),
-    });
+    const approvedSnap = await get(ref(db, `allowlist/${uid}/approved`));
+    const approved = approvedSnap.exists() && approvedSnap.val() === true;
+    if (approved) return { approved: true, requestCreated: false };
   } catch (e) {
-    console.warn('ensureAccess: request write failed', e);
+    console.warn('ensureAccessRequest: read approved failed', e);
   }
 
-  return { approved: false };
+  // --- 3) Not approved -> ensure request exists in both places ---
+  let requestCreated = false;
+
+  // 3a) /allowlist/<uid>/requested (what your rules expect)
+  try {
+    const rRef = ref(db, `allowlist/${uid}/requested`);
+    const rSnap = await get(rRef);
+    if (!rSnap.exists()) {
+      await set(rRef, { email, displayName, requestedAt: now });
+      requestCreated = true;
+    } else {
+      // keep it fresh so you can sort by recent
+      await update(rRef, { email, displayName, requestedAt: now });
+    }
+  } catch (e) {
+    console.warn('ensureAccessRequest: write allowlist/requested failed', e);
+  }
+
+  // 3b) /accessRequests/<uid> (nice for your admin console)
+  try {
+    const aRef = ref(db, `accessRequests/${uid}`);
+    const aSnap = await get(aRef);
+    if (!aSnap.exists()) {
+      await set(aRef, {
+        uid,
+        email,
+        displayName,
+        provider,
+        status: 'pending',
+        requestedAt: now,
+        lastSeenAt: now,
+      });
+      requestCreated = true;
+    } else {
+      await update(aRef, { email, displayName, provider, lastSeenAt: now });
+    }
+  } catch (e) {
+    console.warn('ensureAccessRequest: write accessRequests failed', e);
+  }
+
+  return { approved: false, requestCreated };
 }
