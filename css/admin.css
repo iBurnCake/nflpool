@@ -1,0 +1,36 @@
+/* Keep the winners table inside the admin panel and readable */
+
+#winnersPanel .table-responsive {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  #winnersPanel table {
+    width: 100%;
+    table-layout: fixed;          /* prevents wide labels from blowing out width */
+    border-collapse: collapse;
+  }
+  
+  #winnersPanel th,
+  #winnersPanel td {
+    white-space: normal;          /* allow wrapping */
+    word-break: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    padding: 10px;
+  }
+  
+  /* Optional column sizing for nicer layout */
+  #winnersPanel .col-matchup   { width: 38%; text-align: left; }
+  #winnersPanel .col-home,
+  #winnersPanel .col-away      { width: 22%; }
+  #winnersPanel .col-clear     { width: 8%;  }
+  #winnersPanel .col-current   { width: 10%; }
+  
+  #winnersPanel .btn {
+    white-space: nowrap;
+    max-width: 100%;
+  }
