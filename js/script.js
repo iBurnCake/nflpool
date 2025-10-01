@@ -1,4 +1,3 @@
-// script.js
 import { auth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, db, ref, get, update } from './firebaseConfig.js';
 import { refreshCurrentWeek } from './settings.js';
 import { applyLockUI } from './ui.js';
@@ -9,9 +8,9 @@ import { showLoader, hideLoader } from './loader.js';
 import { clearBootLoader, setBootMessage } from './boot.js';
 import ensureAccessRequest from './ensureAccessRequest.js';
 
-const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2'; // (not used here but fine to keep)
+const ADMIN_UID = 'fqG1Oo9ZozX2Sa6mipdnYZI4ntb2'; 
 
-let _initialized = false; // prevent double-init
+let _initialized = false; 
 
 document.addEventListener('DOMContentLoaded', () => {
   setBootMessage('Loading…');
@@ -20,15 +19,12 @@ document.addEventListener('DOMContentLoaded', () => {
   onAuthStateChanged(auth, async (user) => {
     try {
       if (!user) {
-        // show login UI
         showLoginUI();
         return;
       }
 
-      // Hide home until we confirm approval to avoid any flicker
       hideHomeUI();
 
-      // === Approval gate: auto-create request if needed ===
       let approved = false;
       try {
         const res = await ensureAccessRequest(user);
@@ -39,12 +35,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (!approved) {
-        // send to waiting page; do not initialize the app UI
         window.location.href = 'waiting.html';
         return;
       }
 
-      // Approved → proceed (guard against double init)
       if (_initialized) return;
       _initialized = true;
       await handleSuccessfulLogin(user);
@@ -56,7 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Google Login button — just sign in; onAuthStateChanged handles the rest
   document.getElementById('googleLoginButton')?.addEventListener('click', () => {
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider).catch((error) => {
@@ -144,7 +137,6 @@ async function handleSuccessfulLogin(user) {
   await normalizeUserDoc(user.uid);
   await applyProfileCardDecor(user.uid);
 
-  // expose handlers for inline onclicks
   window.selectPick = selectPick;
   window.assignConfidence = assignConfidence;
   window.resetPicks = resetPicks;
