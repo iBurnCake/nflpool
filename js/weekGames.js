@@ -1,18 +1,19 @@
 export const games = [
-  { homeTeam: '49ers',     awayTeam: 'Rams',       homeRecord: '3-1', awayRecord: '3-1' },
-  { homeTeam: 'Vikings',   awayTeam: 'Browns',     homeRecord: '2-2', awayRecord: '1-3' },
-  { homeTeam: 'Cowboys',   awayTeam: 'Jets',       homeRecord: '1-2-1', awayRecord: '0-4' }, // tie ignored
-  { homeTeam: 'Giants',    awayTeam: 'Saints',     homeRecord: '1-3', awayRecord: '0-4' },
-  { homeTeam: 'Raiders',   awayTeam: 'Colts',      homeRecord: '1-3', awayRecord: '3-1' },
-  { homeTeam: 'Dolphins',  awayTeam: 'Panthers',   homeRecord: '1-3', awayRecord: '1-3' },
-  { homeTeam: 'Broncos',   awayTeam: 'Eagles',     homeRecord: '2-2', awayRecord: '4-0' },
-  { homeTeam: 'Texans',    awayTeam: 'Ravens',     homeRecord: '1-3', awayRecord: '1-3' },
-  { homeTeam: 'Titans',    awayTeam: 'Cardinals',  homeRecord: '0-4', awayRecord: '2-2' },
-  { homeTeam: 'Buccaneers',awayTeam: 'Seahawks',   homeRecord: '3-1', awayRecord: '3-1' },
-  { homeTeam: 'Lions',     awayTeam: 'Bengals',    homeRecord: '3-1', awayRecord: '2-2' },
-  { homeTeam: 'Commanders',awayTeam: 'Chargers',   homeRecord: '2-2', awayRecord: '3-1' },
-  { homeTeam: 'Patriots',  awayTeam: 'Bills',      homeRecord: '2-2', awayRecord: '4-0' },
-  { homeTeam: 'Chiefs',    awayTeam: 'Jaguars',    homeRecord: '2-2', awayRecord: '3-1' },
+  { homeTeam: 'Eagles',       awayTeam: 'Giants',        homeRecord: '4-1',   awayRecord: '1-4' },
+  { homeTeam: 'Broncos',      awayTeam: 'Jets',          homeRecord: '3-2',   awayRecord: '0-5' },
+  { homeTeam: 'Seahawks',     awayTeam: 'Jaguars',       homeRecord: '3-2',   awayRecord: '4-1' },
+  { homeTeam: 'Chargers',     awayTeam: 'Dolphins',      homeRecord: '3-2',   awayRecord: '1-4' },
+  { homeTeam: 'Steelers',     awayTeam: 'Browns',        homeRecord: '3-1',   awayRecord: '1-4' },
+  { homeTeam: 'Colts',        awayTeam: 'Cardinals',     homeRecord: '4-1',   awayRecord: '2-3' },
+  { homeTeam: 'Panthers',     awayTeam: 'Cowboys',       homeRecord: '2-3',   awayRecord: '2-2-1' },
+  { homeTeam: 'Ravens',       awayTeam: 'Rams',          homeRecord: '1-4',   awayRecord: '3-2' },
+  { homeTeam: 'Raiders',      awayTeam: 'Titans',        homeRecord: '1-4',   awayRecord: '1-4' },
+  { homeTeam: 'Packers',      awayTeam: 'Bengals',       homeRecord: '2-1-1', awayRecord: '2-3' },
+  { homeTeam: 'Buccaneers',   awayTeam: '49ers',         homeRecord: '4-1',   awayRecord: '4-1' },
+  { homeTeam: 'Chiefs',       awayTeam: 'Lions',         homeRecord: '2-3',   awayRecord: '4-1' },
+  { homeTeam: 'Saints',       awayTeam: 'Patriots',      homeRecord: '1-4',   awayRecord: '3-2' },
+  { homeTeam: 'Falcons',      awayTeam: 'Bills',         homeRecord: '2-2',   awayRecord: '4-1' },
+  { homeTeam: 'Bears',        awayTeam: 'Commanders',    homeRecord: '2-2',   awayRecord: '3-2' },
 ];
 
 export const gameLabel = (g) => `${g.awayTeam} @ ${g.homeTeam}`;
