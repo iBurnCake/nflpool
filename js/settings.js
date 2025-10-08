@@ -1,6 +1,6 @@
 import { db, ref, get } from './firebaseConfig.js';
 
-export let CURRENT_WEEK = 'week1';
+export let CURRENT_WEEK = '';
 export let CURRENT_WEEK_LABEL = '';
 export let IS_LOCKED = false;
 
