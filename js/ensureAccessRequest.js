@@ -1,17 +1,5 @@
-// ensureAccessRequest.js
 import { db, ref, get, set, update } from './firebaseConfig.js';
 
-/**
- * Ensure the user:
- *  1) Has a minimal profile in /users/<uid> (displayName/email)
- *  2) If not approved, has a pending request recorded in:
- *       - /allowlist/<uid>/requested
- *       - /accessRequests/<uid>
- *
- * Returns:
- *   { approved: true }                      // user can proceed
- *   { approved: false, requestCreated: X }  // user gated; X indicates whether we created a new request
- */
 export default async function ensureAccessRequest(user) {
   const uid = user?.uid;
   if (!uid) return { approved: false, requestCreated: false };
@@ -25,7 +13,6 @@ export default async function ensureAccessRequest(user) {
   const email = user.email || user.providerData?.[0]?.email || null;
   const now = Date.now();
 
-  // --- 1) Seed/patch user profile so names aren’t blank anywhere ---
   try {
     const uref = ref(db, `users/${uid}`);
     const usnap = await get(uref);
@@ -42,7 +29,6 @@ export default async function ensureAccessRequest(user) {
     console.warn('ensureAccessRequest: profile seed/patch failed', e);
   }
 
-  // --- 2) Is the user already approved? ---
   try {
     const approvedSnap = await get(ref(db, `allowlist/${uid}/approved`));
     const approved = approvedSnap.exists() && approvedSnap.val() === true;
@@ -51,10 +37,8 @@ export default async function ensureAccessRequest(user) {
     console.warn('ensureAccessRequest: read approved failed', e);
   }
 
-  // --- 3) Not approved -> ensure request exists in both places ---
   let requestCreated = false;
 
-  // 3a) /allowlist/<uid>/requested (what your rules expect)
   try {
     const rRef = ref(db, `allowlist/${uid}/requested`);
     const rSnap = await get(rRef);
@@ -62,14 +46,12 @@ export default async function ensureAccessRequest(user) {
       await set(rRef, { email, displayName, requestedAt: now });
       requestCreated = true;
     } else {
-      // keep it fresh so you can sort by recent
       await update(rRef, { email, displayName, requestedAt: now });
     }
   } catch (e) {
     console.warn('ensureAccessRequest: write allowlist/requested failed', e);
   }
 
-  // 3b) /accessRequests/<uid> (nice for your admin console)
   try {
     const aRef = ref(db, `accessRequests/${uid}`);
     const aSnap = await get(aRef);
