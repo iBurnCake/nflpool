@@ -72,7 +72,7 @@ async function getCurrentWeekKey() {
     const snap = await get(ref(db, 'settings/currentWeek'));
     if (snap.exists()) return snap.val();
   } catch {}
-  return 'week1';
+  return '';
 }
 
 async function loadWinnersForWeek(weekKey) {
