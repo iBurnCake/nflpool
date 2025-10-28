@@ -23,33 +23,30 @@ const winnerString = (v) =>
   (typeof v === 'string') ? v : (v && (v.winner || v.team || v.name)) || '';
 
 const games = [
-   // Thu
-  { homeTeam: 'Steelers',     awayTeam: 'Bengals',     homeRecord: '4-1',   awayRecord: '2-4' },
+   { homeTeam: 'Dolphins',   awayTeam: 'Ravens',    homeRecord: '2-6', awayRecord: '2-5' },
 
-  // Sun 9:30 AM (Intl)
-  { homeTeam: 'Rams',         awayTeam: 'Jaguars',     homeRecord: '4-2',   awayRecord: '4-2' },
+  // Sun early
+  { homeTeam: 'Texans',     awayTeam: 'Broncos',   homeRecord: '3-4', awayRecord: '6-2' },
+  { homeTeam: 'Giants',     awayTeam: '49ers',     homeRecord: '2-6', awayRecord: '5-3' },
+  { homeTeam: 'Steelers',   awayTeam: 'Colts',     homeRecord: '4-3', awayRecord: '7-1' },
+  { homeTeam: 'Packers',    awayTeam: 'Panthers',  homeRecord: '5-1', awayRecord: '4-4' },
+  { homeTeam: 'Lions',      awayTeam: 'Vikings',   homeRecord: '5-2', awayRecord: '3-4' },
+  { homeTeam: 'Titans',     awayTeam: 'Chargers',  homeRecord: '1-7', awayRecord: '5-3' },
+  { homeTeam: 'Patriots',   awayTeam: 'Falcons',   homeRecord: '6-2', awayRecord: '3-4' },
+  { homeTeam: 'Bengals',    awayTeam: 'Bears',     homeRecord: '3-5', awayRecord: '4-3' },
 
-  // Sun 1:00 PM
-  { homeTeam: 'Eagles',       awayTeam: 'Vikings',     homeRecord: '4-2',   awayRecord: '3-2' },
-  { homeTeam: 'Patriots',     awayTeam: 'Titans',      homeRecord: '4-2',   awayRecord: '1-5' },
-  { homeTeam: 'Panthers',     awayTeam: 'Jets',        homeRecord: '3-3',   awayRecord: '0-6' },
-  { homeTeam: 'Dolphins',     awayTeam: 'Browns',      homeRecord: '1-5',   awayRecord: '1-5' },
-  { homeTeam: 'Saints',       awayTeam: 'Bears',       homeRecord: '1-5',   awayRecord: '3-2' },
-  { homeTeam: 'Raiders',      awayTeam: 'Chiefs',      homeRecord: '2-4',   awayRecord: '3-3' },
-
-  // Sun late window
-  { homeTeam: 'Colts',        awayTeam: 'Chargers',    homeRecord: '5-1',   awayRecord: '4-2' },
-  { homeTeam: 'Giants',       awayTeam: 'Broncos',     homeRecord: '2-4',   awayRecord: '4-2' },
-  { homeTeam: 'Packers',      awayTeam: 'Cardinals',   homeRecord: '3-1',   awayRecord: '2-4' },
-  { homeTeam: 'Commanders',   awayTeam: 'Cowboys',     homeRecord: '3-3',   awayRecord: '2-3' },
+  // Sun late
+  { homeTeam: 'Raiders',    awayTeam: 'Jaguars',   homeRecord: '2-5', awayRecord: '4-3' },
+  { homeTeam: 'Rams',       awayTeam: 'Saints',    homeRecord: '5-2', awayRecord: '1-7' },
+  { homeTeam: 'Bills',      awayTeam: 'Chiefs',    homeRecord: '5-2', awayRecord: '5-3' },
 
   // Sun night
-  { homeTeam: 'Falcons',      awayTeam: '49ers',       homeRecord: '3-2',   awayRecord: '4-2' },
+  { homeTeam: 'Commanders', awayTeam: 'Seahawks',  homeRecord: '3-5', awayRecord: '5-2' },
 
-  // Mon
-  { homeTeam: 'Buccaneers',   awayTeam: 'Lions',       homeRecord: '5-1',   awayRecord: '4-2' },
-  { homeTeam: 'Texans',       awayTeam: 'Seahawks',    homeRecord: '2-3',   awayRecord: '4-2' },
+  // Mon night
+  { homeTeam: 'Cowboys',    awayTeam: 'Cardinals', homeRecord: '3-4', awayRecord: '2-5' },
 ];
+
 
 async function canShowMoneyPoolPicks(user) {
   if (user?.uid === ADMIN_UID) return true;
