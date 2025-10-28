@@ -3,28 +3,28 @@ import { CURRENT_WEEK, IS_LOCKED, refreshCurrentWeek } from './settings.js';
 import { applyLockUI, setSaveStatus, showToast } from './ui.js';
 
 const games = [
-  // Thu
-  { homeTeam: 'Chargers',    awayTeam: 'Vikings',     homeRecord: '4-3', awayRecord: '3-3' },
+  { homeTeam: 'Dolphins',   awayTeam: 'Ravens',    homeRecord: '2-6', awayRecord: '2-5' },
 
   // Sun early
-  { homeTeam: 'Bengals',     awayTeam: 'Jets',        homeRecord: '3-4', awayRecord: '0-7' },
-  { homeTeam: 'Panthers',    awayTeam: 'Bills',       homeRecord: '4-3', awayRecord: '4-2' },
-  { homeTeam: 'Texans',      awayTeam: '49ers',       homeRecord: '2-4', awayRecord: '5-2' },
-  { homeTeam: 'Eagles',      awayTeam: 'Giants',      homeRecord: '5-2', awayRecord: '2-5' },
-  { homeTeam: 'Patriots',    awayTeam: 'Browns',      homeRecord: '5-2', awayRecord: '2-5' },
-  { homeTeam: 'Ravens',      awayTeam: 'Bears',       homeRecord: '1-5', awayRecord: '4-2' },
-  { homeTeam: 'Falcons',     awayTeam: 'Dolphins',    homeRecord: '3-3', awayRecord: '1-6' },
+  { homeTeam: 'Texans',     awayTeam: 'Broncos',   homeRecord: '3-4', awayRecord: '6-2' },
+  { homeTeam: 'Giants',     awayTeam: '49ers',     homeRecord: '2-6', awayRecord: '5-3' },
+  { homeTeam: 'Steelers',   awayTeam: 'Colts',     homeRecord: '4-3', awayRecord: '7-1' },
+  { homeTeam: 'Packers',    awayTeam: 'Panthers',  homeRecord: '5-1', awayRecord: '4-4' },
+  { homeTeam: 'Lions',      awayTeam: 'Vikings',   homeRecord: '5-2', awayRecord: '3-4' },
+  { homeTeam: 'Titans',     awayTeam: 'Chargers',  homeRecord: '1-7', awayRecord: '5-3' },
+  { homeTeam: 'Patriots',   awayTeam: 'Falcons',   homeRecord: '6-2', awayRecord: '3-4' },
+  { homeTeam: 'Bengals',    awayTeam: 'Bears',     homeRecord: '3-5', awayRecord: '4-3' },
 
-  // Sun late window
-  { homeTeam: 'Saints',      awayTeam: 'Buccaneers',  homeRecord: '1-6', awayRecord: '5-2' }, // 4:05 ET
-  { homeTeam: 'Broncos',     awayTeam: 'Cowboys',     homeRecord: '5-2', awayRecord: '3-3' }, // 4:25 ET
-  { homeTeam: 'Colts',       awayTeam: 'Titans',      homeRecord: '6-1', awayRecord: '1-6' }, // 4:25 ET
+  // Sun late
+  { homeTeam: 'Raiders',    awayTeam: 'Jaguars',   homeRecord: '2-5', awayRecord: '4-3' },
+  { homeTeam: 'Rams',       awayTeam: 'Saints',    homeRecord: '5-2', awayRecord: '1-7' },
+  { homeTeam: 'Bills',      awayTeam: 'Chiefs',    homeRecord: '5-2', awayRecord: '5-3' },
 
   // Sun night
-  { homeTeam: 'Steelers',    awayTeam: 'Packers',     homeRecord: '4-2', awayRecord: '4-1' },
+  { homeTeam: 'Commanders', awayTeam: 'Seahawks',  homeRecord: '3-5', awayRecord: '5-2' },
 
   // Mon night
-  { homeTeam: 'Chiefs',      awayTeam: 'Commanders',  homeRecord: '4-3', awayRecord: '3-4' },
+  { homeTeam: 'Cowboys',    awayTeam: 'Cardinals', homeRecord: '3-4', awayRecord: '2-5' },
 ];
 let userPicks = {};
 let usedPoints = new Set();
@@ -61,7 +61,7 @@ export function updateConfidenceDropdown(gameIndex) {
   const dropdown = document.getElementById(`confidence${gameIndex}`);
   if (!dropdown) return;
   dropdown.innerHTML = '<option value="">Select</option>';
-  for (let i = 1; i <= 13; i++) {
+  for (let i = 1; i <= 14; i++) {
     if (!usedPoints.has(i)) {
       const opt = document.createElement('option');
       opt.value = i;
@@ -100,7 +100,7 @@ export function assignConfidence(gameIndex) {
   const points = parseInt(select.value);
   if (userPicks[gameIndex]?.points) usedPoints.delete(userPicks[gameIndex].points);
 
-  if (points >= 1 && points <= 13 && !usedPoints.has(points)) {
+  if (points >= 1 && points <= 14 && !usedPoints.has(points)) {
     userPicks[gameIndex] = userPicks[gameIndex] || {};
     userPicks[gameIndex].points = points;
     usedPoints.add(points);
