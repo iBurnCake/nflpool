@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const games = [
   // Thu
-  { homeTeam: 'Patriots',     awayTeam: 'Jets',        homeRecord: '8-2', homeRecordNote: '', awayRecord: '2-7' },
+  { homeTeam: 'Patriots',     awayTeam: 'Jets',        homeRecord: '8-2', awayRecord: '2-7' },
 
   // Sun early
   { homeTeam: 'Dolphins',     awayTeam: 'Commanders',  homeRecord: '3-7', awayRecord: '3-7' },
