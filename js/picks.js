@@ -66,7 +66,7 @@ export function updateConfidenceDropdown(gameIndex) {
   const dropdown = document.getElementById(`confidence${gameIndex}`);
   if (!dropdown) return;
   dropdown.innerHTML = '<option value="">Select</option>';
-  for (let i = 1; i <= 14; i++) {
+  for (let i = 1; i <= 16; i++) {
     if (!usedPoints.has(i)) {
       const opt = document.createElement('option');
       opt.value = i;
@@ -105,7 +105,7 @@ export function assignConfidence(gameIndex) {
   const points = parseInt(select.value);
   if (userPicks[gameIndex]?.points) usedPoints.delete(userPicks[gameIndex].points);
 
-  if (points >= 1 && points <= 14 && !usedPoints.has(points)) {
+  if (points >= 1 && points <= 16 && !usedPoints.has(points)) {
     userPicks[gameIndex] = userPicks[gameIndex] || {};
     userPicks[gameIndex].points = points;
     usedPoints.add(points);
