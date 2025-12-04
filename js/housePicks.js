@@ -28,33 +28,29 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const games = [
- // Thu (Thanksgiving)
-  { homeTeam: 'Lions',        awayTeam: 'Packers',     homeRecord: '7-4',  awayRecord: '7-3' },
-  { homeTeam: 'Cowboys',      awayTeam: 'Chiefs',      homeRecord: '5-5',  awayRecord: '6-5' },
-  { homeTeam: 'Ravens',       awayTeam: 'Bengals',     homeRecord: '6-5',  awayRecord: '3-8' },
-
-  // Fri (Black Friday)
-  { homeTeam: 'Eagles',       awayTeam: 'Bears',       homeRecord: '8-3',  awayRecord: '8-3' },
+// Thu
+  { homeTeam: 'Lions',        awayTeam: 'Cowboys',      homeRecord: '7-5',   awayRecord: '6-5-1' },
 
   // Sun early
-  { homeTeam: 'Titans',       awayTeam: 'Jaguars',     homeRecord: '1-10', awayRecord: '7-4' },
-  { homeTeam: 'Jets',         awayTeam: 'Falcons',     homeRecord: '2-9',  awayRecord: '4-7' },
-  { homeTeam: 'Panthers',     awayTeam: 'Rams',        homeRecord: '6-6',  awayRecord: '9-2' },
-  { homeTeam: 'Dolphins',     awayTeam: 'Saints',      homeRecord: '4-7',  awayRecord: '2-9' },
-  { homeTeam: 'Buccaneers',   awayTeam: 'Cardinals',   homeRecord: '6-5',  awayRecord: '3-8' },
-  { homeTeam: 'Browns',       awayTeam: '49ers',       homeRecord: '3-8',  awayRecord: '8-4' },
-  { homeTeam: 'Colts',        awayTeam: 'Texans',      homeRecord: '8-3',  awayRecord: '6-5' },
+  { homeTeam: 'Falcons',      awayTeam: 'Seahawks',     homeRecord: '4-8',   awayRecord: '9-3' },
+  { homeTeam: 'Bills',        awayTeam: 'Bengals',      homeRecord: '8-4',   awayRecord: '4-8' },
+  { homeTeam: 'Browns',       awayTeam: 'Titans',       homeRecord: '3-9',   awayRecord: '1-11' },
+  { homeTeam: 'Vikings',      awayTeam: 'Commanders',   homeRecord: '4-8',   awayRecord: '3-9' },
+  { homeTeam: 'Jets',         awayTeam: 'Dolphins',     homeRecord: '3-9',   awayRecord: '5-7' },
+  { homeTeam: 'Buccaneers',   awayTeam: 'Saints',       homeRecord: '7-5',   awayRecord: '2-10' },
+  { homeTeam: 'Jaguars',      awayTeam: 'Colts',        homeRecord: '8-4',   awayRecord: '8-4' },
+  { homeTeam: 'Ravens',       awayTeam: 'Steelers',     homeRecord: '6-6',   awayRecord: '6-6' },
 
   // Sun late
-  { homeTeam: 'Seahawks',     awayTeam: 'Vikings',     homeRecord: '8-3',  awayRecord: '4-7' },
-  { homeTeam: 'Steelers',     awayTeam: 'Bills',       homeRecord: '6-5',  awayRecord: '7-4' },
-  { homeTeam: 'Chargers',     awayTeam: 'Raiders',     homeRecord: '7-4',  awayRecord: '2-9' },
+  { homeTeam: 'Raiders',      awayTeam: 'Broncos',      homeRecord: '2-10',  awayRecord: '10-2' }, // 4:05 ET
+  { homeTeam: 'Packers',      awayTeam: 'Bears',        homeRecord: '8-3-1', awayRecord: '9-3' },  // 4:25 ET
+  { homeTeam: 'Cardinals',    awayTeam: 'Rams',         homeRecord: '3-9',   awayRecord: '9-3' },  // 4:25 ET
 
   // Sun night
-  { homeTeam: 'Commanders',   awayTeam: 'Broncos',     homeRecord: '3-8',  awayRecord: '9-2' },
+  { homeTeam: 'Chiefs',       awayTeam: 'Texans',       homeRecord: '6-6',   awayRecord: '7-5' },
 
   // Mon night
-  { homeTeam: 'Patriots',     awayTeam: 'Giants',      homeRecord: '10-2', awayRecord: '2-10' },
+  { homeTeam: 'Chargers',     awayTeam: 'Eagles',       homeRecord: '8-4',   awayRecord: '8-4' },
 ];
 
 const norm = s => String(s ?? '').trim().toLowerCase();
