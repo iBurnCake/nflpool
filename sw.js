@@ -1,4 +1,4 @@
-const APP_VERSION = '2025-12-9-03'; // bump now
+const APP_VERSION = '2025-12-11-04'; // bump now
 const CACHE_NAME  = `nflpool-${APP_VERSION}`;
 
 const PRECACHE = [
